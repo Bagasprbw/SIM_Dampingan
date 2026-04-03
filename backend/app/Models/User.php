@@ -2,31 +2,69 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
+#[
+    Fillable([
+        'id_user',
+        'name',
+        'username',
+        'password',
+        'role_id',
+        'created_by',
+        'no_telp',
+        'foto',
+        'kode_prov',
+        'kode_kab',
+        'kode_kec',
+        'status',
+    ]),
+]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    protected $primaryKey = 'id_user';
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Relasi ke Role
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'id_role');
+    }
+
+    // Check apakah user punya role tertentu
+    public function hasRole($roleName)
+    {
+        return $this->role && $this->role->name === $roleName;
+    }
+
+    // Check apakah user punya permission tertentu
+    public function hasPermission($permissionCode)
+    {
+        if (! $this->role) {
+            return false;
+        }
+
+        return $this->role
+            ->permissions()
+            ->where('permissions.code', $permissionCode)
+            ->exists();
     }
 }
