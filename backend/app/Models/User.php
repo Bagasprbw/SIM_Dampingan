@@ -49,6 +49,54 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id', 'id_role');
     }
 
+    // Relasi ke Provinsi
+    public function provinsi()
+    {
+        return $this->belongsTo(Provinsi::class, 'kode_prov', 'kode');
+    }
+
+    // Relasi ke Kabupaten
+    public function kabupaten()
+    {
+        return $this->belongsTo(Kabupaten::class, 'kode_kab', 'kode');
+    }
+
+    // Relasi ke Kecamatan
+    public function kecamatan()
+    {
+        return $this->belongsTo(Kecamatan::class, 'kode_kec', 'kode');
+    }
+
+    // Relasi ke FasilitatorBidang
+    public function fasilitatorBidangs()
+    {
+        return $this->hasMany(FasilitatorBidang::class, 'user_id', 'id_user');
+    }
+
+    // Relasi ke GrupDampingan sebagai pengurus
+    public function grupDampingansPengurus()
+    {
+        return $this->hasMany(GrupDampingan::class, 'pengurus_id', 'id_user');
+    }
+
+    // Relasi ke GrupFasilitator
+    public function grupFasilitators()
+    {
+        return $this->hasMany(GrupFasilitator::class, 'fasilitator_id', 'id_user');
+    }
+
+    // Relasi ke Kegiatan sebagai fasilitator
+    public function kegiatansFasilitator()
+    {
+        return $this->hasMany(Kegiatan::class, 'fasilitator_id', 'id_user');
+    }
+
+    // Relasi ke LogAktivitas
+    public function logAktivitas()
+    {
+        return $this->hasMany(LogAktivitas::class, 'user_id', 'id_user');
+    }
+
     // Check apakah user punya role tertentu
     public function hasRole($roleName)
     {
