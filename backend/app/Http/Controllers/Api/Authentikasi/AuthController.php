@@ -31,6 +31,7 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
+        $user->load('role');
 
         return response()->json([
             'message' => 'Login berhasil',
@@ -40,6 +41,16 @@ class AuthController extends Controller
                 'id_user' => $user->id_user,
                 'name' => $user->name,
                 'username' => $user->username,
+                'role_id' => $user->role_id,
+                'created_by' => $user->created_by,
+                'no_telp' => $user->no_telp,
+                'foto' => $user->foto,
+                'kode_prov' => $user->kode_prov,
+                'kode_kab' => $user->kode_kab,
+                'kode_kec' => $user->kode_kec,
+                'status' => $user->status,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
                 'role' => $user->role ? $user->role->name : null,
             ],
         ]);

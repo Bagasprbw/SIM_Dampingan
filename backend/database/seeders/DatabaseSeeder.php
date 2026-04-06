@@ -28,6 +28,11 @@ class DatabaseSeeder extends Seeder
                 'username' => 'superadmin',
                 'password' => Hash::make('password'),
                 'role_id' => $superadminRole->id_role,
+                'no_telp' => '081234567890',
+                'foto' => null,
+                'kode_prov' => null,
+                'kode_kab' => null,
+                'kode_kec' => null,
                 'status' => 'active',
             ]);
         }
