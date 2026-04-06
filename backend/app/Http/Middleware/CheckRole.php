@@ -10,14 +10,17 @@ class CheckRole
 {
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (! auth()->check()) {
+        $user = $request->user();
+
+        if (! $user) {
             return response()->json(['message' => 'Unauthorized'], 401);
+
         }
 
-        $userRole = auth()->user()->role->name ?? null;
+        $userRole = $user->role->name ?? null;
 
-        if (! in_array($userRole, $roles)) {
-            return response()->json(['message' => 'Forbidden'], 403);
+        if (! $userRole || ! in_array($userRole, $roles)) {
+            return response()->json(['message' => 'Akses ditolak. Anda tidak memiliki izin untuk mengakses sumber daya ini.'], 403);
         }
 
         return $next($request);
