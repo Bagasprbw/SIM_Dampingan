@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             WilayahSeeder::class,
             RoleAndPermissionSeeder::class,
+            MasterSeeder::class,
         ]);
 
         $superadminRole = Role::where('name', 'superadmin')->first();
