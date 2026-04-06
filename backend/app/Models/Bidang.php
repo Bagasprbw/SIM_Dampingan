@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['id_bidang', 'name'])]
+#[Fillable(['id_bidang', 'name', 'created_at'])]
 class Bidang extends Model
 {
     protected $primaryKey = 'id_bidang';
