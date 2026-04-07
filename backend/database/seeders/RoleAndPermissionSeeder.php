@@ -75,16 +75,10 @@ class RoleAndPermissionSeeder extends Seeder
         };
 
 
-        $assign($roleData['superadmin'], [
-            'view_kegiatan',
-            'kelola_fasilitator',
-            'kelola_masyarakat',
-            'kelola_grup',
-            'kelola_admin_bawahan',
-            'manage_roles',
-            'kelola_pj_grup',
-        ]);
+        // Superadmin - punya semua permission termasuk manage_roles untuk RBAC management
+        $assign($roleData['superadmin'], array_keys($permissionData));
 
+        // Admin Provinsi - kelola admin bawahan, fasilitator, masyarakat, grup, pj_grup
         $assign($roleData['admin_provinsi'], [
             'view_kegiatan',
             'kelola_fasilitator',
@@ -94,6 +88,7 @@ class RoleAndPermissionSeeder extends Seeder
             'kelola_pj_grup',
         ]);
 
+        // Admin Kabupaten - kelola admin bawahan (kecamatan), fasilitator, masyarakat, grup, pj_grup
         $assign($roleData['admin_kabupaten'], [
             'view_kegiatan',
             'kelola_fasilitator',
@@ -103,6 +98,7 @@ class RoleAndPermissionSeeder extends Seeder
             'kelola_pj_grup',
         ]);
 
+        // Admin Kecamatan - kelola fasilitator, masyarakat, grup, pj_grup
         $assign($roleData['admin_kecamatan'], [
             'view_kegiatan',
             'kelola_fasilitator',
@@ -111,6 +107,7 @@ class RoleAndPermissionSeeder extends Seeder
             'kelola_pj_grup',
         ]);
 
+        // Fasilitator - buat dan edit kegiatan, verifikasi anggota, kelola pj_grup
         $assign($roleData['fasilitator'], [
             'view_kegiatan',
             'create_kegiatan',
@@ -119,6 +116,7 @@ class RoleAndPermissionSeeder extends Seeder
             'kelola_pj_grup',
         ]);
 
+        // PJ Grup - hanya lihat kegiatan dan ajukan anggota
         $assign($roleData['pj_grup'], [
             'view_kegiatan',
             'ajukan_anggota',
