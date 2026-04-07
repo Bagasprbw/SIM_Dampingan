@@ -6,16 +6,16 @@ use App\Http\Controllers\Api\User\UserController;
 use App\Http\Controllers\Api\FasilitatorBidang\FasilitatorBidangController;
 use Illuminate\Support\Facades\Route;
 
-// Route publik (tidak perlu autentikasi)
+// publik
 Route::post('/login', [AuthController::class, 'login']);
 
-// Route yang memerlukan autentikasi
+// auth
 Route::middleware('auth:sanctum')->group(function () {
     // =============== Route untuk semua user yang sudah login ===================
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
 
-    // Bidang - bisa diakses semua user yang sudah login
+    // Bidang
     Route::get('/bidang', [BidangController::class, 'index']);
     Route::post('/bidang', [BidangController::class, 'store'])->middleware('permission:kelola_masyarakat');
     Route::delete('/bidang/{id}', [BidangController::class, 'destroy'])->middleware('permission:kelola_masyarakat');
