@@ -53,7 +53,7 @@ return new class extends Migration
             $table->string('foto', 255)->nullable();
             $table->string('pekerjaan_id', 36)->nullable();
             $table->string('grup_id', 36);
-            $table->enum('status', ['aktif', 'non aktif'])->default('aktif');
+            $table->enum('status', ['aktif', 'non-aktif', 'pending', 'ditolak'])->default('non-aktif');
             $table->enum('peran', ['koordinator', 'anggota'])->default('anggota');
             $table->timestamp('created_at')->nullable();
 
