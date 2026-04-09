@@ -4,6 +4,8 @@ use App\Http\Controllers\Api\Authentikasi\AuthController;
 use App\Http\Controllers\Api\Bidang\BidangController;
 use App\Http\Controllers\Api\User\UserController;
 use App\Http\Controllers\Api\FasilitatorBidang\FasilitatorBidangController;
+use App\Http\Controllers\Api\GrupDampingan\GrupDampinganController;
+use App\Http\Controllers\Api\GrupDampingan\GrupFasilitatorController;
 use Illuminate\Support\Facades\Route;
 
 // publik
@@ -21,6 +23,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/bidang/{id}', [BidangController::class, 'destroy'])->middleware('permission:kelola_masyarakat');
 
     // ======================= Route dengan Permission Check ======================
+
+    // ----------- permission: kelola_grup -----------------
+    Route::prefix('grup-dampingan')->middleware('permission:kelola_grup')->group(function () {
+        Route::get('/', [GrupDampinganController::class, 'index']);
+        Route::post('/', [GrupDampinganController::class, 'store']);
+        Route::get('/{id}', [GrupDampinganController::class, 'show']);
+        Route::put('/{id}', [GrupDampinganController::class, 'update']);
+        Route::delete('/{id}', [GrupDampinganController::class, 'destroy']);
+
+        // Grup Fasilitator(pivot table) - manage fasilitator untuk grup dampingan
+        Route::get('/{grupId}/fasilitator', [GrupFasilitatorController::class, 'index']);
+        Route::post('/{grupId}/fasilitator', [GrupFasilitatorController::class, 'store']);
+        Route::put('/{grupId}/fasilitator', [GrupFasilitatorController::class, 'updateBulk']);
+        Route::delete('/{grupId}/fasilitator/{fasilitatorId}', [GrupFasilitatorController::class, 'destroy']);
+    });
 
     // ----------- permission: kelola_fasilitator -----------------
     Route::prefix('users/fasilitator')->middleware('permission:kelola_fasilitator')->group(function () {
