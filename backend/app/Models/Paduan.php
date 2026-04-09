@@ -13,7 +13,7 @@ class Paduan extends Model
     protected $keyType = 'string';
     public $timestamps = false;
 
-    protected $fillable = ['id_paduan', 'judul', 'file', 'role_target', 'created_at'];
+    protected $fillable = ['id_paduan', 'judul', 'file', 'link' ,'role_target', 'created_at'];
 
     // Relasi ke Role
     public function roleTarget()
