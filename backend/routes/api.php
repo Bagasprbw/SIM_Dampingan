@@ -78,22 +78,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
     })->middleware('permission:ajukan_anggota');
 
-    // ----------- permission: kelola_paduan [Ronal] -----------------
+    // ----------- permission: kelola_paduan [RONAL] -----------------
     Route::post('/kelola-paduan', function () {
-    // masukan sini routemu
+    // TODO: CRUD paduan [RONAL]
     })->middleware('permission:kelola_paduan');
 
     // ----------- permission: view_paduan [Bagas] -----------------
     Route::post('/view-paduan', function () {
-    
-    })->middleware('permission:view_paduan');
 
+    })->middleware('permission:view_paduan');
+c
     // ----------- permission: create_kegiatan, edit_kegiatan, delete_kegiatan -----------------
     Route::post('/kelola-kegiatan', function () {
     //CRUD kegiatan [BAGAS]
 
     //CRUD foto_absensi, foto_kegiatan [RONAL]
-    // masukan sini route mu
+    // TODO CRUD foto_absensi, foto_kegiatan [RONAL]
     })->middleware('permission:create_kegiatan,edit_kegiatan,delete_kegiatan');
 
     // ----------- permission: view_kegiatan [Bagas] -----------------
