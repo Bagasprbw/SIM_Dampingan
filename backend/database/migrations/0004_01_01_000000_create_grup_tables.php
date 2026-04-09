@@ -12,7 +12,8 @@ return new class extends Migration
             $table->string('id_grup_dampingan', 36)->primary();
             $table->string('name', 200);
             $table->string('bidang_id', 36);
-            $table->string('pengurus_id', 36);
+            $table->string('pengurus_id', 36); //user(pj_grup) yang jadi pengurus grup dampingannya
+            $table->enum('level_dampingan', ['pusat', 'provinsi', 'kabupaten', 'kecamatan']);
             $table->string('kode_prov', 10)->nullable();
             $table->string('kode_kab', 10)->nullable();
             $table->string('kode_kec', 10)->nullable();
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->foreign('kode_kec')->references('kode')->on('kecamatans')->nullOnDelete();
         });
 
+        //karena nanti di form ada pilih fasilitator lebih dari 1
         Schema::create('grup_fasilitators', function (Blueprint $table) {
             $table->string('id_grup_fasilitator', 36)->primary();
             $table->string('grup_dampingan_id', 36);
