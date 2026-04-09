@@ -39,18 +39,20 @@ class RoleAndPermissionSeeder extends Seeder
 
         // Daftar semua permission
         $permissions = [
-            ['code' => 'view_kegiatan', 'name' => 'View Kegiatan'],
-            ['code' => 'create_kegiatan', 'name' => 'Create Kegiatan'],
-            ['code' => 'edit_kegiatan', 'name' => 'Edit Kegiatan'],
-            ['code' => 'delete_kegiatan', 'name' => 'Delete Kegiatan'],
-            ['code' => 'kelola_fasilitator', 'name' => 'Kelola Fasilitator'],
-            ['code' => 'kelola_masyarakat', 'name' => 'Kelola Masyarakat'],
-            ['code' => 'kelola_grup', 'name' => 'Kelola Grup Dampingan'],
-            ['code' => 'kelola_admin_bawahan', 'name' => 'Kelola Admin Bawahan'],
-            ['code' => 'ajukan_anggota', 'name' => 'Ajukan Anggota'],
-            ['code' => 'verifikasi_anggota', 'name' => 'Verifikasi Anggota'],
-            ['code' => 'manage_roles', 'name' => 'Manage Roles'],
-            ['code' => 'kelola_pj_grup', 'name' => 'Kelola PJ Grup'],
+            ['code' => 'view_kegiatan',        'name' => 'View Kegiatan'],
+            ['code' => 'create_kegiatan',       'name' => 'Create Kegiatan'],
+            ['code' => 'edit_kegiatan',         'name' => 'Edit Kegiatan'],
+            ['code' => 'delete_kegiatan',       'name' => 'Delete Kegiatan'],
+            ['code' => 'kelola_fasilitator',    'name' => 'Kelola Fasilitator'],
+            ['code' => 'kelola_masyarakat',     'name' => 'Kelola Masyarakat'],
+            ['code' => 'kelola_grup',           'name' => 'Kelola Grup Dampingan'],
+            ['code' => 'kelola_admin_bawahan',  'name' => 'Kelola Admin Bawahan'],
+            ['code' => 'ajukan_anggota',        'name' => 'Ajukan Anggota'],
+            ['code' => 'verifikasi_anggota',    'name' => 'Verifikasi Anggota'],
+            ['code' => 'manage_roles',          'name' => 'Manage Roles'],
+            ['code' => 'kelola_pj_grup',        'name' => 'Kelola PJ Grup'],
+            ['code' => 'view_panduan',          'name' => 'View Panduan'],
+            ['code' => 'kelola_panduan',        'name' => 'Kelola Panduan'],
         ];
 
         $permissionData = [];
@@ -75,8 +77,18 @@ class RoleAndPermissionSeeder extends Seeder
         };
 
 
-        // Superadmin - punya semua permission termasuk manage_roles untuk RBAC management
-        $assign($roleData['superadmin'], array_keys($permissionData));
+        // Superadmin - sesuai matriks permission
+        $assign($roleData['superadmin'], [
+            'view_kegiatan',
+            'kelola_fasilitator',
+            'kelola_masyarakat',
+            'kelola_grup',
+            'kelola_admin_bawahan',
+            'manage_roles',
+            'kelola_pj_grup',
+            'view_panduan',
+            'kelola_panduan',
+        ]);
 
         // Admin Provinsi - kelola admin bawahan, fasilitator, masyarakat, grup, pj_grup
         $assign($roleData['admin_provinsi'], [
@@ -86,6 +98,7 @@ class RoleAndPermissionSeeder extends Seeder
             'kelola_grup',
             'kelola_admin_bawahan',
             'kelola_pj_grup',
+            'view_panduan',
         ]);
 
         // Admin Kabupaten - kelola admin bawahan (kecamatan), fasilitator, masyarakat, grup, pj_grup
@@ -96,6 +109,7 @@ class RoleAndPermissionSeeder extends Seeder
             'kelola_grup',
             'kelola_admin_bawahan',
             'kelola_pj_grup',
+            'view_panduan',
         ]);
 
         // Admin Kecamatan - kelola fasilitator, masyarakat, grup, pj_grup
@@ -105,21 +119,25 @@ class RoleAndPermissionSeeder extends Seeder
             'kelola_masyarakat',
             'kelola_grup',
             'kelola_pj_grup',
+            'view_panduan',
         ]);
 
-        // Fasilitator - buat dan edit kegiatan, verifikasi anggota, kelola pj_grup
+        // Fasilitator - buat, edit, dan hapus kegiatan, verifikasi anggota, kelola pj_grup
         $assign($roleData['fasilitator'], [
             'view_kegiatan',
             'create_kegiatan',
             'edit_kegiatan',
+            'delete_kegiatan',
             'verifikasi_anggota',
             'kelola_pj_grup',
+            'view_panduan',
         ]);
 
-        // PJ Grup - hanya lihat kegiatan dan ajukan anggota
+        // PJ Grup - hanya lihat kegiatan, ajukan anggota, dan lihat panduan
         $assign($roleData['pj_grup'], [
             'view_kegiatan',
             'ajukan_anggota',
+            'view_panduan',
         ]);
     }
 }
