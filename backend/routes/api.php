@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\User\UserController;
 use App\Http\Controllers\Api\FasilitatorBidang\FasilitatorBidangController;
 use App\Http\Controllers\Api\GrupDampingan\GrupDampinganController;
 use App\Http\Controllers\Api\GrupDampingan\GrupFasilitatorController;
+use App\Http\Controllers\Api\GrupDampingan\AnggotaGrupController;
+use App\Http\Controllers\Api\GrupDampingan\PengajuanAnggotaController;
 use Illuminate\Support\Facades\Route;
 
 // publik
@@ -74,9 +76,30 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // ----------- permission: ajukan_anggota -----------------
-    Route::post('/anggota', function () {
+    // PJ Grup mengajukan anggota baru → status: pending, menunggu verifikasi
+    Route::prefix('anggota-grup')->middleware('permission:ajukan_anggota')->group(function () {
+        Route::post('/ajukan', [PengajuanAnggotaController::class, 'storeAjukan']);
+        Route::get('/ajukan-saya', [PengajuanAnggotaController::class, 'indexAjukanSaya']);
+        Route::put('/ajukan/{id}', [PengajuanAnggotaController::class, 'updateAjukan']);
+        Route::delete('/ajukan/{id}', [PengajuanAnggotaController::class, 'destroyAjukan']);
+    });
 
-    })->middleware('permission:ajukan_anggota');
+    // ----------- permission: verifikasi_anggota -----------------
+    // Fasilitator mereview dan ACC/tolak pengajuan anggota
+    Route::prefix('anggota-grup')->middleware('permission:verifikasi_anggota')->group(function () {
+        Route::get('/pending', [PengajuanAnggotaController::class, 'indexPending']);
+        Route::patch('/{id}/verifikasi', [PengajuanAnggotaController::class, 'verifikasi']);
+    });
+
+    // ----------- permission: kelola_masyarakat -----------------
+    // Anggota Grup Dampingan - CRUD langsung dengan status: aktif
+    Route::prefix('anggota-grup')->middleware('permission:kelola_masyarakat')->group(function () {
+        Route::get('/', [AnggotaGrupController::class, 'index']);
+        Route::post('/', [AnggotaGrupController::class, 'store']);
+        Route::get('/{id}', [AnggotaGrupController::class, 'show']);
+        Route::put('/{id}', [AnggotaGrupController::class, 'update']);
+        Route::delete('/{id}', [AnggotaGrupController::class, 'destroy']);
+    });
 
     // ----------- permission: kelola_panduan [RONAL] -----------------
     Route::post('/kelola-panduan', function () {
@@ -100,5 +123,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/kegiatan', function () {
 
     })->middleware('permission:view_kegiatan');
-
 });
