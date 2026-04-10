@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\GrupDampingan\GrupFasilitatorController;
 use App\Http\Controllers\Api\GrupDampingan\AnggotaGrupController;
 use App\Http\Controllers\Api\GrupDampingan\PengajuanAnggotaController;
 use App\Http\Controllers\Api\Kegiatan\KegiatanController;
+use App\Http\Controllers\Api\Kegiatan\PesertaKegiatanController;
 use Illuminate\Support\Facades\Route;
 
 // publik
@@ -123,6 +124,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
         //CRUD foto_absensi, foto_kegiatan [RONAL]
         
+        //peserta kegiatan [BAGAS]
+        Route::get('/{kegiatanId}/peserta', [PesertaKegiatanController::class, 'index']);
+        Route::post('/{kegiatanId}/peserta', [PesertaKegiatanController::class, 'store']);
+        Route::put('/peserta/{id_peserta}', [PesertaKegiatanController::class, 'update']);
+        Route::delete('/peserta/{id_peserta}', [PesertaKegiatanController::class, 'destroy']);
+
     });
 
     // ----------- permission: view_kegiatan [Bagas] -----------------

@@ -16,7 +16,7 @@ class KegiatanController extends Controller
     {
         $user_id = auth()->user()->id_user; // Ambil ID user yang sedang login
 
-        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan'])
+        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota'])
                     ->where('fasilitator_id', $user_id)
                     ->orderBy('created_at', 'desc')
                     ->get();
@@ -30,7 +30,7 @@ class KegiatanController extends Controller
     {
         $user_id = auth()->user()->id_user;
 
-        $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan'])
+        $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota'])
                         ->where('fasilitator_id', $user_id)
                         ->where('id_kegiatan', $id)
                         ->first();
@@ -47,7 +47,7 @@ class KegiatanController extends Controller
 
     public function index()
     {
-        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan'])
+        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota'])
                     ->whereIn('status', ['published', 'selesai'])
                     ->orderBy('created_at', 'desc')
                     ->get();
@@ -59,7 +59,7 @@ class KegiatanController extends Controller
 
     public function show($id)
     {
-        $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan'])
+        $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota'])
                         ->whereIn('status', ['published', 'selesai'])
                         ->where('id_kegiatan', $id)
                         ->first();
