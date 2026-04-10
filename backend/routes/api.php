@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\GrupDampingan\GrupDampinganController;
 use App\Http\Controllers\Api\GrupDampingan\GrupFasilitatorController;
 use App\Http\Controllers\Api\GrupDampingan\AnggotaGrupController;
 use App\Http\Controllers\Api\GrupDampingan\PengajuanAnggotaController;
+use App\Http\Controllers\Api\Kegiatan\KegiatanController;
 use Illuminate\Support\Facades\Route;
 
 // publik
@@ -112,15 +113,19 @@ Route::middleware('auth:sanctum')->group(function () {
     })->middleware('permission:view_panduan');
 
     // ----------- permission: create_kegiatan, edit_kegiatan, delete_kegiatan -----------------
-    Route::post('/kelola-kegiatan', function () {
-    //CRUD kegiatan [BAGAS]
+    Route::prefix('kelola-kegiatan')->middleware('permission:create_kegiatan,edit_kegiatan,delete_kegiatan')->group(function () {
+        //CRUD kegiatan [BAGAS]
+        Route::post('/', [KegiatanController::class, 'store']);
+        Route::put('/{id}', [KegiatanController::class, 'update']);
+        Route::delete('/{id}', [KegiatanController::class, 'destroy']);
 
-    //CRUD foto_absensi, foto_kegiatan [RONAL]
-    // TODO CRUD foto_absensi, foto_kegiatan [RONAL]
-    })->middleware('permission:create_kegiatan,edit_kegiatan,delete_kegiatan');
+        //CRUD foto_absensi, foto_kegiatan [RONAL]
+        
+    });
 
     // ----------- permission: view_kegiatan [Bagas] -----------------
-    Route::post('/kegiatan', function () {
-
-    })->middleware('permission:view_kegiatan');
+    Route::prefix('kegiatan')->middleware('permission:view_kegiatan')->group(function () {
+        Route::get('/', [KegiatanController::class, 'index']);
+        Route::get('/{id}', [KegiatanController::class, 'show']);
+    });
 });
