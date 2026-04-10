@@ -8,12 +8,49 @@ use App\Models\KegiatanGrup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class KegiatanController extends Controller
 {
+    public function indexKelola()
+    {
+        $user_id = auth()->user()->id_user; // Ambil ID user yang sedang login
+
+        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan'])
+                    ->where('fasilitator_id', $user_id)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+        return response()->json([
+            'message' => 'Semua data kegiatan (termasuk draft) berhasil diambil untuk kelola',
+            'data' => $kegiatans
+        ]);
+    }
+
+    public function showKelola($id)
+    {
+        $user_id = auth()->user()->id_user;
+
+        $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan'])
+                        ->where('fasilitator_id', $user_id)
+                        ->where('id_kegiatan', $id)
+                        ->first();
+
+        if (!$kegiatan) {
+            return response()->json(['message' => 'Kegiatan tidak ditemukan atau bukan milik Anda'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Data detail kegiatan untuk form edit berhasil diambil',
+            'data' => $kegiatan
+        ]);
+    }
+
     public function index()
     {
-        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan'])->get();
+        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan'])
+                    ->whereIn('status', ['published', 'selesai'])
+                    ->orderBy('created_at', 'desc')
+                    ->get();
         return response()->json([
             'message' => 'Data kegiatan berhasil diambil',
             'data' => $kegiatans
@@ -22,9 +59,12 @@ class KegiatanController extends Controller
 
     public function show($id)
     {
-        $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan'])->find($id);
+        $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan'])
+                        ->whereIn('status', ['published', 'selesai'])
+                        ->where('id_kegiatan', $id)
+                        ->first();
         if (!$kegiatan) {
-            return response()->json(['message' => 'Kegiatan tidak ditemukan'], 404);
+            return response()->json(['message' => 'Kegiatan tidak ditemukan (atau mungkin belum di-publish)'], 404);
         }
         return response()->json([
             'message' => 'Data kegiatan berhasil diambil',
@@ -42,7 +82,6 @@ class KegiatanController extends Controller
             'tanggal' => 'nullable|date',
             'waktu' => 'nullable|date_format:H:i',
             'lokasi' => 'nullable|string',
-            'fasilitator_id' => 'required|exists:users,id_user',
             'level_id' => 'required|exists:level_kegiatans,id_level',
             'bidang_id' => 'required|exists:bidangs,id_bidang',
             'kode_prov' => 'nullable|string',
@@ -51,7 +90,7 @@ class KegiatanController extends Controller
             'status' => 'nullable|in:draft,published,selesai',
             'jumlah_hadir' => 'nullable|integer',
             'jumlah_tdk_hadir' => 'nullable|integer',
-            'laporan' => 'nullable|string|max:255',
+            'laporan' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
             'grup_dampingan_ids' => 'nullable|array',
             'grup_dampingan_ids.*' => 'exists:grup_dampingans,id_grup_dampingan'
         ]);
@@ -60,6 +99,13 @@ class KegiatanController extends Controller
         try {
             $id_kegiatan = (string) Str::uuid();
             $status = $request->status ?? 'draft'; // Status otomatis draft tapi bisa milih
+
+            $laporanPath = null;
+            if ($request->hasFile('laporan')) {
+                $file = $request->file('laporan');
+                // Path akan tersimpan seperti: kegiatan/file_laporan/nama_file_unik.ext
+                $laporanPath = $file->store('kegiatan/file_laporan', 'public');
+            }
 
             $kegiatan = Kegiatan::create([
                 'id_kegiatan' => $id_kegiatan,
@@ -70,7 +116,7 @@ class KegiatanController extends Controller
                 'tanggal' => $request->tanggal,
                 'waktu' => $request->waktu,
                 'lokasi' => $request->lokasi,
-                'fasilitator_id' => $request->fasilitator_id,
+                'fasilitator_id' => auth()->user()->id_user, // Diambil dari user yang login
                 'level_id' => $request->level_id,
                 'bidang_id' => $request->bidang_id,
                 'kode_prov' => $request->kode_prov,
@@ -79,7 +125,7 @@ class KegiatanController extends Controller
                 'status' => $status,
                 'jumlah_hadir' => $request->jumlah_hadir,
                 'jumlah_tdk_hadir' => $request->jumlah_tdk_hadir,
-                'laporan' => $request->laporan,
+                'laporan' => $laporanPath,
                 'created_at' => now(),
             ]);
 
@@ -127,7 +173,6 @@ class KegiatanController extends Controller
             'tanggal' => 'nullable|date',
             'waktu' => 'nullable|date_format:H:i:s,H:i',
             'lokasi' => 'nullable|string',
-            'fasilitator_id' => 'sometimes|required|exists:users,id_user',
             'level_id' => 'sometimes|required|exists:level_kegiatans,id_level',
             'bidang_id' => 'sometimes|required|exists:bidangs,id_bidang',
             'kode_prov' => 'nullable|string',
@@ -136,16 +181,27 @@ class KegiatanController extends Controller
             'status' => 'nullable|in:draft,published,selesai',
             'jumlah_hadir' => 'nullable|integer',
             'jumlah_tdk_hadir' => 'nullable|integer',
-            'laporan' => 'nullable|string|max:255',
+            'laporan' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
             'grup_dampingan_ids' => 'nullable|array',
             'grup_dampingan_ids.*' => 'exists:grup_dampingans,id_grup_dampingan'
         ]);
 
         DB::beginTransaction();
         try {
-            $dataToUpdate = $request->except(['grup_dampingan_ids']);
+            $dataToUpdate = $request->except(['grup_dampingan_ids', 'laporan']);
             if ($request->has('status') && empty($request->status)) {
                 $dataToUpdate['status'] = 'draft';
+            }
+
+            // Jika ada upload file baru
+            if ($request->hasFile('laporan')) {
+                // Hapus file lama jika ada
+                if ($kegiatan->laporan && Storage::disk('public')->exists($kegiatan->laporan)) {
+                    Storage::disk('public')->delete($kegiatan->laporan);
+                }
+                // Simpan file baru
+                $file = $request->file('laporan');
+                $dataToUpdate['laporan'] = $file->store('kegiatan/file_laporan', 'public');
             }
             
             $kegiatan->update($dataToUpdate);
@@ -185,6 +241,11 @@ class KegiatanController extends Controller
 
         if (!$kegiatan) {
             return response()->json(['message' => 'Kegiatan tidak ditemukan'], 404);
+        }
+
+        // Hapus file laporan fisik di folder jika ada
+        if ($kegiatan->laporan && Storage::disk('public')->exists($kegiatan->laporan)) {
+            Storage::disk('public')->delete($kegiatan->laporan);
         }
 
         $kegiatan->delete();

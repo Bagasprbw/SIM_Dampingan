@@ -115,6 +115,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // ----------- permission: create_kegiatan, edit_kegiatan, delete_kegiatan -----------------
     Route::prefix('kelola-kegiatan')->middleware('permission:create_kegiatan,edit_kegiatan,delete_kegiatan')->group(function () {
         //CRUD kegiatan [BAGAS]
+        Route::get('/', [KegiatanController::class, 'indexKelola']);
+        Route::get('/{id}', [KegiatanController::class, 'showKelola']);
         Route::post('/', [KegiatanController::class, 'store']);
         Route::put('/{id}', [KegiatanController::class, 'update']);
         Route::delete('/{id}', [KegiatanController::class, 'destroy']);
