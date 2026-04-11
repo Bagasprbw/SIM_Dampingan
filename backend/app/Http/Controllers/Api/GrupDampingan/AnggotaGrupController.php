@@ -48,6 +48,10 @@ class AnggotaGrupController extends Controller
             'pekerjaan_id' => 'nullable|exists:pekerjaans,id_pekerjaan',
             'grup_id' => 'required|exists:grup_dampingans,id_grup_dampingan',
             'peran' => 'nullable|in:koordinator,anggota'
+        ], [
+            'foto.max' => 'Ukuran file foto terlalu besar. Maksimal 2MB.',
+            'foto.image' => 'File harus berupa gambar.',
+            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg.'
         ]);
 
         $validated['id_anggota_grup'] = (string) Str::uuid();
@@ -59,6 +63,9 @@ class AnggotaGrupController extends Controller
         }
 
         $anggota = AnggotaGrupDampingan::create($validated);
+
+        // Generate QR code (status automatically aktif here)
+        app(\App\Services\QrCodeService::class)->generateForAnggota($anggota);
 
         return response()->json([
             'status' => 'success',
@@ -110,6 +117,10 @@ class AnggotaGrupController extends Controller
             'grup_id' => 'nullable|exists:grup_dampingans,id_grup_dampingan',
             'status' => 'nullable|in:aktif,non-aktif,pending,ditolak',
             'peran' => 'nullable|in:koordinator,anggota'
+        ], [
+            'foto.max' => 'Ukuran file foto terlalu besar. Maksimal 2MB.',
+            'foto.image' => 'File harus berupa gambar.',
+            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg.'
         ]);
 
         if ($request->hasFile('foto')) {
@@ -120,6 +131,10 @@ class AnggotaGrupController extends Controller
         }
 
         $anggota->update($validated);
+
+        if ($anggota->status === 'aktif') {
+            app(\App\Services\QrCodeService::class)->generateForAnggota($anggota);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -141,6 +156,10 @@ class AnggotaGrupController extends Controller
 
         if ($anggota->foto && Storage::disk('public')->exists($anggota->foto)) {
             Storage::disk('public')->delete($anggota->foto);
+        }
+
+        if ($anggota->qr_code && Storage::disk('public')->exists($anggota->qr_code)) {
+            Storage::disk('public')->delete($anggota->qr_code);
         }
 
         $anggota->delete();
