@@ -13,7 +13,7 @@ class AnggotaGrupDampingan extends Model
     protected $keyType = 'string';
     public $timestamps = false;
 
-    protected $fillable = ['id_anggota_grup', 'bidang_id', 'no_anggota', 'name', 'tempat_lahir', 'tgl_lahir', 'jenis_kelamin', 'agama', 'alamat', 'no_telp', 'foto', 'pekerjaan_id', 'grup_id', 'status', 'peran', 'created_at'];
+    protected $fillable = ['id_anggota_grup', 'bidang_id', 'no_anggota', 'name', 'tempat_lahir', 'tgl_lahir', 'jenis_kelamin', 'agama', 'alamat', 'no_telp', 'foto', 'pekerjaan_id', 'grup_id', 'status', 'peran', 'qr_code', 'created_at'];
 
     protected $casts = [
         'tgl_lahir' => 'date',
