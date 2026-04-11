@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\GrupDampingan\AnggotaGrupController;
 use App\Http\Controllers\Api\GrupDampingan\PengajuanAnggotaController;
 use App\Http\Controllers\Api\Kegiatan\KegiatanController;
 use App\Http\Controllers\Api\Kegiatan\PesertaKegiatanController;
+use App\Http\Controllers\Api\RolePermission\RolePermissionController;
 use Illuminate\Support\Facades\Route;
 
 // publik
@@ -27,6 +28,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/bidang/{id}', [BidangController::class, 'destroy'])->middleware('permission:kelola_masyarakat');
 
     // ======================= Route dengan Permission Check ======================
+
+    // ----------- permission: manage_roles untk RBAC -----------------
+    Route::prefix('rbac')->middleware('permission:manage_roles')->group(function () {
+        Route::get('/permissions', [RolePermissionController::class, 'indexPermissions']); // daftar semua permissions
+        Route::get('/roles', [RolePermissionController::class, 'indexRoles']); // daftar semua roles
+        Route::put('/roles/{idRole}/permissions', [RolePermissionController::class, 'updateRolePermissions']); // update permissions untuk role tertentu
+    });
 
     // ----------- permission: kelola_grup -----------------
     Route::prefix('grup-dampingan')->middleware('permission:kelola_grup')->group(function () {
@@ -123,7 +131,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [KegiatanController::class, 'destroy']);
 
         //CRUD foto_absensi, foto_kegiatan [RONAL]
-        
+
         //peserta kegiatan [BAGAS]
         Route::get('/{kegiatanId}/peserta', [PesertaKegiatanController::class, 'index']);
         Route::post('/{kegiatanId}/peserta', [PesertaKegiatanController::class, 'store']);
