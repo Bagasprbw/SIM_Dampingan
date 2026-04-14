@@ -16,7 +16,7 @@ class KegiatanController extends Controller
     {
         $user_id = auth()->user()->id_user; // Ambil ID user yang sedang login
 
-        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota'])
+        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans'])
                     ->where('fasilitator_id', $user_id)
                     ->orderBy('created_at', 'desc')
                     ->get();
@@ -30,7 +30,7 @@ class KegiatanController extends Controller
     {
         $user_id = auth()->user()->id_user;
 
-        $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota'])
+        $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans'])
                         ->where('fasilitator_id', $user_id)
                         ->where('id_kegiatan', $id)
                         ->first();
@@ -47,7 +47,7 @@ class KegiatanController extends Controller
 
     public function index()
     {
-        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota'])
+        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans'])
                     ->whereIn('status', ['published', 'selesai'])
                     ->orderBy('created_at', 'desc')
                     ->get();
@@ -59,7 +59,7 @@ class KegiatanController extends Controller
 
     public function show($id)
     {
-        $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota'])
+        $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans'])
                         ->whereIn('status', ['published', 'selesai'])
                         ->where('id_kegiatan', $id)
                         ->first();
@@ -237,7 +237,7 @@ class KegiatanController extends Controller
 
     public function destroy($id)
     {
-        $kegiatan = Kegiatan::find($id);
+        $kegiatan = Kegiatan::with(['fotoAbsensis', 'fotoKegiatans'])->find($id);
 
         if (!$kegiatan) {
             return response()->json(['message' => 'Kegiatan tidak ditemukan'], 404);
@@ -246,6 +246,18 @@ class KegiatanController extends Controller
         // Hapus file laporan fisik di folder jika ada
         if ($kegiatan->laporan && Storage::disk('public')->exists($kegiatan->laporan)) {
             Storage::disk('public')->delete($kegiatan->laporan);
+        }
+
+        foreach ($kegiatan->fotoAbsensis as $fotoAbsensi) {
+            if ($fotoAbsensi->file && Storage::disk('public')->exists($fotoAbsensi->file)) {
+                Storage::disk('public')->delete($fotoAbsensi->file);
+            }
+        }
+
+        foreach ($kegiatan->fotoKegiatans as $fotoKegiatan) {
+            if ($fotoKegiatan->file && Storage::disk('public')->exists($fotoKegiatan->file)) {
+                Storage::disk('public')->delete($fotoKegiatan->file);
+            }
         }
 
         $kegiatan->delete();
