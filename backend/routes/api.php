@@ -9,7 +9,10 @@ use App\Http\Controllers\Api\GrupDampingan\GrupFasilitatorController;
 use App\Http\Controllers\Api\GrupDampingan\AnggotaGrupController;
 use App\Http\Controllers\Api\GrupDampingan\PengajuanAnggotaController;
 use App\Http\Controllers\Api\Kegiatan\KegiatanController;
+use App\Http\Controllers\Api\Kegiatan\FotoAbsensiController;
+use App\Http\Controllers\Api\Kegiatan\FotoKegiatanController;
 use App\Http\Controllers\Api\Kegiatan\PesertaKegiatanController;
+use App\Http\Controllers\Api\Panduan\PanduanController;
 use App\Http\Controllers\Api\RolePermission\RolePermissionController;
 use Illuminate\Support\Facades\Route;
 
@@ -112,14 +115,19 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // ----------- permission: kelola_panduan [RONAL] -----------------
-    Route::post('/kelola-panduan', function () {
-    // TODO: CRUD panduan [RONAL]
-    })->middleware('permission:kelola_panduan');
+    Route::prefix('kelola-panduan')->middleware('permission:kelola_panduan')->group(function () {
+        Route::get('/', [PanduanController::class, 'indexKelola']);
+        Route::post('/', [PanduanController::class, 'store']);
+        Route::get('/{id}', [PanduanController::class, 'showKelola']);
+        Route::put('/{id}', [PanduanController::class, 'update']);
+        Route::delete('/{id}', [PanduanController::class, 'destroy']);
+    });
 
     // ----------- permission: view_panduan [Bagas] -----------------
-    Route::post('/view-panduan', function () {
-
-    })->middleware('permission:view_panduan');
+    Route::prefix('view-panduan')->middleware('permission:view_panduan')->group(function () {
+        Route::get('/', [PanduanController::class, 'indexView']);
+        Route::get('/{id}', [PanduanController::class, 'showView']);
+    });
 
     // ----------- permission: create_kegiatan, edit_kegiatan, delete_kegiatan -----------------
     Route::prefix('kelola-kegiatan')->middleware('permission:create_kegiatan,edit_kegiatan,delete_kegiatan')->group(function () {
@@ -131,6 +139,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [KegiatanController::class, 'destroy']);
 
         //CRUD foto_absensi, foto_kegiatan [RONAL]
+        Route::get('/{kegiatanId}/foto-kegiatan', [FotoKegiatanController::class, 'index']);
+        Route::post('/{kegiatanId}/foto-kegiatan', [FotoKegiatanController::class, 'store']);
+        Route::delete('/{kegiatanId}/foto-kegiatan/{idFoto}', [FotoKegiatanController::class, 'destroy']);
+
+        Route::get('/{kegiatanId}/foto-absensi', [FotoAbsensiController::class, 'index']);
+        Route::post('/{kegiatanId}/foto-absensi', [FotoAbsensiController::class, 'store']);
+        Route::delete('/{kegiatanId}/foto-absensi/{idFotoAbsensi}', [FotoAbsensiController::class, 'destroy']);
 
         //peserta kegiatan [BAGAS]
         Route::get('/{kegiatanId}/peserta', [PesertaKegiatanController::class, 'index']);
