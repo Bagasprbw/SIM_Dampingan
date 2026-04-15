@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Kegiatan\KegiatanController;
 use App\Http\Controllers\Api\Kegiatan\FotoAbsensiController;
 use App\Http\Controllers\Api\Kegiatan\FotoKegiatanController;
 use App\Http\Controllers\Api\Kegiatan\PesertaKegiatanController;
+use App\Http\Controllers\Api\LogAktivitas\LogAktivitasController;
 use App\Http\Controllers\Api\Panduan\PanduanController;
 use App\Http\Controllers\Api\RolePermission\RolePermissionController;
 use Illuminate\Support\Facades\Route;
@@ -159,5 +160,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('kegiatan')->middleware('permission:view_kegiatan')->group(function () {
         Route::get('/', [KegiatanController::class, 'index']);
         Route::get('/{id}', [KegiatanController::class, 'show']);
+    });
+
+    // ----------- log aktivitas -----------------
+    Route::prefix('log-aktivitas')->group(function () {
+        Route::get('/', [LogAktivitasController::class, 'index']);
+        Route::get('/{id}', [LogAktivitasController::class, 'show']);
     });
 });
