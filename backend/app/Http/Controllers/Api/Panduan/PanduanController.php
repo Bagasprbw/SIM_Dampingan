@@ -25,15 +25,16 @@ class PanduanController extends Controller
     {
         $request->validate([
             'judul' => 'required|string|max:200',
-            'link' => 'required|string|max:255',
+            'link_file' => 'required|string|max:255',
+            'link_video' => 'required|string|max:255',
             'role_target' => 'required|exists:roles,id_role',
         ]);
 
         $panduan = Paduan::create([
             'id_paduan' => (string) Str::uuid(),
             'judul' => $request->judul,
-            'file' => '-',
-            'link' => $request->link,
+            'link_file' => $request->link_file,
+            'link_video' => $request->link_video,
             'role_target' => $request->role_target,
             'created_at' => now(),
         ]);
@@ -66,18 +67,13 @@ class PanduanController extends Controller
 
         $request->validate([
             'judul' => 'sometimes|required|string|max:200',
-            'link' => 'sometimes|required|string|max:255',
+            'link_file' => 'sometimes|required|string|max:255',
+            'link_video' => 'sometimes|required|string|max:255',
             'role_target' => 'sometimes|required|exists:roles,id_role',
         ]);
 
-        $data = $request->only(['judul', 'link', 'role_target']);
-        if (! array_key_exists('link', $data) && ! $panduan->link) {
-            $data['link'] = '-';
-        }
-        if (! $panduan->file) {
-            $data['file'] = '-';
-        }
-
+        $data = $request->only(['judul', 'link_file', 'link_video', 'role_target']);
+        
         $panduan->update($data);
 
         return response()->json([

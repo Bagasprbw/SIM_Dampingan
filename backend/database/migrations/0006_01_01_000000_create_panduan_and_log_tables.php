@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('paduans', function (Blueprint $table) {
             $table->string('id_paduan', 36)->primary();
             $table->string('judul', 200);
-            $table->string('file', 255);
-            $table->string('link', 255); //link video
+            $table->string('link_file', 255); // link file panduan(gdrive)
+            $table->string('link_video', 255); //link video
             $table->string('role_target', 36);
             $table->timestamp('created_at')->nullable();
 

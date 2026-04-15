@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['id_paduan', 'judul', 'file', 'role_target'])]
+#[Fillable(['id_paduan', 'judul', 'link_file', 'link_video', 'role_target', 'created_at'])]
 class Paduan extends Model
 {
     protected $primaryKey = 'id_paduan';
@@ -13,7 +13,7 @@ class Paduan extends Model
     protected $keyType = 'string';
     public $timestamps = false;
 
-    protected $fillable = ['id_paduan', 'judul', 'file', 'link' ,'role_target', 'created_at'];
+    protected $fillable = ['id_paduan', 'judul', 'link_file', 'link_video', 'role_target', 'created_at'];
 
     // Relasi ke Role
     public function roleTarget()
