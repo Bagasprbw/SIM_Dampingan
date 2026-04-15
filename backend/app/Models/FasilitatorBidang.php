@@ -15,8 +15,8 @@ class FasilitatorBidang extends Model
 
     protected $fillable = ['id_fasilitator_bidang', 'user_id', 'bidang_id', 'created_at'];
 
-    // Relasi ke User
-    public function user()
+    // Relasi ke User sebagai Fasilitator
+    public function fasilitator()
     {
         return $this->belongsTo(User::class, 'user_id', 'id_user');
     }
