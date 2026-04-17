@@ -16,10 +16,12 @@ use App\Http\Controllers\Api\LogAktivitas\LogAktivitasController;
 use App\Http\Controllers\Api\Panduan\PanduanController;
 use App\Http\Controllers\Api\RolePermission\RolePermissionController;
 use App\Http\Controllers\Api\Profil\ProfilController;
+use App\Http\Controllers\Api\Profil\AnggotaGrupController as ProfilAnggotaController;
 use Illuminate\Support\Facades\Route;
 
 // publik
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/anggota-grup/profil/{id}', [ProfilAnggotaController::class, 'show']);
 
 // auth
 Route::middleware('auth:sanctum')->group(function () {
