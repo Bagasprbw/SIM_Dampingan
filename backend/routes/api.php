@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Kegiatan\PesertaKegiatanController;
 use App\Http\Controllers\Api\LogAktivitas\LogAktivitasController;
 use App\Http\Controllers\Api\Panduan\PanduanController;
 use App\Http\Controllers\Api\RolePermission\RolePermissionController;
+use App\Http\Controllers\Api\Profil\ProfilController;
 use Illuminate\Support\Facades\Route;
 
 // publik
@@ -25,6 +26,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // =============== Route untuk semua user yang sudah login ===================
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    // Profil
+    Route::prefix('profil')->group(function () {
+        Route::get('/', [ProfilController::class, 'show']);
+        Route::put('/change-no-telp', [ProfilController::class, 'updateNoTelp']);
+        Route::put('/change-password', [ProfilController::class, 'updatePassword']);
+    });
 
     // Bidang
     Route::get('/bidang', [BidangController::class, 'index']);
