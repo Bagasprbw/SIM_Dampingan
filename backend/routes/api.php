@@ -106,6 +106,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/ajukan-saya', [PengajuanAnggotaController::class, 'indexAjukanSaya']);
         Route::put('/ajukan/{id}', [PengajuanAnggotaController::class, 'updateAjukan']);
         Route::delete('/ajukan/{id}', [PengajuanAnggotaController::class, 'destroyAjukan']);
+        //melihat anggota yg sudah 'aktif' di grupnya
+
     });
 
     // ----------- permission: verifikasi_anggota -----------------

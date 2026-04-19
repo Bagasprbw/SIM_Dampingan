@@ -13,7 +13,7 @@ class AnggotaGrupController extends Controller
     public function index(Request $request)
     {
         $query = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan']);
-        
+
         // Optional: filter by grup_id
         if ($request->has('grup_id')) {
             $query->where('grup_id', $request->grup_id);

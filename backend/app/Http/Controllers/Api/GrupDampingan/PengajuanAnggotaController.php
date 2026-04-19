@@ -167,10 +167,10 @@ class PengajuanAnggotaController extends Controller
         // Jika yang login adalah fasilitator, sebaiknya filter grup dampingan
         // yang difasilitasi oleh fasilitator tersebut.
         $user = auth()->user();
-        
+
         $query = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan'])
             ->where('status', 'pending');
-        
+
         // Misal hanya perlihatkan dari grup fasilitator:
         if ($user->role->name === 'fasilitator') {
             $grupFasilitatorIds = \App\Models\GrupFasilitator::where('fasilitator_id', $user->id_user)
