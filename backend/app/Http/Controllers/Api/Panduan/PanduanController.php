@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\Panduan;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\LogsActivity;
 use App\Models\Paduan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class PanduanController extends Controller
 {
+    use LogsActivity;
     public function indexKelola()
     {
         $panduans = Paduan::with('roleTarget')
@@ -38,6 +40,9 @@ class PanduanController extends Controller
             'role_target' => $request->role_target,
             'created_at' => now(),
         ]);
+
+        // Catat log CREATE
+        $this->logCreate($request, 'Panduan', $panduan->id_paduan, $panduan->toArray());
 
         return response()->json([
             'message' => 'Panduan berhasil dibuat',
@@ -74,7 +79,11 @@ class PanduanController extends Controller
 
         $data = $request->only(['judul', 'link_file', 'link_video', 'role_target']);
         
+        $dataLama = $panduan->toArray();
         $panduan->update($data);
+
+        // Catat log UPDATE
+        $this->logUpdate($request, 'Panduan', $panduan->id_paduan, $dataLama, $panduan->toArray());
 
         return response()->json([
             'message' => 'Panduan berhasil diupdate',
@@ -82,14 +91,18 @@ class PanduanController extends Controller
         ]);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $panduan = Paduan::find($id);
         if (! $panduan) {
             return response()->json(['message' => 'Panduan tidak ditemukan'], 404);
         }
 
+        $dataLama = $panduan->toArray();
         $panduan->delete();
+
+        // Catat log DELETE
+        $this->logDelete($request, 'Panduan', $id, $dataLama);
 
         return response()->json([
             'message' => 'Panduan berhasil dihapus',
