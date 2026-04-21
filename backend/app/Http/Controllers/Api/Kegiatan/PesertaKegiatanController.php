@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Kegiatan;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\LogsActivity;
 use App\Models\PesertaKegiatan;
 use App\Models\Kegiatan;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use Illuminate\Support\Str;
 
 class PesertaKegiatanController extends Controller
 {
+    use LogsActivity;
     // GET semua peserta dalam satu kegiatan
     public function index($kegiatanId)
     {
@@ -66,6 +68,15 @@ class PesertaKegiatanController extends Controller
             'created_at' => now()
         ]);
 
+        // Catat log CREATE
+        $this->logCreate(
+            $request,
+            'PesertaKegiatan',
+            $peserta->id_peserta_kegiatan,
+            $peserta->toArray(),
+            "Peserta ditambahkan ke kegiatan '{$kegiatan->judul}'."
+        );
+
         return response()->json([
             'message' => 'Peserta kegiatan berhasil ditambahkan',
             'data' => $peserta->load('anggota')
@@ -112,7 +123,7 @@ class PesertaKegiatanController extends Controller
     }
 
     // DELETE peserta
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $peserta = PesertaKegiatan::find($id);
 
@@ -120,7 +131,11 @@ class PesertaKegiatanController extends Controller
             return response()->json(['message' => 'Peserta tidak ditemukan'], 404);
         }
 
+        $dataLama = $peserta->toArray();
         $peserta->delete();
+
+        // Catat log DELETE
+        $this->logDelete($request, 'PesertaKegiatan', $id, $dataLama, 'Peserta kegiatan berhasil dihapus.');
 
         return response()->json([
             'message' => 'Peserta kegiatan berhasil dihapus'

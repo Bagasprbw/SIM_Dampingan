@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\GrupDampingan;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\LogsActivity;
 use App\Models\GrupDampingan;
 use App\Models\GrupFasilitator;
 use App\Models\User;
@@ -11,6 +12,7 @@ use Illuminate\Support\Str;
 
 class GrupFasilitatorController extends Controller
 {
+    use LogsActivity;
     /**
      * ====================================
      * HELPER METHODS
@@ -205,6 +207,18 @@ class GrupFasilitatorController extends Controller
             }
         }
 
+        // Catat log ATTACH fasilitator (hanya jika ada yang berhasil ditambahkan)
+        if (!empty($addedFasilitators)) {
+            $this->logAksi(
+                $request,
+                aksi: 'ATTACH',
+                modul: 'GrupFasilitator',
+                dataId: $grupId,
+                deskripsi: count($addedFasilitators) . ' fasilitator berhasil ditambahkan ke grup ' . $grupDampingan->name . '.',
+                dataBaru: array_map(fn($gf) => $gf->toArray(), $addedFasilitators)
+            );
+        }
+
         return response()->json($responseData, $statusCode);
     }
 
@@ -246,7 +260,18 @@ class GrupFasilitatorController extends Controller
             ], 404);
         }
 
+        $dataLama = $grupFasilitator->toArray();
         $grupFasilitator->delete();
+
+        // Catat log DETACH
+        $this->logAksi(
+            $request,
+            aksi: 'DETACH',
+            modul: 'GrupFasilitator',
+            dataId: $grupId,
+            deskripsi: "Fasilitator dengan ID '{$fasilitatorId}' dihapus dari grup '{$grupDampingan->name}'.",
+            dataLama: $dataLama
+        );
 
         return response()->json([
             'message' => 'Fasilitator berhasil dihapus dari grup'
@@ -317,6 +342,16 @@ class GrupFasilitatorController extends Controller
                 $newFasilitators[] = $grupFasilitator;
             }
         }
+
+        // Catat log UPDATE bulk fasilitator
+        $this->logAksi(
+            $request,
+            aksi: 'UPDATE',
+            modul: 'GrupFasilitator',
+            dataId: $grupId,
+            deskripsi: "Daftar fasilitator grup '{$grupDampingan->name}' diperbarui (bulk-replace).",
+            dataBaru: array_map(fn($gf) => $gf->toArray(), $newFasilitators)
+        );
 
         return response()->json([
             'message' => 'Fasilitator grup berhasil diperbarui',

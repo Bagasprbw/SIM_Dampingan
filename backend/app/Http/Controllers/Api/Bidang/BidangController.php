@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\Bidang;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\LogsActivity;
 use App\Models\Bidang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class BidangController extends Controller
 {
+    use LogsActivity;
     // GET ALL BIDANG
     public function index()
     {
@@ -32,6 +34,9 @@ class BidangController extends Controller
             'created_at' => now(),
         ]);
 
+        // Catat log CREATE
+        $this->logCreate($request, 'Bidang', $bidang->id_bidang, $bidang->toArray());
+
         return response()->json([
             'message' => 'Bidang berhasil dibuat',
             'data' => $bidang
@@ -39,7 +44,7 @@ class BidangController extends Controller
     }
 
     // DELETE BIDANG
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $bidang = Bidang::find($id);
 
@@ -49,7 +54,11 @@ class BidangController extends Controller
             ], 404);
         }
 
+        $dataLama = $bidang->toArray();
         $bidang->delete();
+
+        // Catat log DELETE
+        $this->logDelete($request, 'Bidang', $id, $dataLama);
 
         return response()->json([
             'message' => 'Bidang berhasil dihapus'

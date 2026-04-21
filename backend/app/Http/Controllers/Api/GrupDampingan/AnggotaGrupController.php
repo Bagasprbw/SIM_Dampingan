@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\GrupDampingan;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\LogsActivity;
 use App\Models\AnggotaGrupDampingan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -10,6 +11,7 @@ use Illuminate\Support\Str;
 
 class AnggotaGrupController extends Controller
 {
+    use LogsActivity;
     public function index(Request $request)
     {
         $query = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan']);
@@ -66,6 +68,9 @@ class AnggotaGrupController extends Controller
 
         // Generate QR code (status automatically aktif here)
         app(\App\Services\QrCodeService::class)->generateForAnggota($anggota);
+
+        // Catat log CREATE
+        $this->logCreate($request, 'AnggotaGrup', $anggota->id_anggota_grup, $anggota->toArray());
 
         return response()->json([
             'status' => 'success',
@@ -130,11 +135,15 @@ class AnggotaGrupController extends Controller
             $validated['foto'] = $request->file('foto')->store('profil/anggota_grup', 'public');
         }
 
+        $dataLama = $anggota->toArray();
         $anggota->update($validated);
 
         if ($anggota->status === 'aktif') {
             app(\App\Services\QrCodeService::class)->generateForAnggota($anggota);
         }
+
+        // Catat log UPDATE
+        $this->logUpdate($request, 'AnggotaGrup', $anggota->id_anggota_grup, $dataLama, $anggota->toArray());
 
         return response()->json([
             'status' => 'success',
@@ -143,7 +152,7 @@ class AnggotaGrupController extends Controller
         ]);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $anggota = AnggotaGrupDampingan::find($id);
 
@@ -162,7 +171,11 @@ class AnggotaGrupController extends Controller
             Storage::disk('public')->delete($anggota->qr_code);
         }
 
+        $dataLama = $anggota->toArray();
         $anggota->delete();
+
+        // Catat log DELETE
+        $this->logDelete($request, 'AnggotaGrup', $id, $dataLama);
 
         return response()->json([
             'status' => 'success',

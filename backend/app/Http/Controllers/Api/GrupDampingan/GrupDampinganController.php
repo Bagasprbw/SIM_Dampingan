@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\GrupDampingan;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\LogsActivity;
 use App\Models\GrupDampingan;
 use App\Models\GrupFasilitator;
 use App\Models\User;
@@ -11,6 +12,7 @@ use Illuminate\Support\Str;
 
 class GrupDampinganController extends Controller
 {
+    use LogsActivity;
     /**
      * ====================================
      * HELPER METHODS (PRIVATE)
@@ -277,6 +279,9 @@ class GrupDampinganController extends Controller
 
         $grupDampingan->load(['bidang', 'pengurus', 'provinsi', 'kabupaten', 'kecamatan', 'grupFasilitators.fasilitator']);
 
+        // Catat log CREATE
+        $this->logCreate($request, 'GrupDampingan', $grupDampingan->id_grup_dampingan, $grupDampingan->toArray());
+
         return response()->json([
             'message' => 'Grup dampingan berhasil ditambahkan',
             'data' => $grupDampingan
@@ -374,8 +379,12 @@ class GrupDampinganController extends Controller
         }
 
         // Update grup dampingan
+        $dataLama = $grupDampingan->toArray();
         $grupDampingan->update($validated);
         $grupDampingan->load(['bidang', 'pengurus', 'provinsi', 'kabupaten', 'kecamatan', 'grupFasilitators.fasilitator']);
+
+        // Catat log UPDATE
+        $this->logUpdate($request, 'GrupDampingan', $grupDampingan->id_grup_dampingan, $dataLama, $grupDampingan->toArray());
 
         return response()->json([
             'message' => 'Grup dampingan berhasil diubah',
@@ -410,7 +419,11 @@ class GrupDampinganController extends Controller
             ], 403);
         }
 
+        $dataLama = $grupDampingan->toArray();
         $grupDampingan->delete();
+
+        // Catat log DELETE
+        $this->logDelete($request, 'GrupDampingan', $id, $dataLama);
 
         return response()->json([
             'message' => 'Grup dampingan berhasil dihapus'

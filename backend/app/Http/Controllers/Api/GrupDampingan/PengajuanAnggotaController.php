@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\GrupDampingan;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\LogsActivity;
 use App\Models\AnggotaGrupDampingan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -10,6 +11,7 @@ use Illuminate\Support\Str;
 
 class PengajuanAnggotaController extends Controller
 {
+    use LogsActivity;
     /**
      * [AJUKAN ANGGOTA]
      * PJ Grup melihat daftar pengajuan (anggota yang dia ajukan)
@@ -69,6 +71,16 @@ class PengajuanAnggotaController extends Controller
 
         $anggota = AnggotaGrupDampingan::create($validated);
 
+        // Catat log CREATE pengajuan
+        $this->logAksi(
+            $request,
+            aksi: 'CREATE',
+            modul: 'PengajuanAnggota',
+            dataId: $anggota->id_anggota_grup,
+            deskripsi: "Pengajuan anggota baru '{$anggota->name}' pada grup {$anggota->grup_id}.",
+            dataBaru: $anggota->toArray()
+        );
+
         return response()->json([
             'status' => 'success',
             'message' => 'Pengajuan anggota berhasil, menunggu verifikasi',
@@ -118,7 +130,11 @@ class PengajuanAnggotaController extends Controller
             $validated['foto'] = $request->file('foto')->store('profil/anggota_grup', 'public');
         }
 
+        $dataLama = $anggota->toArray();
         $anggota->update($validated);
+
+        // Catat log UPDATE pengajuan
+        $this->logUpdate($request, 'PengajuanAnggota', $anggota->id_anggota_grup, $dataLama, $anggota->toArray());
 
         return response()->json([
             'status' => 'success',
@@ -131,7 +147,7 @@ class PengajuanAnggotaController extends Controller
      * [AJUKAN ANGGOTA]
      * PJ Grup menghapus pengajuan yang masih pending
      */
-    public function destroyAjukan($id)
+    public function destroyAjukan(Request $request, $id)
     {
         $anggota = AnggotaGrupDampingan::find($id);
 
@@ -150,7 +166,11 @@ class PengajuanAnggotaController extends Controller
             Storage::disk('public')->delete($anggota->qr_code);
         }
 
+        $dataLama = $anggota->toArray();
         $anggota->delete();
+
+        // Catat log DELETE pengajuan
+        $this->logDelete($request, 'PengajuanAnggota', $id, $dataLama, "Pengajuan anggota '{$dataLama['name']}' dibatalkan.");
 
         return response()->json([
             'status' => 'success',
@@ -211,6 +231,16 @@ class PengajuanAnggotaController extends Controller
         if ($anggota->status === 'aktif') {
             app(\App\Services\QrCodeService::class)->generateForAnggota($anggota);
         }
+
+        // Catat log VERIFIKASI
+        $this->logAksi(
+            $request,
+            aksi: 'VERIFIKASI',
+            modul: 'PengajuanAnggota',
+            dataId: $anggota->id_anggota_grup,
+            deskripsi: "Pengajuan anggota '{$anggota->name}' diverifikasi menjadi: {$anggota->status}.",
+            dataBaru: $anggota->toArray()
+        );
 
         return response()->json([
             'status' => 'success',

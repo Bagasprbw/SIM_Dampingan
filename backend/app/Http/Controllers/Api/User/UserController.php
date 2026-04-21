@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\LogsActivity;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
+    use LogsActivity;
     /**
      * ====================================
      * HELPER METHODS (PRIVATE)
@@ -314,6 +316,9 @@ class UserController extends Controller
 
         $user->load(['role', 'provinsi', 'kabupaten', 'kecamatan']);
 
+        // Catat log CREATE fasilitator
+        $this->logCreate($request, 'User:Fasilitator', $user->id_user, $user->toArray(), "Fasilitator '{$user->name}' berhasil dibuat.");
+
         return response()->json([
             'message' => 'Fasilitator berhasil dibuat',
             'data' => $user
@@ -449,6 +454,9 @@ class UserController extends Controller
 
         $user->load(['role', 'provinsi', 'kabupaten', 'kecamatan']);
 
+        // Catat log CREATE admin bawahan
+        $this->logCreate($request, 'User:AdminBawahan', $user->id_user, $user->toArray(), "Admin bawahan '{$user->name}' dengan role '{$role->name}' berhasil dibuat.");
+
         return response()->json([
             'message' => 'Admin bawahan berhasil dibuat',
             'data' => $user
@@ -506,6 +514,9 @@ class UserController extends Controller
         ]);
 
         $user->load(['role', 'provinsi', 'kabupaten', 'kecamatan']);
+
+        // Catat log CREATE pj_grup
+        $this->logCreate($request, 'User:PjGrup', $user->id_user, $user->toArray(), "PJ Grup '{$user->name}' berhasil dibuat.");
 
         return response()->json([
             'message' => 'PJ Grup berhasil dibuat',
@@ -610,8 +621,12 @@ class UserController extends Controller
         }
 
         // Update fields (including foto jika ada)
+        $dataLama = $targetUser->toArray();
         $targetUser->update($validated);
         $targetUser->load(['role', 'provinsi', 'kabupaten', 'kecamatan']);
+
+        // Catat log UPDATE
+        $this->logUpdate($request, 'User', $targetUser->id_user, $dataLama, $targetUser->toArray(), "User '{$targetUser->name}' berhasil diperbarui.");
 
         return response()->json([
             'message' => 'User berhasil diperbarui',
@@ -650,7 +665,11 @@ class UserController extends Controller
             }
         }
 
+        $dataLama = $targetUser->toArray();
         $targetUser->delete();
+
+        // Catat log DELETE
+        $this->logDelete($request, 'User', $id, $dataLama, "User '{$dataLama['name']}' berhasil dihapus.");
 
         return response()->json([
             'message' => 'User berhasil dihapus',

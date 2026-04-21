@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\FasilitatorBidang;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\LogsActivity;
 use App\Models\FasilitatorBidang;
 use App\Models\User;
 use App\Models\Bidang;
@@ -11,6 +12,7 @@ use Illuminate\Support\Str;
 
 class FasilitatorBidangController extends Controller
 {
+    use LogsActivity;
     // GET ALL FASILITATOR BIDANG
     public function index(Request $request)
     {
@@ -71,6 +73,15 @@ class FasilitatorBidangController extends Controller
 
         $fasilitatorBidang->load(['fasilitator', 'bidang']);
 
+        // Catat log CREATE
+        $this->logCreate(
+            $request,
+            'FasilitatorBidang',
+            $fasilitatorBidang->id_fasilitator_bidang,
+            $fasilitatorBidang->toArray(),
+            "Bidang '{$fasilitatorBidang->bidang->name}' ditambahkan untuk fasilitator '{$user->name}'."
+        );
+
         return response()->json([
             'message' => 'Fasilitator bidang berhasil ditambahkan',
             'data' => $fasilitatorBidang
@@ -78,9 +89,9 @@ class FasilitatorBidangController extends Controller
     }
 
     // DELETE FASILITATOR BIDANG
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $fasilitatorBidang = FasilitatorBidang::find($id);
+        $fasilitatorBidang = FasilitatorBidang::with(['fasilitator', 'bidang'])->find($id);
 
         if (!$fasilitatorBidang) {
             return response()->json([
@@ -88,7 +99,11 @@ class FasilitatorBidangController extends Controller
             ], 404);
         }
 
+        $dataLama = $fasilitatorBidang->toArray();
         $fasilitatorBidang->delete();
+
+        // Catat log DELETE
+        $this->logDelete($request, 'FasilitatorBidang', $id, $dataLama);
 
         return response()->json([
             'message' => 'Fasilitator bidang berhasil dihapus'
