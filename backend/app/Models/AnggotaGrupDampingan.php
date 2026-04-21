@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['id_anggota_grup', 'bidang_id', 'no_anggota', 'name', 'tempat_lahir', 'tgl_lahir', 'jenis_kelamin', 'agama', 'alamat', 'no_telp', 'foto', 'pekerjaan_id', 'grup_id', 'status', 'peran'])]
+#[Fillable(['id_anggota_grup', 'bidang_id', 'no_anggota', 'name', 'tempat_lahir', 'tgl_lahir', 'jenis_kelamin', 'agama', 'alamat', 'no_telp', 'foto', 'pekerjaan_id', 'grup_id', 'status'])]
 class AnggotaGrupDampingan extends Model
 {
     protected $primaryKey = 'id_anggota_grup';
@@ -13,7 +13,7 @@ class AnggotaGrupDampingan extends Model
     protected $keyType = 'string';
     public $timestamps = false;
 
-    protected $fillable = ['id_anggota_grup', 'bidang_id', 'no_anggota', 'name', 'tempat_lahir', 'tgl_lahir', 'jenis_kelamin', 'agama', 'alamat', 'no_telp', 'foto', 'pekerjaan_id', 'grup_id', 'status', 'peran', 'qr_code', 'created_at'];
+    protected $fillable = ['id_anggota_grup', 'bidang_id', 'no_anggota', 'name', 'tempat_lahir', 'tgl_lahir', 'jenis_kelamin', 'agama', 'alamat', 'no_telp', 'foto', 'pekerjaan_id', 'grup_id', 'status', 'qr_code', 'created_at'];
 
     protected $casts = [
         'tgl_lahir' => 'date',

@@ -54,7 +54,6 @@ return new class extends Migration
             $table->string('pekerjaan_id', 36)->nullable();
             $table->string('grup_id', 36);
             $table->enum('status', ['aktif', 'non-aktif', 'pending', 'ditolak'])->default('non-aktif');
-            $table->enum('peran', ['koordinator', 'anggota'])->default('anggota');
             $table->timestamp('created_at')->nullable();
 
             $table->foreign('bidang_id')->references('id_bidang')->on('bidangs')->restrictOnDelete();

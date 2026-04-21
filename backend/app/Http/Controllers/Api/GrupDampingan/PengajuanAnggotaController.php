@@ -54,7 +54,6 @@ class PengajuanAnggotaController extends Controller
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'pekerjaan_id' => 'nullable|exists:pekerjaans,id_pekerjaan',
             'grup_id' => 'required|exists:grup_dampingans,id_grup_dampingan', // Idealnya check apakah grup ini milik PJ Grup ybs.
-            'peran' => 'nullable|in:koordinator,anggota'
         ], [
             'foto.max' => 'Ukuran file foto terlalu besar. Maksimal 2MB.',
             'foto.image' => 'File harus berupa gambar.',
@@ -116,7 +115,6 @@ class PengajuanAnggotaController extends Controller
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'pekerjaan_id' => 'nullable|exists:pekerjaans,id_pekerjaan',
             'grup_id' => 'nullable|exists:grup_dampingans,id_grup_dampingan',
-            'peran' => 'nullable|in:koordinator,anggota'
         ], [
             'foto.max' => 'Ukuran file foto terlalu besar. Maksimal 2MB.',
             'foto.image' => 'File harus berupa gambar.',
