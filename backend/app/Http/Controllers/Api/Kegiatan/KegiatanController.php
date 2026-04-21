@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Kegiatan;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\LogsActivity;
 use App\Models\Kegiatan;
 use App\Models\KegiatanGrup;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class KegiatanController extends Controller
 {
+    use LogsActivity;
     public function indexKelola()
     {
         $user_id = auth()->user()->id_user; // Ambil ID user yang sedang login
@@ -143,6 +145,9 @@ class KegiatanController extends Controller
 
             DB::commit();
 
+            // Catat log CREATE
+            $this->logCreate($request, 'Kegiatan', $kegiatan->id_kegiatan, $kegiatan->toArray(), "Kegiatan '{$kegiatan->judul}' berhasil dibuat.");
+
             return response()->json([
                 'message' => 'Kegiatan berhasil dibuat',
                 'data' => $kegiatan->load('kegiatanGrups')
@@ -188,6 +193,7 @@ class KegiatanController extends Controller
 
         DB::beginTransaction();
         try {
+            $dataLama = $kegiatan->toArray();
             $dataToUpdate = $request->except(['grup_dampingan_ids', 'laporan']);
             if ($request->has('status') && empty($request->status)) {
                 $dataToUpdate['status'] = 'draft';
@@ -220,6 +226,9 @@ class KegiatanController extends Controller
             }
 
             DB::commit();
+
+            // Catat log UPDATE
+            $this->logUpdate($request, 'Kegiatan', $kegiatan->id_kegiatan, $dataLama, $kegiatan->toArray(), "Kegiatan '{$kegiatan->judul}' berhasil diperbarui.");
 
             return response()->json([
                 'message' => 'Kegiatan berhasil diupdate',
@@ -260,7 +269,18 @@ class KegiatanController extends Controller
             }
         }
 
+        $dataLama = $kegiatan->toArray();
         $kegiatan->delete();
+
+        // Catat log DELETE
+        $this->logAksi(
+            request(),
+            aksi: 'DELETE',
+            modul: 'Kegiatan',
+            dataId: $id,
+            deskripsi: "Kegiatan '{$dataLama['judul']}' berhasil dihapus.",
+            dataLama: $dataLama
+        );
 
         return response()->json([
             'message' => 'Kegiatan berhasil dihapus'

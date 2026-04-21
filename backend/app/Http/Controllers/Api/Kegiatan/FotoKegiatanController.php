@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Kegiatan;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\LogsActivity;
 use App\Models\FotoKegiatan;
 use App\Models\Kegiatan;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use Illuminate\Support\Str;
 
 class FotoKegiatanController extends Controller
 {
+    use LogsActivity;
     public function index($kegiatanId)
     {
         $kegiatan = Kegiatan::find($kegiatanId);
@@ -66,13 +68,23 @@ class FotoKegiatanController extends Controller
             ]);
         }
 
+        // Catat log CREATE
+        $this->logAksi(
+            $request,
+            aksi: 'CREATE',
+            modul: 'FotoKegiatan',
+            dataId: $kegiatanId,
+            deskripsi: count($created) . " foto berhasil diunggah untuk kegiatan '{$kegiatan->judul}'.",
+            dataBaru: array_map(fn($f) => $f->toArray(), $created)
+        );
+
         return response()->json([
             'message' => 'Foto kegiatan berhasil diunggah',
             'data' => $created,
         ], 201);
     }
 
-    public function destroy($kegiatanId, $idFoto)
+    public function destroy(Request $request, $kegiatanId, $idFoto)
     {
         $foto = FotoKegiatan::where('kegiatan_id', $kegiatanId)
             ->where('id_foto', $idFoto)
@@ -86,7 +98,11 @@ class FotoKegiatanController extends Controller
             Storage::disk('public')->delete($foto->file);
         }
 
+        $dataLama = $foto->toArray();
         $foto->delete();
+
+        // Catat log DELETE
+        $this->logDelete($request, 'FotoKegiatan', $idFoto, $dataLama);
 
         return response()->json([
             'message' => 'Foto kegiatan berhasil dihapus',
