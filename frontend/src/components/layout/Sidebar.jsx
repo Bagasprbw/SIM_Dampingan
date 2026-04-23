@@ -75,7 +75,7 @@ const Sidebar = () => {
                         className={({ isActive }) => `
                             flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-200
                             ${isActive 
-                                ? 'bg-[#0080C5] text-white shadow-lg shadow-blue-100' 
+                                ? 'bg-[#0080C5] text-white' 
                                 : 'text-[#9298B0] hover:bg-gray-50 hover:text-[#0080C5]'}
                         `}
                     >
