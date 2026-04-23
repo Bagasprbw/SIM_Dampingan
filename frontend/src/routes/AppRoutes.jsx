@@ -6,30 +6,28 @@ import ProtectedRoute from './ProtectedRoute';
 import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
 
-// Tambahkan import halaman baru di sini ↓
-
 const AppRoutes = () => {
     return (
         <Routes>
             {/* Root redirect */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
 
-            {/* Guest */}
+            {/* Guest Routes */}
             <Route element={<GuestRoute />}>
                 <Route path="/login" element={<LoginPage />} />
             </Route>
 
-            {/* Protected */}
+            {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
-
-                {/* Tambahkan route protected baru di sini ↓ */}
+                {/* Tambahkan route superadmin di sini nanti */}
             </Route>
 
             {/* 404 fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
     );
 };
 
 export default AppRoutes;
+
