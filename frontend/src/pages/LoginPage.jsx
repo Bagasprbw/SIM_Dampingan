@@ -1,160 +1,155 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useLogin } from '../hooks/useLogin';
+import AuthModal from '../components/modals/AuthModal';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
-    const { login, loading } = useLogin(); // memanggil custom hook useLogin
+    const [modal, setModal] = useState({ isOpen: false, type: 'success' });
 
-    const handleSubmit = (e) => {
+    const { login, commitLogin, loading } = useLogin();
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        login({ username, password });
+        try {
+            const user = await login({ username, password });
+            if (user) {
+                // Tampilkan modal sukses
+                setModal({ isOpen: true, type: 'success' });
+
+                // Setelah 3 detik: simpan token → redirect ke dashboard
+                setTimeout(() => {
+                    commitLogin();
+                    navigate('/dashboard');
+                }, 3000);
+            }
+        } catch (error) {
+            // Tampilkan modal gagal
+            setModal({ isOpen: true, type: 'error' });
+
+            // Setelah 5 detik: tutup modal, user bisa coba lagi
+            setTimeout(() => {
+                setModal({ isOpen: false, type: 'error' });
+            }, 5000);
+        }
     };
 
     return (
-        <div className="flex h-screen bg-white font-sans">
-            {/* ── Left: Login Form ── */}
-            <div className="w-full lg:w-[45%] flex flex-col justify-center px-10 md:px-20">
-                <div className="max-w-md w-full mx-auto text-center">
-                    {/* Logo */}
-                    <div className="flex justify-center mb-6">
-                        <div className="w-20 h-20 bg-[#1e3a5f] rounded-full flex items-center justify-center overflow-hidden shadow-lg border-4 border-blue-100">
-                            <img
-                                src="https://upload.wikimedia.org/wikipedia/id/0/07/Logo_Muhammadiyah.svg"
-                                alt="Logo MPM Mentora"
-                                className="w-14 h-14 object-contain filter brightness-0 invert"
-                            />
-                        </div>
+        <div className="min-h-screen w-full bg-white flex overflow-hidden font-['Poppins']">
+
+            {/* ── SISI KIRI: FORM LOGIN ── */}
+            <div className="flex-1 flex flex-col items-center justify-center relative z-10 bg-white overflow-y-auto py-10 px-6">
+                <div className="w-full max-w-[517px] flex flex-col my-auto">
+
+                    {/* Header Section */}
+                    <div className="flex flex-col items-center gap-[20px] md:gap-[30px] mb-[40px] md:mb-[60px]">
+                        <img
+                            src="/images/logo-mpm.png"
+                            alt="Logo MPM"
+                            className="w-[50px] md:w-[59px] h-auto object-contain"
+                        />
+                        <h1 className="text-[#1E1E1E] text-[28px] md:text-[36px] font-semibold leading-normal">LOGIN</h1>
+                        <p className="text-[#636364] text-[16px] md:text-[20px] font-normal text-center tracking-[0.60px] leading-relaxed">
+                            Selamat Datang di Website Resmi MPM - Mentora<br/>
+                            Masukkan Username dan Password Anda !
+                        </p>
                     </div>
 
-                    <h1 className="text-3xl font-extrabold tracking-widest text-gray-800 mb-3">
-                        LOGIN
-                    </h1>
-                    <p className="text-gray-400 text-sm mb-8 leading-relaxed">
-                        Selamat Datang di Website Resmi MPM ‑ Mentora
-                        <br />
-                        Masukkan Username dan Password Anda !
-                    </p>
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-[20px] md:gap-[30px]">
 
-                    <form onSubmit={handleSubmit} className="text-left space-y-5">
                         {/* Username */}
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1 ml-1">
-                                Username
-                            </label>
-                            <div className="relative">
+                        <div className="flex flex-col gap-[12px] md:gap-[18px]">
+                            <label className="text-[#1E1E1E] text-[16px] md:text-[18px] font-medium tracking-[0.54px]">Username</label>
+                            <div className="relative h-[55px] md:h-[66.29px]">
                                 <input
-                                    id="input-username"
                                     type="text"
                                     placeholder="Username"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition-all pr-12 bg-gray-50 hover:border-gray-300"
+                                    className="w-full h-full border border-black/25 rounded-[10px] px-[18px] text-[18px] md:text-[20px] font-medium tracking-[0.60px] outline-none focus:border-[#0080C5] placeholder:text-[#C5C6C7] transition-all"
                                     required
                                 />
-                                <Mail
-                                    size={18}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
-                                />
+                                <div className="absolute right-[17px] top-1/2 -translate-y-1/2 text-[#C5C6C7]">
+                                    <Mail size={24} />
+                                </div>
                             </div>
                         </div>
 
                         {/* Password */}
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1 ml-1">
-                                Password
-                            </label>
-                            <div className="relative">
+                        <div className="flex flex-col gap-[12px] md:gap-[18px]">
+                            <label className="text-[#1E1E1E] text-[16px] md:text-[18px] font-medium tracking-[0.54px]">Password</label>
+                            <div className="relative h-[55px] md:h-[66.29px]">
                                 <input
-                                    id="input-password"
                                     type={showPassword ? 'text' : 'password'}
                                     placeholder="Password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition-all pr-12 bg-gray-50 hover:border-gray-300"
+                                    className="w-full h-full border border-black/25 rounded-[10px] px-[18px] text-[18px] md:text-[20px] font-medium tracking-[0.60px] outline-none focus:border-[#0080C5] placeholder:text-[#C5C6C7] transition-all"
                                     required
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                    className="absolute right-[17px] top-1/2 -translate-y-1/2 text-[#C5C6C7] hover:text-[#0080C5] transition-colors"
                                 >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    {showPassword ? <Eye size={24} /> : <EyeOff size={24} />}
                                 </button>
                             </div>
                         </div>
 
-                        {/* Remember me & Forgot */}
-                        <div className="flex items-center justify-between text-sm">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                    checked={rememberMe}
-                                    onChange={(e) => setRememberMe(e.target.checked)}
-                                />
-                                <span className="text-gray-600">Ingat Saya</span>
+                        {/* Remember Me & Lupa Password */}
+                        <div className="flex items-center justify-between">
+                            <label className="flex items-center gap-[7px] cursor-pointer group">
+                                <div className="w-[19px] h-[21px] border-2 border-[#CFCFCF] flex items-center justify-center relative transition-all group-hover:border-[#0080C5]">
+                                    <input
+                                        type="checkbox"
+                                        className="hidden peer"
+                                        checked={rememberMe}
+                                        onChange={(e) => setRememberMe(e.target.checked)}
+                                    />
+                                    <div className="w-full h-full bg-[#0080C5] opacity-0 peer-checked:opacity-100 transition-all flex items-center justify-center">
+                                        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+                                            <path d="M1 5L4.33333 8.5L11 1.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <span className="text-black text-[14px] md:text-[15px] font-medium tracking-[0.45px]">Ingat Saya</span>
                             </label>
-                            <a
-                                href="#"
-                                className="text-blue-500 hover:text-blue-700 font-medium transition-colors"
-                            >
-                                Lupa Password
-                            </a>
+                            <a href="#" className="text-[#0080C5] text-[14px] md:text-[15px] font-medium tracking-[0.45px]">Lupa Password</a>
                         </div>
 
-                        {/* Submit */}
+                        {/* Login Button */}
                         <button
-                            id="btn-login"
                             type="submit"
                             disabled={loading}
-                            className="w-full flex items-center justify-center gap-2 bg-[#337ab7] hover:bg-[#2d6aa0] active:bg-[#1e3a5f] text-white font-bold py-3.5 rounded-lg transition-all shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed mt-2 uppercase tracking-widest"
+                            className="w-full h-[55px] md:h-[66.29px] bg-[#0080C5] rounded-[10px] flex items-center justify-center text-white text-[18px] md:text-[20px] font-medium tracking-[0.60px] shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-70 mt-[10px] md:mt-[20px]"
                         >
-                            {loading && (
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            )}
-                            {loading ? 'Masuk...' : 'LOGIN'}
+                            {loading ? 'MOHON TUNGGU...' : 'LOGIN'}
                         </button>
                     </form>
                 </div>
             </div>
 
-            {/* ── Right: Visual Panel ── */}
-            <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden bg-[#aab8c2] items-center justify-center">
-                {/* Background image */}
-                <div
-                    className="absolute inset-0"
-                    style={{
-                        backgroundImage: `url('/src/assets/login-bg/bg.jpg')`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        opacity: 0.8,
-                    }}
+            {/* ── SISI KANAN: HERO IMAGE ── */}
+            <div className="hidden lg:block relative w-[450px] xl:w-[665px] h-screen overflow-hidden">
+                <img
+                    src="/images/mentora-hero.png"
+                    alt="Mentora"
+                    className="w-full h-full object-cover"
+                    style={{ boxShadow: '0px 4px 16.6px black, 0px 4px 9.2px rgba(0, 0, 0, 0.25) inset' }}
                 />
-                {/* Fallback gradient if image not found */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a5f]/70 via-[#2d6aa0]/50 to-[#aab8c2]/60" />
-
-                {/* Geometric accents */}
-                <div className="absolute top-10 right-10 w-32 h-32 border-4 border-white/20 rounded-2xl rotate-12" />
-                <div className="absolute bottom-16 left-8 w-20 h-20 border-4 border-white/20 rounded-full" />
-                <div className="absolute top-1/2 -translate-y-1/2 left-0 w-4 h-48 bg-white/10 rounded-r-full" />
-
-                {/* Text overlay */}
-                <div className="relative z-10 text-center px-8 drop-shadow-2xl">
-                    <p className="text-2xl italic font-semibold text-white mb-1">
-                        Sistem Informasi
-                    </p>
-                    <h1 className="text-8xl font-black text-white tracking-tight leading-none mb-3">
-                        MENTORA
-                    </h1>
-                    <p className="text-lg font-semibold text-white/90 tracking-wider">
-                        Majelis Pemberdayaan Masyarakat
-                    </p>
-                </div>
             </div>
+
+            {/* ── AUTH MODAL ── */}
+            <AuthModal
+                isOpen={modal.isOpen}
+                type={modal.type}
+            />
         </div>
     );
 };

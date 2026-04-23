@@ -2,7 +2,8 @@ import { loginRequest, logoutRequest, getMeRequest } from '../endpoints/authEndp
 import { saveAuthData, clearAuthData } from '../../utils/storage';
 
 /**
- * Login: memanggil API, menyimpan token+user, mengembalikan objek user yang sudah dipetakan
+ * Login: memanggil API, mengembalikan data + token TANPA menyimpan ke localStorage.
+ * Penyimpanan dilakukan secara terpisah via commitLogin() agar modal bisa tampil dulu.
  */
 export const authRepository = {
     login: async ({ username, password }) => {
@@ -16,8 +17,13 @@ export const authRepository = {
             role: user.role,
         };
 
-        saveAuthData(access_token, mappedUser);
-        return mappedUser;
+        // Kembalikan token + user, JANGAN simpan dulu ke localStorage
+        return { token: access_token, user: mappedUser };
+    },
+
+    // Panggil ini SETELAH modal sukses selesai (saat redirect)
+    commitLogin: ({ token, user }) => {
+        saveAuthData(token, user);
     },
 
     logout: async () => {
