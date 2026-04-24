@@ -25,7 +25,7 @@ class FotoAbsensiController extends Controller
             ->get();
 
         return response()->json([
-            'message' => 'Data foto absensi berhasil diambil',
+            'message' => 'Data absensi berhasil diambil',
             'data' => $fotos,
         ]);
     }
@@ -38,14 +38,14 @@ class FotoAbsensiController extends Controller
         }
 
         $request->validate([
-            'file' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'file' => 'nullable|mimes:jpg,jpeg,png,webp,pdf|max:5120',
             'files' => 'nullable|array|min:1',
-            'files.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
+            'files.*' => 'mimes:jpg,jpeg,png,webp,pdf|max:5120',
         ]);
 
         if (! $request->hasFile('file') && ! $request->hasFile('files')) {
             return response()->json([
-                'message' => 'Minimal unggah 1 file foto absensi',
+                'message' => 'Minimal unggah 1 file absensi',
             ], 422);
         }
 
@@ -74,12 +74,12 @@ class FotoAbsensiController extends Controller
             aksi: 'CREATE',
             modul: 'FotoAbsensi',
             dataId: $kegiatanId,
-            deskripsi: count($created) . " foto absensi berhasil diunggah untuk kegiatan '{$kegiatan->judul}'.",
+            deskripsi: count($created) . " file absensi berhasil diunggah untuk kegiatan '{$kegiatan->judul}'.",
             dataBaru: array_map(fn($f) => $f->toArray(), $created)
         );
 
         return response()->json([
-            'message' => 'Foto absensi berhasil diunggah',
+            'message' => 'File absensi berhasil diunggah',
             'data' => $created,
         ], 201);
     }
@@ -105,7 +105,7 @@ class FotoAbsensiController extends Controller
         $this->logDelete($request, 'FotoAbsensi', $idFotoAbsensi, $dataLama);
 
         return response()->json([
-            'message' => 'Foto absensi berhasil dihapus',
+            'message' => 'File absensi berhasil dihapus',
         ]);
     }
 }
