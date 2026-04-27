@@ -47,7 +47,7 @@ const Sidebar = () => {
         { icon: <UserCog size={20} />, label: 'Data Pj Dampingan', path: '/data-pj' },
         { icon: <UsersRound size={20} />, label: 'Data Grup Dampingan', path: '/data-grup' },
         { icon: <ClipboardList size={20} />, label: 'Data Dampingan', path: '/data-dampingan' },
-        { icon: <Settings2 size={20} />, label: 'Kegiatan Dampingan', path: '/kegiatan' },
+        { icon: <ClipboardList size={20} />, label: 'Kegiatan Dampingan', path: '/kegiatan-dampingan' },
         { icon: <Settings2 size={20} />, label: 'Kelola Kegiatan', path: '/kelola-kegiatan' },
         { icon: <ShieldCheck size={20} />, label: 'Kelola Hak Akses', path: '/hak-akses' },
         { icon: <Map size={20} />, label: 'Peta Sebaran', path: '/peta' },

@@ -1,0 +1,201 @@
+import React, { useState } from 'react';
+import AdminLayout from '../components/layout/AdminLayout';
+import { 
+    Search, 
+    ChevronDown, 
+    Plus, 
+    FileText, 
+    PlayCircle, 
+    Edit3, 
+    Trash2,
+} from 'lucide-react';
+import PanduanModal from '../components/modals/PanduanModal';
+import DeletePanduanModal from '../components/modals/DeletePanduanModal';
+
+const PanduanPenggunaanPage = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [modalMode, setModalMode] = useState('add');
+    const [selectedGuide, setSelectedGuide] = useState(null);
+
+    const guides = [
+        { id: 1, title: 'Panduan Penggunaan ADMIN', role: 'Admin', types: ['PDF', 'VIDEO'], pdfUrl: 'https://docs.google.com/d...', videoUrl: 'https://youtu.be/...', desc: 'Panduan langkah demi langkah untuk login dan registrasi akun.' },
+        { id: 2, title: 'Panduan Penggunaan ADMIN', role: 'Admin', types: ['PDF', 'VIDEO'], pdfUrl: '', videoUrl: '', desc: 'Panduan langkah demi langkah untuk login dan registrasi akun.' },
+        { id: 3, title: 'Panduan Penggunaan ADMIN', role: 'Admin', types: ['PDF', 'VIDEO'], pdfUrl: '', videoUrl: '', desc: 'Panduan langkah demi langkah untuk login dan registrasi akun.' },
+        { id: 4, title: 'Panduan Penggunaan ADMIN', role: 'Admin', types: ['PDF', 'VIDEO'], pdfUrl: '', videoUrl: '', desc: 'Panduan langkah demi langkah untuk login dan registrasi akun.' },
+    ];
+
+    const handleAdd = () => {
+        setModalMode('add');
+        setSelectedGuide(null);
+        setIsModalOpen(true);
+    };
+
+    const handleEdit = (guide) => {
+        setModalMode('edit');
+        setSelectedGuide(guide);
+        setIsModalOpen(true);
+    };
+
+    const handleDelete = (guide) => {
+        setSelectedGuide(guide);
+        setIsDeleteOpen(true);
+    };
+
+    return (
+        <AdminLayout title="Panduan Penggunaan">
+            <div className="p-8 font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
+                
+                {/* 1. Hero Banner Gradient */}
+                <div className="w-full h-56 px-10 bg-gradient-to-r from-[#0057A8] via-[#0080C5] to-[#2299D8] rounded-[20px] flex justify-between items-center mb-9 shadow-lg shadow-sky-200/20">
+                    <div className="max-w-xl space-y-4">
+                        <div className="inline-flex px-4 py-1 bg-white/20 rounded-full border border-white/10">
+                            <span className="text-white text-[10px] font-bold tracking-widest uppercase">PUSAT BANTUAN</span>
+                        </div>
+                        <h2 className="text-2xl font-bold text-white tracking-tight">Panduan Penggunaan Sistem</h2>
+                        <p className="text-xs text-white/80 font-normal leading-relaxed">
+                            Temukan panduan lengkap dalam format PDF maupun video tutorial untuk membantu Anda memaksimalkan penggunaan sistem MPM Muhammadiyah.
+                        </p>
+                    </div>
+
+                    <div className="flex gap-4">
+                        {/* Quick Access Card PDF */}
+                        <div className="w-24 h-24 bg-white/10 rounded-2xl border border-white/30 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white/20 transition-all group">
+                            <FileText size={28} className="text-white group-hover:scale-110 transition-transform" />
+                            <span className="text-white text-[10px] font-semibold">PDF Guide</span>
+                        </div>
+                        {/* Quick Access Card VIDEO */}
+                        <div className="w-24 h-24 bg-white/10 rounded-2xl border border-white/30 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white/20 transition-all group">
+                            <PlayCircle size={28} className="text-white group-hover:scale-110 transition-transform" />
+                            <span className="text-white text-[10px] font-semibold">Video Guide</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 2. Content Section */}
+                <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-200">
+                    
+                    {/* Toolbar Area */}
+                    <div className="flex justify-between items-center mb-6 px-2">
+                        <div className="flex gap-4">
+                            {/* Search Bar */}
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <input 
+                                    type="text" 
+                                    placeholder="Cari Panduan....." 
+                                    className="pl-11 pr-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-xs font-medium w-64 focus:outline-none focus:border-[#0080C5] transition-all"
+                                />
+                            </div>
+                            {/* Role Filter */}
+                            <div className="px-4 py-2.5 border border-slate-200 rounded-xl flex items-center gap-10 cursor-pointer hover:bg-slate-50 transition-all group">
+                                <span className="text-xs font-semibold text-slate-400 group-hover:text-slate-600 transition-colors">Semua Role</span>
+                                <ChevronDown size={16} className="text-slate-400" />
+                            </div>
+                        </div>
+
+                        {/* Add Button */}
+                        <button 
+                            onClick={handleAdd}
+                            className="flex items-center gap-2.5 px-6 py-2.5 bg-[#0080C5] text-white rounded-xl hover:bg-sky-700 transition-all shadow-md shadow-sky-100 font-semibold text-xs"
+                        >
+                            <Plus size={18} />
+                            Tambah Panduan
+                        </button>
+                    </div>
+
+                    {/* Guides Table */}
+                    <div className="overflow-hidden rounded-xl border border-slate-100">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="bg-slate-100/50">
+                                    <th className="py-4 px-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[8%]">NO</th>
+                                    <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[22%]">JUDUL PANDUAN</th>
+                                    <th className="py-4 px-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[15%]">ROLE</th>
+                                    <th className="py-4 px-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[15%]">TIPE</th>
+                                    <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[30%]">DESKRIPSI</th>
+                                    <th className="py-4 px-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[10%]">AKSI</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {guides.map((guide, idx) => (
+                                    <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
+                                        <td className="py-6 px-6 text-center text-slate-950 text-xs font-bold">{idx + 1}</td>
+                                        <td className="py-6 px-6">
+                                            <div className="space-y-0.5">
+                                                <div className="text-slate-950 text-xs font-semibold">{guide.title}</div>
+                                                <div className="text-[#0080C5] text-[10px] font-normal hover:underline cursor-pointer">Lihat file !</div>
+                                            </div>
+                                        </td>
+                                        <td className="py-6 px-6 text-center">
+                                            <div className="inline-flex px-4 py-1 bg-[#16A34A]/10 rounded-full">
+                                                <span className="text-[#16A34A] text-[10px] font-bold uppercase">{guide.role}</span>
+                                            </div>
+                                        </td>
+                                        <td className="py-6 px-6 text-center">
+                                            <div className="flex justify-center gap-1.5">
+                                                <div className="inline-flex items-center gap-1 px-3 py-1 bg-red-500/10 rounded-full">
+                                                    <FileText size={12} className="text-red-700 fill-red-700/20" />
+                                                    <span className="text-red-700 text-[9px] font-bold uppercase tracking-tighter">PDF</span>
+                                                </div>
+                                                <div className="inline-flex items-center gap-1 px-3 py-1 bg-[#A16207]/10 rounded-full">
+                                                    <PlayCircle size={12} className="text-[#A16207] fill-[#A16207]/20" />
+                                                    <span className="text-[#A16207] text-[9px] font-bold uppercase tracking-tighter">VIDEO</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-6 px-6">
+                                            <div className="text-slate-500 text-xs font-normal line-clamp-1 italic">
+                                                {guide.desc}
+                                            </div>
+                                        </td>
+                                        <td className="py-6 px-6">
+                                            <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button 
+                                                    onClick={() => handleEdit(guide)}
+                                                    className="p-2 bg-[#FB923C]/10 text-[#FB923C] rounded-lg hover:bg-[#FB923C] hover:text-white transition-all"
+                                                >
+                                                    <Edit3 size={16} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleDelete(guide)}
+                                                    className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Table Footer */}
+                    <div className="mt-6 px-2 flex justify-start">
+                        <p className="text-slate-400 text-xs font-normal">
+                            Menampilkan <span className="font-bold text-slate-950">5</span> dari <span className="font-bold text-slate-950">5</span> Panduan
+                        </p>
+                    </div>
+                </div>
+
+                {/* Modal Component */}
+                <PanduanModal 
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    mode={modalMode}
+                    initialData={selectedGuide}
+                />
+
+                {/* Delete Modal Component */}
+                <DeletePanduanModal 
+                    isOpen={isDeleteOpen}
+                    onClose={() => setIsDeleteOpen(false)}
+                    data={selectedGuide}
+                />
+            </div>
+        </AdminLayout>
+    );
+};
+
+export default PanduanPenggunaanPage;
