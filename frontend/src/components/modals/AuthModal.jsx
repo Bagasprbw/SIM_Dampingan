@@ -16,7 +16,7 @@ const AuthModal = ({ isOpen, type = 'success' }) => {
                         ? 'bg-gradient-to-b from-emerald-500/20 to-emerald-500/5 outline-emerald-500'
                         : 'bg-gradient-to-b from-red-500/20 to-red-500/5 outline-red-500'
                 }`}>
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg ${
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg ${
                         isSuccess ? 'bg-emerald-500 shadow-emerald-200' : 'bg-red-500 shadow-red-200'
                     }`}>
                         {isSuccess ? (
@@ -33,7 +33,7 @@ const AuthModal = ({ isOpen, type = 'success' }) => {
 
                 {/* Teks */}
                 <div className="flex flex-col items-center gap-2 text-center">
-                    <h2 className="text-slate-950 text-2xl font-semibold tracking-tight">
+                    <h2 className="text-slate-950 text-lg font-semibold tracking-tight">
                         {isSuccess ? 'Login Berhasil!' : 'Login Gagal!'}
                     </h2>
                     <p className="text-zinc-600 text-base font-normal tracking-tight">

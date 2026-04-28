@@ -11,7 +11,7 @@ const SuccessModal = ({ isOpen }) => {
                     {/* Icon Section */}
                     <div className="w-24 h-24 p-1.5 bg-gradient-to-b from-emerald-500/20 to-emerald-500/5 rounded-[48px] outline outline-1 outline-offset-[-1px] outline-emerald-500 inline-flex justify-start items-start gap-2.5">
                         <div className="w-20 h-20 relative flex items-center justify-center">
-                            <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200">
+                            <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200">
                                 <svg 
                                     width="32" 
                                     height="24" 
@@ -34,7 +34,7 @@ const SuccessModal = ({ isOpen }) => {
                     {/* Content Section */}
                     <div className="self-stretch flex flex-col justify-start items-center gap-3.5">
                         <div className="self-stretch flex flex-col justify-center items-center gap-3">
-                            <div className="self-stretch h-8 text-center justify-start text-slate-950 text-2xl font-semibold font-['Poppins'] tracking-tight">
+                            <div className="self-stretch h-8 text-center justify-start text-slate-950 text-lg font-semibold font-['Poppins'] tracking-tight">
                                 Login Berhasil!
                             </div>
                             <div className="self-stretch h-6 text-center justify-start text-zinc-600 text-base font-normal font-['Poppins'] tracking-tight">

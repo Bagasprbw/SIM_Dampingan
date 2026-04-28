@@ -44,7 +44,7 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center font-['Poppins'] p-4">
             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose}></div>
 
-            <div className="relative w-full max-w-[580px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
                 {/* Header */}
                 <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -62,7 +62,7 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Form Body */}
-                <form onSubmit={handleSave} className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar text-left">
+                <form onSubmit={handleSave} className="p-5 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar text-left">
                     {/* Foto Fasilitator */}
                     <div className="flex flex-col gap-3">
                         <label className="text-[#0A0F1E] text-xs font-semibold">Foto Fasilitator</label>
@@ -71,7 +71,7 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
                                 {selectedImage ? (
                                     <img src={selectedImage} alt="Preview" className="w-full h-full object-cover" />
                                 ) : (
-                                    <ImageIcon size={28} className="text-slate-300" />
+                                    <ImageIcon size={20} className="text-slate-300" />
                                 )}
                             </div>
                             <div className="flex flex-col gap-2">

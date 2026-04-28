@@ -13,9 +13,9 @@ const PjDetailModal = ({ isOpen, onClose, data }) => {
                 <div className="w-full h-[5px] bg-white" />
                 
                 {/* Profile Header */}
-                <div className="p-6 border-b-[0.80px] border-slate-100 flex items-start gap-4">
+                <div className="p-5 border-b-[0.80px] border-slate-100 flex items-start gap-4">
                     <div className="relative flex-shrink-0">
-                        <div className="w-16 h-16 bg-gradient-to-br from-sky-700 to-sky-500 rounded-full flex justify-center items-center text-white text-xl font-bold">
+                        <div className="w-10 h-10 bg-gradient-to-br from-sky-700 to-sky-500 rounded-full flex justify-center items-center text-white text-base font-bold">
                             {initials}
                         </div>
                         <div className="w-3.5 h-3.5 absolute bottom-0 right-0 bg-green-500 rounded-full border-[2.40px] border-white" />
@@ -75,7 +75,7 @@ const PjDetailModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t-[0.80px] border-slate-100 flex justify-end">
+                <div className="p-5 border-t-[0.80px] border-slate-100 flex justify-end">
                     <button 
                         onClick={onClose}
                         className="px-6 py-2 bg-red-500 text-white rounded-[10px] text-sm font-semibold hover:bg-red-600 transition-all shadow-md shadow-red-100"

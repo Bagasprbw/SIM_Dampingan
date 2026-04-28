@@ -47,16 +47,16 @@ const DataAdminPage = () => {
                     <div className="flex justify-end items-center gap-3.5 mb-6">
                         <button 
                             onClick={() => setIsAddModalOpen(true)}
-                            className="flex items-center gap-2.5 px-6 py-2.5 bg-[#0080C5] text-white rounded-[10px] hover:bg-[#006da8] transition-colors"
+                            className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                         >
                             <Plus size={18} strokeWidth={3} />
-                            <span className="text-xs font-semibold">Tambah</span>
+                            <span>Tambah</span>
                         </button>
                         <div className="relative group">
-                            <button className="flex items-center gap-2.5 px-6 py-2.5 bg-[#22C55E] text-white rounded-[10px] hover:bg-[#1ba84d] transition-colors">
+                            <button className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold">
                                 <FileText size={18} />
-                                <span className="text-xs font-semibold">Cetak Data</span>
-                                <ChevronDown size={16} />
+                                <span>Cetak Data</span>
+                                <ChevronDown size={18} />
                             </button>
                         </div>
                     </div>
@@ -80,8 +80,8 @@ const DataAdminPage = () => {
                             {['Pilih Role', 'Pilih Provinsi', 'Pilih Kecamatan', 'Pilih Kabupaten'].map((filter, idx) => (
                                 <div key={idx} className="relative cursor-pointer">
                                     <div className="flex items-center justify-between px-4 py-3 bg-white rounded-[10px] border border-[#E5E7EB] hover:border-slate-300 transition-colors">
-                                        <span className="text-[#9298B0] text-xs font-semibold">{filter}</span>
-                                        <ChevronDown size={16} className="text-[#9298B0]" />
+                                        <span className="text-[#9298B0] text-[11px] font-semibold">{filter}</span>
+                                        <ChevronDown size={18} className="text-[#9298B0]" />
                                     </div>
                                 </div>
                             ))}
@@ -93,31 +93,31 @@ const DataAdminPage = () => {
                         <table className="w-full text-left border-separate border-spacing-0">
                             <thead>
                                 <tr className="bg-[#F1F5F9]">
-                                    <th className="p-3.5 text-[#0A0F1E] text-xs font-semibold rounded-tl-xl text-center">NO</th>
-                                    <th className="p-3.5 text-[#0A0F1E] text-xs font-semibold">Nama</th>
-                                    <th className="p-3.5 text-[#0A0F1E] text-xs font-semibold">Username</th>
-                                    <th className="p-3.5 text-[#0A0F1E] text-xs font-semibold">Alamat</th>
-                                    <th className="p-3.5 text-[#0A0F1E] text-xs font-semibold">No.Telp</th>
-                                    <th className="p-3.5 text-[#0A0F1E] text-xs font-semibold">Role</th>
-                                    <th className="p-3.5 text-[#0A0F1E] text-xs font-semibold">Provinsi</th>
-                                    <th className="p-3.5 text-[#0A0F1E] text-xs font-semibold">Kabupaten</th>
-                                    <th className="p-3.5 text-[#0A0F1E] text-xs font-semibold">Kecamatan</th>
-                                    <th className="p-3.5 text-[#0A0F1E] text-xs font-semibold rounded-tr-xl text-center">Aksi</th>
+                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tl-xl text-center">NO</th>
+                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Nama</th>
+                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Username</th>
+                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Alamat</th>
+                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">No.Telp</th>
+                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Role</th>
+                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Provinsi</th>
+                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kabupaten</th>
+                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kecamatan</th>
+                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tr-xl text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {dataAdmin.map((item, index) => (
                                     <tr key={index} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="p-4 text-[#0A0F1E] text-xs font-semibold text-center">{index + 1}</td>
-                                        <td className="p-4 text-[#0A0F1E] text-xs font-normal">{item.nama}</td>
-                                        <td className="p-4 text-[#0A0F1E] text-xs font-normal">{item.username}</td>
-                                        <td className="p-4 text-[#0A0F1E] text-xs font-normal">{item.alamat}</td>
-                                        <td className="p-4 text-[#0A0F1E] text-xs font-normal">{item.telp}</td>
-                                        <td className="p-4 text-[#0A0F1E] text-xs font-normal">{item.role}</td>
-                                        <td className="p-4 text-[#0A0F1E] text-xs font-normal">{item.provinsi}</td>
-                                        <td className="p-4 text-[#0A0F1E] text-xs font-normal">{item.kabupaten}</td>
-                                        <td className="p-4 text-[#0A0F1E] text-xs font-normal">{item.kecamatan}</td>
-                                        <td className="p-4">
+                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">{index + 1}</td>
+                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.nama}</td>
+                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.username}</td>
+                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.alamat}</td>
+                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.telp}</td>
+                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.role}</td>
+                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.provinsi}</td>
+                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kabupaten}</td>
+                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kecamatan}</td>
+                                        <td className="py-2.5 px-4 ">
                                             <div className="flex items-center justify-center gap-1.5">
                                                 {/* Edit Button (Orange #FB923C 12%) */}
                                                 <button 
@@ -125,9 +125,9 @@ const DataAdminPage = () => {
                                                         setSelectedAdmin(item);
                                                         setIsEditModalOpen(true);
                                                     }}
-                                                    className="w-6 h-6 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
+                                                    className="w-7 h-7 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
                                                 >
-                                                    <Edit size={12} />
+                                                    <Edit size={14} />
                                                 </button>
                                                 {/* Delete Button (Red #EF4444 10%) */}
                                                 <button 
@@ -135,9 +135,9 @@ const DataAdminPage = () => {
                                                         setSelectedAdmin(item);
                                                         setIsDeleteModalOpen(true);
                                                     }}
-                                                    className="w-6 h-6 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
+                                                    className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
                                                 >
-                                                    <Trash2 size={12} />
+                                                    <Trash2 size={14} />
                                                 </button>
                                                 {/* Lock/Reset Button (Amber #FBBF24 12%) */}
                                                 <button 
@@ -161,16 +161,16 @@ const DataAdminPage = () => {
                     <div className="mt-8 flex items-center justify-between">
                         <p className="text-[#9298B0] text-xs font-normal">Menampilkan 1-10 dari 15 data</p>
                         <div className="flex items-center gap-1.5">
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50">
+                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50">
                                 <ChevronLeft size={18} />
                             </button>
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#0080C5] text-white text-xs font-semibold">
+                            <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
                                 1
                             </button>
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-[#0A0F1E] text-xs font-semibold hover:bg-slate-50">
+                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-[#0A0F1E] text-[11px] font-semibold hover:bg-slate-50">
                                 2
                             </button>
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50">
+                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50">
                                 <ChevronRight size={18} />
                             </button>
                         </div>

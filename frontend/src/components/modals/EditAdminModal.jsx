@@ -27,7 +27,7 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose}></div>
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-[580px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
                 
                 {/* Header */}
                 <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
@@ -46,7 +46,7 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Form Body */}
-                <form onSubmit={handleSave} className="p-6 space-y-5">
+                <form onSubmit={handleSave} className="p-5 space-y-3">
                     <div className="grid grid-cols-2 gap-5">
                         {/* Nama */}
                         <div className="flex flex-col gap-1.5">

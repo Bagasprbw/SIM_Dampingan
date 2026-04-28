@@ -113,12 +113,12 @@ const DashboardPage = () => {
                     <div className="bg-white p-6 rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-sm h-80">
                         <h3 className="text-[#0A0F1E] text-sm font-bold tracking-tight">Jumlah Kegiatan Per Grup</h3>
                         <div className="flex gap-2">
-                            <div className="flex-1 flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg text-xs font-bold cursor-pointer">April <ChevronDown size={14} /></div>
-                            <div className="flex-1 flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg text-xs font-bold cursor-pointer">2026 <ChevronDown size={14} /></div>
+                            <div className="flex-1 flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg text-[11px] font-semibold cursor-pointer">April <ChevronDown size={14} /></div>
+                            <div className="flex-1 flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg text-[11px] font-semibold cursor-pointer">2026 <ChevronDown size={14} /></div>
                         </div>
                         <div className="flex items-center gap-1">
                             <span className="text-[#9298B0] text-xs font-normal">Total Kegiatan Bulan ini: </span>
-                            <span className="text-[#0A0F1E] text-xs font-bold">0</span>
+                            <span className="text-[#0A0F1E] text-[11px] font-semibold">0</span>
                         </div>
                         <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
                             <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center"><Info size={20} className="text-slate-300" /></div>
@@ -175,9 +175,9 @@ const DashboardPage = () => {
                                 {section.items.map((item, iIdx) => (
                                     <div key={iIdx} className={`p-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${iIdx !== section.items.length - 1 ? 'border-b border-slate-50' : 'rounded-b-2xl'}`}>
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 bg-[#0080C5] rounded-[10px] flex items-center justify-center text-white text-xs font-medium">{item.id}</div>
+                                            <div className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">{item.id}</div>
                                             <div className="flex flex-col">
-                                                <span className="text-[#0A0F1E] text-xs font-semibold">{item.name}</span>
+                                                <span className="text-[#0A0F1E] text-[11px] font-semibold">{item.name}</span>
                                                 <span className="text-[#9298B0] text-[10px] font-normal line-clamp-1">{item.action}</span>
                                             </div>
                                         </div>

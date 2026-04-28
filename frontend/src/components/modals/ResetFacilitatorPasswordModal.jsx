@@ -34,7 +34,7 @@ const ResetFacilitatorPasswordModal = ({ isOpen, onClose, data }) => {
                         <X size={16} strokeWidth={3} />
                     </button>
                 </div>
-                <div className="p-6 space-y-5">
+                <div className="p-5 space-y-3">
                     <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 space-y-3 text-left">
                         <p className="text-gray-700 text-[11px] font-normal leading-relaxed">Apakah Anda yakin ingin mereset password fasilitator berikut?</p>
                         <div className="space-y-2 text-xs">

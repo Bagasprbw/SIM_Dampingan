@@ -39,7 +39,7 @@ const ResetPjPasswordModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Body */}
-                <div className="p-6 flex flex-col gap-5">
+                <div className="p-5 flex flex-col gap-5">
                     {/* Info Box */}
                     <div className="w-full p-4 bg-amber-50 rounded-xl border-[0.80px] border-amber-200 flex flex-col gap-3">
                         <p className="text-gray-700 text-xs font-normal leading-5">

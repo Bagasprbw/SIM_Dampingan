@@ -40,7 +40,7 @@ const DeletePjModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Body */}
-                <div className="p-6 flex flex-col gap-5 text-left">
+                <div className="p-5 flex flex-col gap-5 text-left">
                     {/* Data Display Box */}
                     <div className="w-full p-4 bg-red-50 rounded-xl border-[0.80px] border-red-200 flex flex-col gap-3 text-left">
                         <p className="text-gray-700 text-xs font-normal leading-5">
@@ -84,7 +84,7 @@ const DeletePjModal = ({ isOpen, onClose, data }) => {
                             onClick={handleDelete}
                             className="h-10 px-6 bg-[#EF4444] text-white rounded-[10px] flex items-center gap-2 hover:bg-red-600 transition-all group"
                         >
-                            <Trash2 size={14} className="text-white" />
+                            <Trash2 size={16} className="text-white" />
                             <span className="text-xs font-semibold">Ya, Hapus</span>
                         </button>
                     </div>

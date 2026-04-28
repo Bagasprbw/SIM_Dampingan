@@ -45,7 +45,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
                             <img 
                                 src="/images/superadmin.png" 
                                 alt="Profile" 
-                                className="w-12 h-12 rounded-full border-[1.6px] border-[#0080C5] object-cover"
+                                className="w-10 h-10 rounded-full border-[1.6px] border-[#0080C5] object-cover"
                             />
                             <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#10B981] rounded-full border-[1.6px] border-white" />
                         </div>
@@ -63,7 +63,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Form Section */}
-                <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
                     {/* Input Nama */}
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Nama</label>

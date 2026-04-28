@@ -12,9 +12,9 @@ const FacilitatorDetailModal = ({ isOpen, onClose, data }) => {
             <div className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
                 
                 {/* Profile Header */}
-                <div className="p-6 pb-4 border-b border-slate-50 flex items-start gap-4 text-left">
+                <div className="p-5 pb-4 border-b border-slate-50 flex items-start gap-4 text-left">
                     <div className="relative">
-                        <div className="w-16 h-16 bg-gradient-to-br from-[#0080C5] to-[#006da8] rounded-full flex items-center justify-center text-white text-xl font-bold border-4 border-white shadow-md">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#0080C5] to-[#006da8] rounded-full flex items-center justify-center text-white text-base font-bold border-4 border-white shadow-md">
                             {initials}
                         </div>
                         <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
