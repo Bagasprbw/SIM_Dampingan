@@ -36,7 +36,7 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose}></div>
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-[580px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
                 
                 {/* Header */}
                 <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
@@ -55,7 +55,7 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Form Body */}
-                <form onSubmit={handleSave} className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <form onSubmit={handleSave} className="p-5 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
                     
                     {/* Foto Fasilitator */}
                     <div className="flex flex-col gap-3">
@@ -65,7 +65,7 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
                                 {selectedImage ? (
                                     <img src={selectedImage} alt="Preview" className="w-full h-full object-cover" />
                                 ) : (
-                                    <ImageIcon size={28} className="text-slate-300" />
+                                    <ImageIcon size={20} className="text-slate-300" />
                                 )}
                             </div>
                             <div className="flex flex-col gap-2">

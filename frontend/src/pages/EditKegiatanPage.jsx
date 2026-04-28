@@ -78,22 +78,21 @@ const EditKegiatanPage = () => {
                     </div>
 
                     {/* 2. Form Body */}
-                    <div className="p-8 space-y-10 mb-20 overflow-y-auto max-h-[75vh] custom-scrollbar">
-                        
+                    <div className="p-8 space-y-10">
                         {/* SECTION: INFORMASI UTAMA */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-[#0080C5] rounded-lg text-white">
                                     <Info size={16} />
                                 </div>
-                                <h3 className="text-[#0080C5] text-xs font-bold tracking-wider uppercase">Informasi Utama</h3>
+                                <h3 className="text-[#0080C5] text-[11px] font-semibold tracking-wider uppercase">Informasi Utama</h3>
                                 <div className="flex-1 h-px bg-gray-100"></div>
                             </div>
 
                             <div className="space-y-6 pl-11">
                                 {/* Judul Kegiatan */}
                                 <div className="space-y-2">
-                                    <label className="text-gray-700 text-xs font-bold flex items-center gap-1">
+                                    <label className="text-gray-700 text-[11px] font-semibold flex items-center gap-1">
                                         Judul Kegiatan <span className="text-red-500 font-normal">*</span>
                                     </label>
                                     <input 
@@ -107,7 +106,7 @@ const EditKegiatanPage = () => {
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-end">
                                         <div className="space-y-1">
-                                            <label className="text-gray-700 text-xs font-bold flex items-center gap-1">
+                                            <label className="text-gray-700 text-[11px] font-semibold flex items-center gap-1">
                                                 Deskripsi <span className="text-red-500 font-normal">*</span>
                                             </label>
                                             <p className="text-slate-400 text-[10px]">Minimal 500 karakter</p>
@@ -125,7 +124,7 @@ const EditKegiatanPage = () => {
                                 {/* Masalah & Solusi */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-gray-700 text-xs font-bold flex items-center gap-1">
+                                        <label className="text-gray-700 text-[11px] font-semibold flex items-center gap-1">
                                             Masalah <span className="text-red-500 font-normal">*</span>
                                         </label>
                                         <textarea 
@@ -134,7 +133,7 @@ const EditKegiatanPage = () => {
                                         ></textarea>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-gray-700 text-xs font-bold flex items-center gap-1">
+                                        <label className="text-gray-700 text-[11px] font-semibold flex items-center gap-1">
                                             Solusi <span className="text-red-500 font-normal">*</span>
                                         </label>
                                         <textarea 
@@ -152,14 +151,14 @@ const EditKegiatanPage = () => {
                                 <div className="p-2 bg-[#10B981] rounded-lg text-white">
                                     <MapPin size={16} />
                                 </div>
-                                <h3 className="text-[#10B981] text-xs font-bold tracking-wider uppercase">Lokasi & Waktu</h3>
+                                <h3 className="text-[#10B981] text-[11px] font-semibold tracking-wider uppercase">Lokasi & Waktu</h3>
                                 <div className="flex-1 h-px bg-gray-100"></div>
                             </div>
 
                             <div className="space-y-6 pl-11">
                                 {/* Alamat */}
                                 <div className="space-y-2">
-                                    <label className="text-gray-700 text-xs font-bold flex items-center gap-1">
+                                    <label className="text-gray-700 text-[11px] font-semibold flex items-center gap-1">
                                         Alamat Kegiatan <span className="text-red-500 font-normal">*</span>
                                     </label>
                                     <input 
@@ -172,7 +171,7 @@ const EditKegiatanPage = () => {
                                 {/* Wilayah Selects */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-gray-700 text-xs font-bold flex items-center gap-1">Provinsi <span className="text-red-500 font-normal">*</span></label>
+                                        <label className="text-gray-700 text-[11px] font-semibold flex items-center gap-1">Provinsi <span className="text-red-500 font-normal">*</span></label>
                                         <div className="relative">
                                             <select className="w-full h-11 px-4 bg-white rounded-xl border border-gray-200 text-xs font-medium text-gray-400 appearance-none focus:outline-none focus:border-[#10B981] cursor-pointer">
                                                 <option>Pilih...</option>
@@ -181,7 +180,7 @@ const EditKegiatanPage = () => {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-gray-700 text-xs font-bold flex items-center gap-1">Kabupaten / Kota <span className="text-red-500 font-normal">*</span></label>
+                                        <label className="text-gray-700 text-[11px] font-semibold flex items-center gap-1">Kabupaten / Kota <span className="text-red-500 font-normal">*</span></label>
                                         <div className="relative">
                                             <select className="w-full h-11 px-4 bg-white rounded-xl border border-gray-200 text-xs font-medium text-gray-400 appearance-none focus:outline-none focus:border-[#10B981] cursor-pointer">
                                                 <option>Pilih...</option>
@@ -190,7 +189,7 @@ const EditKegiatanPage = () => {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-gray-700 text-xs font-bold flex items-center gap-1">Kecamatan <span className="text-red-500 font-normal">*</span></label>
+                                        <label className="text-gray-700 text-[11px] font-semibold flex items-center gap-1">Kecamatan <span className="text-red-500 font-normal">*</span></label>
                                         <div className="relative">
                                             <select className="w-full h-11 px-4 bg-white rounded-xl border border-gray-200 text-xs font-medium text-gray-400 appearance-none focus:outline-none focus:border-[#10B981] cursor-pointer">
                                                 <option>Pilih...</option>
@@ -203,14 +202,14 @@ const EditKegiatanPage = () => {
                                 {/* Tanggal & Waktu */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-gray-700 text-xs font-bold flex items-center gap-1">Tanggal Pelaksanaan <span className="text-red-500 font-normal">*</span></label>
+                                        <label className="text-gray-700 text-[11px] font-semibold flex items-center gap-1">Tanggal Pelaksanaan <span className="text-red-500 font-normal">*</span></label>
                                         <input type="date" className="w-full h-11 px-4 bg-white rounded-xl border border-gray-200 text-xs font-medium text-gray-700 focus:outline-none focus:border-[#10B981]" />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-gray-700 text-xs font-bold flex items-center gap-1">Waktu Pelaksanaan <span className="text-red-500 font-normal">*</span></label>
+                                        <label className="text-gray-700 text-[11px] font-semibold flex items-center gap-1">Waktu Pelaksanaan <span className="text-red-500 font-normal">*</span></label>
                                         <div className="flex items-center gap-3">
                                             <input type="time" className="flex-1 h-11 px-4 bg-white rounded-xl border border-gray-200 text-xs font-medium text-gray-700 focus:outline-none focus:border-[#10B981]" />
-                                            <span className="text-slate-400 text-xs font-bold">s/d</span>
+                                            <span className="text-slate-400 text-[11px] font-semibold">s/d</span>
                                             <input type="time" className="flex-1 h-11 px-4 bg-white rounded-xl border border-gray-200 text-xs font-medium text-gray-700 focus:outline-none focus:border-[#10B981]" />
                                         </div>
                                     </div>
@@ -224,13 +223,13 @@ const EditKegiatanPage = () => {
                                 <div className="p-2 bg-[#7C3AED] rounded-lg text-white">
                                     <Users size={16} />
                                 </div>
-                                <h3 className="text-[#7C3AED] text-xs font-bold tracking-wider uppercase">Bidang & Grup Dampingan</h3>
+                                <h3 className="text-[#7C3AED] text-[11px] font-semibold tracking-wider uppercase">Bidang & Grup Dampingan</h3>
                                 <div className="flex-1 h-px bg-gray-100"></div>
                             </div>
 
                             <div className="space-y-6 pl-11">
                                 <div className="space-y-2">
-                                    <label className="text-gray-700 text-xs font-bold flex items-center gap-1">Bidang Dampingan <span className="text-red-500 font-normal">*</span></label>
+                                    <label className="text-gray-700 text-[11px] font-semibold flex items-center gap-1">Bidang Dampingan <span className="text-red-500 font-normal">*</span></label>
                                     <div className="relative">
                                         <select className="w-full h-11 px-4 bg-white rounded-xl border border-gray-200 text-xs font-medium text-gray-400 appearance-none focus:outline-none focus:border-[#7C3AED] cursor-pointer">
                                             <option>Pilih...</option>
@@ -241,7 +240,7 @@ const EditKegiatanPage = () => {
 
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center">
-                                        <label className="text-gray-700 text-xs font-bold flex items-center gap-1">Grup Dampingan <span className="text-red-500 font-normal">*</span></label>
+                                        <label className="text-gray-700 text-[11px] font-semibold flex items-center gap-1">Grup Dampingan <span className="text-red-500 font-normal">*</span></label>
                                         <span className="text-slate-400 text-[10px]">3 grup dipilih</span>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
@@ -272,7 +271,7 @@ const EditKegiatanPage = () => {
                                 <div className="p-2 bg-[#F59E0B] rounded-lg text-white">
                                     <ImageIcon size={16} />
                                 </div>
-                                <h3 className="text-[#F59E0B] text-xs font-bold tracking-wider uppercase">Dokumentasi</h3>
+                                <h3 className="text-[#F59E0B] text-[11px] font-semibold tracking-wider uppercase">Dokumentasi</h3>
                                 <div className="flex-1 h-px bg-gray-100"></div>
                             </div>
 
@@ -281,7 +280,7 @@ const EditKegiatanPage = () => {
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center">
                                         <div className="flex items-center gap-2">
-                                            <label className="text-gray-700 text-xs font-bold uppercase">Foto Kegiatan</label>
+                                            <label className="text-gray-700 text-[11px] font-semibold uppercase">Foto Kegiatan</label>
                                             <span className="px-2 py-0.5 bg-gray-100 rounded-full text-[#9298B0] text-[10px] font-bold">Opsional</span>
                                         </div>
                                         <span className="px-3 py-1 bg-[#F59E0B]/10 rounded-full text-[#B45309] text-[11px] font-bold tracking-tight">4 foto tersimpan</span>
@@ -299,21 +298,21 @@ const EditKegiatanPage = () => {
                                             </div>
                                         ))}
                                         <button className="h-28 bg-slate-50 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-1 hover:bg-slate-100 hover:border-[#F59E0B] transition-all text-gray-400 hover:text-[#F59E0B]">
-                                            <Plus size={20} />
-                                            <span className="text-[10px] font-bold tracking-tight uppercase">Tambah</span>
+                                            <Plus size={18} />
+                                            <span>Tambah</span>
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* PDF Upload */}
                                 <div className="space-y-3">
-                                    <label className="text-gray-700 text-xs font-bold uppercase">Laporan Kegiatan (PDF)</label>
+                                    <label className="text-gray-700 text-[11px] font-semibold uppercase">Laporan Kegiatan (PDF)</label>
                                     <div className="p-4 bg-red-50 rounded-2xl border border-red-500 flex items-center gap-4 group">
                                         <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-red-200">
-                                            <FileText size={20} />
+                                            <FileText size={18} />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-slate-950 text-xs font-bold truncate">Laporan-Pelatihan-Pengolahan-Hasil-Tani-Apr2026.pdf</p>
+                                            <p className="text-slate-950 text-[11px] font-semibold truncate">Laporan-Pelatihan-Pengolahan-Hasil-Tani-Apr2026.pdf</p>
                                             <div className="flex items-center gap-2 mt-0.5">
                                                 <span className="text-slate-400 text-[10px]">2.4 MB · PDF</span>
                                                 <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
@@ -325,8 +324,8 @@ const EditKegiatanPage = () => {
                                                 <div className="w-2.5 h-1 border-b border-gray-700"></div>
                                                 Ganti
                                             </button>
-                                            <button className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-100">
-                                                <Trash2 size={16} />
+                                            <button className="w-7 h-7 bg-red-50 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-100">
+                                                <Trash2 size={14} />
                                             </button>
                                         </div>
                                     </div>
@@ -335,17 +334,17 @@ const EditKegiatanPage = () => {
                         </div>
                     </div>
 
-                    {/* 3. Bottom Footer (Sticky) */}
-                    <div className="absolute inset-x-0 bottom-0 h-20 bg-white border-t border-gray-100 px-8 flex items-center justify-end gap-3 z-20">
+                    {/* 3. Bottom Footer */}
+                    <div className="bg-white border-t border-gray-100 px-8 py-6 flex items-center justify-end gap-3 rounded-b-2xl">
                         <button 
                             onClick={handleBack}
-                            className="h-11 px-8 bg-white border border-gray-200 text-gray-500 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all active:scale-95"
+                            className="h-11 px-8 bg-white border border-gray-200 text-gray-500 text-[11px] font-semibold rounded-xl hover:bg-gray-50 transition-all active:scale-95"
                         >
                             Batal
                         </button>
                         <button 
                             onClick={handleSave}
-                            className="h-11 px-10 bg-[#0080C5] text-white text-xs font-bold rounded-xl shadow-lg shadow-sky-600/20 hover:bg-sky-700 transition-all flex items-center gap-2 active:scale-95"
+                            className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                         >
                             <Save size={16} />
                             Simpan Perubahan

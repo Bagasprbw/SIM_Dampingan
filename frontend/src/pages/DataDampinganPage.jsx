@@ -61,13 +61,13 @@ const DataDampinganPage = () => {
                     <div className="flex justify-end items-center gap-3 mb-6">
                         <button 
                             onClick={() => setIsAddModalOpen(true)}
-                            className="h-11 px-6 bg-[#0080C5] text-white rounded-xl flex items-center gap-2 hover:bg-sky-700 transition-all font-bold text-sm shadow-sm"
+                            className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                         >
-                            <Plus size={20} />
+                            <Plus size={18} />
                             <span>Tambah</span>
                         </button>
-                        <button className="h-11 px-6 bg-[#22C55E] text-white rounded-xl flex items-center gap-2 hover:bg-green-600 transition-all font-bold text-sm shadow-sm">
-                            <FileDown size={20} />
+                        <button className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold">
+                            <FileDown size={18} />
                             <span>Cetak Data</span>
                             <ChevronDown size={18} />
                         </button>
@@ -114,30 +114,30 @@ const DataDampinganPage = () => {
                         <table className="w-full border-separate border-spacing-0">
                             <thead>
                                 <tr>
-                                    <th className="py-5 px-4 bg-[#F8FAFC] text-center text-slate-900 text-xs font-bold border-y border-l border-slate-100 rounded-tl-xl whitespace-nowrap">NO.Anggota</th>
-                                    <th className="py-5 px-4 bg-[#F8FAFC] text-left text-slate-900 text-xs font-bold border-y border-slate-100 whitespace-nowrap">Nama</th>
-                                    <th className="py-5 px-4 bg-[#F8FAFC] text-center text-slate-900 text-xs font-bold border-y border-slate-100 whitespace-nowrap">Jenis Kelamin</th>
-                                    <th className="py-5 px-4 bg-[#F8FAFC] text-left text-slate-900 text-xs font-bold border-y border-slate-100 whitespace-nowrap">Alamat</th>
-                                    <th className="py-5 px-4 bg-[#F8FAFC] text-center text-slate-900 text-xs font-bold border-y border-slate-100 leading-tight whitespace-nowrap">Bidang Dampingan</th>
-                                    <th className="py-5 px-4 bg-[#F8FAFC] text-center text-slate-900 text-xs font-bold border-y border-slate-100 leading-tight whitespace-nowrap">Grup Dampingan</th>
-                                    <th className="py-5 px-4 bg-[#F8FAFC] text-center text-slate-900 text-xs font-bold border-y border-slate-100 whitespace-nowrap">Aksi</th>
-                                    <th className="py-5 px-4 bg-[#F8FAFC] text-center text-slate-900 text-xs font-bold border-y border-r border-slate-100 rounded-tr-xl whitespace-nowrap">Detail</th>
+                                    <th className="py-3 px-4 bg-[#F8FAFC] text-center text-slate-900 text-[11px] font-semibold border-y border-l border-slate-100 rounded-tl-xl whitespace-nowrap">NO.Anggota</th>
+                                    <th className="py-3 px-4 bg-[#F8FAFC] text-left text-slate-900 text-[11px] font-semibold border-y border-slate-100 whitespace-nowrap">Nama</th>
+                                    <th className="py-3 px-4 bg-[#F8FAFC] text-center text-slate-900 text-[11px] font-semibold border-y border-slate-100 whitespace-nowrap">Jenis Kelamin</th>
+                                    <th className="py-3 px-4 bg-[#F8FAFC] text-left text-slate-900 text-[11px] font-semibold border-y border-slate-100 whitespace-nowrap">Alamat</th>
+                                    <th className="py-3 px-4 bg-[#F8FAFC] text-center text-slate-900 text-[11px] font-semibold border-y border-slate-100 leading-tight whitespace-nowrap">Bidang Dampingan</th>
+                                    <th className="py-3 px-4 bg-[#F8FAFC] text-center text-slate-900 text-[11px] font-semibold border-y border-slate-100 leading-tight whitespace-nowrap">Grup Dampingan</th>
+                                    <th className="py-3 px-4 bg-[#F8FAFC] text-center text-slate-900 text-[11px] font-semibold border-y border-slate-100 whitespace-nowrap">Aksi</th>
+                                    <th className="py-3 px-4 bg-[#F8FAFC] text-center text-slate-900 text-[11px] font-semibold border-y border-r border-slate-100 rounded-tr-xl whitespace-nowrap">Detail</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#F0F2F8]">
                                 {dataDampingan.map((item, index) => (
                                     <tr key={index} className="hover:bg-slate-50 transition-colors">
-                                        <td className="py-6 px-4 text-center text-[#9298B0] text-[12px] font-medium border-x-0">{item.noAnggota}</td>
-                                        <td className="py-6 px-4 text-left border-x-0">
+                                        <td className="py-2.5 px-4 text-center text-[#9298B0] text-[12px] font-medium border-x-0">{item.noAnggota}</td>
+                                        <td className="py-2.5 px-4 text-left border-x-0">
                                             <span className="text-[#0080C5] text-[12px] font-bold hover:underline cursor-pointer">{item.nama}</span>
                                         </td>
-                                        <td className="py-6 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.gender}</td>
-                                        <td className="py-6 px-4 text-left text-[#0A0F1E] text-[12px] font-normal max-w-[220px] leading-relaxed border-x-0">
+                                        <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.gender}</td>
+                                        <td className="py-2.5 px-4 text-left text-[#0A0F1E] text-[12px] font-normal max-w-[220px] leading-relaxed border-x-0">
                                             {item.alamat}
                                         </td>
-                                        <td className="py-6 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.bidang}</td>
-                                        <td className="py-6 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.grup}</td>
-                                        <td className="py-6 px-4 border-x-0 text-center">
+                                        <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.bidang}</td>
+                                        <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.grup}</td>
+                                        <td className="py-2.5 px-4 border-x-0 text-center">
                                             <div className="flex items-center justify-center gap-2.5">
                                                 <button onClick={() => handleEdit(item)} className="w-7 h-7 flex items-center justify-center bg-[#FB923C]/12 text-[#FB923C] rounded-md hover:bg-[#FB923C] hover:text-white transition-all shadow-sm">
                                                     <Edit size={14} />
@@ -145,15 +145,15 @@ const DataDampinganPage = () => {
                                                 <button onClick={() => handleDelete(item)} className="w-7 h-7 flex items-center justify-center bg-[#EF4444]/10 text-[#EF4444] rounded-md hover:bg-[#EF4444] hover:text-white transition-all shadow-sm">
                                                     <Trash2 size={14} />
                                                 </button>
-                                                <button className="w-7 h-7 flex items-center justify-center bg-[#0080C5]/12 text-[#0080C5] rounded-md hover:bg-[#0080C5] hover:text-white transition-all shadow-sm">
+                                                <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
                                                     <Printer size={14} />
                                                 </button>
                                             </div>
                                         </td>
-                                        <td className="py-6 px-4 text-center border-x-0">
+                                        <td className="py-2.5 px-4 text-center border-x-0">
                                             <button 
                                                 onClick={() => handleDetail(item)}
-                                                className="px-5 py-2 bg-[#0080C5] text-white text-[11px] font-bold rounded-lg hover:bg-sky-700 transition-all shadow-sm"
+                                                className="h-7 px-3 bg-[#0080C5]/10 text-[#0080C5] rounded-md flex items-center justify-center hover:bg-[#0080C5] hover:text-white transition-all text-[11px] font-bold mx-auto"
                                             >
                                                 Detail
                                             </button>
@@ -168,14 +168,10 @@ const DataDampinganPage = () => {
                     <div className="mt-8 flex items-center justify-between">
                         <span className="text-[#9298B0] text-[11px] font-medium">Menampilkan 1-10 dari 15 data</span>
                         <div className="flex items-center gap-3">
-                            <button className="text-[#9298B0] hover:text-[#0A0F1E] transition-colors">
-                                <ChevronLeft size={20} />
-                            </button>
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#0080C5] text-white text-[11px] font-bold shadow-md">1</button>
-                            <button className="w-8 h-8 flex items-center justify-center text-[#9298B0] text-[11px] font-bold hover:text-[#0080C5]">2</button>
-                            <button className="text-[#9298B0] hover:text-[#0080C5] transition-colors">
-                                <ChevronRight size={20} />
-                            </button>
+                            <button className="w-7 h-7 flex items-center justify-center rounded-md border border-gray-200 text-slate-400 hover:bg-slate-50 transition-all"><ChevronLeft size={14} /></button>
+                            <button className="w-7 h-7 flex items-center justify-center rounded-md bg-[#0080C5] text-white text-[11px] font-semibold shadow-sm">1</button>
+                            <button className="w-7 h-7 flex items-center justify-center rounded-md border border-gray-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 transition-all">2</button>
+                            <button className="w-7 h-7 flex items-center justify-center rounded-md border border-gray-200 text-slate-400 hover:bg-slate-50 transition-all"><ChevronRight size={14} /></button>
                         </div>
                     </div>
                 </div>

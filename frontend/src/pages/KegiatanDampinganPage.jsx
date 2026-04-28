@@ -57,35 +57,35 @@ const KegiatanDampinganPage = () => {
                     <div className="flex flex-wrap items-center gap-4 mb-8">
                         {/* Dari Tanggal */}
                         <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
-                            <label className="text-[#9298B0] text-xs font-bold ml-1">Dari tanggal :</label>
+                            <label className="text-[#9298B0] text-[11px] font-semibold ml-1">Dari tanggal :</label>
                             <div className="relative">
                                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9298B0]" size={16} />
                                 <input 
                                     type="text" 
                                     placeholder="dd/mm/yy"
-                                    className="w-full h-10 pl-10 pr-4 rounded-[10px] border border-gray-200 text-xs font-semibold text-[#9298B0] focus:outline-none focus:border-[#0080C5]"
+                                    className="w-full h-10 pl-10 pr-4 rounded-[10px] border border-gray-200 text-[11px] font-semibold text-[#9298B0] focus:outline-none focus:border-[#0080C5]"
                                 />
                             </div>
                         </div>
 
                         {/* Sampai Tanggal */}
                         <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
-                            <label className="text-[#9298B0] text-xs font-bold ml-1">Sampai tanggal :</label>
+                            <label className="text-[#9298B0] text-[11px] font-semibold ml-1">Sampai tanggal :</label>
                             <div className="relative">
                                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9298B0]" size={16} />
                                 <input 
                                     type="text" 
                                     placeholder="dd/mm/yy"
-                                    className="w-full h-10 pl-10 pr-4 rounded-[10px] border border-gray-200 text-xs font-semibold text-[#9298B0] focus:outline-none focus:border-[#0080C5]"
+                                    className="w-full h-10 pl-10 pr-4 rounded-[10px] border border-gray-200 text-[11px] font-semibold text-[#9298B0] focus:outline-none focus:border-[#0080C5]"
                                 />
                             </div>
                         </div>
 
                         {/* Bidang */}
                         <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
-                            <label className="text-[#9298B0] text-xs font-bold ml-1">Bidang :</label>
+                            <label className="text-[#9298B0] text-[11px] font-semibold ml-1">Bidang :</label>
                             <div className="relative">
-                                <select className="w-full h-10 pl-4 pr-10 rounded-[10px] border border-gray-200 text-xs font-semibold text-[#9298B0] appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer">
+                                <select className="w-full h-10 pl-4 pr-10 rounded-[10px] border border-gray-200 text-[11px] font-semibold text-[#9298B0] appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer">
                                     <option>Semua Bidang</option>
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9298B0] pointer-events-none" size={18} />
@@ -94,9 +94,9 @@ const KegiatanDampinganPage = () => {
 
                         {/* Urutan */}
                         <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
-                            <label className="text-[#9298B0] text-xs font-bold ml-1">Urutan :</label>
+                            <label className="text-[#9298B0] text-[11px] font-semibold ml-1">Urutan :</label>
                             <div className="relative">
-                                <select className="w-full h-10 pl-4 pr-10 rounded-[10px] border border-gray-200 text-xs font-semibold text-[#9298B0] appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer">
+                                <select className="w-full h-10 pl-4 pr-10 rounded-[10px] border border-gray-200 text-[11px] font-semibold text-[#9298B0] appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer">
                                     <option>Terbaru</option>
                                     <option>Terlama</option>
                                 </select>
@@ -142,9 +142,9 @@ const KegiatanDampinganPage = () => {
                                     </h3>
 
                                     {/* Button */}
-                                    <div className="mt-2 flex items-center gap-2 bg-[#0080C5] text-white px-5 py-2.5 rounded-lg group-hover:bg-sky-700 transition-all shadow-lg shadow-sky-600/20">
-                                        <FileText size={16} />
-                                        <span className="text-xs font-bold tracking-tight">Lihat Laporan</span>
+                                    <div className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
+                                        <FileText size={18} />
+                                        <span className="text-[11px] font-semibold tracking-tight">Lihat Laporan</span>
                                     </div>
                                 </div>
                             </div>
@@ -155,13 +155,13 @@ const KegiatanDampinganPage = () => {
                     <div className="mt-10 flex items-center justify-between border-t border-slate-50 pt-6">
                         <span className="text-[#9298B0] text-[11px] font-medium">Menampilkan 1-10 dari 15 data</span>
                         <div className="flex items-center gap-1.5">
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-100 text-[#0A0F1E] hover:bg-slate-50 transition-colors">
+                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-100 text-[#0A0F1E] hover:bg-slate-50 transition-colors">
                                 <ChevronLeft size={18} />
                             </button>
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#0080C5] text-white text-xs font-bold shadow-md shadow-sky-600/20">
+                            <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
                                 1
                             </button>
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-100 text-[#0A0F1E] hover:bg-slate-50 transition-colors">
+                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-100 text-[#0A0F1E] hover:bg-slate-50 transition-colors">
                                 <ChevronRight size={18} />
                             </button>
                         </div>

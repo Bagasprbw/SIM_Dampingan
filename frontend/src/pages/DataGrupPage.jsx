@@ -36,20 +36,21 @@ const DataGrupPage = () => {
 
     return (
         <AdminLayout title="Data Grup Dampingan">
-            <div className="bg-white rounded-2xl shadow-[0px_4px_20px_0px_rgba(0,0,0,0.05)] p-8 min-h-[calc(100vh-160px)]">
+            <div className="p-8 font-['Poppins']">
+                <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-8 min-h-[calc(100vh-160px)]">
                 
                 {/* Action Bar (Tambah & Cetak) */}
                 <div className="flex justify-end items-center gap-3.5 mb-6">
                     <button 
                         onClick={() => setIsAddModalOpen(true)}
-                        className="h-10 px-6 bg-[#0080C5] text-white rounded-[10px] flex items-center justify-center gap-2.5 hover:bg-sky-700 transition-all shadow-sm"
+                        className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                     >
                         <Plus size={18} />
-                        <span className="text-xs font-semibold uppercase tracking-wider">Tambah</span>
+                        <span>Tambah</span>
                     </button>
-                    <button className="h-10 px-6 bg-[#22C55E] text-white rounded-[10px] flex items-center justify-center gap-2.5 hover:bg-green-600 transition-all shadow-sm">
+                    <button className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold">
                         <Printer size={18} />
-                        <span className="text-xs font-semibold uppercase tracking-wider">Cetak Data</span>
+                        <span>Cetak Data</span>
                     </button>
                 </div>
 
@@ -73,7 +74,7 @@ const DataGrupPage = () => {
                             <div key={idx} className="relative group">
                                 <select 
                                     defaultValue=""
-                                    className="w-full h-10 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-400 text-xs font-semibold focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer"
+                                    className="w-full h-10 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-400 text-[11px] font-semibold focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer"
                                 >
                                     <option value="" disabled>{label}</option>
                                     <option value="1">Opsi 1</option>
@@ -86,56 +87,54 @@ const DataGrupPage = () => {
 
                 {/* Table Section */}
                 <div className="overflow-x-auto">
-                    <table className="w-full border-separate border-spacing-0">
+                    <table className="w-full text-left border-separate border-spacing-0">
                         <thead>
-                            <tr className="font-['Poppins']">
-                                <th className="p-4 bg-slate-50 text-[#0A0F1E] text-xs font-bold uppercase tracking-wider text-center rounded-tl-xl border-b border-gray-200 w-12">NO</th>
-                                <th className="p-4 bg-slate-50 text-[#0A0F1E] text-xs font-bold uppercase tracking-wider text-left border-b border-gray-200">Grup Dampingan</th>
-                                <th className="p-4 bg-slate-50 text-[#0A0F1E] text-xs font-bold uppercase tracking-wider text-center border-b border-gray-200">Bidang Dampingan</th>
-                                <th className="p-4 bg-slate-50 text-[#0A0F1E] text-xs font-bold uppercase tracking-wider text-center border-b border-gray-200">Jenis Dampingan</th>
-                                <th className="p-4 bg-slate-50 text-[#0A0F1E] text-xs font-bold uppercase tracking-wider text-center border-b border-gray-200">Provinsi</th>
-                                <th className="p-4 bg-slate-50 text-[#0A0F1E] text-xs font-bold uppercase tracking-wider text-left border-b border-gray-200">Kabupaten</th>
-                                <th className="p-4 bg-slate-50 text-[#0A0F1E] text-xs font-bold uppercase tracking-wider text-left border-b border-gray-200">Kecamatan</th>
-                                <th className="p-4 bg-slate-50 text-[#0A0F1E] text-xs font-bold uppercase tracking-wider text-left border-b border-gray-200">Fasilitator</th>
-                                <th className="p-4 bg-slate-50 text-[#0A0F1E] text-xs font-bold uppercase tracking-wider text-center rounded-tr-xl border-b border-gray-200 w-24">Aksi</th>
+                            <tr className="bg-[#F1F5F9]">
+                                <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tl-xl text-center w-12">NO</th>
+                                <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Grup Dampingan</th>
+                                <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">Bidang</th>
+                                <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">Jenis</th>
+                                <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Provinsi</th>
+                                <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kabupaten</th>
+                                <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kecamatan</th>
+                                <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Fasilitator</th>
+                                <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tr-xl text-center w-20">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 font-['Poppins']">
+                        <tbody className="divide-y divide-slate-50">
                             {dataGrup.map((item, index) => (
                                 <tr key={index} className="hover:bg-slate-50/50 transition-colors group">
-                                    <td className="p-4 text-center text-slate-400 text-xs font-medium border-b border-gray-100">{index + 1}</td>
-                                    <td className="p-4 text-[#0080C5] text-xs font-bold border-b border-gray-100">{item.grup}</td>
-                                    <td className="p-4 text-center text-[#0A0F1E] text-xs font-medium border-b border-gray-100">{item.bidang}</td>
-                                    <td className="p-4 text-center text-[#0080C5] text-xs font-bold border-b border-gray-100">{item.jenis}</td>
-                                    <td className="p-4 text-center text-[#0A0F1E] text-xs font-medium border-b border-gray-100">{item.provinsi}</td>
-                                    <td className="p-4 text-[#0A0F1E] text-xs font-normal border-b border-gray-100">{item.kabupaten}</td>
-                                    <td className="p-4 text-[#0A0F1E] text-xs font-normal border-b border-gray-100">{item.kecamatan}</td>
-                                    <td className="p-4 text-[#0A0F1E] text-xs font-normal border-b border-gray-100">
-                                        <div className="flex flex-col gap-1 text-left">
-                                            {item.fasilitator.map((f, i) => (
-                                                <span key={i}>{i + 1}. {f}</span>
-                                            ))}
+                                    <td className="py-2.5 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">{index + 1}</td>
+                                    <td className="py-2.5 px-4 text-[#0080C5] text-[11px] font-semibold">{item.grup}</td>
+                                    <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-xs font-normal">{item.bidang}</td>
+                                    <td className="py-2.5 px-4 text-center text-[#0080C5] text-[11px] font-semibold">{item.jenis}</td>
+                                    <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.provinsi}</td>
+                                    <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kabupaten}</td>
+                                    <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kecamatan}</td>
+                                    <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">
+                                        <div className="text-left truncate max-w-[200px]" title={item.fasilitator.join(', ')}>
+                                            {item.fasilitator.join(', ')}
                                         </div>
                                     </td>
-                                    <td className="p-4 border-b border-gray-100">
-                                        <div className="flex items-center justify-center gap-2">
+                                    <td className="py-2.5 px-4 ">
+                                        <div className="flex items-center justify-center gap-1.5">
                                             <button 
                                                 onClick={() => {
                                                     setSelectedGrup(item);
                                                     setIsEditModalOpen(true);
                                                 }}
-                                                className="w-6 h-6 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
+                                                className="w-7 h-7 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
                                             >
-                                                <Edit size={12} />
+                                                <Edit size={14} />
                                             </button>
                                             <button 
                                                 onClick={() => {
                                                     setSelectedGrup(item);
                                                     setIsDeleteModalOpen(true);
                                                 }}
-                                                className="w-6 h-6 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
+                                                className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
                                             >
-                                                <Trash2 size={12} />
+                                                <Trash2 size={14} />
                                             </button>
                                         </div>
                                     </td>
@@ -149,16 +148,17 @@ const DataGrupPage = () => {
                 <div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-6 font-['Poppins']">
                     <p className="text-slate-400 text-xs font-normal">Menampilkan 1-10 dari 15 data</p>
                     <div className="flex items-center gap-1.5">
-                        <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-slate-400 hover:bg-slate-50 transition-all disabled:opacity-50">
-                            <ChevronLeft size={16} />
+                        <button className="w-7 h-7 flex items-center justify-center rounded-md border border-gray-200 text-slate-400 hover:bg-slate-50 transition-all disabled:opacity-50">
+                            <ChevronLeft size={14} />
                         </button>
-                        <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#0080C5] text-white text-xs font-semibold shadow-sm">1</button>
-                        <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-slate-950 text-xs font-semibold hover:bg-slate-50 transition-all">2</button>
-                        <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-slate-400 hover:bg-slate-50 transition-all">
-                            <ChevronRight size={16} />
+                        <button className="w-7 h-7 flex items-center justify-center rounded-md bg-[#0080C5] text-white text-[11px] font-semibold shadow-sm">1</button>
+                        <button className="w-7 h-7 flex items-center justify-center rounded-md border border-gray-200 text-slate-600 text-[11px] font-semibold hover:bg-slate-50 transition-all">2</button>
+                        <button className="w-7 h-7 flex items-center justify-center rounded-md border border-gray-200 text-slate-400 hover:bg-slate-50 transition-all">
+                            <ChevronRight size={14} />
                         </button>
                     </div>
                 </div>
+            </div>
             </div>
 
             {/* Modals */}

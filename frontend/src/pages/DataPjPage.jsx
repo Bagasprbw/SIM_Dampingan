@@ -39,10 +39,10 @@ const DataPjPage = () => {
                     
                     {/* Header Action Row */}
                     <div className="flex justify-end items-center mb-6">
-                        <button className="flex items-center gap-2.5 px-6 py-2.5 bg-[#22C55E] text-white rounded-[10px] hover:bg-green-600 transition-colors text-left">
+                        <button className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold">
                             <FileText size={18} />
-                            <span className="text-xs font-semibold">Cetak Data</span>
-                            <ChevronDown size={16} />
+                            <span>Cetak Data</span>
+                            <ChevronDown size={18} />
                         </button>
                     </div>
 
@@ -60,8 +60,8 @@ const DataPjPage = () => {
                         </div>
                         <div className="relative min-w-[260px] text-left">
                             <div className="flex items-center justify-between px-4 py-3 bg-white rounded-[10px] border border-[#E5E7EB] hover:border-slate-300 transition-colors cursor-pointer group text-left">
-                                <span className="text-[#9298B0] text-xs font-semibold text-left">Pilih Bidang Dampingan</span>
-                                <ChevronDown size={16} className="text-[#9298B0]" />
+                                <span className="text-[#9298B0] text-[11px] font-semibold text-left">Pilih Bidang Dampingan</span>
+                                <ChevronDown size={18} className="text-[#9298B0]" />
                             </div>
                         </div>
                     </div>
@@ -71,22 +71,22 @@ const DataPjPage = () => {
                         <table className="w-full text-left border-collapse text-left">
                             <thead>
                                 <tr className="bg-slate-100 border-b-2 border-slate-100 text-left">
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider rounded-tl-xl w-12 text-center text-left">No</th>
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider text-left">Nama</th>
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider text-left">Username</th>
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider text-left">Grup Dampingan</th>
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider text-center w-32">Aksi</th>
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider text-center rounded-tr-xl w-24">Detail</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider rounded-tl-xl w-12 text-center text-left">No</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Nama</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Username</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Grup Dampingan</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-32">Aksi</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center rounded-tr-xl w-24">Detail</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 text-left">
                                 {dataPj.map((item, index) => (
                                     <tr key={index} className="group hover:bg-slate-50/50 transition-colors">
-                                        <td className="p-4 text-center border-b border-[#F1F5F9] text-[#9298B0] text-xs font-medium">{index + 1}</td>
-                                        <td className="p-4 border-b border-[#F1F5F9] text-[#0080C5] text-xs font-medium text-left">{item.nama}</td>
-                                        <td className="p-4 border-b border-[#F1F5F9] text-[#0080C5] text-xs font-normal text-left">{item.username}</td>
-                                        <td className="p-4 border-b border-[#F1F5F9] text-[#0A0F1E] text-xs font-normal text-left">{item.grup}</td>
-                                        <td className="p-4 border-b border-[#F1F5F9]">
+                                        <td className="py-2.5 px-4 text-center border-b border-[#F1F5F9] text-[#9298B0] text-xs font-medium">{index + 1}</td>
+                                        <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0080C5] text-xs font-medium text-left">{item.nama}</td>
+                                        <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0080C5] text-xs font-normal text-left">{item.username}</td>
+                                        <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0A0F1E] text-xs font-normal text-left">{item.grup}</td>
+                                        <td className="py-2.5 px-4 border-b border-[#F1F5F9]">
                                             <div className="flex items-center justify-center gap-2">
                                                 {/* Edit Action - Orange #FB923C (12%) */}
                                                 <button 
@@ -94,7 +94,7 @@ const DataPjPage = () => {
                                                         setSelectedPj(item);
                                                         setIsEditModalOpen(true);
                                                     }}
-                                                    className="w-6 h-6 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
+                                                    className="w-7 h-7 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
                                                 >
                                                     <Edit size={14} />
                                                 </button>
@@ -104,7 +104,7 @@ const DataPjPage = () => {
                                                         setSelectedPj(item);
                                                         setIsDeleteModalOpen(true);
                                                     }}
-                                                    className="w-6 h-6 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
+                                                    className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
                                                 >
                                                     <Trash2 size={14} />
                                                 </button>
@@ -120,13 +120,13 @@ const DataPjPage = () => {
                                                 </button>
                                             </div>
                                         </td>
-                                        <td className="p-4 text-center border-b border-[#F1F5F9]">
+                                        <td className="py-2.5 px-4 text-center border-b border-[#F1F5F9]">
                                             <button 
                                                 onClick={() => {
                                                     setSelectedPj(item);
                                                     setIsDetailModalOpen(true);
                                                 }}
-                                                className="px-4 py-2 bg-[#0080C5] text-white text-[10px] font-bold rounded-lg hover:bg-[#006da8] transition-all"
+                                                className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                                             >
                                                 Detail
                                             </button>
@@ -141,13 +141,13 @@ const DataPjPage = () => {
                     <div className="flex items-center justify-between mt-4">
                         <span className="text-[#9298B0] text-xs font-normal">Menampilkan 1-10 dari 15 data</span>
                         <div className="flex items-center gap-1">
-                            <button className="w-8 h-8 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#9298B0] hover:bg-gray-50">
-                                <ChevronLeft size={16} />
+                            <button className="w-7 h-7 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#9298B0] hover:bg-gray-50">
+                                <ChevronLeft size={14} />
                             </button>
-                            <button className="w-8 h-8 rounded-lg bg-[#0080C5] flex items-center justify-center text-white text-xs font-semibold">1</button>
-                            <button className="w-8 h-8 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#0A0F1E] text-xs font-semibold hover:bg-gray-50">2</button>
-                            <button className="w-8 h-8 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#9298B0] hover:bg-gray-50">
-                                <ChevronRight size={16} />
+                            <button className="w-7 h-7 flex items-center justify-center rounded-md bg-[#0080C5] text-white text-[11px] font-semibold shadow-sm">1</button>
+                            <button className="w-7 h-7 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#0A0F1E] text-[11px] font-semibold hover:bg-gray-50">2</button>
+                            <button className="w-7 h-7 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#9298B0] hover:bg-gray-50">
+                                <ChevronRight size={14} />
                             </button>
                         </div>
                     </div>

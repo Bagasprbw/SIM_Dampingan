@@ -36,7 +36,7 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose}></div>
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-[580px] bg-white rounded-2xl shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden animate-in fade-in zoom-in duration-200">
                 
                 {/* Header */}
                 <div className="h-20 px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-white">
@@ -55,16 +55,16 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Form Body */}
-                <div className="p-6 max-h-[600px] overflow-y-auto space-y-5 custom-scrollbar text-left">
+                <div className="p-5 max-h-[65vh] overflow-y-auto space-y-4 custom-scrollbar text-left">
                     
                     {/* Photo Upload Section */}
                     <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#0080C5] bg-slate-50 flex items-center justify-center text-slate-400 relative">
+                        <div className="w-10 h-10 rounded-full border-2 border-dashed border-[#0080C5] bg-slate-50 flex items-center justify-center text-slate-400 relative">
                             <Camera size={24} />
                         </div>
                         <div className="space-y-1.5">
                             <button className="px-4 py-2 bg-[#0080C5]/5 border-2 border-[#0080C5] rounded-[10px] text-[#0080C5] text-xs font-bold flex items-center gap-2 hover:bg-[#0080C5]/10 transition-all">
-                                <Upload size={14} />
+                                <Upload size={16} />
                                 Upload Foto
                             </button>
                             <p className="text-slate-400 text-[10px] font-normal tracking-tight">Format: JPG, PNG. Maks. 2 MB</p>
@@ -236,9 +236,9 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                     </button>
                     <button 
                         onClick={handleSave}
-                        className="px-8 h-10 bg-[#0080C5] text-white rounded-[10px] text-xs font-semibold hover:bg-sky-700 transition-all flex items-center gap-2 shadow-sm"
+                        className="h-9 px-5 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                     >
-                        <Upload size={14} />
+                        <Upload size={16} />
                         <span>Simpan Data</span>
                     </button>
                 </div>

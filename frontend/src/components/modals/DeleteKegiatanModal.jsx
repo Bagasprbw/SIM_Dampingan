@@ -13,29 +13,29 @@ const DeleteKegiatanModal = ({ isOpen, onClose, onConfirm, data }) => {
             />
 
             {/* Modal Content */}
-            <div className="relative bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
                 
                 {/* Header */}
-                <div className="px-8 pt-8 pb-6 border-b border-gray-50">
+                <div className="px-6 pt-8 pb-6 border-b border-gray-50">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500">
-                            <AlertCircle size={28} />
+                        <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center text-red-500">
+                            <AlertCircle size={20} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-[#0A0F1E] tracking-tight">Hapus Kegiatan</h2>
+                            <h2 className="text-base font-bold text-[#0A0F1E] tracking-tight">Hapus Kegiatan</h2>
                             <p className="text-[#9298B0] text-xs font-medium">Tindakan ini tidak dapat dibatalkan</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Body */}
-                <div className="p-8 space-y-6">
+                <div className="p-5 space-y-4">
                     <p className="text-gray-600 text-[13px] font-medium text-left">
                         Apakah Anda yakin ingin menghapus kegiatan berikut?
                     </p>
 
                     {/* Activity Info Box */}
-                    <div className="bg-[#FFF5F5] border border-[#FECACA] rounded-2xl p-6 text-left">
+                    <div className="bg-[#FFF5F5] border border-[#FECACA] rounded-2xl p-5 text-left">
                         <div className="grid grid-cols-[130px_10px_1fr] gap-y-3 text-[13px]">
                             <span className="text-[#9298B0] font-medium">Judul Kegiatan</span>
                             <span className="text-[#9298B0]">:</span>
@@ -73,16 +73,16 @@ const DeleteKegiatanModal = ({ isOpen, onClose, onConfirm, data }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="px-8 pb-8 flex items-center justify-end gap-3">
+                <div className="px-6 pb-8 flex items-center justify-end gap-3">
                     <button 
                         onClick={onClose}
-                        className="h-11 px-8 bg-white border border-gray-200 text-gray-500 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all active:scale-95"
+                        className="h-11 px-6 bg-white border border-gray-200 text-gray-500 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all active:scale-95"
                     >
                         Batal
                     </button>
                     <button 
                         onClick={onConfirm}
-                        className="h-11 px-8 bg-[#EF4444] text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-lg shadow-red-200 hover:bg-red-600 transition-all active:scale-95"
+                        className="h-11 px-6 bg-[#EF4444] text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-lg shadow-red-200 hover:bg-red-600 transition-all active:scale-95"
                     >
                         <Trash2 size={16} />
                         Ya, Hapus

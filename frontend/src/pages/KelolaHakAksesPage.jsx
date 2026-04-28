@@ -51,7 +51,7 @@ const KelolaHakAksesPage = () => {
     const handleSave = () => {
         Swal.fire({
             html: `
-                <div class="flex flex-col items-center py-6 px-4">
+                <div class="flex flex-col items-center py-4 px-4">
                     <div class="w-24 h-24 bg-gradient-to-b from-[#00C878]/20 to-[#00C878]/5 rounded-[48px] border border-[#00B96E] flex items-center justify-center mb-8">
                         <div class="w-20 h-20 bg-[#00B96E] rounded-full flex items-center justify-center text-white shadow-lg shadow-[#00B96E]/20">
                             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -75,7 +75,7 @@ const KelolaHakAksesPage = () => {
     const handleReset = () => {
         Swal.fire({
             html: `
-                <div class="flex flex-col items-center py-6 px-4">
+                <div class="flex flex-col items-center py-4 px-4">
                     <div class="w-24 h-24 bg-gradient-to-b from-[#00C878]/20 to-[#00C878]/5 rounded-[48px] border border-[#00B96E] flex items-center justify-center mb-8">
                         <div class="w-20 h-20 bg-[#00B96E] rounded-full flex items-center justify-center text-white shadow-lg shadow-[#00B96E]/20">
                             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -109,14 +109,14 @@ const KelolaHakAksesPage = () => {
                     <div className="flex items-center gap-3">
                         <button 
                             onClick={handleReset}
-                            className="h-10 px-5 bg-white border border-gray-200 rounded-xl text-[#0080C5] text-xs font-bold flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm"
+                            className="h-10 px-5 bg-white border border-gray-200 rounded-xl text-[#0080C5] text-[11px] font-semibold flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm"
                         >
                             <RotateCcw size={16} />
                             Reset Default
                         </button>
                         <button 
                             onClick={handleSave}
-                            className="h-10 px-5 bg-[#0080C5] text-white text-xs font-bold rounded-xl flex items-center gap-2 hover:bg-sky-700 transition-all shadow-lg shadow-sky-600/20"
+                            className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                         >
                             <Save size={16} />
                             Simpan Perubahan
@@ -146,7 +146,7 @@ const KelolaHakAksesPage = () => {
                             ].map(item => (
                                 <div key={item.id} className="flex items-center justify-between gap-4">
                                     <div className="space-y-1">
-                                        <p className="text-xs font-bold text-slate-800">{item.label}</p>
+                                        <p className="text-[11px] font-semibold text-slate-800">{item.label}</p>
                                         <p className="text-[10px] text-slate-400 leading-relaxed">{item.desc}</p>
                                     </div>
                                     <Toggle 
@@ -177,7 +177,7 @@ const KelolaHakAksesPage = () => {
                             ].map(item => (
                                 <div key={item.id} className="flex items-center justify-between gap-4">
                                     <div className="space-y-1">
-                                        <p className="text-xs font-bold text-slate-800">{item.label}</p>
+                                        <p className="text-[11px] font-semibold text-slate-800">{item.label}</p>
                                         <p className="text-[10px] text-slate-400 leading-relaxed">{item.desc}</p>
                                     </div>
                                     <Toggle 
@@ -207,7 +207,7 @@ const KelolaHakAksesPage = () => {
                             ].map(item => (
                                 <div key={item.id} className="flex items-center justify-between gap-4">
                                     <div className="space-y-1">
-                                        <p className="text-xs font-bold text-slate-800">{item.label}</p>
+                                        <p className="text-[11px] font-semibold text-slate-800">{item.label}</p>
                                         <p className="text-[10px] text-slate-400 leading-relaxed">{item.desc}</p>
                                     </div>
                                     <Toggle 
@@ -223,7 +223,7 @@ const KelolaHakAksesPage = () => {
 
                 {/* 2. Fitur Global Section */}
                 <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="px-8 py-6 flex items-center gap-4 border-b border-gray-50">
+                    <div className="px-8 py-4 flex items-center gap-4 border-b border-gray-50">
                         <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border border-gray-100">
                             <Globe size={20} />
                         </div>
@@ -266,30 +266,30 @@ const KelolaHakAksesPage = () => {
                                     { id: 'peta', label: 'Peta Sebaran', desc: 'Visualisasi geografis titik lokasi masyarakat dan grup dampingan.' }
                                 ].map(item => (
                                     <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="py-6 px-8">
+                                        <td className="py-4 px-8">
                                             <div className="space-y-1">
-                                                <p className="text-xs font-bold text-slate-800">{item.label}</p>
+                                                <p className="text-[11px] font-semibold text-slate-800">{item.label}</p>
                                                 <p className="text-[10px] text-slate-400 leading-relaxed">{item.desc}</p>
                                             </div>
                                         </td>
-                                        <td className="py-6 px-6 text-center">
+                                        <td className="py-4 px-6 text-center">
                                             <Toggle 
                                                 enabled={access.global[item.id].admin} 
-                                                onChange={() => {}} 
+                                                onChange={() => setAccess({...access, global: {...access.global, [item.id]: {...access.global[item.id], admin: !access.global[item.id].admin}}})} 
                                                 colorClass="bg-[#0080C5]"
                                             />
                                         </td>
-                                        <td className="py-6 px-6 text-center">
+                                        <td className="py-4 px-6 text-center">
                                             <Toggle 
                                                 enabled={access.global[item.id].fasilitator} 
-                                                onChange={() => {}} 
+                                                onChange={() => setAccess({...access, global: {...access.global, [item.id]: {...access.global[item.id], fasilitator: !access.global[item.id].fasilitator}}})} 
                                                 colorClass="bg-[#EA580C]"
                                             />
                                         </td>
-                                        <td className="py-6 px-6 text-center">
+                                        <td className="py-4 px-6 text-center">
                                             <Toggle 
                                                 enabled={access.global[item.id].pj} 
-                                                onChange={() => {}} 
+                                                onChange={() => setAccess({...access, global: {...access.global, [item.id]: {...access.global[item.id], pj: !access.global[item.id].pj}}})} 
                                                 colorClass="bg-[#6366F1]"
                                             />
                                         </td>
@@ -299,7 +299,7 @@ const KelolaHakAksesPage = () => {
                         </table>
                     </div>
 
-                    <div className="px-8 py-5 bg-slate-50/50 flex items-center gap-3 border-t border-gray-50">
+                    <div className="px-8 py-4 bg-slate-50/50 flex items-center gap-3 border-t border-gray-50">
                         <Info size={14} className="text-slate-400" />
                         <p className="text-[10px] text-slate-400 font-medium">Perubahan fitur global berlaku setelah disimpan. Setiap role dapat dikonfigurasi secara independen.</p>
                     </div>

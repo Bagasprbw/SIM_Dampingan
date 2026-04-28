@@ -52,7 +52,7 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Form Body */}
-                <div className="p-6 max-h-[580px] overflow-y-auto space-y-5 custom-scrollbar text-left">
+                <div className="p-5 max-h-[580px] overflow-y-auto space-y-3 custom-scrollbar text-left">
                     {/* Nama Grup */}
                     <div className="space-y-1.5">
                         <label className="text-slate-950 text-xs font-semibold leading-5">Nama Grup Dampingan</label>
@@ -170,9 +170,9 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                     </button>
                     <button 
                         onClick={handleSave}
-                        className="px-6 h-10 bg-[#0080C5] text-white rounded-[10px] text-xs font-semibold hover:bg-sky-700 transition-all flex items-center gap-2 shadow-sm"
+                        className="h-9 px-5 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                     >
-                        <Save size={14} />
+                        <Save size={16} />
                         <span>Simpan Perubahan</span>
                     </button>
                 </div>

@@ -20,12 +20,12 @@ const DeletePanduanModal = ({ isOpen, onClose, data }) => {
             html: `
                 <div class="flex flex-col items-center gap-6 py-4">
                     <div class="w-24 h-24 bg-emerald-500/10 rounded-[48px] flex items-center justify-center outline outline-1 outline-emerald-500">
-                        <div class="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center">
+                        <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                         </div>
                     </div>
                     <div class="space-y-2 text-center">
-                        <h2 class="text-2xl font-bold text-slate-950 font-['Poppins'] tracking-tight">Berhasil Dihapus!</h2>
+                        <h2 class="text-lg font-bold text-slate-950 font-['Poppins'] tracking-tight">Berhasil Dihapus!</h2>
                         <p class="text-slate-500 text-base font-['Poppins']">Panduan telah dihapus secara permanen dari sistem.</p>
                     </div>
                 </div>
@@ -42,16 +42,16 @@ const DeletePanduanModal = ({ isOpen, onClose, data }) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 font-['Poppins']">
-            <div className="bg-white w-full max-w-[540px] rounded-[32px] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="bg-white w-full max-w-[540px] rounded-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
                 
                 {/* Header Section */}
-                <div className="p-8 pb-6 flex justify-between items-start">
+                <div className="p-5 pb-6 flex justify-between items-start">
                     <div className="flex gap-5">
-                        <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-red-500">
-                            <AlertCircle size={32} />
+                        <div className="w-10 h-10 bg-red-50 rounded-2xl flex items-center justify-center text-red-500">
+                            <AlertCircle size={20} />
                         </div>
                         <div className="space-y-1">
-                            <h2 className="text-xl font-bold text-slate-900 tracking-tight text-left">Hapus Panduan</h2>
+                            <h2 className="text-base font-bold text-slate-900 tracking-tight text-left">Hapus Panduan</h2>
                             <p className="text-xs text-slate-400 font-medium text-left tracking-tight">Tindakan ini tidak dapat dibatalkan</p>
                         </div>
                     </div>
@@ -64,9 +64,9 @@ const DeletePanduanModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Content Section */}
-                <div className="px-8 space-y-6">
+                <div className="px-6 space-y-4">
                     {/* Summary Box */}
-                    <div className="p-6 bg-[#FFF5F5] rounded-[24px] border border-[#FECACA] space-y-4">
+                    <div className="p-5 bg-[#FFF5F5] rounded-[24px] border border-[#FECACA] space-y-4">
                         <p className="text-xs font-medium text-slate-600 text-left">Apakah Anda yakin ingin menghapus panduan berikut?</p>
                         
                         <div className="space-y-3">
@@ -109,7 +109,7 @@ const DeletePanduanModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Footer Section */}
-                <div className="p-8 pt-6 flex gap-4">
+                <div className="p-5 pt-6 flex gap-4">
                     <button 
                         onClick={onClose}
                         className="flex-1 py-4 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-400 hover:bg-slate-50 transition-all"

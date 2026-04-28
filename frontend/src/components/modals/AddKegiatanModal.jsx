@@ -34,7 +34,7 @@ const AddKegiatanModal = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Form Body */}
-                <div className="p-8 max-h-[75vh] overflow-y-auto text-left">
+                <div className="p-5 max-h-[75vh] overflow-y-auto text-left">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Nama Kegiatan */}
                         <div className="md:col-span-2 space-y-2">
@@ -134,14 +134,14 @@ const AddKegiatanModal = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="px-8 py-6 bg-slate-50/50 border-t border-gray-100 flex items-center justify-end gap-3">
+                <div className="px-6 py-4 bg-slate-50/50 border-t border-gray-100 flex items-center justify-end gap-3">
                     <button 
                         onClick={onClose}
                         className="px-6 py-2.5 text-slate-500 text-xs font-bold hover:text-slate-700 transition-colors"
                     >
                         Batal
                     </button>
-                    <button className="px-8 py-2.5 bg-[#0080C5] text-white text-xs font-bold rounded-xl shadow-lg shadow-sky-600/20 hover:bg-sky-700 hover:-translate-y-0.5 transition-all active:translate-y-0">
+                    <button className="px-6 py-2.5 bg-[#0080C5] text-white text-xs font-bold rounded-xl shadow-lg shadow-sky-600/20 hover:bg-sky-700 hover:-translate-y-0.5 transition-all active:translate-y-0">
                         Simpan Kegiatan
                     </button>
                 </div>

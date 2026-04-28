@@ -49,16 +49,16 @@ const DataFasilitatorPage = () => {
                     <div className="flex justify-end items-center gap-3.5 mb-6">
                         <button 
                             onClick={() => setIsAddModalOpen(true)}
-                            className="flex items-center gap-2.5 px-6 py-2.5 bg-[#0080C5] text-white rounded-[10px] hover:bg-[#006da8] transition-colors"
+                            className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                         >
                             <Plus size={18} strokeWidth={3} />
-                            <span className="text-xs font-semibold">Tambah</span>
+                            <span>Tambah</span>
                         </button>
                         <div className="relative group">
-                            <button className="flex items-center gap-2.5 px-6 py-2.5 bg-[#22C55E] text-white rounded-[10px] hover:bg-green-600 transition-colors">
+                            <button className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold">
                                 <FileText size={18} />
-                                <span className="text-xs font-semibold">Cetak Data</span>
-                                <ChevronDown size={16} />
+                                <span>Cetak Data</span>
+                                <ChevronDown size={18} />
                             </button>
                         </div>
                     </div>
@@ -81,16 +81,16 @@ const DataFasilitatorPage = () => {
                         <div className="flex items-center gap-3">
                             <div className="relative min-w-[260px]">
                                 <div className="flex items-center justify-between px-4 py-3 bg-white rounded-[10px] border border-[#E5E7EB] hover:border-slate-300 transition-colors cursor-pointer group text-left">
-                                    <span className="text-[#9298B0] text-xs font-semibold">Pilih Bidang Dampingan</span>
-                                    <ChevronDown size={16} className="text-[#9298B0]" />
+                                    <span className="text-[#9298B0] text-[11px] font-semibold">Pilih Bidang Dampingan</span>
+                                    <ChevronDown size={18} className="text-[#9298B0]" />
                                 </div>
                             </div>
                             <button 
                                 onClick={() => setIsManageBidangOpen(true)}
-                                className="flex items-center gap-2 px-6 py-3 bg-[#0080C5] text-white rounded-[10px] hover:bg-[#006da8] transition-colors"
+                                className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                             >
                                 <Settings size={18} />
-                                <span className="text-xs font-semibold">Kelola Bidang</span>
+                                <span className="text-[11px] font-semibold">Kelola Bidang</span>
                             </button>
                         </div>
                     </div>
@@ -100,24 +100,24 @@ const DataFasilitatorPage = () => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-100 border-b-2 border-slate-100">
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider rounded-tl-xl w-12 text-center">NO</th>
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Nama</th>
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Username</th>
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider min-w-[180px]">Bidang Dampingan</th>
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider min-w-[250px]">Grup Dampingan</th>
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider text-center w-28">Aksi</th>
-                                    <th className="p-4 text-xs font-bold text-[#0A0F1E] uppercase tracking-wider text-center rounded-tr-xl w-24">Detail</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider rounded-tl-xl w-12 text-center">NO</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Nama</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Username</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[180px]">Bidang Dampingan</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[250px]">Grup Dampingan</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-28">Aksi</th>
+                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center rounded-tr-xl w-24">Detail</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {dataFasilitator.map((item, index) => (
                                     <tr key={index} className="hover:bg-slate-50/50 transition-colors border-b border-slate-100">
-                                        <td className="p-4 text-xs text-slate-400 font-medium text-center">{index + 1}</td>
-                                        <td className="p-4 text-xs text-[#0080C5] font-semibold">{item.nama}</td>
-                                        <td className="p-4 text-xs text-[#0080C5] font-normal">{item.username}</td>
-                                        <td className="p-4 text-xs text-[#0A0F1E] font-normal">{item.bidang}</td>
-                                        <td className="p-4 text-xs text-[#0A0F1E] font-normal">{item.grup}</td>
-                                        <td className="p-4">
+                                        <td className="py-2.5 px-4 text-xs text-slate-400 font-medium text-center">{index + 1}</td>
+                                        <td className="py-2.5 px-4 text-xs text-[#0080C5] font-semibold">{item.nama}</td>
+                                        <td className="py-2.5 px-4 text-xs text-[#0080C5] font-normal">{item.username}</td>
+                                        <td className="py-2.5 px-4 text-xs text-[#0A0F1E] font-normal">{item.bidang}</td>
+                                        <td className="py-2.5 px-4 text-xs text-[#0A0F1E] font-normal">{item.grup}</td>
+                                        <td className="py-2.5 px-4 ">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button 
                                                     onClick={() => {
@@ -126,16 +126,16 @@ const DataFasilitatorPage = () => {
                                                     }}
                                                     className="w-6 h-6 rounded-md bg-[#FB923C]/10 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
                                                 >
-                                                    <Edit size={12} />
+                                                    <Edit size={14} />
                                                 </button>
                                                 <button 
                                                     onClick={() => {
                                                         setSelectedFasilitator(item);
                                                         setIsDeleteModalOpen(true);
                                                     }}
-                                                    className="w-6 h-6 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
+                                                    className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
                                                 >
-                                                    <Trash2 size={12} />
+                                                    <Trash2 size={14} />
                                                 </button>
                                                 <button 
                                                     onClick={() => {
@@ -148,13 +148,13 @@ const DataFasilitatorPage = () => {
                                                 </button>
                                             </div>
                                         </td>
-                                        <td className="p-4 text-center">
+                                        <td className="py-2.5 px-4 text-center">
                                             <button 
                                                 onClick={() => {
                                                     setSelectedFasilitator(item);
                                                     setIsDetailModalOpen(true);
                                                 }}
-                                                className="px-4 py-2 bg-[#0080C5] text-white text-[10px] font-bold rounded-lg hover:bg-[#006da8] transition-all"
+                                                className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                                             >
                                                 Detail
                                             </button>
@@ -169,16 +169,16 @@ const DataFasilitatorPage = () => {
                     <div className="mt-8 flex items-center justify-between">
                         <p className="text-slate-400 text-xs font-normal">Menampilkan 1-10 dari 15 data</p>
                         <div className="flex items-center gap-1.5">
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50">
+                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50">
                                 <ChevronLeft size={18} />
                             </button>
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#0080C5] text-white text-xs font-semibold shadow-md shadow-blue-100">
+                            <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
                                 1
                             </button>
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-[#0A0F1E] text-xs font-semibold hover:bg-slate-50">
+                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-[#0A0F1E] text-[11px] font-semibold hover:bg-slate-50">
                                 2
                             </button>
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50">
+                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50">
                                 <ChevronRight size={18} />
                             </button>
                         </div>

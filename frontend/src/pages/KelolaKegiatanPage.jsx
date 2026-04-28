@@ -88,23 +88,23 @@ const KelolaKegiatanPage = () => {
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="bg-[#FAFBFD]">
-                                    <th className="py-5 px-6 text-center text-slate-400 text-[11px] font-semibold uppercase tracking-wider">JUDUL KEGIATAN</th>
-                                    <th className="py-5 px-6 text-center text-slate-400 text-[11px] font-semibold uppercase tracking-wider">DESKRIPSI</th>
-                                    <th className="py-5 px-6 text-center text-slate-400 text-[11px] font-semibold uppercase tracking-wider">TANGGAL PELAKSANAAN</th>
-                                    <th className="py-5 px-6 text-center text-slate-400 text-[11px] font-semibold uppercase tracking-wider">WAKTU</th>
-                                    <th className="py-5 px-6 text-center text-slate-400 text-[11px] font-semibold uppercase tracking-wider">GRUP</th>
-                                    <th className="py-5 px-6 text-center text-slate-400 text-[11px] font-semibold uppercase tracking-wider">AKSI</th>
+                                    <th className="py-4 px-6 text-center text-slate-400 text-[11px] font-semibold uppercase tracking-wider">JUDUL KEGIATAN</th>
+                                    <th className="py-4 px-6 text-center text-slate-400 text-[11px] font-semibold uppercase tracking-wider">DESKRIPSI</th>
+                                    <th className="py-4 px-6 text-center text-slate-400 text-[11px] font-semibold uppercase tracking-wider">TANGGAL PELAKSANAAN</th>
+                                    <th className="py-4 px-6 text-center text-slate-400 text-[11px] font-semibold uppercase tracking-wider">WAKTU</th>
+                                    <th className="py-4 px-6 text-center text-slate-400 text-[11px] font-semibold uppercase tracking-wider">GRUP</th>
+                                    <th className="py-4 px-6 text-center text-slate-400 text-[11px] font-semibold uppercase tracking-wider">AKSI</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#F0F2F8]">
                                 {reports.map((item, index) => (
                                     <tr key={index} className="hover:bg-slate-50 transition-colors">
                                         {/* Judul */}
-                                        <td className="py-6 px-6">
+                                        <td className="py-4 px-6">
                                             <div className="flex flex-col items-start gap-1">
                                                 <span 
                                                     onClick={() => handleDetail(item)}
-                                                    className="text-[#0080C5] text-xs font-bold leading-tight hover:underline cursor-pointer"
+                                                    className="text-[#0080C5] text-[11px] font-semibold leading-tight hover:underline cursor-pointer"
                                                 >
                                                     {item.judul}
                                                 </span>
@@ -113,22 +113,22 @@ const KelolaKegiatanPage = () => {
                                         </td>
 
                                         {/* Deskripsi */}
-                                        <td className="py-6 px-6 max-w-[240px]">
+                                        <td className="py-4 px-6 max-w-[240px]">
                                             <p className="text-gray-500 text-xs font-normal leading-relaxed line-clamp-2">
                                                 {item.deskripsi}
                                             </p>
                                         </td>
 
                                         {/* Tanggal & Lokasi */}
-                                        <td className="py-6 px-6">
+                                        <td className="py-4 px-6">
                                             <div className="flex flex-col items-start">
-                                                <span className="text-slate-950 text-xs font-bold">{item.tanggal}</span>
+                                                <span className="text-slate-950 text-[11px] font-semibold">{item.tanggal}</span>
                                                 <span className="text-slate-400 text-[10px] font-normal leading-tight mt-0.5">{item.lokasi}</span>
                                             </div>
                                         </td>
 
                                         {/* Waktu */}
-                                        <td className="py-6 px-6">
+                                        <td className="py-4 px-6">
                                             <div className="flex items-center gap-1.5 text-slate-950">
                                                 <Clock size={12} className="text-slate-400" />
                                                 <span className="text-xs font-normal">{item.waktu}</span>
@@ -136,24 +136,24 @@ const KelolaKegiatanPage = () => {
                                         </td>
 
                                         {/* Grup */}
-                                        <td className="py-6 px-6">
+                                        <td className="py-4 px-6">
                                             <span className="text-slate-950 text-xs font-normal">{item.grup}</span>
                                         </td>
 
                                         {/* Aksi */}
-                                        <td className="py-6 px-6">
+                                        <td className="py-4 px-6">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button 
                                                     onClick={() => navigate(`/kelola-kegiatan/edit/${index + 1}`)}
-                                                    className="w-8 h-8 flex items-center justify-center bg-[#FB923C]/12 text-[#FB923C] rounded-md hover:bg-[#FB923C] hover:text-white transition-all"
+                                                    className="w-7 h-7 flex items-center justify-center bg-[#FB923C]/12 text-[#FB923C] rounded-md hover:bg-[#FB923C] hover:text-white transition-all"
                                                 >
-                                                    <Edit size={16} />
+                                                    <Edit size={14} />
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(item)}
-                                                    className="w-8 h-8 flex items-center justify-center bg-[#EF4444]/10 text-[#EF4444] rounded-md hover:bg-[#EF4444] hover:text-white transition-all"
+                                                    className="w-7 h-7 flex items-center justify-center bg-[#EF4444]/10 text-[#EF4444] rounded-md hover:bg-[#EF4444] hover:text-white transition-all"
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <Trash2 size={14} />
                                                 </button>
                                             </div>
                                         </td>
@@ -164,7 +164,7 @@ const KelolaKegiatanPage = () => {
                     </div>
 
                     {/* Footer */}
-                    <div className="px-10 py-6 bg-white border-t border-gray-50 flex items-center">
+                    <div className="px-10 py-4 bg-white border-t border-gray-50 flex items-center">
                         <span className="text-slate-400 text-xs font-normal">
                             Menampilkan 7 Laporan Kegiatan
                         </span>

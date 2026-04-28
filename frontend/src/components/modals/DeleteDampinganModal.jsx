@@ -50,7 +50,7 @@ const DeleteDampinganModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Body Content */}
-                <div className="p-6 space-y-5 text-left">
+                <div className="p-5 space-y-3 text-left max-h-[65vh] overflow-y-auto custom-scrollbar">
                     {/* Confirmation Box */}
                     <div className="p-4 bg-red-50 rounded-xl border border-red-100 space-y-3">
                         <p className="text-slate-700 text-xs font-normal leading-5">
@@ -103,7 +103,7 @@ const DeleteDampinganModal = ({ isOpen, onClose, data }) => {
                             onClick={handleDelete}
                             className="px-6 h-10 bg-red-500 text-white rounded-[10px] text-xs font-semibold hover:bg-red-600 transition-all flex items-center gap-2 shadow-sm"
                         >
-                            <Trash2 size={14} />
+                            <Trash2 size={16} />
                             <span>Ya, Hapus</span>
                         </button>
                     </div>

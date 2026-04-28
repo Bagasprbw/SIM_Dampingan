@@ -46,7 +46,7 @@ const LogAktifitasPage = () => {
                 <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                     
                     {/* Header Log */}
-                    <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center">
+                    <div className="px-8 py-4 border-b border-slate-100 flex justify-between items-center">
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 bg-[#0080C5]/10 rounded-full flex items-center justify-center text-[#0080C5]">
                                 <Clock size={20} />
@@ -61,13 +61,13 @@ const LogAktifitasPage = () => {
                             {/* Date Picker Filter */}
                             <div className="h-10 px-4 bg-white border border-slate-200 rounded-xl flex items-center gap-3 text-slate-950 cursor-pointer hover:bg-slate-50 transition-all">
                                 <Calendar size={16} className="text-slate-400" />
-                                <span className="text-xs font-bold">19/20/2000</span>
+                                <span className="text-[11px] font-semibold">19/20/2000</span>
                             </div>
 
                             {/* Role Filter */}
                             <div className="h-10 px-4 min-w-[140px] bg-white border border-slate-200 rounded-xl flex items-center justify-between gap-3 text-slate-950 cursor-pointer hover:bg-slate-50 transition-all">
-                                <span className="text-xs font-bold">{roleFilter}</span>
-                                <ChevronDown size={16} className="text-slate-400" />
+                                <span className="text-[11px] font-semibold">{roleFilter}</span>
+                                <ChevronDown size={18} className="text-slate-400" />
                             </div>
                         </div>
                     </div>
@@ -88,27 +88,27 @@ const LogAktifitasPage = () => {
                                     const style = getRoleStyles(log.role);
                                     return (
                                         <tr key={index} className="hover:bg-slate-50/50 transition-colors">
-                                            <td className="py-5 px-8">
+                                            <td className="py-4 px-8">
                                                 <div className={`inline-flex items-center gap-2 px-3 py-1 ${style.bg} ${style.text} rounded-full`}>
                                                     <div className={`w-1.5 h-1.5 rounded-full ${style.dot}`}></div>
                                                     <span className="text-[11px] font-bold">{log.role}</span>
                                                 </div>
                                             </td>
-                                            <td className="py-5 px-6">
+                                            <td className="py-4 px-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-9 h-9 ${style.avatarBg} ${style.avatarText} rounded-full flex items-center justify-center text-xs font-bold`}>
+                                                    <div className={`w-9 h-9 ${style.avatarBg} ${style.avatarText} rounded-full flex items-center justify-center text-[11px] font-semibold`}>
                                                         {log.initial}
                                                     </div>
-                                                    <span className="text-xs font-bold text-slate-950">{log.name}</span>
+                                                    <span className="text-[11px] font-semibold text-slate-950">{log.name}</span>
                                                 </div>
                                             </td>
-                                            <td className="py-5 px-6">
+                                            <td className="py-4 px-6">
                                                 <div className="flex items-center gap-2">
                                                     <CheckSquare size={16} className="text-[#00BC7D]" />
                                                     <span className="text-xs text-slate-600 font-medium">{log.action}</span>
                                                 </div>
                                             </td>
-                                            <td className="py-5 px-6">
+                                            <td className="py-4 px-6">
                                                 <span className="text-xs text-slate-400 font-medium">{log.time}</span>
                                             </td>
                                         </tr>
@@ -119,7 +119,7 @@ const LogAktifitasPage = () => {
                     </div>
 
                     {/* Pagination Section */}
-                    <div className="px-8 py-5 border-t border-slate-100 flex justify-between items-center bg-white">
+                    <div className="px-8 py-4 border-t border-slate-100 flex justify-between items-center bg-white">
                         <div className="text-xs font-medium">
                             <span className="text-slate-400">Menampilkan </span>
                             <span className="text-slate-950 font-bold">10</span>
@@ -129,16 +129,16 @@ const LogAktifitasPage = () => {
                         </div>
                         
                         <div className="flex items-center gap-1">
-                            <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-all">
+                            <button className="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-all">
                                 <ChevronLeft size={18} />
                             </button>
-                            <button className="w-8 h-8 flex items-center justify-center bg-[#0080C5] text-white rounded-lg text-xs font-bold">
+                            <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
                                 1
                             </button>
-                            <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg text-slate-950 text-xs font-bold hover:bg-slate-50 transition-all">
+                            <button className="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg text-slate-950 text-[11px] font-semibold hover:bg-slate-50 transition-all">
                                 2
                             </button>
-                            <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-all">
+                            <button className="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-all">
                                 <ChevronRight size={18} />
                             </button>
                         </div>

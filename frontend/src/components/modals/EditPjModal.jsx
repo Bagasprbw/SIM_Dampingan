@@ -40,7 +40,7 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Form Body */}
-                <div className="p-6 space-y-5">
+                <div className="p-5 space-y-3">
                     {/* First Row: Nama & No. Telepon */}
                     <div className="flex gap-5">
                         <div className="flex-1 flex flex-col gap-1.5">
@@ -93,9 +93,9 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
                     </button>
                     <button 
                         onClick={handleSave}
-                        className="h-10 px-6 bg-[#0080C5] text-white rounded-[10px] flex items-center gap-2 hover:bg-[#006da8] transition-all group"
+                        className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                     >
-                        <Save size={14} className="text-white" />
+                        <Save size={16} className="text-white" />
                         <span className="text-xs font-semibold">Simpan Perubahan</span>
                     </button>
                 </div>

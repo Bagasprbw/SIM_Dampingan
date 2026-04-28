@@ -37,12 +37,12 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
             html: `
                 <div class="flex flex-col items-center gap-6 py-4">
                     <div class="w-24 h-24 bg-emerald-500/10 rounded-[48px] flex items-center justify-center outline outline-1 outline-emerald-500">
-                        <div class="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center">
+                        <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                         </div>
                     </div>
                     <div class="space-y-2 text-center">
-                        <h2 class="text-2xl font-bold text-slate-950 font-['Poppins'] tracking-tight">
+                        <h2 class="text-lg font-bold text-slate-950 font-['Poppins'] tracking-tight">
                             ${mode === 'add' ? 'Panduan Ditambahkan!' : 'Perubahan Disimpan!'}
                         </h2>
                         <p class="text-slate-500 text-base font-['Poppins']">
@@ -67,10 +67,10 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 font-['Poppins']">
-            <div className="bg-white w-full max-w-[580px] rounded-[32px] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="bg-white w-full max-w-[500px] rounded-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
                 
                 {/* Header Section */}
-                <div className="bg-gradient-to-r from-[#0080C5] to-[#0099E6] p-8 text-white relative">
+                <div className="bg-gradient-to-r from-[#0080C5] to-[#0099E6] p-5 text-white relative">
                     <button 
                         onClick={onClose}
                         className="absolute right-6 top-6 p-1 hover:bg-white/20 rounded-full transition-colors"
@@ -78,12 +78,12 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
                         <X size={20} />
                     </button>
                     
-                    <div className="flex items-center gap-5 mb-6">
-                        <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center border border-white/10">
-                            {mode === 'add' ? <FilePlus size={28} /> : <Edit2 size={28} />}
+                    <div className="flex items-center gap-5 mb-4">
+                        <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center border border-white/10">
+                            {mode === 'add' ? <FilePlus size={20} /> : <Edit2 size={20} />}
                         </div>
                         <div className="space-y-0.5">
-                            <h2 className="text-xl font-bold tracking-tight">
+                            <h2 className="text-base font-bold tracking-tight">
                                 {mode === 'add' ? 'Tambah Panduan Baru' : 'Edit Panduan'}
                             </h2>
                             <p className="text-xs text-white/80 font-normal">
@@ -110,7 +110,7 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
                 </div>
 
                 {/* Body Form */}
-                <div className="p-8 space-y-6 text-left">
+                <div className="p-5 space-y-4 text-left max-h-[65vh] overflow-y-auto custom-scrollbar">
                     {/* Judul Panduan */}
                     <div className="space-y-2">
                         <label className="text-[10px] font-bold text-slate-900 uppercase tracking-widest">
@@ -119,7 +119,7 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
                         <input 
                             type="text" 
                             placeholder="Contoh: Panduan Login & Registrasi"
-                            className="w-full px-5 py-3.5 bg-white border-2 border-slate-100 rounded-xl text-sm font-medium focus:outline-none focus:border-[#0080C5] transition-all"
+                            className="w-full px-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-sm font-medium focus:outline-none focus:border-[#0080C5] transition-all"
                             value={formData.title}
                             onChange={(e) => setFormData({...formData, title: e.target.value})}
                         />
@@ -130,7 +130,7 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
                         <label className="text-[10px] font-bold text-slate-900 uppercase tracking-widest">ROLE PENGGUNA</label>
                         <div className="relative">
                             <select 
-                                className="w-full px-5 py-3.5 bg-white border-2 border-slate-100 rounded-xl text-sm font-medium appearance-none focus:outline-none focus:border-[#0080C5] transition-all"
+                                className="w-full px-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-sm font-medium appearance-none focus:outline-none focus:border-[#0080C5] transition-all"
                                 value={formData.role}
                                 onChange={(e) => setFormData({...formData, role: e.target.value})}
                             >
@@ -191,7 +191,7 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
                         <div className="relative">
                             <textarea 
                                 placeholder="Tulis deskripsi singkat tentang isi panduan ini..."
-                                className="w-full px-5 py-4 bg-white border-2 border-slate-100 rounded-2xl text-sm font-medium h-32 focus:outline-none focus:border-[#0080C5] transition-all resize-none"
+                                className="w-full px-4 py-4 bg-white border-2 border-slate-100 rounded-2xl text-sm font-medium h-32 focus:outline-none focus:border-[#0080C5] transition-all resize-none"
                                 value={formData.desc}
                                 onChange={(e) => setFormData({...formData, desc: e.target.value})}
                                 maxLength={200}
@@ -204,7 +204,7 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
                 </div>
 
                 {/* Footer Actions */}
-                <div className="px-8 py-6 border-t border-slate-100 flex gap-3.5 bg-white">
+                <div className="px-6 py-4 border-t border-slate-100 flex gap-3.5 bg-white">
                     <button 
                         onClick={onClose}
                         className="flex-1 py-4 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-950 hover:bg-slate-50 transition-all"

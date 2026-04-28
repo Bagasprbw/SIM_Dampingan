@@ -45,7 +45,7 @@ const DeleteAdminModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Body */}
-                <div className="p-6 space-y-5">
+                <div className="p-5 space-y-3">
                     {/* Summary Box */}
                     <div className="p-4 bg-red-50 rounded-xl border border-red-100 space-y-3">
                         <p className="text-gray-700 text-[11px] font-normal leading-relaxed">
@@ -84,7 +84,7 @@ const DeleteAdminModal = ({ isOpen, onClose, data }) => {
                             Batal
                         </button>
                         <button onClick={handleDelete} className="px-6 py-2 bg-[#EF4444] text-white rounded-[10px] text-xs font-semibold hover:bg-red-600 transition-all h-10 flex items-center gap-2">
-                            <Trash2 size={14} />
+                            <Trash2 size={16} />
                             Ya, Hapus
                         </button>
                     </div>

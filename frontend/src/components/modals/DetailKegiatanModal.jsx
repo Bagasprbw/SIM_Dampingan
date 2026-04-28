@@ -23,10 +23,10 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
             />
 
             {/* Modal Content */}
-            <div className="relative bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
                 
                 {/* Header Section (Blue Gradient) */}
-                <div className="bg-gradient-to-r from-[#0080C5] to-[#0099E6] px-10 py-10 relative">
+                <div className="bg-gradient-to-r from-[#0080C5] to-[#0099E6] px-6 py-5 relative">
                     <button 
                         onClick={onClose}
                         className="absolute right-6 top-6 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
@@ -34,12 +34,12 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
                         <X size={24} />
                     </button>
 
-                    <div className="flex items-center gap-5 mb-6">
-                        <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white">
-                            <FileText size={28} />
+                    <div className="flex items-center gap-5 mb-4">
+                        <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white">
+                            <FileText size={20} />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-white tracking-tight">Laporan Kegiatan</h2>
+                            <h2 className="text-lg font-bold text-white tracking-tight">Laporan Kegiatan</h2>
                             <p className="text-white/70 text-sm font-medium">Detail lengkap laporan kegiatan dampingan</p>
                         </div>
                     </div>
@@ -61,10 +61,10 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Body Content */}
-                <div className="p-10 max-h-[70vh] overflow-y-auto text-left custom-scrollbar">
+                <div className="p-5 max-h-[65vh] overflow-y-auto text-left custom-scrollbar">
                     {/* Title and Meta */}
                     <div className="mb-10">
-                        <h1 className="text-2xl font-bold text-[#0A0F1E] mb-4 leading-tight">
+                        <h1 className="text-lg font-bold text-[#0A0F1E] mb-4 leading-tight">
                             {data?.judul || "Pelatihan Wirausaha Mandiri Bagi Komunitas Difabel Sleman"}
                         </h1>
                         <div className="flex flex-wrap gap-6 text-[#9298B0]">
@@ -81,22 +81,22 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
 
                     {/* Roles Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
-                        <div className="bg-[#F8FAFC] p-6 rounded-2xl border border-slate-100 flex flex-col gap-2">
+                        <div className="bg-[#F8FAFC] p-5 rounded-2xl border border-slate-100 flex flex-col gap-2">
                             <span className="text-[#9298B0] text-[10px] font-bold uppercase tracking-widest">GRUP DAMPINGAN</span>
                             <span className="text-[#0A0F1E] text-sm font-bold">Grup Dampingan Sejahtera</span>
                         </div>
-                        <div className="bg-[#F8FAFC] p-6 rounded-2xl border border-slate-100 flex flex-col gap-2">
+                        <div className="bg-[#F8FAFC] p-5 rounded-2xl border border-slate-100 flex flex-col gap-2">
                             <span className="text-[#9298B0] text-[10px] font-bold uppercase tracking-widest">FASILITATOR</span>
                             <span className="text-[#0A0F1E] text-sm font-bold">Ahmad Rifa'i, S.Pd</span>
                         </div>
-                        <div className="bg-[#F8FAFC] p-6 rounded-2xl border border-slate-100 flex flex-col gap-2">
+                        <div className="bg-[#F8FAFC] p-5 rounded-2xl border border-slate-100 flex flex-col gap-2">
                             <span className="text-[#9298B0] text-[10px] font-bold uppercase tracking-widest">PJ DAMPINGAN</span>
                             <span className="text-[#0A0F1E] text-sm font-bold">Budi Santoso</span>
                         </div>
                     </div>
 
                     {/* Description Section */}
-                    <div className="mb-10 py-6 border-y border-gray-100">
+                    <div className="mb-10 py-4 border-y border-gray-100">
                         <h4 className="text-sm font-bold text-[#0A0F1E] mb-4">Deskripsi Kegiatan</h4>
                         <p className="text-[#374151] text-sm leading-relaxed font-medium">
                             Kegiatan pelatihan wirausaha mandiri ini bertujuan untuk meningkatkan kemampuan dan kemandirian ekonomi anggota komunitas difabel di wilayah Sleman. Peserta mendapatkan materi tentang pengembangan usaha kecil, manajemen keuangan sederhana, serta strategi pemasaran produk secara digital maupun konvensional.
@@ -129,7 +129,7 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Footer Section */}
-                <div className="px-10 py-8 bg-[#F8FAFC] flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="px-6 py-4 bg-[#F8FAFC] flex flex-col md:flex-row justify-between items-center gap-4 border-t border-gray-100">
                     <span className="text-[#9298B0] text-[11px] font-medium italic">
                         Dibuat pada: 15 November 2024 · 13:24 WIB
                     </span>
@@ -140,7 +140,7 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
                         </button>
                         <button 
                             onClick={onClose}
-                            className="flex-1 md:flex-none h-11 px-10 bg-[#0080C5] text-white text-xs font-bold rounded-xl shadow-lg shadow-sky-600/20 hover:bg-sky-700 transition-all"
+                            className="flex-1 md:flex-none h-11 px-6 bg-[#0080C5] text-white text-xs font-bold rounded-xl shadow-lg shadow-sky-600/20 hover:bg-sky-700 transition-all"
                         >
                             Tutup
                         </button>

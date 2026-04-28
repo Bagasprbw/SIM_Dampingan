@@ -96,7 +96,7 @@ const AddGrupModal = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Form Body */}
-                <div className="p-6 max-h-[480px] overflow-y-auto space-y-5 custom-scrollbar">
+                <div className="p-5 max-h-[480px] overflow-y-auto space-y-3 custom-scrollbar">
                     {currentStep === 1 ? (
                         <>
                             {/* Nama Grup */}
@@ -186,11 +186,11 @@ const AddGrupModal = ({ isOpen, onClose }) => {
                             </div>
                         </>
                     ) : (
-                        <div className="space-y-5 animate-in slide-in-from-right-4 duration-300">
+                        <div className="space-y-3 animate-in slide-in-from-right-4 duration-300">
                             {/* Upload Foto Profil */}
                             <div className="w-full p-4 bg-slate-50 rounded-xl border border-gray-200 flex items-center gap-5">
-                                <div className="w-16 h-16 bg-white rounded-full border-2 border-[#0080C5] border-dashed flex items-center justify-center text-slate-300 overflow-hidden relative group cursor-pointer">
-                                    <User size={32} />
+                                <div className="w-10 h-10 bg-white rounded-full border-2 border-[#0080C5] border-dashed flex items-center justify-center text-slate-300 overflow-hidden relative group cursor-pointer">
+                                    <User size={20} />
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                                         <Upload size={16} />
                                     </div>
@@ -286,10 +286,10 @@ const AddGrupModal = ({ isOpen, onClose }) => {
                         </button>
                         <button 
                             onClick={handleNext}
-                            className="px-6 h-10 bg-[#0080C5] text-white rounded-[10px] text-xs font-semibold hover:bg-sky-700 transition-all flex items-center gap-2 shadow-sm"
+                            className="h-9 px-5 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                         >
                             <span>{currentStep === 1 ? 'Selanjutnya' : 'Simpan Data'}</span>
-                            {currentStep === 1 ? <ChevronRight size={14} /> : <Save size={14} />}
+                            {currentStep === 1 ? <ChevronRight size={14} /> : <Save size={16} />}
                         </button>
                     </div>
                 </div>

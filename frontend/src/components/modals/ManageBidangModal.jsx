@@ -15,7 +15,7 @@ const ManageBidangModal = ({ isOpen, onClose }) => {
                 
                 {/* Header */}
                 <div className="px-7 pt-6 pb-4 flex items-center justify-between">
-                    <h3 className="text-slate-950 text-xl font-bold tracking-tight">Kelola Bidang Dampingan</h3>
+                    <h3 className="text-slate-950 text-base font-bold tracking-tight">Kelola Bidang Dampingan</h3>
                     <button onClick={onClose} className="text-violet-600 hover:bg-violet-50 p-2 rounded-lg transition-colors">
                         <X size={20} strokeWidth={3} />
                     </button>
@@ -47,7 +47,7 @@ const ManageBidangModal = ({ isOpen, onClose }) => {
                 {/* Bidang List */}
                 <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
                     {bidangList.map((bidang, idx) => (
-                        <div key={idx} className="px-7 py-3.5 border-b border-slate-100 flex items-center hover:bg-slate-50/50 transition-colors">
+                        <div key={idx} className="px-7 py-2.5 border-b border-slate-100 flex items-center hover:bg-slate-50/50 transition-colors">
                             <span className="flex-1 text-slate-950 text-sm font-normal">{bidang}</span>
                             <button className="w-20 text-center text-red-500 text-xs font-semibold hover:underline">Hapus</button>
                         </div>

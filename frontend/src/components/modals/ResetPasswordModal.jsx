@@ -45,7 +45,7 @@ const ResetPasswordModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Body */}
-                <div className="p-6 space-y-5">
+                <div className="p-5 space-y-3">
                     {/* Summary Box */}
                     <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 space-y-3">
                         <p className="text-gray-700 text-[11px] font-normal leading-relaxed">
