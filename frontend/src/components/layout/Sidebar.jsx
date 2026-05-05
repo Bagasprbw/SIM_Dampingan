@@ -15,7 +15,8 @@ import {
     Map, 
     History, 
     BookOpen, 
-    LogOut 
+    LogOut,
+    LayoutGrid
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -50,7 +51,11 @@ const Sidebar = () => {
         { icon: <UserCheck size={18} />, label: 'Data Fasilitator', path: '/data-fasilitator' },
         { icon: <UserCog size={18} />, label: 'Data Pj Dampingan', path: '/data-pj' },
         { icon: <UsersRound size={18} />, label: 'Data Grup Dampingan', path: '/data-grup' },
+        { icon: <Users size={18} />, label: 'Konfirmasi Anggota', path: '/konfirmasi-anggota' },
+        { icon: <UsersRound size={18} />, label: 'Kelola Dampingan', path: '/kelola-dampingan' },
+        { icon: <Users size={18} />, label: 'Kelola Anggota', path: '/kelola-anggota' },
         { icon: <ClipboardList size={18} />, label: 'Data Dampingan', path: '/data-dampingan' },
+        { icon: <LayoutGrid size={18} />, label: 'Informasi Dampingan', path: '/informasi-dampingan' },
         { icon: <ClipboardList size={18} />, label: 'Kegiatan Dampingan', path: '/kegiatan-dampingan' },
         { icon: <Settings2 size={18} />, label: 'Kelola Kegiatan', path: '/kelola-kegiatan' },
         { icon: <ShieldCheck size={18} />, label: 'Kelola Hak Akses', path: '/hak-akses' },

@@ -17,9 +17,11 @@ export const ROUTE_ACCESS = {
     '/panduan': [ROLES.SUPERADMIN, ...ADMIN_ROLES, ROLES.FASILITATOR, ROLES.PJ_DAMPINGAN],
     
     // Rute tambahan
-    '/data-dampingan': [ROLES.SUPERADMIN, ...ADMIN_ROLES, ROLES.FASILITATOR, ROLES.PJ_DAMPINGAN],
+    '/data-dampingan': [ROLES.SUPERADMIN, ...ADMIN_ROLES, ROLES.FASILITATOR],
     '/konfirmasi-anggota': [...SUPERADMIN_AND_ADMINS, ROLES.FASILITATOR],
+    '/kelola-dampingan': [ROLES.FASILITATOR],
     '/kelola-anggota': [...SUPERADMIN_AND_ADMINS, ROLES.PJ_DAMPINGAN],
+    '/informasi-dampingan': [...SUPERADMIN_AND_ADMINS, ROLES.PJ_DAMPINGAN],
 };
 
 export const DEFAULT_ROUTE_BY_ROLE = {
