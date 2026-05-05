@@ -13,6 +13,7 @@ import DataDampinganPage from '../pages/DataDampingan/DataDampinganPage';
 import KegiatanDampinganPage from '../pages/KegiatanDampingan/KegiatanDampinganPage';
 import KelolaKegiatanPage from '../pages/KelolaKegiatan/KelolaKegiatanPage';
 import EditKegiatanPage from '../pages/KelolaKegiatan/EditKegiatanPage';
+import TambahKegiatanPage from '../pages/KelolaKegiatan/TambahKegiatanPage';
 import KelolaHakAksesPage from '../pages/KelolaHakAkses/KelolaHakAksesPage';
 import PetaSebaranPage from '../pages/PetaSebaran/PetaSebaranPage';
 import LogAktifitasPage from '../pages/LogAktivitas/LogAktifitasPage';
@@ -48,6 +49,7 @@ const AppRoutes = () => {
                 <Route path="/kelola-dampingan" element={<KelolaDampinganPage />} />
                 <Route path="/kegiatan-dampingan" element={<KegiatanDampinganPage />} />
                 <Route path="/kelola-kegiatan" element={<KelolaKegiatanPage />} />
+                <Route path="/kelola-kegiatan/tambah" element={<TambahKegiatanPage />} />
                 <Route path="/kelola-kegiatan/edit/:id" element={<EditKegiatanPage />} />
                 <Route path="/hak-akses" element={<KelolaHakAksesPage />} />
                 <Route path="/peta" element={<PetaSebaranPage />} />
