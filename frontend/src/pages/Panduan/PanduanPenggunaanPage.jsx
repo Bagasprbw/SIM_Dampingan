@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AdminLayout from '../components/layout/AdminLayout';
+import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Search, 
     ChevronDown, 
@@ -9,8 +9,8 @@ import {
     Edit3, 
     Trash2,
 } from 'lucide-react';
-import PanduanModal from '../components/modals/PanduanModal';
-import DeletePanduanModal from '../components/modals/DeletePanduanModal';
+import PanduanModal from '../../components/modals/PanduanModal';
+import DeletePanduanModal from '../../components/modals/DeletePanduanModal';
 
 const PanduanPenggunaanPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);

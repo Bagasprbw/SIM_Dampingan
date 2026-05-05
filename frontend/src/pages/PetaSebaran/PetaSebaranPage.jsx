@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '../components/layout/AdminLayout';
+import AdminLayout from '../../components/layout/AdminLayout';
 import { Users, LayoutGrid } from 'lucide-react';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';

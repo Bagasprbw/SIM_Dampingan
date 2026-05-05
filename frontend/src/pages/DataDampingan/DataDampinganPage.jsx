@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import AdminLayout from '../components/layout/AdminLayout';
-import AddDampinganModal from '../components/modals/AddDampinganModal';
-import EditDampinganModal from '../components/modals/EditDampinganModal';
-import DeleteDampinganModal from '../components/modals/DeleteDampinganModal';
-import DetailDampinganModal from '../components/modals/DetailDampinganModal';
+import AdminLayout from '../../components/layout/AdminLayout';
+import AddDampinganModal from '../../components/modals/AddDampinganModal';
+import EditDampinganModal from '../../components/modals/EditDampinganModal';
+import DeleteDampinganModal from '../../components/modals/DeleteDampinganModal';
+import DetailDampinganModal from '../../components/modals/DetailDampinganModal';
 import { 
     Search, 
     ChevronDown, 

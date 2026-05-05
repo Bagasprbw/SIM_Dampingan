@@ -1,6 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useLogout } from '../../hooks/useLogin';
+import { getUser } from '../../utils/storage';
+import { ROUTE_ACCESS } from '../../constants/routes';
 import { 
     Grid2X2, 
     Users, 
@@ -18,6 +20,8 @@ import {
 
 const Sidebar = () => {
     const { logout } = useLogout();
+    const user = getUser();
+    const userRole = user?.role;
 
     const handleLogout = () => {
         Swal.fire({
@@ -40,7 +44,7 @@ const Sidebar = () => {
         });
     };
 
-    const menuItems = [
+    const allMenuItems = [
         { icon: <Grid2X2 size={18} />, label: 'Dashboard', path: '/dashboard' },
         { icon: <Users size={18} />, label: 'Data Admin', path: '/data-admin' },
         { icon: <UserCheck size={18} />, label: 'Data Fasilitator', path: '/data-fasilitator' },
@@ -55,6 +59,11 @@ const Sidebar = () => {
         { icon: <BookOpen size={18} />, label: 'Panduan Penggunaan', path: '/panduan' },
     ];
 
+    const menuItems = allMenuItems.filter(item => {
+        const allowedRoles = ROUTE_ACCESS[item.path];
+        return allowedRoles && allowedRoles.includes(userRole);
+    });
+
     return (
         <aside className="w-64 h-screen bg-white border-r border-black/10 flex flex-col fixed left-0 top-0 z-50 font-['Poppins']">
             {/* Logo Section */}
@@ -67,7 +76,7 @@ const Sidebar = () => {
             </div>
 
             {/* Navigation Section */}
-            <nav className="flex-1 px-3 py-3 overflow-hidden space-y-0.5">
+            <nav className="flex-1 px-3 py-3 overflow-hidden space-y-0.5 overflow-y-auto">
                 {menuItems.map((item, index) => (
                     <NavLink
                         key={index}

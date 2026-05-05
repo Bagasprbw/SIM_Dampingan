@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { X, Lock, Eye, EyeOff, Search } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { getUser } from '../../utils/storage';
+import { ROLE_LABELS } from '../../constants/roles';
 
 const ProfileModal = ({ isOpen, onClose }) => {
     const [showPasswordFields, setShowPasswordFields] = useState(false);
     const [showPass, setShowPass] = useState(false);
     const [showConfirmPass, setShowConfirmPass] = useState(false);
+    const user = getUser();
 
     const handleSave = () => {
         Swal.fire({
@@ -43,7 +46,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     <div className="flex items-center gap-4">
                         <div className="relative">
                             <img 
-                                src="/images/superadmin.png" 
+                                src={user?.foto || "/images/superadmin.png"} 
                                 alt="Profile" 
                                 className="w-10 h-10 rounded-full border-[1.6px] border-[#0080C5] object-cover"
                             />
@@ -66,9 +69,9 @@ const ProfileModal = ({ isOpen, onClose }) => {
                 <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
                     {/* Input Nama */}
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Nama</label>
+                        <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Username</label>
                         <div className="px-4 py-2.5 bg-[#F9FAFB] rounded-[10px] border border-[#E5E7EB]">
-                            <span className="text-[#0A0F1E] text-sm font-normal">Super Admin</span>
+                            <span className="text-[#0A0F1E] text-sm font-normal">{user?.username || user?.name || 'User'}</span>
                         </div>
                     </div>
 
@@ -77,7 +80,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
                         <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Role</label>
                         <div className="px-4 py-2.5 bg-[#F9FAFB] rounded-[10px] border border-[#E5E7EB] flex items-center gap-2">
                             <div className="w-2 h-2 bg-[#0080C5] rounded-full" />
-                            <span className="text-[#0A0F1E] text-sm font-normal">SuperAdmin</span>
+                            <span className="text-[#0A0F1E] text-sm font-normal">{ROLE_LABELS[user?.role] || user?.role || 'Guest'}</span>
                         </div>
                     </div>
 
@@ -86,7 +89,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
                         <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">No. WhatsApp</label>
                         <input 
                             type="text" 
-                            defaultValue="08123456789"
+                            defaultValue={user?.no_telp || ''}
                             className="px-4 py-2.5 bg-white rounded-[10px] border border-[#E5E7EB] text-[#0A0F1E] text-sm font-normal focus:outline-none focus:border-[#0080C5] transition-colors"
                         />
                     </div>
