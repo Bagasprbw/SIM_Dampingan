@@ -46,23 +46,36 @@ const Sidebar = () => {
     };
 
     const allMenuItems = [
-        { icon: <Grid2X2 size={17} />, label: 'Dashboard', path: '/dashboard' },
-        { icon: <Users size={17} />, label: 'Data Admin', path: '/data-admin' },
-        { icon: <UserCheck size={17} />, label: 'Data Fasilitator', path: '/data-fasilitator' },
-        { icon: <UserCog size={17} />, label: 'Data Pj Dampingan', path: '/data-pj' },
-        { icon: <UsersRound size={17} />, label: 'Data Grup Dampingan', path: '/data-grup' },
-        { icon: <Users size={17} />, label: 'Konfirmasi Anggota', path: '/konfirmasi-anggota' },
-        { icon: <UsersRound size={17} />, label: 'Kelola Dampingan', path: '/kelola-dampingan' },
-        { icon: <Users size={17} />, label: 'Kelola Anggota', path: '/kelola-anggota' },
-        { icon: <ClipboardList size={17} />, label: 'Data Dampingan', path: '/data-dampingan' },
-        { icon: <LayoutGrid size={17} />, label: 'Informasi Dampingan', path: '/informasi-dampingan' },
-        { icon: <ClipboardList size={17} />, label: 'Kegiatan Dampingan', path: '/kegiatan-dampingan' },
-        { icon: <Settings2 size={17} />, label: 'Kelola Kegiatan', path: '/kelola-kegiatan' },
-        { icon: <ShieldCheck size={17} />, label: 'Kelola Hak Akses', path: '/hak-akses' },
-        { icon: <Map size={17} />, label: 'Peta Sebaran', path: '/peta' },
-        { icon: <History size={17} />, label: 'Log Aktifitas', path: '/log' },
-        { icon: <BookOpen size={17} />, label: 'Panduan Penggunaan', path: '/panduan' },
+        // Semua role
+        { icon: <Grid2X2 size={18} />, label: 'Dashboard', path: '/dashboard' },
+
+        // SuperAdmin + Admin
+        { icon: <Users size={18} />, label: 'Data Admin', path: '/data-admin' },
+        { icon: <UserCheck size={18} />, label: 'Data Fasilitator', path: '/data-fasilitator' },
+        { icon: <UserCog size={18} />, label: 'Data Pj Dampingan', path: '/data-pj' },
+        { icon: <UsersRound size={18} />, label: 'Data Grup Dampingan', path: '/data-grup' },
+        { icon: <ClipboardList size={18} />, label: 'Kegiatan Dampingan', path: '/kegiatan-dampingan' },
+
+        // Fasilitator only
+        { icon: <Users size={18} />, label: 'Konfirmasi Anggota', path: '/konfirmasi-anggota' },
+        { icon: <LayoutGrid size={18} />, label: 'Kelola Dampingan', path: '/kelola-dampingan' },
+
+        // SuperAdmin + Admin + Fasilitator
+        { icon: <Settings2 size={18} />, label: 'Kelola Kegiatan', path: '/kelola-kegiatan' },
+
+        // SuperAdmin only
+        { icon: <ShieldCheck size={18} />, label: 'Kelola Hak Akses', path: '/hak-akses' },
+
+        // PJ Dampingan only
+        { icon: <Users size={18} />, label: 'Kelola Anggota', path: '/kelola-anggota' },
+        { icon: <ClipboardList size={18} />, label: 'Informasi Dampingan', path: '/informasi-dampingan' },
+
+        // Semua role
+        { icon: <Map size={18} />, label: 'Peta Sebaran', path: '/peta' },
+        { icon: <History size={18} />, label: 'Log Aktifitas', path: '/log' },
+        { icon: <BookOpen size={18} />, label: 'Panduan Penggunaan', path: '/panduan' },
     ];
+
 
     const menuItems = allMenuItems.filter(item => {
         const allowedRoles = ROUTE_ACCESS[item.path];
@@ -72,41 +85,41 @@ const Sidebar = () => {
     return (
         <aside className="w-64 h-screen bg-white border-r border-black/10 flex flex-col fixed left-0 top-0 z-50 font-['Poppins']">
             {/* Logo Section */}
-            <div className="h-16 px-5 border-b border-black/10 flex items-center gap-3 shrink-0">
-                <img src="/images/logo-mpm.png" alt="MPM" className="w-8 h-9 object-contain" />
+            <div className="h-20 px-6 border-b border-black/10 flex items-center gap-3 shrink-0">
+                <img src="/images/logo-mpm.png" alt="MPM" className="w-9 h-11 object-contain" />
                 <div className="flex flex-col">
-                    <span className="text-[#1E1E1E] text-sm font-bold tracking-tight">MPM</span>
-                    <span className="text-[#9298B0] text-xs font-normal">Muhammadiyah</span>
+                    <span className="text-[#1E1E1E] text-base font-bold tracking-tight">MPM</span>
+                    <span className="text-[#9298B0] text-sm font-normal">Muhammadiyah</span>
                 </div>
             </div>
 
             {/* Navigation Section */}
-            <nav className="flex-1 px-2 py-2 overflow-hidden flex flex-col gap-1">
+            <nav className="flex-1 px-3 py-2 overflow-hidden flex flex-col gap-1">
                 {menuItems.map((item, index) => (
                     <NavLink
                         key={index}
                         to={item.path}
                         className={({ isActive }) =>
-                            `flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-200
+                            `flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200
                             ${isActive
                                 ? 'bg-[#0080C5] text-white'
                                 : 'text-[#9298B0] hover:bg-gray-50 hover:text-[#0080C5]'}`
                         }
                     >
                         <span className="shrink-0">{item.icon}</span>
-                        <span className="text-[12.5px] font-semibold tracking-tight truncate">{item.label}</span>
+                        <span className="text-[13px] font-semibold tracking-tight truncate">{item.label}</span>
                     </NavLink>
                 ))}
             </nav>
 
             {/* Logout Section */}
-            <div className="px-2 py-2 shrink-0 border-t border-black/5">
+            <div className="px-3 py-2 shrink-0 border-t border-black/5">
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[#EF4444] hover:bg-red-50 transition-all duration-200"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[#EF4444] hover:bg-red-50 transition-all duration-200"
                 >
-                    <LogOut size={17} />
-                    <span className="text-[12.5px] font-semibold tracking-tight">Keluar</span>
+                    <LogOut size={18} />
+                    <span className="text-[13px] font-semibold tracking-tight">Keluar</span>
                 </button>
             </div>
         </aside>
