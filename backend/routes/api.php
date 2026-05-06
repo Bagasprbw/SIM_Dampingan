@@ -17,11 +17,13 @@ use App\Http\Controllers\Api\Panduan\PanduanController;
 use App\Http\Controllers\Api\RolePermission\RolePermissionController;
 use App\Http\Controllers\Api\Profil\ProfilController;
 use App\Http\Controllers\Api\Profil\AnggotaGrupController as ProfilAnggotaController;
+use App\Http\Controllers\Api\Sertifikat\SertifikatController;
 use Illuminate\Support\Facades\Route;
 
 // publik
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/anggota-grup/profil/{id}', [ProfilAnggotaController::class, 'show']);
+Route::get('/anggota-grup/profil/{anggotaId}/sertifikat/{idSertifikat}', [SertifikatController::class, 'show']);
 
 // auth
 Route::middleware('auth:sanctum')->group(function () {
@@ -165,6 +167,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{kegiatanId}/peserta', [PesertaKegiatanController::class, 'store']);
         Route::put('/peserta/{id_peserta}', [PesertaKegiatanController::class, 'update']);
         Route::delete('/peserta/{id_peserta}', [PesertaKegiatanController::class, 'destroy']);
+
+        // sertifikat kegiatan
+        Route::post('/{id}/sertifikat', [SertifikatController::class, 'terbitkan']);
 
     });
 
