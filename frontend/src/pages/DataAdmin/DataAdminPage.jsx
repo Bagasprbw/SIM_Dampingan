@@ -1,5 +1,5 @@
 import React from 'react';
-import AdminLayout from '../components/layout/AdminLayout';
+import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Plus, 
     Printer, 
@@ -12,10 +12,10 @@ import {
     Lock,
     FileText
 } from 'lucide-react';
-import AddAdminModal from '../components/modals/AddAdminModal';
-import EditAdminModal from '../components/modals/EditAdminModal';
-import DeleteAdminModal from '../components/modals/DeleteAdminModal';
-import ResetPasswordModal from '../components/modals/ResetPasswordModal';
+import AddAdminModal from '../../components/modals/AddAdminModal';
+import EditAdminModal from '../../components/modals/EditAdminModal';
+import DeleteAdminModal from '../../components/modals/DeleteAdminModal';
+import ResetPasswordModal from '../../components/modals/ResetPasswordModal';
 
 const DataAdminPage = () => {
     const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);

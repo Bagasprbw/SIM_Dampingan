@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import AdminLayout from '../components/layout/AdminLayout';
-import DetailKegiatanModal from '../components/modals/DetailKegiatanModal';
+import AdminLayout from '../../components/layout/AdminLayout';
+import DetailKegiatanModal from '../../components/modals/DetailKegiatanModal';
 import { 
     Search, 
     ChevronDown, 

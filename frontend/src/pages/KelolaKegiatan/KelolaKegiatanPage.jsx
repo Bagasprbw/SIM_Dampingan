@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import AdminLayout from '../components/layout/AdminLayout';
-import DetailKegiatanModal from '../components/modals/DetailKegiatanModal';
-import DeleteKegiatanModal from '../components/modals/DeleteKegiatanModal';
+import AdminLayout from '../../components/layout/AdminLayout';
+import DetailKegiatanModal from '../../components/modals/DetailKegiatanModal';
+import DeleteKegiatanModal from '../../components/modals/DeleteKegiatanModal';
 import { useNavigate } from 'react-router-dom';
 import { 
     Search, 

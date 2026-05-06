@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import ProfileModal from '../modals/ProfileModal';
+import { getUser } from '../../utils/storage';
+import { ROLE_LABELS } from '../../constants/roles';
 
 const Navbar = ({ title = 'Dashboard' }) => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const user = getUser();
 
     return (
         <header className="h-16 bg-white border-b border-black/5 flex items-center justify-between px-8 fixed top-0 left-64 right-0 z-40 font-['Poppins']">
@@ -18,12 +21,12 @@ const Navbar = ({ title = 'Dashboard' }) => {
                 onClick={() => setIsProfileOpen(true)}
             >
                 <div className="flex flex-col items-end">
-                    <span className="text-[#0A0F1E] text-sm font-semibold tracking-tight">Super Admin</span>
-                    <span className="text-[#9298B0] text-[10px] font-normal uppercase tracking-wider">Super Admin</span>
+                    <span className="text-[#0A0F1E] text-sm font-semibold tracking-tight">{user?.username || user?.name || 'User'}</span>
+                    <span className="text-[#9298B0] text-[10px] font-normal uppercase tracking-wider">{ROLE_LABELS[user?.role] || user?.role || 'Guest'}</span>
                 </div>
                 <div className="relative">
                     <img 
-                        src="/images/superadmin.png" 
+                        src={user?.foto || "/images/superadmin.png"} 
                         alt="Profile" 
                         className="w-10 h-10 rounded-xl border border-[#0080C5] object-cover bg-gray-50"
                     />

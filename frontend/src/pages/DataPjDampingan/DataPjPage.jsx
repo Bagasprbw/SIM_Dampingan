@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AdminLayout from '../components/layout/AdminLayout';
+import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Search, 
     ChevronDown, 
@@ -12,10 +12,10 @@ import {
     Printer
 } from 'lucide-react';
 
-import EditPjModal from '../components/modals/EditPjModal';
-import DeletePjModal from '../components/modals/DeletePjModal';
-import ResetPjPasswordModal from '../components/modals/ResetPjPasswordModal';
-import PjDetailModal from '../components/modals/PjDetailModal';
+import EditPjModal from '../../components/modals/EditPjModal';
+import DeletePjModal from '../../components/modals/DeletePjModal';
+import ResetPjPasswordModal from '../../components/modals/ResetPjPasswordModal';
+import PjDetailModal from '../../components/modals/PjDetailModal';
 
 const DataPjPage = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);

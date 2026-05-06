@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useLogin } from '../hooks/useLogin';
-import AuthModal from '../components/modals/AuthModal';
+import { useLogin } from '../../hooks/useLogin';
+import AuthModal from '../../components/modals/AuthModal';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');

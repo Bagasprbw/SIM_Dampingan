@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AdminLayout from '../components/layout/AdminLayout';
+import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Search, 
     ChevronDown, 
@@ -10,9 +10,9 @@ import {
     Plus,
     Printer
 } from 'lucide-react';
-import AddGrupModal from '../components/modals/AddGrupModal';
-import EditGrupModal from '../components/modals/EditGrupModal';
-import DeleteGrupModal from '../components/modals/DeleteGrupModal';
+import AddGrupModal from '../../components/modals/AddGrupModal';
+import EditGrupModal from '../../components/modals/EditGrupModal';
+import DeleteGrupModal from '../../components/modals/DeleteGrupModal';
 
 const DataGrupPage = () => {
     const [searchTerm, setSearchTerm] = useState('');

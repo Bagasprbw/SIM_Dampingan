@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AdminLayout from '../components/layout/AdminLayout';
+import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Plus, 
     Printer, 
@@ -14,12 +14,12 @@ import {
     Eye,
     FileText
 } from 'lucide-react';
-import AddFacilitatorModal from '../components/modals/AddFacilitatorModal';
-import EditFacilitatorModal from '../components/modals/EditFacilitatorModal';
-import DeleteFacilitatorModal from '../components/modals/DeleteFacilitatorModal';
-import ResetFacilitatorPasswordModal from '../components/modals/ResetFacilitatorPasswordModal';
-import FacilitatorDetailModal from '../components/modals/FacilitatorDetailModal';
-import ManageBidangModal from '../components/modals/ManageBidangModal';
+import AddFacilitatorModal from '../../components/modals/AddFacilitatorModal';
+import EditFacilitatorModal from '../../components/modals/EditFacilitatorModal';
+import DeleteFacilitatorModal from '../../components/modals/DeleteFacilitatorModal';
+import ResetFacilitatorPasswordModal from '../../components/modals/ResetFacilitatorPasswordModal';
+import FacilitatorDetailModal from '../../components/modals/FacilitatorDetailModal';
+import ManageBidangModal from '../../components/modals/ManageBidangModal';
 
 const DataFasilitatorPage = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
