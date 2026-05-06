@@ -11,12 +11,19 @@ import {
 } from 'lucide-react';
 import PanduanModal from '../../components/modals/PanduanModal';
 import DeletePanduanModal from '../../components/modals/DeletePanduanModal';
+import { getUser } from '../../utils/storage';
+import { ROLES } from '../../constants/roles';
 
 const PanduanPenggunaanPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [modalMode, setModalMode] = useState('add');
     const [selectedGuide, setSelectedGuide] = useState(null);
+
+    const user = getUser();
+    const isPjGrup = user?.role === ROLES.PJ_DAMPINGAN;
+    const isFasilitator = user?.role === ROLES.FASILITATOR;
+    const isReadOnly = isPjGrup || isFasilitator;
 
     const guides = [
         { id: 1, title: 'Panduan Penggunaan ADMIN', role: 'Admin', types: ['PDF', 'VIDEO'], pdfUrl: 'https://docs.google.com/d...', videoUrl: 'https://youtu.be/...', desc: 'Panduan langkah demi langkah untuk login dan registrasi akun.' },
@@ -73,7 +80,8 @@ const PanduanPenggunaanPage = () => {
                 </div>
 
                 {/* 2. Content Section */}
-                <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-200">
+                {!isReadOnly && (
+                    <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-200">
                     
                     {/* Toolbar Area */}
                     <div className="flex justify-between items-center mb-6 px-2">
@@ -177,7 +185,8 @@ const PanduanPenggunaanPage = () => {
                             Menampilkan <span className="font-bold text-slate-950">5</span> dari <span className="font-bold text-slate-950">5</span> Panduan
                         </p>
                     </div>
-                </div>
+                    </div>
+                )}
 
                 {/* Modal Component */}
                 <PanduanModal 
