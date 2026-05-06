@@ -26,4 +26,10 @@ class PesertaKegiatan extends Model
     {
         return $this->belongsTo(AnggotaGrupDampingan::class, 'anggota_id', 'id_anggota_grup');
     }
+
+    // Relasi ke Sertifikat
+    public function sertifikat()
+    {
+        return $this->hasOne(Sertifikat::class, 'peserta_id', 'id_peserta_kegiatan');
+    }
 }

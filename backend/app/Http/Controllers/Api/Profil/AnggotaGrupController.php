@@ -14,7 +14,8 @@ class AnggotaGrupController extends Controller
             'bidang',
             'pekerjaan',
             'grupDampingan',
-            'pesertaKegiatans.kegiatan.level'
+            'pesertaKegiatans.kegiatan.level',
+            'pesertaKegiatans.sertifikat',  // untuk cek apakah kegiatan punya sertifikat
         ])->find($id);
 
         if (!$anggota) {
