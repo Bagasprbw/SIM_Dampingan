@@ -13,10 +13,16 @@ import DataDampinganPage from '../pages/DataDampingan/DataDampinganPage';
 import KegiatanDampinganPage from '../pages/KegiatanDampingan/KegiatanDampinganPage';
 import KelolaKegiatanPage from '../pages/KelolaKegiatan/KelolaKegiatanPage';
 import EditKegiatanPage from '../pages/KelolaKegiatan/EditKegiatanPage';
+import TambahKegiatanPage from '../pages/KelolaKegiatan/TambahKegiatanPage';
 import KelolaHakAksesPage from '../pages/KelolaHakAkses/KelolaHakAksesPage';
 import PetaSebaranPage from '../pages/PetaSebaran/PetaSebaranPage';
 import LogAktifitasPage from '../pages/LogAktivitas/LogAktifitasPage';
 import PanduanPenggunaanPage from '../pages/Panduan/PanduanPenggunaanPage';
+
+import KelolaAnggotaPage from '../pages/KelolaAnggota/KelolaAnggotaPage';
+import InformasiDampinganPage from '../pages/InformasiDampingan/InformasiDampinganPage';
+import KonfirmasiAnggotaPage from '../pages/KonfirmasiAnggota/KonfirmasiAnggotaPage';
+import KelolaDampinganPage from '../pages/KelolaDampingan/KelolaDampinganPage';
 
 const AppRoutes = () => {
     return (
@@ -37,8 +43,13 @@ const AppRoutes = () => {
                 <Route path="/data-pj" element={<DataPjPage />} />
                 <Route path="/data-grup" element={<DataGrupPage />} />
                 <Route path="/data-dampingan" element={<DataDampinganPage />} />
+                <Route path="/kelola-anggota" element={<KelolaAnggotaPage />} />
+                <Route path="/informasi-dampingan" element={<InformasiDampinganPage />} />
+                <Route path="/konfirmasi-anggota" element={<KonfirmasiAnggotaPage />} />
+                <Route path="/kelola-dampingan" element={<KelolaDampinganPage />} />
                 <Route path="/kegiatan-dampingan" element={<KegiatanDampinganPage />} />
                 <Route path="/kelola-kegiatan" element={<KelolaKegiatanPage />} />
+                <Route path="/kelola-kegiatan/tambah" element={<TambahKegiatanPage />} />
                 <Route path="/kelola-kegiatan/edit/:id" element={<EditKegiatanPage />} />
                 <Route path="/hak-akses" element={<KelolaHakAksesPage />} />
                 <Route path="/peta" element={<PetaSebaranPage />} />

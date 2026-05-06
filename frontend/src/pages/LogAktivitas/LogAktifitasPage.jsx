@@ -9,10 +9,16 @@ import {
     ChevronRight
 } from 'lucide-react';
 
+import { getUser } from '../../utils/storage';
+import { ROLES } from '../../constants/roles';
+
 const LogAktifitasPage = () => {
     const [roleFilter, setRoleFilter] = useState('Semua Role');
+    const user = getUser();
+    const isPjGrup = user?.role === ROLES.PJ_DAMPINGAN;
+    const isFasilitator = user?.role === ROLES.FASILITATOR;
 
-    const logs = [
+    const allLogs = [
         { role: 'Admin Daerah', color: 'violet', name: 'Provinsi Jawa Tengah', initial: 'JT', action: 'Menambahkan data fasilitator baru', time: '1 jam lalu' },
         { role: 'Admin Daerah', color: 'violet', name: 'Provinsi Jawa Barat', initial: 'JB', action: 'Mengubah data grup dampingan', time: '2 jam lalu' },
         { role: 'Fasilitator', color: 'blue', name: 'Paijo Pamungkas', initial: 'PP', action: 'Menambahkan laporan kegiatan baru', time: '1 jam lalu' },
@@ -24,6 +30,12 @@ const LogAktifitasPage = () => {
         { role: 'PJ Dampingan', color: 'orange', name: 'PJ Mojosongo', initial: 'PM', action: 'Mengunggah laporan kegiatan bulanan', time: '14 jam lalu' },
         { role: 'Fasilitator', color: 'blue', name: 'Rini Wahyuni', initial: 'RW', action: 'Memperbarui profil anggota dampingan', time: '15 jam lalu' },
     ];
+
+    const logs = isPjGrup 
+        ? allLogs.filter(log => log.role === 'PJ Dampingan')
+        : isFasilitator
+            ? allLogs.filter(log => log.role === 'Fasilitator')
+            : allLogs;
 
     const getRoleStyles = (role) => {
         switch (role) {
