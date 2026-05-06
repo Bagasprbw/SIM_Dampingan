@@ -1,0 +1,148 @@
+<?php
+
+namespace App\Http\Controllers\Api\Sertifikat;
+
+use App\Http\Controllers\Controller;
+use App\Models\Kegiatan;
+use App\Models\PesertaKegiatan;
+use App\Models\Sertifikat;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+class SertifikatController extends Controller
+{
+    /**
+     * POST /kelola-kegiatan/{id}/sertifikat
+     * Fasilitator menerbitkan sertifikat untuk kegiatan yang sudah selesai.
+     * Upload template PDF fillable → generate record sertifikat untuk semua peserta anggota yang hadir.
+     */
+    public function terbitkan(Request $request, $id)
+    {
+        $request->validate([
+            'template_sertifikat' => 'required|file|mimes:pdf|max:5120', // max 5MB
+        ]);
+
+        $kegiatan = Kegiatan::findOrFail($id);
+
+        // Kegiatan harus berstatus selesai
+        if ($kegiatan->status !== 'selesai') {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Sertifikat hanya bisa diterbitkan untuk kegiatan yang sudah selesai',
+            ], 422);
+        }
+
+        // Cegah penerbitan ulang jika sudah ada sertifikat
+        $sudahDiterbitkan = PesertaKegiatan::where('kegiatan_id', $id)
+            ->whereHas('sertifikat')
+            ->exists();
+
+        if ($sudahDiterbitkan) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Sertifikat untuk kegiatan ini sudah pernah diterbitkan',
+            ], 422);
+        }
+
+        // Simpan file PDF template ke storage
+        $file = $request->file('template_sertifikat');
+        $path = $file->storeAs(
+            'template-sertifikat',
+            $id . '.pdf',
+            'public'
+        );
+
+        // Simpan path template ke tabel kegiatans
+        $kegiatan->update(['template_sertifikat' => $path]);
+
+        // Ambil peserta yang berhak: harus anggota (bukan eksternal) dan hadir
+        $pesertaList = PesertaKegiatan::where('kegiatan_id', $id)
+            ->where('jenis_peserta', 'anggota')
+            ->where('status_hadir', 'hadir')
+            ->get();
+
+        if ($pesertaList->isEmpty()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Tidak ada peserta anggota yang hadir pada kegiatan ini',
+            ], 422);
+        }
+
+        // Generate nomor sertifikat: SERTIF/YYYY/MM/NNNN (urutan reset tiap bulan)
+        $tahun     = now()->format('Y');
+        $bulan     = now()->format('m');
+        $baseCount = Sertifikat::whereYear('diterbitkan_at', $tahun)
+                               ->whereMonth('diterbitkan_at', $bulan)
+                               ->count();
+        $counter = $baseCount + 1;
+
+        $waktuTerbit    = now();
+        $jumlahDibuat   = 0;
+
+        foreach ($pesertaList as $peserta) {
+            Sertifikat::create([
+                'id_sertifikat'    => Str::uuid(),
+                'peserta_id'       => $peserta->id_peserta_kegiatan,
+                'nomor_sertifikat' => 'SERTIF/' . $tahun . '/' . $bulan . '/' . str_pad($counter, 4, '0', STR_PAD_LEFT),
+                'diterbitkan_at'   => $waktuTerbit,
+            ]);
+
+            $counter++;
+            $jumlahDibuat++;
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => "Sertifikat berhasil diterbitkan untuk {$jumlahDibuat} peserta",
+        ]);
+    }
+
+    /**
+     * GET /anggota-grup/profil/{anggotaId}/sertifikat/{idSertifikat}
+     * Public endpoint — anggota ambil data sertifikat untuk dicetak di frontend (pdf-lib).
+     */
+    public function show($anggotaId, $idSertifikat)
+    {
+        $sertifikat = Sertifikat::with([
+            'pesertaKegiatan.kegiatan.fasilitator',
+            'pesertaKegiatan.anggota',
+        ])->find($idSertifikat);
+
+        if (!$sertifikat) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Sertifikat tidak ditemukan',
+            ], 404);
+        }
+
+        // Pastikan sertifikat ini memang milik anggota yang diminta
+        if ($sertifikat->pesertaKegiatan->anggota_id !== $anggotaId) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Sertifikat tidak ditemukan',
+            ], 404);
+        }
+
+        $kegiatan    = $sertifikat->pesertaKegiatan->kegiatan;
+        $anggota     = $sertifikat->pesertaKegiatan->anggota;
+        $fasilitator = $kegiatan->fasilitator;
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => [
+                'nomor_sertifikat' => $sertifikat->nomor_sertifikat,
+                'nama_peserta'     => $anggota->name,
+                'nama_kegiatan'    => $kegiatan->judul,
+                'tanggal_kegiatan' => $kegiatan->tanggal
+                    ? $kegiatan->tanggal->translatedFormat('d F Y')
+                    : '-',
+                'lokasi_kegiatan'  => $kegiatan->lokasi,
+                'nama_fasilitator' => $fasilitator->name,
+                // URL lengkap ke file PDF template (dipakai pdf-lib di frontend)
+                'template_url'     => Storage::url($kegiatan->template_sertifikat),
+                'diterbitkan_at'   => $sertifikat->diterbitkan_at,
+            ],
+        ]);
+    }
+}
