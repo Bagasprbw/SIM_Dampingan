@@ -257,8 +257,8 @@ const DashboardPage = () => {
                             </div>
                             <p className="text-[#9298B0] text-xs font-normal">Distribusi Kegiatan Dampingan</p>
                         </div>
-                        <div className="flex-1">
-                            <ResponsiveContainer width="100%" height="100%">
+                        <div className="flex-1" style={{ minHeight: 0 }}>
+                            <ResponsiveContainer width="100%" height={180}>
                                 <LineChart data={fasilitatorLineData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                     <XAxis dataKey="name" tick={{ fontSize: 9, fill: '#9298B0' }} />
@@ -370,8 +370,8 @@ const DashboardPage = () => {
                             <h3 className="text-[#0A0F1E] text-base font-bold tracking-tight">Statistik Dampingan</h3>
                             <p className="text-[#9298B0] text-xs font-normal tracking-tight">Total Anggota Aktif</p>
                         </div>
-                        <div className="flex-1 min-h-0 relative">
-                            <ResponsiveContainer width="100%" height="100%">
+                        <div className="flex-1 min-h-0">
+                            <ResponsiveContainer width="100%" height={150}>
                                 <PieChart>
                                     <Pie data={pieData} innerRadius={45} outerRadius={70} paddingAngle={0} dataKey="value">
                                         {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
@@ -415,7 +415,7 @@ const DashboardPage = () => {
                             <p className="text-[#9298B0] text-xs font-normal ml-7 tracking-tight">Distribusi Tingkat Dampingan</p>
                         </div>
                         <div className="flex-1 min-h-0">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height={160}>
                                 <LineChart data={lineData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f2f8" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#636364' }} />

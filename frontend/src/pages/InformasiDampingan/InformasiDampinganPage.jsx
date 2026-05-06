@@ -7,32 +7,58 @@ import {
     MapPin,
     Leaf,
     User,
-    ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Loader2
 } from 'lucide-react';
 import DetailDampinganModal from '../../components/modals/DetailDampinganModal';
+import { usePjGrup } from '../../hooks/queries/useGrupDampinganQuery';
 
 const InformasiDampinganPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [selectedData, setSelectedData] = useState(null);
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 9;
 
-    const dataAnggota = [
-        { noAnggota: '340406030001', nama: 'Agil Lensana', gender: 'Perempuan', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul' },
-        { noAnggota: '340406030002', nama: 'Budi Santoso', gender: 'Laki-laki', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul' },
-        { noAnggota: '340406030003', nama: 'Siti Rahma', gender: 'Perempuan', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul' },
-        { noAnggota: '340406030004', nama: 'Ahmad Fauzi', gender: 'Laki-laki', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul' },
-        { noAnggota: '340406030005', nama: 'Dewi Lestari', gender: 'Perempuan', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul' },
-        { noAnggota: '340406030006', nama: 'Rudi Hartono', gender: 'Laki-laki', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul' },
-        { noAnggota: '340406030007', nama: 'Nur Hidayah', gender: 'Perempuan', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul' },
-        { noAnggota: '340406030008', nama: 'Eko Prasetyo', gender: 'Laki-laki', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul' },
-        { noAnggota: '340406030009', nama: 'Fitri Andriani', gender: 'Perempuan', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul' },
-    ];
+    const { data: pjGrupData, isLoading, isError, refetch } = usePjGrup();
+
+    const grup = pjGrupData?.data; // { id, nama_grup, ..., anggota: [...] }
+    const anggotaList = grup?.anggota || [];
+
+    const filtered = anggotaList.filter(a =>
+        a.nama?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        a.no_anggota?.includes(searchTerm) ||
+        a.alamat?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+    const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     const handleDetail = (item) => {
         setSelectedData(item);
         setIsDetailOpen(true);
     };
+
+    if (isLoading) {
+        return (
+            <AdminLayout title="Informasi Dampingan">
+                <div className="flex justify-center items-center py-20 min-h-screen bg-[#F0F2F8]">
+                    <Loader2 className="animate-spin text-[#0080C5]" size={40} />
+                </div>
+            </AdminLayout>
+        );
+    }
+
+    if (isError || !grup) {
+        return (
+            <AdminLayout title="Informasi Dampingan">
+                <div className="flex flex-col items-center justify-center py-20 min-h-screen bg-[#F0F2F8]">
+                    <p className="text-red-500 mb-4">Gagal memuat informasi dampingan.</p>
+                    <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
+                </div>
+            </AdminLayout>
+        );
+    }
 
     return (
         <AdminLayout title="Informasi Dampingan">
@@ -46,7 +72,7 @@ const InformasiDampinganPage = () => {
                                 <Users size={24} />
                             </div>
                             <div className="flex flex-col">
-                                <h2 className="text-[#0A0F1E] text-lg font-bold tracking-tight">Kelompok Tani Makmur</h2>
+                                <h2 className="text-[#0A0F1E] text-lg font-bold tracking-tight">{grup.nama_grup}</h2>
                                 <p className="text-[#0080C5] text-[11px] font-semibold">Grup Dampingan</p>
                             </div>
                         </div>
@@ -58,7 +84,7 @@ const InformasiDampinganPage = () => {
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">BIDANG DAMPINGAN</span>
-                                    <span className="text-[#0A0F1E] text-sm font-bold">Pertanian Terpadu</span>
+                                    <span className="text-[#0A0F1E] text-sm font-bold">{grup.bidang?.nama_bidang || '-'}</span>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -67,7 +93,7 @@ const InformasiDampinganPage = () => {
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">ALAMAT DAMPINGAN</span>
-                                    <span className="text-[#0A0F1E] text-sm font-bold">Bantul, D.I. Yogyakarta</span>
+                                    <span className="text-[#0A0F1E] text-sm font-bold">{grup.kabupaten?.name}, {grup.provinsi?.name}</span>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -76,7 +102,7 @@ const InformasiDampinganPage = () => {
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">FASILITATOR</span>
-                                    <span className="text-[#0A0F1E] text-sm font-bold">Siti Aminah</span>
+                                    <span className="text-[#0A0F1E] text-sm font-bold">{grup.fasilitator?.nama || '-'}</span>
                                 </div>
                             </div>
                         </div>
@@ -94,7 +120,7 @@ const InformasiDampinganPage = () => {
                             placeholder="Cari nama, no.anggota, alamat..." 
                             className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#0080C5] transition-all text-slate-600"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => {setSearchTerm(e.target.value); setPage(1);}}
                         />
                     </div>
 
@@ -112,18 +138,22 @@ const InformasiDampinganPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#F0F2F8]">
-                                {dataAnggota.map((item, index) => (
-                                    <tr key={index} className="hover:bg-slate-50 transition-colors">
-                                        <td className="py-4 px-4 text-[#0080C5] text-[11px] font-semibold whitespace-nowrap">{item.noAnggota}</td>
+                                {paged.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="6" className="py-10 text-center text-slate-500 text-xs">Tidak ada data anggota.</td>
+                                    </tr>
+                                ) : paged.map((item, index) => (
+                                    <tr key={item.id || index} className="hover:bg-slate-50 transition-colors">
+                                        <td className="py-4 px-4 text-[#0080C5] text-[11px] font-semibold whitespace-nowrap">{item.no_anggota || '-'}</td>
                                         <td className="py-4 px-4 text-left whitespace-nowrap">
                                             <span className="text-[#0A0F1E] text-[11px] font-bold">{item.nama}</span>
                                         </td>
                                         <td className="py-4 px-4 text-center whitespace-nowrap">
-                                            <div className={`inline-flex items-center px-3 py-1 rounded-full ${item.gender === 'Laki-laki' ? 'bg-blue-50 text-[#0080C5]' : 'bg-pink-50 text-pink-500'} text-[10px] font-bold`}>
-                                                {item.gender}
+                                            <div className={`inline-flex items-center px-3 py-1 rounded-full ${item.jenis_kelamin === 'L' ? 'bg-blue-50 text-[#0080C5]' : 'bg-pink-50 text-pink-500'} text-[10px] font-bold`}>
+                                                {item.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}
                                             </div>
                                         </td>
-                                        <td className="py-4 px-4 text-left text-[#6B7280] text-[11px] font-medium">{item.alamat}</td>
+                                        <td className="py-4 px-4 text-left text-[#6B7280] text-[11px] font-medium max-w-[180px] truncate">{item.alamat || '-'}</td>
                                         <td className="py-4 px-4 text-center">
                                             <button className="text-[#0080C5] hover:text-[#006da8] transition-colors">
                                                 <Printer size={18} />
@@ -143,24 +173,22 @@ const InformasiDampinganPage = () => {
                         </table>
                     </div>
 
-                    {/* Pagination */}
-                    <div className="mt-6 flex justify-between items-center">
-                        <span className="text-[#9298B0] text-[11px] font-medium">Menampilkan 1-9 dari 15 data</span>
-                        <div className="flex items-center gap-2">
-                            <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-all">
-                                <ChevronLeft size={16} />
-                            </button>
-                            <button className="w-8 h-8 bg-[#0080C5] text-white rounded-lg flex items-center justify-center text-[11px] font-bold shadow-sm">
-                                1
-                            </button>
-                            <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg text-slate-600 text-[11px] font-bold hover:bg-slate-50 transition-all">
-                                2
-                            </button>
-                            <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-all">
-                                <ChevronRight size={16} />
-                            </button>
+                    {totalPages > 0 && (
+                        <div className="mt-6 flex justify-between items-center">
+                            <span className="text-[#9298B0] text-[11px] font-medium">Menampilkan {(page-1)*PAGE_SIZE + 1}-{Math.min(page*PAGE_SIZE, filtered.length)} dari {filtered.length} data</span>
+                            <div className="flex items-center gap-2">
+                                <button onClick={() => setPage(p => Math.max(1, p-1))} disabled={page === 1} className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 disabled:opacity-40 transition-all">
+                                    <ChevronLeft size={16} />
+                                </button>
+                                {Array.from({ length: totalPages }, (_, i) => i+1).map(n => (
+                                    <button key={n} onClick={() => setPage(n)} className={`w-8 h-8 flex items-center justify-center rounded-lg text-[11px] font-bold transition-all ${page === n ? 'bg-[#0080C5] text-white' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'}`}>{n}</button>
+                                ))}
+                                <button onClick={() => setPage(p => Math.min(totalPages, p+1))} disabled={page === totalPages} className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 disabled:opacity-40 transition-all">
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                 </div>
 

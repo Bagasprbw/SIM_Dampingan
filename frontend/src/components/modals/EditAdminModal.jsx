@@ -1,24 +1,65 @@
-import React from 'react';
-import { X, Edit3, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Edit3, ChevronDown, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useAdminMutations } from '../../hooks/mutations/useAdminMutation';
 
 const EditAdminModal = ({ isOpen, onClose, data }) => {
+    const { updateAdmin } = useAdminMutations();
+    const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        nama: '', username: '', no_telp: '',
+        alamat: '', provinsi_id: '', kabupaten_id: '', kecamatan_id: ''
+    });
+
+    useEffect(() => {
+        if (data) {
+            setFormData({
+                nama: data.nama || '',
+                username: data.username || '',
+                no_telp: data.telp || data.no_telp || '',
+                alamat: data.alamat || '',
+                provinsi_id: data.provinsi_id || '',
+                kabupaten_id: data.kabupaten_id || '',
+                kecamatan_id: data.kecamatan_id || ''
+            });
+        }
+    }, [data]);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
     if (!isOpen) return null;
 
     const handleSave = (e) => {
         e.preventDefault();
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Perubahan data admin telah disimpan.',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            customClass: {
-                popup: 'rounded-2xl font-["Poppins"]',
+        setIsLoading(true);
+        updateAdmin.mutate({ id: data.id, data: formData }, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Perubahan data admin telah disimpan.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+                onClose();
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat mengubah admin.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
             }
         });
-        onClose();
     };
 
     return (
@@ -51,25 +92,25 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                         {/* Nama */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Nama <span className="text-red-500">*</span></label>
-                            <input type="text" defaultValue={data?.nama || "Jawa Barat"} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E]" required />
+                            <input name="nama" value={formData.nama} onChange={handleChange} type="text" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E]" required />
                         </div>
                         {/* Username */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Username <span className="text-red-500">*</span></label>
-                            <input type="text" defaultValue={data?.username || "prov.jawabarat"} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E]" required />
+                            <input name="username" value={formData.username} onChange={handleChange} type="text" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E]" required />
                         </div>
                     </div>
 
                     {/* No. Telp */}
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#0A0F1E] text-xs font-semibold">No. Telp <span className="text-red-500">*</span></label>
-                        <input type="text" defaultValue={data?.telp || "089501010101"} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E]" required />
+                        <input name="no_telp" value={formData.no_telp} onChange={handleChange} type="text" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E]" required />
                     </div>
 
                     {/* Alamat */}
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#0A0F1E] text-xs font-semibold">Alamat <span className="text-red-500">*</span></label>
-                        <textarea rows="3" defaultValue={data?.alamat || "Alamat lengkap"} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] resize-none" required></textarea>
+                        <textarea name="alamat" value={formData.alamat} onChange={handleChange} rows="3" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] resize-none" required></textarea>
                     </div>
 
                     <div className="grid grid-cols-2 gap-5">
@@ -77,7 +118,7 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Provinsi <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <select className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
+                                <select name="provinsi_id" value={formData.provinsi_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
                                     <option value="jabar">Jawa Barat</option>
                                 </select>
                                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -87,7 +128,7 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Kabupaten <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <select className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
+                                <select name="kabupaten_id" value={formData.kabupaten_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
                                     <option value="kab">Kabupaten</option>
                                 </select>
                                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -99,7 +140,7 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#0A0F1E] text-xs font-semibold">Kecamatan <span className="text-red-500">*</span></label>
                         <div className="relative">
-                            <select className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
+                            <select name="kecamatan_id" value={formData.kecamatan_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
                                 <option value="kec">Kecamatan</option>
                             </select>
                             <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -111,8 +152,9 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                         <button type="button" onClick={onClose} className="px-6 py-2 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold hover:bg-gray-50 transition-all h-10">
                             Batal
                         </button>
-                        <button type="submit" className="px-6 py-2 bg-[#0080C5] text-white rounded-[10px] text-xs font-semibold hover:bg-[#006da8] transition-all h-10 min-w-[176px]">
-                            Simpan Perubahan
+                        <button type="submit" disabled={isLoading} className="px-6 py-2 bg-[#0080C5] text-white rounded-[10px] text-xs font-semibold hover:bg-[#006da8] transition-all h-10 min-w-[176px] flex items-center justify-center gap-2 disabled:opacity-50">
+                            {isLoading ? <Loader2 size={16} className="animate-spin" /> : null}
+                            {isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
                         </button>
                     </div>
                 </form>

@@ -1,33 +1,65 @@
 import React, { useState } from 'react';
-import { X, UserPlus, Image as ImageIcon, Plus, Eye, EyeOff, Save, ChevronDown, Upload } from 'lucide-react';
+import { X, UserPlus, Image as ImageIcon, Plus, Eye, EyeOff, Save, ChevronDown, Upload, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useFasilitatorMutations } from '../../hooks/mutations/useFasilitatorMutation';
 
 const AddFacilitatorModal = ({ isOpen, onClose }) => {
+    const { createFasilitator } = useFasilitatorMutations();
+    const [isLoading, setIsLoading] = useState(false);
     const [showPass, setShowPass] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [formData, setFormData] = useState({
+        nama: '', no_telp: '', alamat: '', bidang_id: '', username: '', password: '', foto: null
+    });
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     if (!isOpen) return null;
 
     const handleImageChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             setSelectedImage(URL.createObjectURL(e.target.files[0]));
+            setFormData({ ...formData, foto: e.target.files[0] });
         }
     };
 
     const handleSave = (e) => {
         e.preventDefault();
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Data fasilitator baru telah ditambahkan.',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            customClass: {
-                popup: 'rounded-2xl font-["Poppins"]',
+        setIsLoading(true);
+
+        const form = new FormData();
+        Object.keys(formData).forEach(key => {
+            if (formData[key] !== null) form.append(key, formData[key]);
+        });
+
+        createFasilitator.mutate(form, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Data fasilitator baru telah ditambahkan.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+                onClose();
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat menambahkan fasilitator.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
             }
         });
-        onClose();
     };
 
     return (
@@ -85,19 +117,19 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
                         {/* Nama Lengkap */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Nama Lengkap <span className="text-red-500">*</span></label>
-                            <input type="text" placeholder="Masukkan nama lengkap" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                            <input name="nama" value={formData.nama} onChange={handleChange} type="text" placeholder="Masukkan nama lengkap" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
                         </div>
                         {/* No. Telepon */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">No. Telepon <span className="text-red-500">*</span></label>
-                            <input type="text" placeholder="08xxxxxxxxxx" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                            <input name="no_telp" value={formData.no_telp} onChange={handleChange} type="text" placeholder="08xxxxxxxxxx" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
                         </div>
                     </div>
 
                     {/* Alamat */}
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#0A0F1E] text-xs font-semibold">Alamat <span className="text-red-500">*</span></label>
-                        <textarea rows="3" placeholder="Masukkan alamat lengkap..." className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300 resize-none" required></textarea>
+                        <textarea name="alamat" value={formData.alamat} onChange={handleChange} rows="3" placeholder="Masukkan alamat lengkap..." className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300 resize-none" required></textarea>
                     </div>
 
                     {/* Bidang Dampingan */}
@@ -110,10 +142,10 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
                             </button>
                         </div>
                         <div className="relative">
-                            <select className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
+                            <select name="bidang_id" value={formData.bidang_id} onChange={handleChange} className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
                                 <option value="">Pilih bidang dampingan...</option>
-                                <option value="ekonomi">Perekonomian</option>
-                                <option value="buruh">Buruh</option>
+                                <option value="1">Perekonomian</option>
+                                <option value="2">Buruh</option>
                             </select>
                             <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                         </div>
@@ -125,13 +157,13 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
                         {/* Username */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Username <span className="text-red-500">*</span></label>
-                            <input type="text" placeholder="Masukkan username" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                            <input name="username" value={formData.username} onChange={handleChange} type="text" placeholder="Masukkan username" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
                         </div>
                         {/* Password */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Password <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <input type={showPass ? "text" : "password"} placeholder="••••••••" className="w-full px-4 py-2.5 pr-10 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                                <input name="password" value={formData.password} onChange={handleChange} type={showPass ? "text" : "password"} placeholder="••••••••" className="w-full px-4 py-2.5 pr-10 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
                                 <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                                     {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
@@ -145,9 +177,9 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
                     <button type="button" onClick={onClose} className="px-6 py-2 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold hover:bg-gray-50 transition-all h-10">
                         Batal
                     </button>
-                    <button onClick={handleSave} type="button" className="px-6 py-2 bg-[#0080C5] text-white rounded-[10px] text-xs font-semibold hover:bg-[#006da8] transition-all h-10 flex items-center gap-2">
-                        <Save size={16} />
-                        Simpan Data
+                    <button onClick={handleSave} disabled={isLoading} type="button" className="px-6 py-2 bg-[#0080C5] text-white rounded-[10px] text-xs font-semibold hover:bg-[#006da8] transition-all h-10 flex items-center gap-2 disabled:opacity-50">
+                        {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                        {isLoading ? 'Menyimpan...' : 'Simpan Data'}
                     </button>
                 </div>
             </div>
