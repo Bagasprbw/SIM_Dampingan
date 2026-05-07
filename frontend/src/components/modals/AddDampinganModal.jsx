@@ -6,29 +6,91 @@ import {
     ChevronDown, 
     UserPlus,
     Camera,
-    Save
+    Save,
+    Loader2
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useAnggotaMutations } from '../../hooks/mutations/useAnggotaMutation';
 
-const AddDampinganModal = ({ isOpen, onClose }) => {
+import { usePengajuanAnggotaMutations } from '../../hooks/mutations/usePengajuanAnggotaMutation';
+
+const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
+    const { createAnggota } = useAnggotaMutations();
+    const { createPengajuanAnggota } = usePengajuanAnggotaMutations();
+    const [isLoading, setIsLoading] = useState(false);
     const [gender, setGender] = useState('Laki-laki');
     const [status, setStatus] = useState('Aktif');
+    const [formData, setFormData] = useState({
+        nama: '',
+        no_telepon: '',
+        tempat_lahir: '',
+        tanggal_lahir: '',
+        agama: '',
+        pekerjaan: '',
+        alamat: '',
+        bidang_id: '',
+        grup_dampingan_id: '',
+        foto: null
+    });
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleImageChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            setSelectedImage(URL.createObjectURL(e.target.files[0]));
+            setFormData({ ...formData, foto: e.target.files[0] });
+        }
+    };
 
     if (!isOpen) return null;
 
     const handleSave = () => {
-        Swal.fire({
-            title: 'Berhasil!',
-            text: 'Data masyarakat berhasil ditambahkan.',
-            icon: 'success',
-            confirmButtonColor: '#0080C5',
-            timer: 2000,
-            showConfirmButton: false,
-            customClass: {
-                popup: 'rounded-2xl font-["Poppins"]',
+        setIsLoading(true);
+        const form = new FormData();
+        Object.keys(formData).forEach(key => {
+            if (formData[key] !== null && formData[key] !== '') {
+                form.append(key, formData[key]);
             }
         });
-        onClose();
+        form.append('jenis_kelamin', gender);
+        form.append('status_aktif', status === 'Aktif' ? 1 : 0);
+
+        const mutation = isPengajuan ? createPengajuanAnggota : createAnggota;
+
+        mutation.mutate(form, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Data masyarakat berhasil ditambahkan.',
+                    icon: 'success',
+                    confirmButtonColor: '#0080C5',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+                onClose();
+                setFormData({
+                    nama: '', no_telepon: '', tempat_lahir: '', tanggal_lahir: '', agama: '',
+                    pekerjaan: '', alamat: '', bidang_id: '', grup_dampingan_id: '', foto: null
+                });
+                setSelectedImage(null);
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat menambahkan data masyarakat.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+            }
+        });
     };
 
     return (
@@ -60,14 +122,20 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                     
                     {/* Photo Upload Section */}
                     <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#0080C5] bg-slate-50 flex items-center justify-center text-slate-400 relative">
-                            <UserPlus size={24} />
-                        </div>
+                        <label className="w-16 h-16 rounded-full border-2 border-dashed border-[#0080C5] bg-slate-50 flex items-center justify-center text-[#0080C5] relative overflow-hidden cursor-pointer">
+                            {selectedImage ? (
+                                <img src={selectedImage} alt="Preview" className="w-full h-full object-cover" />
+                            ) : (
+                                <UserPlus size={24} />
+                            )}
+                            <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
+                        </label>
                         <div className="space-y-1.5">
-                            <button className="px-4 py-2 bg-white border border-[#0080C5] border-dashed rounded-[10px] text-[#0080C5] text-xs font-bold flex items-center gap-2 hover:bg-[#0080C5]/10 transition-all">
+                            <label className="px-4 py-2 w-max bg-white border border-[#0080C5] border-dashed rounded-[10px] text-[#0080C5] text-xs font-bold flex items-center gap-2 hover:bg-[#0080C5]/10 transition-all cursor-pointer">
                                 <Upload size={16} />
                                 Upload Foto
-                            </button>
+                                <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
+                            </label>
                             <p className="text-slate-400 text-[10px] font-normal tracking-tight">Format: JPG, PNG. Maks. 2 MB</p>
                         </div>
                     </div>
@@ -79,6 +147,9 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Nama Lengkap</label>
                             <input 
+                                name="nama"
+                                value={formData.nama}
+                                onChange={handleChange}
                                 type="text" 
                                 placeholder="Masukkan nama lengkap"
                                 className="w-full h-11 px-4 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-600 transition-all"
@@ -87,6 +158,9 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">No. Telepon</label>
                             <input 
+                                name="no_telepon"
+                                value={formData.no_telepon}
+                                onChange={handleChange}
                                 type="text" 
                                 placeholder="08xxxxxxxxxx"
                                 className="w-full h-11 px-4 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-600 transition-all"
@@ -99,6 +173,9 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Tempat Lahir</label>
                             <input 
+                                name="tempat_lahir"
+                                value={formData.tempat_lahir}
+                                onChange={handleChange}
                                 type="text" 
                                 placeholder="Masukkan tempat lahir"
                                 className="w-full h-11 px-4 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-600 transition-all"
@@ -108,11 +185,12 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                             <label className="text-slate-950 text-xs font-semibold leading-5">Tanggal Lahir</label>
                             <div className="relative">
                                 <input 
-                                    type="text" 
-                                    placeholder="DD / MM / YYYY"
+                                    name="tanggal_lahir"
+                                    value={formData.tanggal_lahir}
+                                    onChange={handleChange}
+                                    type="date" 
                                     className="w-full h-11 px-4 pr-10 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-600 transition-all"
                                 />
-                                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                             </div>
                         </div>
                     </div>
@@ -143,7 +221,7 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Agama</label>
                             <div className="relative group">
-                                <select defaultValue="" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                <select name="agama" value={formData.agama} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
                                     <option value="" disabled>Pilih agama...</option>
                                     <option value="islam">Islam</option>
                                     <option value="kristen">Kristen</option>
@@ -158,6 +236,9 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Pekerjaan Utama</label>
                             <input 
+                                name="pekerjaan"
+                                value={formData.pekerjaan}
+                                onChange={handleChange}
                                 type="text" 
                                 placeholder="Masukkan pekerjaan utama"
                                 className="w-full h-11 px-4 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-600 transition-all"
@@ -190,6 +271,9 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                     <div className="space-y-1.5">
                         <label className="text-slate-950 text-xs font-semibold leading-5">Alamat</label>
                         <textarea 
+                            name="alamat"
+                            value={formData.alamat}
+                            onChange={handleChange}
                             placeholder="Masukkan alamat lengkap..."
                             className="w-full h-24 p-4 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-600 transition-all resize-none"
                         ></textarea>
@@ -202,7 +286,7 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Bidang Dampingan</label>
                             <div className="relative group">
-                                <select defaultValue="" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                <select name="bidang_id" value={formData.bidang_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
                                     <option value="" disabled>Pilih bidang dampingan...</option>
                                     <option value="1">Pertanian</option>
                                 </select>
@@ -212,7 +296,7 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Grup Dampingan</label>
                             <div className="relative group">
-                                <select defaultValue="" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                <select name="grup_dampingan_id" value={formData.grup_dampingan_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
                                     <option value="" disabled>Pilih grup dampingan...</option>
                                     <option value="1">Kelompok Tani</option>
                                 </select>
@@ -232,10 +316,11 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
                     </button>
                     <button 
                         onClick={handleSave}
-                        className="h-10 px-5 bg-[#0080C5] text-white rounded-[10px] flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-xs font-semibold"
+                        disabled={isLoading}
+                        className="h-10 px-5 bg-[#0080C5] text-white rounded-[10px] flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-xs font-semibold disabled:opacity-50"
                     >
-                        <Save size={16} />
-                        <span>Ajukan Data</span>
+                        {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                        <span>{isLoading ? 'Mengajukan...' : 'Ajukan Data'}</span>
                     </button>
                 </div>
             </div>

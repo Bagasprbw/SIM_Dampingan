@@ -12,7 +12,8 @@ import {
     Lock,
     Settings,
     Eye,
-    FileText
+    FileText,
+    Loader2
 } from 'lucide-react';
 import AddFacilitatorModal from '../../components/modals/AddFacilitatorModal';
 import EditFacilitatorModal from '../../components/modals/EditFacilitatorModal';
@@ -20,6 +21,9 @@ import DeleteFacilitatorModal from '../../components/modals/DeleteFacilitatorMod
 import ResetFacilitatorPasswordModal from '../../components/modals/ResetFacilitatorPasswordModal';
 import FacilitatorDetailModal from '../../components/modals/FacilitatorDetailModal';
 import ManageBidangModal from '../../components/modals/ManageBidangModal';
+import { useFasilitators } from '../../hooks/queries/useFasilitatorQuery';
+import FilterDropdown from '../../components/common/FilterDropdown';
+import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 
 const DataFasilitatorPage = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -30,14 +34,34 @@ const DataFasilitatorPage = () => {
     const [isManageBidangOpen, setIsManageBidangOpen] = useState(false);
     const [selectedFasilitator, setSelectedFasilitator] = useState(null);
 
-    // Data dummy sesuai screenshot Figma
-    const dataFasilitator = Array(10).fill({
-        id: 1,
-        nama: "Anindhia Salsabila",
-        username: "anindhia.salsa",
-        bidang: "Perekonomian, Buruh",
-        grup: "Srawung Batik Laweyan, KOKAP"
+    const [page, setPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Filter State
+    const [provinsiFilter, setProvinsiFilter] = useState(null);
+    const [kabupatenFilter, setKabupatenFilter] = useState(null);
+    const [kecamatanFilter, setKecamatanFilter] = useState(null);
+
+    // Wilayah Queries
+    const { data: provinsiOptions = [], isLoading: loadingProv } = useProvinsi();
+    const { data: kabupatenOptions = [], isLoading: loadingKab } = useKabupaten(provinsiFilter);
+    const { data: kecamatanOptions = [], isLoading: loadingKec } = useKecamatan(kabupatenFilter);
+
+    const { data: fasilitatorData, isLoading, isError, refetch } = useFasilitators({
+        page: page,
+        search: searchQuery,
+        kode_prov: provinsiFilter,
+        kode_kab: kabupatenFilter,
+        kode_kec: kecamatanFilter
     });
+
+    const handleSearch = (e) => {
+        setSearchQuery(e.target.value);
+        setPage(1);
+    };
+
+    const dataFasilitator = fasilitatorData?.data || [];
+    const meta = fasilitatorData?.meta || {};
 
     return (
         <AdminLayout title="Data Fasilitator">
@@ -72,117 +96,169 @@ const DataFasilitatorPage = () => {
                             </div>
                             <input 
                                 type="text" 
+                                value={searchQuery}
+                                onChange={handleSearch}
                                 className="w-full pl-12 pr-4 py-3 bg-white border-2 border-[#F1F5F9] rounded-[10px] focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-400 transition-all"
                                 placeholder="Cari nama, username, bidang, grup dampingan..."
                             />
                         </div>
 
-                        {/* Filter & Sub-Action Row */}
-                        <div className="flex items-center gap-3">
-                            <div className="relative min-w-[260px]">
-                                <div className="flex items-center justify-between px-4 py-3 bg-white rounded-[10px] border border-[#E5E7EB] hover:border-slate-300 transition-colors cursor-pointer group text-left">
-                                    <span className="text-[#9298B0] text-[11px] font-semibold">Pilih Bidang Dampingan</span>
-                                    <ChevronDown size={18} className="text-[#9298B0]" />
-                                </div>
-                            </div>
+                        {/* Filter Row */}
+                        <div className="flex flex-wrap items-center gap-3">
+                            <FilterDropdown
+                                placeholder="Pilih Provinsi"
+                                options={provinsiOptions}
+                                value={provinsiFilter}
+                                isLoading={loadingProv}
+                                onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
+                            />
+                            <FilterDropdown
+                                placeholder="Pilih Kabupaten"
+                                options={kabupatenOptions}
+                                value={kabupatenFilter}
+                                isLoading={loadingKab}
+                                disabled={!provinsiFilter}
+                                onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
+                            />
+                            <FilterDropdown
+                                placeholder="Pilih Kecamatan"
+                                options={kecamatanOptions}
+                                value={kecamatanFilter}
+                                isLoading={loadingKec}
+                                disabled={!kabupatenFilter}
+                                onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
+                            />
+
+                            <div className="h-6 w-[1px] bg-slate-200 mx-1 hidden sm:block" />
+
                             <button 
                                 onClick={() => setIsManageBidangOpen(true)}
-                                className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
+                                className="h-10 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                             >
-                                <Settings size={18} />
-                                <span className="text-[11px] font-semibold">Kelola Bidang</span>
+                                <Settings size={16} />
+                                <span className="text-[11px] font-semibold tracking-tight">Kelola Bidang</span>
                             </button>
                         </div>
                     </div>
 
                     {/* Table Container */}
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-slate-100 border-b-2 border-slate-100">
-                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider rounded-tl-xl w-12 text-center">NO</th>
-                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Nama</th>
-                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Username</th>
-                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[180px]">Bidang Dampingan</th>
-                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[250px]">Grup Dampingan</th>
-                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-28">Aksi</th>
-                                    <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center rounded-tr-xl w-24">Detail</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {dataFasilitator.map((item, index) => (
-                                    <tr key={index} className="hover:bg-slate-50/50 transition-colors border-b border-slate-100">
-                                        <td className="py-2.5 px-4 text-xs text-slate-400 font-medium text-center">{index + 1}</td>
-                                        <td className="py-2.5 px-4 text-xs text-[#0080C5] font-semibold">{item.nama}</td>
-                                        <td className="py-2.5 px-4 text-xs text-[#0080C5] font-normal">{item.username}</td>
-                                        <td className="py-2.5 px-4 text-xs text-[#0A0F1E] font-normal">{item.bidang}</td>
-                                        <td className="py-2.5 px-4 text-xs text-[#0A0F1E] font-normal">{item.grup}</td>
-                                        <td className="py-2.5 px-4 ">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button 
-                                                    onClick={() => {
-                                                        setSelectedFasilitator(item);
-                                                        setIsEditModalOpen(true);
-                                                    }}
-                                                    className="w-6 h-6 rounded-md bg-[#FB923C]/10 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
-                                                >
-                                                    <Edit size={14} />
-                                                </button>
-                                                <button 
-                                                    onClick={() => {
-                                                        setSelectedFasilitator(item);
-                                                        setIsDeleteModalOpen(true);
-                                                    }}
-                                                    className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
-                                                <button 
-                                                    onClick={() => {
-                                                        setSelectedFasilitator(item);
-                                                        setIsResetModalOpen(true);
-                                                    }}
-                                                    className="w-6 h-6 rounded-md bg-[#FBBF24]/10 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
-                                                >
-                                                    <Lock size={12} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td className="py-2.5 px-4 text-center">
-                                            <button 
-                                                onClick={() => {
-                                                    setSelectedFasilitator(item);
-                                                    setIsDetailModalOpen(true);
-                                                }}
-                                                className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
-                                            >
-                                                Detail
-                                            </button>
-                                        </td>
+                    {isLoading ? (
+                        <div className="flex justify-center items-center py-20">
+                            <Loader2 className="animate-spin text-[#0080C5]" size={40} />
+                        </div>
+                    ) : isError ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <p className="text-red-500 mb-4">Gagal memuat data fasilitator.</p>
+                            <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
+                        </div>
+                    ) : dataFasilitator.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <p className="text-slate-500">Tidak ada data fasilitator ditemukan.</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-slate-100 border-b-2 border-slate-100">
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider rounded-tl-xl w-12 text-center">NO</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Nama</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Username</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[180px]">Bidang Dampingan</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[250px]">Grup Dampingan</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-28">Aksi</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center rounded-tr-xl w-24">Detail</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {dataFasilitator.map((item, index) => (
+                                        <tr key={item.id_user || item.id || index} className="hover:bg-slate-50/50 transition-colors border-b border-slate-100">
+                                            <td className="py-2.5 px-4 text-xs text-slate-400 font-medium text-center">
+                                                {meta.from ? meta.from + index : index + 1}
+                                            </td>
+                                            <td className="py-2.5 px-4 text-xs text-[#0080C5] font-semibold">{item.nama}</td>
+                                            <td className="py-2.5 px-4 text-xs text-[#0080C5] font-normal">{item.username}</td>
+                                            <td className="py-2.5 px-4 text-xs text-[#0A0F1E] font-normal">
+                                                {item.bidang?.map(b => b.nama_bidang).join(', ') || '-'}
+                                            </td>
+                                            <td className="py-2.5 px-4 text-xs text-[#0A0F1E] font-normal">
+                                                {item.grup?.map(g => g.nama_grup).join(', ') || '-'}
+                                            </td>
+                                            <td className="py-2.5 px-4 ">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <button 
+                                                        onClick={() => {
+                                                            setSelectedFasilitator(item);
+                                                            setIsEditModalOpen(true);
+                                                        }}
+                                                        className="w-6 h-6 rounded-md bg-[#FB923C]/10 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
+                                                    >
+                                                        <Edit size={14} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            setSelectedFasilitator(item);
+                                                            setIsDeleteModalOpen(true);
+                                                        }}
+                                                        className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            setSelectedFasilitator(item);
+                                                            setIsResetModalOpen(true);
+                                                        }}
+                                                        className="w-6 h-6 rounded-md bg-[#FBBF24]/10 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
+                                                    >
+                                                        <Lock size={12} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td className="py-2.5 px-4 text-center">
+                                                <button 
+                                                    onClick={() => {
+                                                        setSelectedFasilitator(item);
+                                                        setIsDetailModalOpen(true);
+                                                    }}
+                                                    className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
+                                                >
+                                                    Detail
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
 
                     {/* Pagination Section */}
-                    <div className="mt-8 flex items-center justify-between">
-                        <p className="text-slate-400 text-xs font-normal">Menampilkan 1-10 dari 15 data</p>
-                        <div className="flex items-center gap-1.5">
-                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50">
-                                <ChevronLeft size={18} />
-                            </button>
-                            <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
-                                1
-                            </button>
-                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-[#0A0F1E] text-[11px] font-semibold hover:bg-slate-50">
-                                2
-                            </button>
-                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50">
-                                <ChevronRight size={18} />
-                            </button>
+                    {meta && meta.total > 0 && (
+                        <div className="mt-8 flex items-center justify-between">
+                            <p className="text-[#9298B0] text-xs font-normal">
+                                Menampilkan {meta.from}-{meta.to} dari {meta.total} data
+                            </p>
+                            <div className="flex items-center gap-1.5">
+                                <button 
+                                    onClick={() => setPage(old => Math.max(old - 1, 1))}
+                                    disabled={page === 1}
+                                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50 disabled:opacity-50"
+                                >
+                                    <ChevronLeft size={18} />
+                                </button>
+                                <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
+                                    {page}
+                                </button>
+                                <button 
+                                    onClick={() => setPage(old => (meta.current_page < meta.last_page ? old + 1 : old))}
+                                    disabled={page === meta.last_page}
+                                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50 disabled:opacity-50"
+                                >
+                                    <ChevronRight size={18} />
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 

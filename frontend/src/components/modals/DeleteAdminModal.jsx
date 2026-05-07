@@ -1,23 +1,46 @@
-import React from 'react';
-import { X, AlertTriangle, AlertCircle, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, AlertTriangle, AlertCircle, Trash2, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useAdminMutations } from '../../hooks/mutations/useAdminMutation';
 
 const DeleteAdminModal = ({ isOpen, onClose, data }) => {
+    const { deleteAdmin } = useAdminMutations();
+    const [isLoading, setIsLoading] = useState(false);
+
     if (!isOpen) return null;
 
     const handleDelete = () => {
-        Swal.fire({
-            icon: 'success',
-            title: 'Terhapus!',
-            text: 'Data admin telah berhasil dihapus dari sistem.',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            customClass: {
-                popup: 'rounded-2xl font-["Poppins"]',
+        setIsLoading(true);
+        deleteAdmin.mutate(data.id, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Terhapus!',
+                    text: 'Data admin telah berhasil dihapus dari sistem.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    customClass: {
+                        popup: 'rounded-2xl font-["Poppins"]',
+                    }
+                });
+                onClose();
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat menghapus data admin.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: {
+                        popup: 'rounded-2xl font-["Poppins"]',
+                    }
+                });
             }
         });
-        onClose();
     };
 
     return (
@@ -83,9 +106,9 @@ const DeleteAdminModal = ({ isOpen, onClose, data }) => {
                         <button onClick={onClose} className="px-6 py-2 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold hover:bg-gray-50 transition-all h-10">
                             Batal
                         </button>
-                        <button onClick={handleDelete} className="px-6 py-2 bg-[#EF4444] text-white rounded-[10px] text-xs font-semibold hover:bg-red-600 transition-all h-10 flex items-center gap-2">
-                            <Trash2 size={16} />
-                            Ya, Hapus
+                        <button onClick={handleDelete} disabled={isLoading} className="px-6 py-2 bg-[#EF4444] text-white rounded-[10px] text-xs font-semibold hover:bg-red-600 transition-all h-10 flex items-center gap-2 disabled:opacity-50">
+                            {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                            {isLoading ? 'Menghapus...' : 'Ya, Hapus'}
                         </button>
                     </div>
                 </div>

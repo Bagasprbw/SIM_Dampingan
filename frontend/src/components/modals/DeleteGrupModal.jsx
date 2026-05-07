@@ -1,28 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
     X, 
     AlertTriangle, 
     Trash2, 
-    AlertCircle 
+    AlertCircle,
+    Loader2
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useGrupDampinganMutations } from '../../hooks/mutations/useGrupDampinganMutation';
 
 const DeleteGrupModal = ({ isOpen, onClose, data }) => {
+    const { deleteGrupDampingan } = useGrupDampinganMutations();
+    const [isLoading, setIsLoading] = useState(false);
+
     if (!isOpen) return null;
 
     const handleDelete = () => {
-        Swal.fire({
-            title: 'Terhapus!',
-            text: 'Data grup dampingan telah berhasil dihapus.',
-            icon: 'success',
-            confirmButtonColor: '#EF4444',
-            timer: 1500,
-            showConfirmButton: false,
-            customClass: {
-                popup: 'rounded-2xl font-["Poppins"]',
+        setIsLoading(true);
+        deleteGrupDampingan.mutate(data.id, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    title: 'Terhapus!',
+                    text: 'Data grup dampingan telah berhasil dihapus.',
+                    icon: 'success',
+                    confirmButtonColor: '#EF4444',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+                onClose();
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat menghapus data grup dampingan.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
             }
         });
-        onClose();
     };
 
     return (
@@ -98,10 +118,11 @@ const DeleteGrupModal = ({ isOpen, onClose, data }) => {
                         </button>
                         <button 
                             onClick={handleDelete}
-                            className="px-6 h-10 bg-red-500 text-white rounded-[10px] text-xs font-semibold hover:bg-red-600 transition-all flex items-center gap-2 shadow-sm"
+                            disabled={isLoading}
+                            className="px-6 h-10 bg-red-500 text-white rounded-[10px] text-xs font-semibold hover:bg-red-600 transition-all flex items-center gap-2 shadow-sm disabled:opacity-50"
                         >
-                            <Trash2 size={16} />
-                            <span>Ya, Hapus</span>
+                            {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                            <span>{isLoading ? 'Menghapus...' : 'Ya, Hapus'}</span>
                         </button>
                     </div>
                 </div>

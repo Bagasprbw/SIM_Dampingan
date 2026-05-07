@@ -1,23 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { X, Edit3, Image as ImageIcon, Plus, Save, ChevronDown, Upload } from 'lucide-react';
+import { X, Edit3, Image as ImageIcon, Plus, Save, ChevronDown, Upload, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useFasilitatorMutations } from '../../hooks/mutations/useFasilitatorMutation';
 
 const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
+    const { updateFasilitator } = useFasilitatorMutations();
+    const [isLoading, setIsLoading] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const [bidangTags, setBidangTags] = useState(['Perekonomian', 'Buruh']);
+    const [formData, setFormData] = useState({
+        nama: '', no_telp: '', alamat: '', username: '', foto: null, bidang_id: ''
+    });
 
     useEffect(() => {
         if (data) {
-            // Logika untuk mengisi data ke form jika diperlukan
-            // Untuk saat ini kita pakai data dummy dari Figma
+            setFormData({
+                nama: data.nama || '',
+                no_telp: data.no_telepon || data.no_telp || '',
+                alamat: data.alamat || '',
+                username: data.user?.username || data.username || '',
+                bidang_id: data.bidang_id || '',
+                foto: null
+            });
+            if (data.foto) {
+                setSelectedImage(data.foto); // assuming it's a URL
+            }
         }
     }, [data]);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     if (!isOpen) return null;
 
     const handleImageChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             setSelectedImage(URL.createObjectURL(e.target.files[0]));
+            setFormData({ ...formData, foto: e.target.files[0] });
         }
     };
 
@@ -27,17 +47,43 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
 
     const handleSave = (e) => {
         e.preventDefault();
-        Swal.fire({
-            icon: 'success',
-            title: 'Perubahan Disimpan!',
-            text: 'Informasi fasilitator telah berhasil diperbarui.',
-            showConfirmButton: false,
-            timer: 2000,
-            customClass: {
-                popup: 'rounded-2xl font-["Poppins"]',
+        setIsLoading(true);
+
+        const form = new FormData();
+        Object.keys(formData).forEach(key => {
+            if (formData[key] !== null && formData[key] !== '') {
+                form.append(key, formData[key]);
             }
         });
-        onClose();
+
+        // Use method spoofing for Laravel PUT with FormData
+        form.append('_method', 'PUT');
+
+        updateFasilitator.mutate({ id: data.id, data: form }, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Perubahan Disimpan!',
+                    text: 'Informasi fasilitator telah berhasil diperbarui.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+                onClose();
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat memperbarui fasilitator.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+            }
+        });
     };
 
     return (
@@ -90,17 +136,17 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
                     <div className="grid grid-cols-2 gap-5">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Nama Lengkap</label>
-                            <input type="text" defaultValue={data?.nama || "Ahmad Fauzi"} className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" />
+                            <input name="nama" value={formData.nama} onChange={handleChange} type="text" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" />
                         </div>
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">No. Telepon</label>
-                            <input type="text" defaultValue="081234567890" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" />
+                            <input name="no_telp" value={formData.no_telp} onChange={handleChange} type="text" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" />
                         </div>
                     </div>
 
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#0A0F1E] text-xs font-semibold">Alamat</label>
-                        <textarea rows="3" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] resize-none font-medium"></textarea>
+                        <textarea name="alamat" value={formData.alamat} onChange={handleChange} rows="3" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] resize-none font-medium"></textarea>
                     </div>
 
                     {/* Bidang Dampingan with Tags */}
@@ -113,8 +159,10 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
                             </button>
                         </div>
                         <div className="relative">
-                            <select className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-slate-400 appearance-none">
+                            <select name="bidang_id" value={formData.bidang_id} onChange={handleChange} className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-slate-400 appearance-none">
                                 <option value="">Pilih bidang dampingan...</option>
+                                <option value="1">Perekonomian</option>
+                                <option value="2">Buruh</option>
                             </select>
                             <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
                         </div>
@@ -135,7 +183,7 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
 
                     <div className="flex flex-col gap-1.5 pb-2">
                         <label className="text-[#0A0F1E] text-xs font-semibold">Username</label>
-                        <input type="text" defaultValue={data?.username || "ahmad.fauzi"} className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" />
+                        <input name="username" value={formData.username} onChange={handleChange} type="text" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" />
                     </div>
                 </form>
 
@@ -144,9 +192,9 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
                     <button onClick={onClose} className="px-6 py-2 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold hover:bg-gray-50 h-10 transition-all">
                         Batal
                     </button>
-                    <button onClick={handleSave} className="px-6 py-2 bg-[#0080C5] text-white rounded-[10px] text-xs font-semibold hover:bg-[#006da8] h-10 flex items-center gap-2 shadow-sm transition-all">
-                        <Save size={16} />
-                        Simpan Perubahan
+                    <button onClick={handleSave} disabled={isLoading} className="px-6 py-2 bg-[#0080C5] text-white rounded-[10px] text-xs font-semibold hover:bg-[#006da8] h-10 flex items-center gap-2 shadow-sm transition-all disabled:opacity-50">
+                        {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                        {isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
                     </button>
                 </div>
             </div>

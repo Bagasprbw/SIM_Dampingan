@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     RotateCcw, 
@@ -7,94 +7,162 @@ import {
     UserCheck, 
     Users, 
     Globe, 
-    Info,
+    Info, 
+    Loader2,
     LayoutDashboard,
-    Database,
+    Shield,
+    Users2,
     Map
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useRoles, usePermissions, useHakAksesMutations } from '../../hooks/queries/useHakAksesQuery';
 
-const Toggle = ({ enabled, onChange, colorClass = "bg-[#0080C5]" }) => (
+const Toggle = ({ enabled, onChange, colorClass = 'bg-[#0080C5]', disabled = false }) => (
     <button
         onClick={onChange}
-        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${enabled ? colorClass : 'bg-gray-200'}`}
+        disabled={disabled}
+        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${enabled ? colorClass : 'bg-gray-200'}`}
     >
-        <span
-            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${enabled ? 'translate-x-5' : 'translate-x-0'}`}
-        />
+        <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${enabled ? 'translate-x-5' : 'translate-x-0'}`} />
     </button>
 );
 
-const KelolaHakAksesPage = () => {
-    const [access, setAccess] = useState({
-        admin: {
-            fasilitator: true,
-            adminBawahan: true,
-            masyarakat: true,
-            grup: true
-        },
-        fasilitator: {
-            crudLaporan: true,
-            validasiWarga: true
-        },
-        pj: {
-            pendaftaranWarga: true
-        },
-        global: {
-            dashboard: { admin: true, fasilitator: true, pj: true },
-            dataAdmin: { admin: true, fasilitator: true, pj: true },
-            dataMasyarakat: { admin: true, fasilitator: true, pj: true },
-            peta: { admin: true, fasilitator: true, pj: true }
-        }
-    });
+const FeatureItem = ({ title, subtitle, enabled, onChange, colorClass }) => (
+    <div className="flex items-center justify-between py-4 border-b border-slate-50 last:border-0 group">
+        <div className="flex-1 pr-4">
+            <h4 className="text-[11px] font-bold text-slate-900 group-hover:text-[#0080C5] transition-colors">{title}</h4>
+            <p className="text-[9px] text-slate-400 mt-0.5 line-clamp-2">{subtitle}</p>
+        </div>
+        <Toggle enabled={enabled} onChange={onChange} colorClass={colorClass} />
+    </div>
+);
 
-    const handleSave = () => {
-        Swal.fire({
-            html: `
-                <div class="flex flex-col items-center py-4 px-4">
-                    <div class="w-24 h-24 bg-gradient-to-b from-[#00C878]/20 to-[#00C878]/5 rounded-[48px] border border-[#00B96E] flex items-center justify-center mb-8">
-                        <div class="w-20 h-20 bg-[#00B96E] rounded-full flex items-center justify-center text-white shadow-lg shadow-[#00B96E]/20">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                    </div>
-                    <div class="space-y-3">
-                        <h2 class="text-[#0A0F1E] text-2xl font-bold tracking-tight">Perubahan Berhasil!</h2>
-                        <p class="text-[#636364] text-base font-normal">Perubahan Telah Disimpan</p>
-                    </div>
-                </div>
-            `,
-            showConfirmButton: false,
-            timer: 2000,
-            width: '460px',
-            customClass: {
-                popup: 'rounded-[48px] p-12 font-["Poppins"] shadow-2xl',
-            }
+const KelolaHakAksesPage = () => {
+    const { data: rolesData, isLoading: loadingRoles, isError: errorRoles } = useRoles();
+    const { data: permsData, isLoading: loadingPerms } = usePermissions();
+    const { updateRolePermissions } = useHakAksesMutations();
+
+    const [localPerms, setLocalPerms] = useState({});
+    const [isSaving, setIsSaving] = useState(false);
+
+    const roles = rolesData?.data || [];
+    const permissions = permsData?.data || [];
+
+    // Inject dummy permissions agar toggle UI bisa bekerja secara independen tanpa error dari backend
+    const DUMMY_PERMS = [
+        { id_permission: 'dummy_dashboard', code: 'view_dashboard', name: 'View Dashboard' },
+        { id_permission: 'dummy_peta', code: 'view_peta_sebaran', name: 'View Peta Sebaran' }
+    ];
+    
+    const allPermissions = [...permissions, ...DUMMY_PERMS];
+
+    const roleMap = roles.reduce((acc, r) => ({ ...acc, [r.name]: r }), {});
+    const permMap = allPermissions.reduce((acc, p) => ({ ...acc, [p.code]: p }), {});
+
+    useEffect(() => {
+        if (roles.length > 0 && permissions.length > 0) {
+            const initial = {};
+            roles.forEach(role => {
+                // Semua default ON sesuai permintaan user, termasuk dummy
+                initial[role.id_role] = new Set(allPermissions.map(p => p.id_permission));
+            });
+            setLocalPerms(initial);
+        }
+    }, [rolesData, permissions]);
+
+    const hasPermission = (roleName, permCode) => {
+        const roleId = roleMap[roleName]?.id_role;
+        const permId = permMap[permCode]?.id_permission;
+        if (!roleId || !permId) return false;
+        return localPerms[roleId]?.has(permId) ?? false;
+    };
+
+    const togglePermission = (roleNames, permCodes) => {
+        const names = Array.isArray(roleNames) ? roleNames : [roleNames];
+        const codes = Array.isArray(permCodes) ? permCodes : [permCodes];
+
+        setLocalPerms(prev => {
+            const next = { ...prev };
+            names.forEach(roleName => {
+                const roleId = roleMap[roleName]?.id_role;
+                if (!roleId) return;
+                
+                const updated = new Set(next[roleId] || []);
+                codes.forEach(code => {
+                    const permId = permMap[code]?.id_permission;
+                    if (!permId) return;
+
+                    if (updated.has(permId)) updated.delete(permId);
+                    else updated.add(permId);
+                });
+                next[roleId] = updated;
+            });
+            return next;
         });
     };
 
     const handleReset = () => {
-        Swal.fire({
-            html: `
-                <div class="flex flex-col items-center py-4 px-4">
-                    <div class="w-24 h-24 bg-gradient-to-b from-[#00C878]/20 to-[#00C878]/5 rounded-[48px] border border-[#00B96E] flex items-center justify-center mb-8">
-                        <div class="w-20 h-20 bg-[#00B96E] rounded-full flex items-center justify-center text-white shadow-lg shadow-[#00B96E]/20">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                    </div>
-                    <div class="space-y-3">
-                        <h2 class="text-[#0A0F1E] text-2xl font-bold tracking-tight">Reset Berhasil!</h2>
-                        <p class="text-[#636364] text-base font-normal">Fitur Di Reset Ke Setelan Awal</p>
-                    </div>
-                </div>
-            `,
-            showConfirmButton: false,
-            timer: 2000,
-            width: '460px',
-            customClass: {
-                popup: 'rounded-[48px] p-12 font-["Poppins"] shadow-2xl',
-            }
-        });
+        if (roles.length > 0 && permissions.length > 0) {
+            const allOn = {};
+            roles.forEach(role => {
+                allOn[role.id_role] = new Set(allPermissions.map(p => p.id_permission));
+            });
+            setLocalPerms(allOn);
+            Swal.fire({
+                title: 'Default Aktif!',
+                text: 'Semua fitur telah ditandai untuk diaktifkan. Klik Simpan untuk memperbarui.',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+                customClass: { popup: 'rounded-2xl font-[\'Poppins\']' }
+            });
+        }
     };
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            const roleEntries = Object.entries(localPerms);
+            for (const [roleId, permSet] of roleEntries) {
+                // Jangan kirim dummy ID ke backend agar tidak error foreign key
+                const realPermissions = [...permSet].filter(id => !id.startsWith('dummy_'));
+                
+                await updateRolePermissions.mutateAsync({
+                    roleId,
+                    permissions: realPermissions,
+                });
+            }
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Pengaturan hak akses berhasil disimpan.',
+                icon: 'success',
+                confirmButtonColor: '#0080C5',
+                timer: 1800,
+                showConfirmButton: false,
+                customClass: { popup: 'rounded-2xl font-[\'Poppins\']' }
+            });
+        } catch {
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Terjadi kesalahan saat menyimpan hak akses.',
+                icon: 'error',
+                confirmButtonColor: '#EF4444',
+                customClass: { popup: 'rounded-2xl font-[\'Poppins\']' }
+            });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    if (loadingRoles || loadingPerms) return (
+        <AdminLayout title="Kelola Hak Akses">
+            <div className="p-8 flex justify-center items-center min-h-[60vh]">
+                <Loader2 className="animate-spin text-[#0080C5]" size={40} />
+            </div>
+        </AdminLayout>
+    );
+
+    const adminRoles = ['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'];
 
     return (
         <AdminLayout title="Kelola Hak Akses">
@@ -103,193 +171,194 @@ const KelolaHakAksesPage = () => {
                 {/* Header Section */}
                 <div className="flex justify-between items-start mb-8">
                     <div className="space-y-1">
-                        <h2 className="text-base font-bold text-slate-950 tracking-tight">Konfigurasi Fitur per Role</h2>
-                        <p className="text-xs text-slate-400 font-normal">Gunakan toggle untuk mengaktifkan atau menonaktifkan fitur pada setiap role.</p>
+                        <h2 className="text-[15px] font-bold text-slate-950 tracking-tight">Konfigurasi Fitur per Role</h2>
+                        <p className="text-[11px] text-slate-400 font-medium">Gunakan toggle untuk mengaktifkan atau menonaktifkan fitur pada setiap role.</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button 
+                        <button
                             onClick={handleReset}
-                            className="h-10 px-5 bg-white border border-gray-200 rounded-xl text-[#0080C5] text-[11px] font-semibold flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm"
+                            className="h-10 px-6 bg-white border border-gray-200 rounded-xl text-[#0080C5] text-[11px] font-bold flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm"
                         >
-                            <RotateCcw size={16} />
-                            Reset Default
+                            <RotateCcw size={16} /> Reset Default
                         </button>
-                        <button 
+                        <button
                             onClick={handleSave}
-                            className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
+                            disabled={isSaving}
+                            className="h-10 px-6 bg-[#0080C5] text-white rounded-xl flex items-center gap-2 text-[11px] font-bold hover:bg-sky-700 transition-all shadow-sm disabled:opacity-50"
                         >
-                            <Save size={16} />
-                            Simpan Perubahan
+                            {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                            {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
                         </button>
                     </div>
                 </div>
 
-                {/* 1. Role Cards Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    {/* Role Admin */}
-                    <div className="bg-white rounded-3xl p-7 border border-gray-100 shadow-sm space-y-7">
-                        <div className="flex items-center gap-4">
+                {/* Role Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    {/* Role Admin Card */}
+                    <div className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col">
+                        <div className="flex items-center gap-4 mb-6">
                             <div className="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center text-[#0080C5]">
                                 <User size={24} />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-slate-950">Role Admin</h3>
-                                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Provinsi - Kabupaten - Kecamatan</p>
+                                <h3 className="text-[13px] font-bold text-slate-950">Role Admin</h3>
+                                <p className="text-[10px] text-slate-400 font-medium">Provinsi - Kabupaten - Kecamatan</p>
                             </div>
                         </div>
-                        <div className="space-y-5">
-                            {[
-                                { id: 'fasilitator', label: 'Kelola Data Fasilitator', desc: 'Hanya menampilkan fasilitator di wilayah bawahnya' },
-                                { id: 'adminBawahan', label: 'Kelola Data Admin Bawahan', desc: 'Khusus Provinsi & Kabupaten' },
-                                { id: 'masyarakat', label: 'Kelola Data Masyarakat', desc: 'Sesuai wilayah tanggung jawab' },
-                                { id: 'grup', label: 'Kelola Grup Dampingan', desc: 'Sesuai wilayah tanggung jawab' }
-                            ].map(item => (
-                                <div key={item.id} className="flex items-center justify-between gap-4">
-                                    <div className="space-y-1">
-                                        <p className="text-[11px] font-semibold text-slate-800">{item.label}</p>
-                                        <p className="text-[10px] text-slate-400 leading-relaxed">{item.desc}</p>
-                                    </div>
-                                    <Toggle 
-                                        enabled={access.admin[item.id]} 
-                                        onChange={() => setAccess({...access, admin: {...access.admin, [item.id]: !access.admin[item.id]}})}
-                                        colorClass="bg-[#0080C5]"
-                                    />
-                                </div>
-                            ))}
+                        <div className="space-y-1">
+                            <FeatureItem 
+                                title="Kelola Data Fasilitator"
+                                subtitle="Hanya menampilkan fasilitator di wilayah bawahnya"
+                                enabled={hasPermission('admin_provinsi', 'kelola_fasilitator')}
+                                onChange={() => togglePermission(adminRoles, 'kelola_fasilitator')}
+                                colorClass="bg-[#0080C5]"
+                            />
+                            <FeatureItem 
+                                title="Kelola Data Admin Bawahan"
+                                subtitle="Khusus Provinsi & Kabupaten"
+                                enabled={hasPermission('admin_provinsi', 'kelola_admin_bawahan')}
+                                onChange={() => togglePermission(['admin_provinsi', 'admin_kabupaten'], 'kelola_admin_bawahan')}
+                                colorClass="bg-[#0080C5]"
+                            />
+                            <FeatureItem 
+                                title="Kelola Data Masyarakat"
+                                subtitle="Sesuai wilayah tanggung jawab"
+                                enabled={hasPermission('admin_provinsi', 'kelola_masyarakat')}
+                                onChange={() => togglePermission(adminRoles, 'kelola_masyarakat')}
+                                colorClass="bg-[#0080C5]"
+                            />
+                            <FeatureItem 
+                                title="Kelola Grup Dampingan"
+                                subtitle="Sesuai wilayah tanggung jawab"
+                                enabled={hasPermission('admin_provinsi', 'kelola_grup')}
+                                onChange={() => togglePermission(adminRoles, 'kelola_grup')}
+                                colorClass="bg-[#0080C5]"
+                            />
                         </div>
                     </div>
 
-                    {/* Role Fasilitator */}
-                    <div className="bg-white rounded-3xl p-7 border border-gray-100 shadow-sm space-y-7">
-                        <div className="flex items-center gap-4">
+                    {/* Role Fasilitator Card */}
+                    <div className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col">
+                        <div className="flex items-center gap-4 mb-6">
                             <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-[#EA580C]">
                                 <UserCheck size={24} />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-slate-950">Role Fasilitator</h3>
-                                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Pengelola Lapangan & Validasi</p>
+                                <h3 className="text-[13px] font-bold text-slate-950">Role Fasilitator</h3>
+                                <p className="text-[10px] text-slate-400 font-medium">Pengelola Lapangan & Validasi</p>
                             </div>
                         </div>
-                        <div className="space-y-5">
-                            {[
-                                { id: 'crudLaporan', label: 'CRUD Laporan Kegiatan', desc: 'Tambah, ubah, dan hapus laporan yang dibuat' },
-                                { id: 'validasiWarga', label: 'Validasi Warga Baru', desc: 'Setujui atau tolak pengajuan pendaftaran warga baru' }
-                            ].map(item => (
-                                <div key={item.id} className="flex items-center justify-between gap-4">
-                                    <div className="space-y-1">
-                                        <p className="text-[11px] font-semibold text-slate-800">{item.label}</p>
-                                        <p className="text-[10px] text-slate-400 leading-relaxed">{item.desc}</p>
-                                    </div>
-                                    <Toggle 
-                                        enabled={access.fasilitator[item.id]} 
-                                        onChange={() => setAccess({...access, fasilitator: {...access.fasilitator, [item.id]: !access.fasilitator[item.id]}})}
-                                        colorClass="bg-[#EA580C]"
-                                    />
-                                </div>
-                            ))}
+                        <div className="space-y-1">
+                            <FeatureItem 
+                                title="CRUD Laporan Kegiatan"
+                                subtitle="Tambah, ubah, dan hapus laporan yang dibuat"
+                                enabled={hasPermission('fasilitator', 'create_kegiatan')}
+                                onChange={() => togglePermission('fasilitator', ['create_kegiatan', 'edit_kegiatan', 'delete_kegiatan', 'view_kegiatan'])}
+                                colorClass="bg-[#EA580C]"
+                            />
+                            <FeatureItem 
+                                title="Validasi Warga Baru"
+                                subtitle="Setujui atau tolak pengajuan pendaftaran warga baru"
+                                enabled={hasPermission('fasilitator', 'verifikasi_anggota')}
+                                onChange={() => togglePermission('fasilitator', 'verifikasi_anggota')}
+                                colorClass="bg-[#EA580C]"
+                            />
                         </div>
                     </div>
 
-                    {/* Role PJ Dampingan */}
-                    <div className="bg-white rounded-3xl p-7 border border-gray-100 shadow-sm space-y-7">
-                        <div className="flex items-center gap-4">
+                    {/* Role PJ Dampingan Card */}
+                    <div className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col">
+                        <div className="flex items-center gap-4 mb-6">
                             <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-[#6366F1]">
                                 <Users size={24} />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-slate-950">Role PJ Dampingan</h3>
-                                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Pengurus Anggota Grup</p>
+                                <h3 className="text-[13px] font-bold text-slate-950">Role PJ Dampingan</h3>
+                                <p className="text-[10px] text-slate-400 font-medium">Pengurus Anggota Grup</p>
                             </div>
                         </div>
-                        <div className="space-y-5">
-                            {[
-                                { id: 'pendaftaranWarga', label: 'Pendaftaran Warga Baru', desc: 'Input formulir calon warga untuk divalidasi Fasilitator' }
-                            ].map(item => (
-                                <div key={item.id} className="flex items-center justify-between gap-4">
-                                    <div className="space-y-1">
-                                        <p className="text-[11px] font-semibold text-slate-800">{item.label}</p>
-                                        <p className="text-[10px] text-slate-400 leading-relaxed">{item.desc}</p>
-                                    </div>
-                                    <Toggle 
-                                        enabled={access.pj[item.id]} 
-                                        onChange={() => setAccess({...access, pj: {...access.pj, [item.id]: !access.pj[item.id]}})}
-                                        colorClass="bg-[#6366F1]"
-                                    />
-                                </div>
-                            ))}
+                        <div className="space-y-1">
+                            <FeatureItem 
+                                title="Pendaftaran Warga Baru"
+                                subtitle="Input formulir calon warga untuk divalidasi Fasilitator"
+                                enabled={hasPermission('pj_grup', 'ajukan_anggota')}
+                                onChange={() => togglePermission('pj_grup', 'ajukan_anggota')}
+                                colorClass="bg-[#6366F1]"
+                            />
                         </div>
                     </div>
                 </div>
 
-                {/* 2. Fitur Global Section */}
-                <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="px-8 py-4 flex items-center gap-4 border-b border-gray-50">
-                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border border-gray-100">
+                {/* Global Features Table Section */}
+                <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 overflow-hidden">
+                    <div className="px-8 py-5 border-b border-slate-50 flex items-center gap-4">
+                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
                             <Globe size={20} />
                         </div>
-                        <div className="space-y-0.5">
+                        <div>
                             <h3 className="text-sm font-bold text-slate-950">Fitur Global</h3>
-                            <p className="text-[10px] text-slate-400 font-normal">Dapat dikonfigurasi per role secara individual</p>
+                            <p className="text-[10px] text-slate-400 font-medium">Dapat dikonfigurasi per role secara individual</p>
                         </div>
                     </div>
 
                     <div className="overflow-x-auto">
-                        <table className="w-full border-collapse">
+                        <table className="w-full">
                             <thead>
-                                <tr className="bg-[#FAFBFD]">
-                                    <th className="py-4 px-8 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[45%]">FITUR</th>
-                                    <th className="py-4 px-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                                <tr className="bg-[#FAFBFD]/50 border-b border-slate-50">
+                                    <th className="py-4 px-8 text-left text-[#9298B0] text-[9px] font-bold uppercase tracking-widest">FITUR</th>
+                                    <th className="py-4 px-4 text-center">
                                         <div className="flex items-center justify-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-[#0080C5]"></div>
-                                            ADMIN
+                                            <div className="w-2 h-2 rounded-full bg-[#0080C5]" />
+                                            <span className="text-[#9298B0] text-[9px] font-bold uppercase tracking-widest">ADMIN</span>
                                         </div>
                                     </th>
-                                    <th className="py-4 px-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                                    <th className="py-4 px-4 text-center">
                                         <div className="flex items-center justify-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-[#EA580C]"></div>
-                                            FASILITATOR
+                                            <div className="w-2 h-2 rounded-full bg-[#EA580C]" />
+                                            <span className="text-[#9298B0] text-[9px] font-bold uppercase tracking-widest">FASILITATOR</span>
                                         </div>
                                     </th>
-                                    <th className="py-4 px-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                                    <th className="py-4 px-4 text-center">
                                         <div className="flex items-center justify-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-[#6366F1]"></div>
-                                            PJ DAMPINGAN
+                                            <div className="w-2 h-2 rounded-full bg-[#6366F1]" />
+                                            <span className="text-[#9298B0] text-[9px] font-bold uppercase tracking-widest">PJ DAMPINGAN</span>
                                         </div>
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-slate-50">
                                 {[
-                                    { id: 'dashboard', label: 'Dashboard Statistik', desc: 'Ringkasan statistik sistem sesuai batasan akses masing-masing role.' },
-                                    { id: 'dataAdmin', label: 'Data Admin', desc: 'Manajemen data user dengan level akses administratif.' },
-                                    { id: 'dataMasyarakat', label: 'Data Masyarakat', desc: 'Akses ke data profil dan histori masyarakat dampingan.' },
-                                    { id: 'peta', label: 'Peta Sebaran', desc: 'Visualisasi geografis titik lokasi masyarakat dan grup dampingan.' }
-                                ].map(item => (
-                                    <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="py-4 px-8">
-                                            <div className="space-y-1">
-                                                <p className="text-[11px] font-semibold text-slate-800">{item.label}</p>
-                                                <p className="text-[10px] text-slate-400 leading-relaxed">{item.desc}</p>
-                                            </div>
+                                    { id: 'dash', label: 'Dashboard Statistik', sub: 'Ringkasan statistik sistem sesuai batasan akses masing-masing role.', code: 'view_dashboard' },
+                                    { id: 'admin', label: 'Data Admin', sub: 'Manajemen data user dengan level akses administratif.', code: 'kelola_admin_bawahan' },
+                                    { id: 'masy', label: 'Data Masyarakat', sub: 'Akses ke data profil dan histori masyarakat dampingan.', code: 'kelola_masyarakat' },
+                                    { id: 'peta', label: 'Peta Sebaran', sub: 'Visualisasi geografis titik lokasi masyarakat dan grup dampingan.', code: 'view_peta_sebaran' },
+                                ].map((item) => (
+                                    <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
+                                        <td className="py-5 px-8">
+                                            <h4 className="text-[11px] font-bold text-slate-900">{item.label}</h4>
+                                            <p className="text-[9px] text-slate-400 mt-0.5">{item.sub}</p>
                                         </td>
-                                        <td className="py-4 px-6 text-center">
+                                        {/* Kolom ADMIN (Sync Prov, Kab, Kec) */}
+                                        <td className="py-5 px-4 text-center">
                                             <Toggle 
-                                                enabled={access.global[item.id].admin} 
-                                                onChange={() => setAccess({...access, global: {...access.global, [item.id]: {...access.global[item.id], admin: !access.global[item.id].admin}}})} 
+                                                enabled={hasPermission('admin_provinsi', item.code)} 
+                                                onChange={() => togglePermission(adminRoles, item.code)} 
                                                 colorClass="bg-[#0080C5]"
                                             />
                                         </td>
-                                        <td className="py-4 px-6 text-center">
+                                        {/* Kolom FASILITATOR */}
+                                        <td className="py-5 px-4 text-center">
                                             <Toggle 
-                                                enabled={access.global[item.id].fasilitator} 
-                                                onChange={() => setAccess({...access, global: {...access.global, [item.id]: {...access.global[item.id], fasilitator: !access.global[item.id].fasilitator}}})} 
+                                                enabled={hasPermission('fasilitator', item.code)} 
+                                                onChange={() => togglePermission('fasilitator', item.code)} 
                                                 colorClass="bg-[#EA580C]"
                                             />
                                         </td>
-                                        <td className="py-4 px-6 text-center">
+                                        {/* Kolom PJ DAMPINGAN */}
+                                        <td className="py-5 px-4 text-center">
                                             <Toggle 
-                                                enabled={access.global[item.id].pj} 
-                                                onChange={() => setAccess({...access, global: {...access.global, [item.id]: {...access.global[item.id], pj: !access.global[item.id].pj}}})} 
+                                                enabled={hasPermission('pj_grup', item.code)} 
+                                                onChange={() => togglePermission('pj_grup', item.code)} 
                                                 colorClass="bg-[#6366F1]"
                                             />
                                         </td>
@@ -299,9 +368,9 @@ const KelolaHakAksesPage = () => {
                         </table>
                     </div>
 
-                    <div className="px-8 py-4 bg-slate-50/50 flex items-center gap-3 border-t border-gray-50">
+                    <div className="px-8 py-4 bg-slate-50/50 flex items-center gap-3 border-t border-slate-100">
                         <Info size={14} className="text-slate-400" />
-                        <p className="text-[10px] text-slate-400 font-medium">Perubahan fitur global berlaku setelah disimpan. Setiap role dapat dikonfigurasi secara independen.</p>
+                        <p className="text-[10px] text-slate-400 font-medium italic">Perubahan fitur global berlaku setelah disimpan. Setiap role dapat dikonfigurasi secara independen.</p>
                     </div>
                 </div>
             </div>

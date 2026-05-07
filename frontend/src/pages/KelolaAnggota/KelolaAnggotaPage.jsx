@@ -8,8 +8,10 @@ import {
     ChevronLeft, 
     ChevronRight,
     Plus,
-    User
+    User,
+    Loader2
 } from 'lucide-react';
+import { useAnggotas } from '../../hooks/queries/useAnggotaQuery';
 import AddDampinganModal from '../../components/modals/AddDampinganModal';
 import EditDampinganModal from '../../components/modals/EditDampinganModal';
 import DeleteDampinganModal from '../../components/modals/DeleteDampinganModal';
@@ -21,41 +23,31 @@ const KelolaAnggotaPage = () => {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedData, setSelectedData] = useState(null);
 
-    const dataAnggota = [
-        {
-            noAnggota: '340406030002',
-            nama: 'Ahmad Fauzi',
-            gender: 'Laki-Laki',
-            bidang: 'Pertanian',
-            grup: 'Kelompok Josjis',
-            alamat: 'Jl. Mawar No. 12, Karanga...',
-            status: 'Disetujui',
-            statusColor: 'bg-[#ECFDF5] text-[#10B981]',
-            dotColor: 'bg-[#10B981]'
-        },
-        {
-            noAnggota: '340406088002',
-            nama: 'Bunga Citra',
-            gender: 'Perempuan',
-            bidang: 'Perternakan',
-            grup: 'Kelompok Piunk',
-            alamat: 'Jl. Mawar No. 12, Karanga...',
-            status: 'Menunggu',
-            statusColor: 'bg-[#FFF7ED] text-[#F59E0B]',
-            dotColor: 'bg-[#F59E0B]'
-        },
-        ...Array(6).fill({
-            noAnggota: '360406088002',
-            nama: 'Bunga Mawar',
-            gender: 'Perempuan',
-            bidang: 'Perikanan',
-            grup: 'Kelompok Piunk',
-            alamat: 'Jl. Mawar No. 12, Karanga...',
-            status: 'Ditolak',
-            statusColor: 'bg-[#FEF2F2] text-[#EF4444]',
-            dotColor: 'bg-[#EF4444]'
-        })
-    ];
+    const [page, setPage] = useState(1);
+    
+    const { data: anggotaData, isLoading, isError, refetch } = useAnggotas({
+        page: page,
+        search: searchTerm
+    });
+
+    const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+        setPage(1);
+    };
+
+    const dataAnggota = Array.isArray(anggotaData?.data) 
+        ? anggotaData.data 
+        : (anggotaData?.data?.data || anggotaData?.data || []);
+    const meta = anggotaData?.meta || anggotaData?.data || {};
+
+    const getStatusColor = (status) => {
+        switch(status) {
+            case 'aktif': return { statusColor: 'bg-[#ECFDF5] text-[#10B981]', dotColor: 'bg-[#10B981]' };
+            case 'pending': return { statusColor: 'bg-[#FFF7ED] text-[#F59E0B]', dotColor: 'bg-[#F59E0B]' };
+            case 'ditolak': return { statusColor: 'bg-[#FEF2F2] text-[#EF4444]', dotColor: 'bg-[#EF4444]' };
+            default: return { statusColor: 'bg-slate-100 text-slate-500', dotColor: 'bg-slate-400' };
+        }
+    };
 
     const handleEdit = (item) => {
         setSelectedData(item);
@@ -95,7 +87,7 @@ const KelolaAnggotaPage = () => {
                                     placeholder="Cari Nama Masyarakat..." 
                                     className="pl-11 pr-4 py-2 bg-white border-2 border-slate-100 rounded-xl text-xs font-medium w-64 focus:outline-none focus:border-[#0080C5] transition-all"
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={handleSearch}
                                 />
                             </div>
                             <div className="px-4 py-2 border-2 border-slate-100 rounded-xl flex items-center gap-4 cursor-pointer hover:bg-slate-50 transition-all">
@@ -113,73 +105,110 @@ const KelolaAnggotaPage = () => {
                     </div>
 
                     {/* Table Content */}
-                    <div className="overflow-x-auto">
-                        <table className="w-full border-separate border-spacing-y-2">
-                            <thead>
-                                <tr>
-                                    <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">NO.ANGGOTA</th>
-                                    <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">NAMA</th>
-                                    <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">JENIS KELAMIN</th>
-                                    <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">BIDANG</th>
-                                    <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">GRUP DAMPINGAN</th>
-                                    <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">ALAMAT</th>
-                                    <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">STATUS</th>
-                                    <th className="py-3 px-4 text-center text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">AKSI</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {dataAnggota.map((item, index) => (
-                                    <tr key={index} className="hover:bg-slate-50 transition-colors">
-                                        <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold border-y border-l border-slate-100 rounded-l-xl whitespace-nowrap">{item.noAnggota}</td>
-                                        <td className="py-4 px-4 text-left border-y border-slate-100 whitespace-nowrap">
-                                            <span className="text-[#0A0F1E] text-xs font-bold">{item.nama}</span>
-                                        </td>
-                                        <td className="py-4 px-4 text-left border-y border-slate-100 whitespace-nowrap">
-                                            <div className="flex items-center gap-2">
-                                                <div className={`w-2 h-2 rounded-full ${item.gender === 'Laki-Laki' ? 'bg-[#0080C5]' : 'bg-[#D52BCA]'}`} />
-                                                <span className="text-[#0A0F1E] text-xs font-semibold">{item.gender}</span>
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-4 text-left text-[#0A0F1E] text-xs font-bold border-y border-slate-100">{item.bidang}</td>
-                                        <td className="py-4 px-4 text-left text-[#6B7280] text-xs font-medium border-y border-slate-100">{item.grup}</td>
-                                        <td className="py-4 px-4 text-left text-[#6B7280] text-xs font-medium border-y border-slate-100 truncate max-w-[150px]">{item.alamat}</td>
-                                        <td className="py-4 px-4 text-left border-y border-slate-100">
-                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${item.statusColor}`}>
-                                                <div className={`w-1.5 h-1.5 rounded-full ${item.dotColor}`} />
-                                                <span className="text-[10px] font-bold">{item.status}</span>
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-4 border-y border-r border-slate-100 rounded-r-xl">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button 
-                                                    onClick={() => handleEdit(item)}
-                                                    className="w-8 h-8 flex items-center justify-center bg-[#FB923C]/10 text-[#FB923C] rounded-lg hover:bg-[#FB923C] hover:text-white transition-all"
-                                                >
-                                                    <Edit size={14} />
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleDelete(item)}
-                                                    className="w-8 h-8 flex items-center justify-center bg-[#EF4444]/10 text-[#EF4444] rounded-lg hover:bg-[#EF4444] hover:text-white transition-all"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
-                                        </td>
+                    {isLoading ? (
+                        <div className="flex justify-center items-center py-20">
+                            <Loader2 className="animate-spin text-[#0080C5]" size={40} />
+                        </div>
+                    ) : isError ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <p className="text-red-500 mb-4">Gagal memuat data anggota.</p>
+                            <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
+                        </div>
+                    ) : dataAnggota.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <p className="text-slate-500">Tidak ada data anggota ditemukan.</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-separate border-spacing-y-2">
+                                <thead>
+                                    <tr>
+                                        <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">NO.ANGGOTA</th>
+                                        <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">NAMA</th>
+                                        <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">JENIS KELAMIN</th>
+                                        <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">BIDANG</th>
+                                        <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">GRUP DAMPINGAN</th>
+                                        <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">ALAMAT</th>
+                                        <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">STATUS</th>
+                                        <th className="py-3 px-4 text-center text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">AKSI</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {dataAnggota.map((item, index) => {
+                                        const { statusColor, dotColor } = getStatusColor(item.status);
+                                        return (
+                                            <tr key={item.id || index} className="hover:bg-slate-50 transition-colors">
+                                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold border-y border-l border-slate-100 rounded-l-xl whitespace-nowrap">{item.no_anggota || '-'}</td>
+                                                <td className="py-4 px-4 text-left border-y border-slate-100 whitespace-nowrap">
+                                                    <span className="text-[#0A0F1E] text-xs font-bold">{item.nama}</span>
+                                                </td>
+                                                <td className="py-4 px-4 text-left border-y border-slate-100 whitespace-nowrap">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className={`w-2 h-2 rounded-full ${item.jenis_kelamin === 'L' ? 'bg-[#0080C5]' : 'bg-[#D52BCA]'}`} />
+                                                        <span className="text-[#0A0F1E] text-xs font-semibold">{item.jenis_kelamin === 'L' ? 'Laki-Laki' : 'Perempuan'}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="py-4 px-4 text-left text-[#0A0F1E] text-xs font-bold border-y border-slate-100">{item.grup_dampingan?.bidang?.nama_bidang || '-'}</td>
+                                                <td className="py-4 px-4 text-left text-[#6B7280] text-xs font-medium border-y border-slate-100">{item.grup_dampingan?.nama_grup || '-'}</td>
+                                                <td className="py-4 px-4 text-left text-[#6B7280] text-xs font-medium border-y border-slate-100 truncate max-w-[150px]">{item.alamat || '-'}</td>
+                                                <td className="py-4 px-4 text-left border-y border-slate-100">
+                                                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${statusColor}`}>
+                                                        <div className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+                                                        <span className="text-[10px] font-bold capitalize">{item.status}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="py-4 px-4 border-y border-r border-slate-100 rounded-r-xl">
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <button 
+                                                            onClick={() => handleEdit(item)}
+                                                            className="w-8 h-8 flex items-center justify-center bg-[#FB923C]/10 text-[#FB923C] rounded-lg hover:bg-[#FB923C] hover:text-white transition-all"
+                                                        >
+                                                            <Edit size={14} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDelete(item)}
+                                                            className="w-8 h-8 flex items-center justify-center bg-[#EF4444]/10 text-[#EF4444] rounded-lg hover:bg-[#EF4444] hover:text-white transition-all"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
 
                     {/* Pagination Placeholder */}
-                    <div className="mt-6 flex justify-between items-center text-xs font-medium text-slate-400">
-                        <span>Menampilkan 8 dari 8 Anggota</span>
-                    </div>
+                    {meta && meta.total > 0 && (
+                        <div className="mt-6 flex justify-between items-center text-xs font-medium text-slate-400">
+                            <span>Menampilkan {meta.from}-{meta.to} dari {meta.total} Anggota</span>
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={() => setPage(old => Math.max(old - 1, 1))}
+                                    disabled={page === 1}
+                                    className="p-1 border rounded disabled:opacity-50"
+                                >
+                                    <ChevronLeft size={14} />
+                                </button>
+                                <span className="px-2">{page}</span>
+                                <button 
+                                    onClick={() => setPage(old => (meta.current_page < meta.last_page ? old + 1 : old))}
+                                    disabled={page === meta.last_page}
+                                    className="p-1 border rounded disabled:opacity-50"
+                                >
+                                    <ChevronRight size={14} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
                 </div>
 
                 {/* Modals */}
-                <AddDampinganModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
+                <AddDampinganModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} isPengajuan={true} />
                 <EditDampinganModal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} data={selectedData} />
                 <DeleteDampinganModal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} data={selectedData} />
 

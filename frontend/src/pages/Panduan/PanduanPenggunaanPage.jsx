@@ -8,11 +8,13 @@ import {
     PlayCircle, 
     Edit3, 
     Trash2,
+    Loader2
 } from 'lucide-react';
 import PanduanModal from '../../components/modals/PanduanModal';
 import DeletePanduanModal from '../../components/modals/DeletePanduanModal';
 import { getUser } from '../../utils/storage';
 import { ROLES } from '../../constants/roles';
+import { usePanduansKelola, usePanduansView } from '../../hooks/queries/usePanduanQuery';
 
 const PanduanPenggunaanPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,12 +27,21 @@ const PanduanPenggunaanPage = () => {
     const isFasilitator = user?.role === ROLES.FASILITATOR;
     const isReadOnly = isPjGrup || isFasilitator;
 
-    const guides = [
-        { id: 1, title: 'Panduan Penggunaan ADMIN', role: 'Admin', types: ['PDF', 'VIDEO'], pdfUrl: 'https://docs.google.com/d...', videoUrl: 'https://youtu.be/...', desc: 'Panduan langkah demi langkah untuk login dan registrasi akun.' },
-        { id: 2, title: 'Panduan Penggunaan ADMIN', role: 'Admin', types: ['PDF', 'VIDEO'], pdfUrl: '', videoUrl: '', desc: 'Panduan langkah demi langkah untuk login dan registrasi akun.' },
-        { id: 3, title: 'Panduan Penggunaan ADMIN', role: 'Admin', types: ['PDF', 'VIDEO'], pdfUrl: '', videoUrl: '', desc: 'Panduan langkah demi langkah untuk login dan registrasi akun.' },
-        { id: 4, title: 'Panduan Penggunaan ADMIN', role: 'Admin', types: ['PDF', 'VIDEO'], pdfUrl: '', videoUrl: '', desc: 'Panduan langkah demi langkah untuk login dan registrasi akun.' },
-    ];
+    const [searchTerm, setSearchTerm] = useState('');
+    const [page, setPage] = useState(1);
+
+    const adminQuery = usePanduansKelola({ search: searchTerm, page, per_page: 10, enabled: !isReadOnly });
+    const viewQuery = usePanduansView({ search: searchTerm, page, per_page: 10, enabled: isReadOnly });
+
+    const activeQuery = isReadOnly ? viewQuery : adminQuery;
+    const { data: panduanData, isLoading, isError, refetch } = activeQuery;
+
+    const guides = panduanData?.data || [];
+    const meta = panduanData?.meta || {};
+
+    const handleViewFile = (url) => {
+        if (url) window.open(url, '_blank');
+    };
 
     const handleAdd = () => {
         setModalMode('add');
@@ -80,8 +91,7 @@ const PanduanPenggunaanPage = () => {
                 </div>
 
                 {/* 2. Content Section */}
-                {!isReadOnly && (
-                    <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-200">
+                <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-200">
                     
                     {/* Toolbar Area */}
                     <div className="flex justify-between items-center mb-6 px-2">
@@ -93,6 +103,8 @@ const PanduanPenggunaanPage = () => {
                                     type="text" 
                                     placeholder="Cari Panduan....." 
                                     className="pl-11 pr-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-xs font-medium w-64 focus:outline-none focus:border-[#0080C5] transition-all"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
                             {/* Role Filter */}
@@ -103,17 +115,33 @@ const PanduanPenggunaanPage = () => {
                         </div>
 
                         {/* Add Button */}
-                        <button 
-                            onClick={handleAdd}
-                            className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
-                        >
-                            <Plus size={18} />
-                            Tambah Panduan
-                        </button>
+                        {!isReadOnly && (
+                            <button 
+                                onClick={handleAdd}
+                                className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
+                            >
+                                <Plus size={18} />
+                                Tambah Panduan
+                            </button>
+                        )}
                     </div>
 
                     {/* Guides Table */}
-                    <div className="overflow-hidden rounded-xl border border-slate-100">
+                    {isLoading ? (
+                        <div className="flex justify-center items-center py-20">
+                            <Loader2 className="animate-spin text-[#0080C5]" size={40} />
+                        </div>
+                    ) : isError ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <p className="text-red-500 mb-4">Gagal memuat panduan.</p>
+                            <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
+                        </div>
+                    ) : guides.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <p className="text-slate-500">Tidak ada panduan yang tersedia.</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-hidden rounded-xl border border-slate-100">
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="bg-slate-100/50">
@@ -122,71 +150,87 @@ const PanduanPenggunaanPage = () => {
                                     <th className="py-3 px-4 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[15%]">ROLE</th>
                                     <th className="py-3 px-4 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[15%]">TIPE</th>
                                     <th className="py-3 px-4 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[30%]">DESKRIPSI</th>
-                                    <th className="py-3 px-4 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[10%]">AKSI</th>
+                                    {!isReadOnly && <th className="py-3 px-4 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[10%]">AKSI</th>}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {guides.map((guide, idx) => (
-                                    <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="py-2.5 px-4 text-center text-slate-950 text-[11px] font-semibold">{idx + 1}</td>
+                                    <tr key={guide.id || idx} className="hover:bg-slate-50/50 transition-colors group">
+                                        <td className="py-2.5 px-4 text-center text-slate-950 text-[11px] font-semibold">{idx + 1 + (meta?.from ? meta.from - 1 : 0)}</td>
                                         <td className="py-2.5 px-4 ">
                                             <div className="space-y-0.5">
-                                                <div className="text-slate-950 text-[11px] font-semibold">{guide.title}</div>
-                                                <div className="text-[#0080C5] text-[10px] font-normal hover:underline cursor-pointer">Lihat file !</div>
+                                                <div className="text-slate-950 text-[11px] font-semibold">{guide.judul_panduan}</div>
                                             </div>
                                         </td>
                                         <td className="py-2.5 px-4 text-center">
                                             <div className="inline-flex px-4 py-1 bg-[#16A34A]/10 rounded-full">
-                                                <span className="text-[#16A34A] text-[10px] font-bold uppercase">{guide.role}</span>
+                                                <span className="text-[#16A34A] text-[10px] font-bold uppercase">{guide.role?.name || guide.role || '-'}</span>
                                             </div>
                                         </td>
                                         <td className="py-2.5 px-4 text-center">
                                             <div className="flex justify-center gap-1.5">
-                                                <div className="inline-flex items-center gap-1 px-3 py-1 bg-red-500/10 rounded-full">
-                                                    <FileText size={12} className="text-red-700 fill-red-700/20" />
-                                                    <span className="text-red-700 text-[9px] font-bold uppercase tracking-tighter">PDF</span>
-                                                </div>
-                                                <div className="inline-flex items-center gap-1 px-3 py-1 bg-[#A16207]/10 rounded-full">
-                                                    <PlayCircle size={12} className="text-[#A16207] fill-[#A16207]/20" />
-                                                    <span className="text-[#A16207] text-[9px] font-bold uppercase tracking-tighter">VIDEO</span>
-                                                </div>
+                                                {guide.file_pdf && (
+                                                    <div 
+                                                        onClick={() => handleViewFile(guide.file_pdf)}
+                                                        className="inline-flex items-center gap-1 px-3 py-1 bg-red-500/10 rounded-full cursor-pointer hover:bg-red-500/20 transition-colors"
+                                                    >
+                                                        <FileText size={12} className="text-red-700 fill-red-700/20" />
+                                                        <span className="text-red-700 text-[9px] font-bold uppercase tracking-tighter">PDF</span>
+                                                    </div>
+                                                )}
+                                                {guide.link_video && (
+                                                    <div 
+                                                        onClick={() => handleViewFile(guide.link_video)}
+                                                        className="inline-flex items-center gap-1 px-3 py-1 bg-[#A16207]/10 rounded-full cursor-pointer hover:bg-[#A16207]/20 transition-colors"
+                                                    >
+                                                        <PlayCircle size={12} className="text-[#A16207] fill-[#A16207]/20" />
+                                                        <span className="text-[#A16207] text-[9px] font-bold uppercase tracking-tighter">VIDEO</span>
+                                                    </div>
+                                                )}
+                                                {!guide.file_pdf && !guide.link_video && (
+                                                    <span className="text-slate-400 text-[10px]">-</span>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="py-2.5 px-4 ">
                                             <div className="text-slate-500 text-xs font-normal line-clamp-1 italic">
-                                                {guide.desc}
+                                                {guide.deskripsi || '-'}
                                             </div>
                                         </td>
-                                        <td className="py-2.5 px-4 ">
-                                            <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button 
-                                                    onClick={() => handleEdit(guide)}
-                                                    className="p-2 bg-[#FB923C]/10 text-[#FB923C] rounded-lg hover:bg-[#FB923C] hover:text-white transition-all"
-                                                >
-                                                    <Edit3 size={16} />
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleDelete(guide)}
-                                                    className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
-                                        </td>
+                                        {!isReadOnly && (
+                                            <td className="py-2.5 px-4 ">
+                                                <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button 
+                                                        onClick={() => handleEdit(guide)}
+                                                        className="p-2 bg-[#FB923C]/10 text-[#FB923C] rounded-lg hover:bg-[#FB923C] hover:text-white transition-all"
+                                                    >
+                                                        <Edit3 size={16} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDelete(guide)}
+                                                        className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        )}
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
+                    )}
 
                     {/* Table Footer */}
-                    <div className="mt-6 px-2 flex justify-start">
-                        <p className="text-slate-400 text-xs font-normal">
-                            Menampilkan <span className="font-bold text-slate-950">5</span> dari <span className="font-bold text-slate-950">5</span> Panduan
-                        </p>
-                    </div>
-                    </div>
-                )}
+                    {meta && meta.total > 0 && (
+                        <div className="mt-6 px-2 flex justify-start">
+                            <p className="text-slate-400 text-xs font-normal">
+                                Menampilkan <span className="font-bold text-slate-950">{meta.to - meta.from + 1}</span> dari <span className="font-bold text-slate-950">{meta.total}</span> Panduan
+                            </p>
+                        </div>
+                    )}
+                </div>
 
                 {/* Modal Component */}
                 <PanduanModal 

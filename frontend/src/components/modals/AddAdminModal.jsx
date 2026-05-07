@@ -1,27 +1,53 @@
 import React, { useState } from 'react';
-import { X, UserPlus, Eye, EyeOff, ChevronDown } from 'lucide-react';
+import { X, UserPlus, Eye, EyeOff, ChevronDown, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useAdminMutations } from '../../hooks/mutations/useAdminMutation';
 
 const AddAdminModal = ({ isOpen, onClose }) => {
+    const { createAdmin } = useAdminMutations();
+    const [isLoading, setIsLoading] = useState(false);
     const [showPass, setShowPass] = useState(false);
     const [showConfirmPass, setShowConfirmPass] = useState(false);
+    const [formData, setFormData] = useState({
+        nama: '', username: '', password: '', no_telp: '',
+        role: '', alamat: '', provinsi_id: '', kabupaten_id: '', kecamatan_id: ''
+    });
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     if (!isOpen) return null;
 
     const handleSave = (e) => {
         e.preventDefault();
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Data admin baru telah ditambahkan.',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            customClass: {
-                popup: 'rounded-2xl font-["Poppins"]',
+        setIsLoading(true);
+        createAdmin.mutate(formData, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Data admin baru telah ditambahkan.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+                onClose();
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat menambahkan admin.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
             }
         });
-        onClose();
     };
 
     return (
@@ -54,18 +80,18 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                         {/* Nama */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Nama <span className="text-red-500">*</span></label>
-                            <input type="text" placeholder="Masukkan nama lengkap" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                            <input name="nama" value={formData.nama} onChange={handleChange} type="text" placeholder="Masukkan nama lengkap" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
                         </div>
                         {/* Username */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Username <span className="text-red-500">*</span></label>
-                            <input type="text" placeholder="Masukkan username" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                            <input name="username" value={formData.username} onChange={handleChange} type="text" placeholder="Masukkan username" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
                         </div>
                         {/* Password */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Password <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <input type={showPass ? "text" : "password"} placeholder="Masukkan password" size="sm" className="w-full px-3 py-2.5 pr-10 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                                <input name="password" value={formData.password} onChange={handleChange} type={showPass ? "text" : "password"} placeholder="Masukkan password" size="sm" className="w-full px-3 py-2.5 pr-10 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
                                 <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                                     {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
@@ -84,13 +110,13 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                         {/* No. Telp */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">No. Telp <span className="text-red-500">*</span></label>
-                            <input type="text" placeholder="Contoh: 08xxxxxxxxxx" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                            <input name="no_telp" value={formData.no_telp} onChange={handleChange} type="text" placeholder="Contoh: 08xxxxxxxxxx" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
                         </div>
                         {/* Role */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Role <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <select className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
+                                <select name="role" value={formData.role} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
                                     <option value="">Pilih Role</option>
                                     <option value="admin_provinsi">Admin Provinsi</option>
                                     <option value="admin_kabupaten">Admin Kabupaten</option>
@@ -104,7 +130,7 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                     {/* Alamat */}
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#0A0F1E] text-xs font-semibold">Alamat <span className="text-red-500">*</span></label>
-                        <textarea rows="3" placeholder="Masukkan alamat lengkap" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300 resize-none" required></textarea>
+                        <textarea name="alamat" value={formData.alamat} onChange={handleChange} rows="3" placeholder="Masukkan alamat lengkap" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300 resize-none" required></textarea>
                     </div>
 
                     <div className="grid grid-cols-2 gap-5">
@@ -112,7 +138,7 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Provinsi <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <select className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
+                                <select name="provinsi_id" value={formData.provinsi_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
                                     <option value="">Pilih Provinsi</option>
                                 </select>
                                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -122,7 +148,7 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Kabupaten <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <select className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
+                                <select name="kabupaten_id" value={formData.kabupaten_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
                                     <option value="">Pilih Kabupaten</option>
                                 </select>
                                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -134,7 +160,7 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#0A0F1E] text-xs font-semibold">Kecamatan <span className="text-red-500">*</span></label>
                         <div className="relative">
-                            <select className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
+                            <select name="kecamatan_id" value={formData.kecamatan_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
                                 <option value="">Pilih Kecamatan</option>
                             </select>
                             <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -146,8 +172,9 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                         <button type="button" onClick={onClose} className="px-6 py-2 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold hover:bg-gray-50 transition-all h-10">
                             Batal
                         </button>
-                        <button type="submit" className="px-6 py-2 bg-[#0080C5] text-white rounded-[10px] text-xs font-semibold hover:bg-[#006da8] transition-all h-10">
-                            Simpan
+                        <button type="submit" disabled={isLoading} className="px-6 py-2 bg-[#0080C5] text-white rounded-[10px] text-xs font-semibold hover:bg-[#006da8] transition-all h-10 flex items-center gap-2 disabled:opacity-50">
+                            {isLoading ? <Loader2 size={16} className="animate-spin" /> : null}
+                            {isLoading ? 'Menyimpan...' : 'Simpan'}
                         </button>
                     </div>
                 </form>

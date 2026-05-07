@@ -1,30 +1,77 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     X, 
     ChevronDown, 
     Plus, 
     Edit, 
     Save,
-    Info
+    Info,
+    Loader2
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useGrupDampinganMutations } from '../../hooks/mutations/useGrupDampinganMutation';
 
 const EditGrupModal = ({ isOpen, onClose, data }) => {
+    const { updateGrupDampingan } = useGrupDampinganMutations();
+    const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        nama_grup: '',
+        jenis_grup: '',
+        bidang_id: '',
+        provinsi_id: '',
+        kabupaten_id: '',
+        kecamatan_id: '',
+        pj_id: ''
+    });
+
+    useEffect(() => {
+        if (data) {
+            setFormData({
+                nama_grup: data.nama_grup || '',
+                jenis_grup: data.jenis_grup || '',
+                bidang_id: data.bidang_id || '',
+                provinsi_id: data.provinsi_id || '',
+                kabupaten_id: data.kabupaten_id || '',
+                kecamatan_id: data.kecamatan_id || '',
+                pj_id: data.pj_id || ''
+            });
+        }
+    }, [data]);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
     if (!isOpen) return null;
 
     const handleSave = () => {
-        Swal.fire({
-            title: 'Berhasil!',
-            text: 'Perubahan data grup berhasil disimpan.',
-            icon: 'success',
-            confirmButtonColor: '#0080C5',
-            timer: 2000,
-            showConfirmButton: false,
-            customClass: {
-                popup: 'rounded-2xl font-["Poppins"]',
+        setIsLoading(true);
+        updateGrupDampingan.mutate({ id: data.id, data: formData }, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Perubahan data grup berhasil disimpan.',
+                    icon: 'success',
+                    confirmButtonColor: '#0080C5',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+                onClose();
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat memperbarui grup dampingan.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
             }
         });
-        onClose();
     };
 
     return (
@@ -57,8 +104,10 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                     <div className="space-y-1.5">
                         <label className="text-slate-950 text-xs font-semibold leading-5">Nama Grup Dampingan</label>
                         <input 
+                            name="nama_grup"
+                            value={formData.nama_grup}
+                            onChange={handleChange}
                             type="text" 
-                            defaultValue="Grup Dampingan Sejahtera"
                             className="w-full h-11 px-4 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-slate-900 transition-all font-medium"
                         />
                     </div>
@@ -68,7 +117,8 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Jenis Grup Dampingan <span className="text-red-500">*</span></label>
                             <div className="relative group">
-                                <select defaultValue="pusat" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                <select name="jenis_grup" value={formData.jenis_grup} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                    <option value="">Pilih Jenis</option>
                                     <option value="pusat">Pusat</option>
                                     <option value="daerah">Daerah</option>
                                 </select>
@@ -78,9 +128,10 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Bidang Grup Dampingan <span className="text-red-500">*</span></label>
                             <div className="relative group">
-                                <select defaultValue="pertanian" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
-                                    <option value="pertanian">Pertanian Terpadu</option>
-                                    <option value="ekonomi">Perekonomian</option>
+                                <select name="bidang_id" value={formData.bidang_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                    <option value="">Pilih Bidang</option>
+                                    <option value="1">Pertanian Terpadu</option>
+                                    <option value="2">Perekonomian</option>
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                             </div>
@@ -94,7 +145,8 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Provinsi <span className="text-red-500">*</span></label>
                             <div className="relative group">
-                                <select defaultValue="jabar" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                <select name="provinsi_id" value={formData.provinsi_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                    <option value="">Pilih Provinsi</option>
                                     <option value="jabar">Jawa Barat</option>
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
@@ -103,7 +155,8 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Kabupaten <span className="text-red-500">*</span></label>
                             <div className="relative group">
-                                <select defaultValue="bogor" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                <select name="kabupaten_id" value={formData.kabupaten_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                    <option value="">Pilih Kabupaten</option>
                                     <option value="bogor">Bogor</option>
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
@@ -115,7 +168,8 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                     <div className="space-y-1.5">
                         <label className="text-slate-950 text-xs font-semibold leading-5">Kecamatan</label>
                         <div className="relative group">
-                            <select defaultValue="cibinong" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                            <select name="kecamatan_id" value={formData.kecamatan_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                <option value="">Pilih Kecamatan</option>
                                 <option value="cibinong">Cibinong</option>
                             </select>
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
@@ -148,7 +202,8 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                             <span className="text-slate-400 text-[10px] font-normal">(hanya satu)</span>
                         </div>
                         <div className="relative group">
-                            <select defaultValue="budi" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                            <select name="pj_id" value={formData.pj_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                <option value="">Pilih PJ</option>
                                 <option value="budi">Budi Santoso</option>
                             </select>
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
@@ -170,10 +225,11 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                     </button>
                     <button 
                         onClick={handleSave}
-                        className="h-9 px-5 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
+                        disabled={isLoading}
+                        className="h-9 px-5 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold disabled:opacity-50"
                     >
-                        <Save size={16} />
-                        <span>Simpan Perubahan</span>
+                        {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                        <span>{isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}</span>
                     </button>
                 </div>
             </div>

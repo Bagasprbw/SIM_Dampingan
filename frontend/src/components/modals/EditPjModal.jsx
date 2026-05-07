@@ -1,21 +1,60 @@
-import React from 'react';
-import { X, Edit3, Save } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Edit3, Save, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { usePjGrupMutations } from '../../hooks/mutations/usePjGrupMutation';
 
 const EditPjModal = ({ isOpen, onClose, data }) => {
+    const { updatePjGrup } = usePjGrupMutations();
+    const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        nama: '', no_telepon: '', alamat: '', username: ''
+    });
+
+    useEffect(() => {
+        if (data) {
+            setFormData({
+                nama: data.nama || '',
+                no_telepon: data.no_telepon || data.no_telp || '',
+                alamat: data.alamat || '',
+                username: data.username || data.user?.username || ''
+            });
+        }
+    }, [data]);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
     if (!isOpen) return null;
 
     const handleSave = () => {
-        // Simulasi simpan data
-        Swal.fire({
-            title: 'Berhasil!',
-            text: 'Data PJ Dampingan telah diperbarui.',
-            icon: 'success',
-            confirmButtonColor: '#0080C5',
-            timer: 1500,
-            showConfirmButton: false
+        setIsLoading(true);
+        updatePjGrup.mutate({ id: data.id, data: formData }, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Data PJ Dampingan telah diperbarui.',
+                    icon: 'success',
+                    confirmButtonColor: '#0080C5',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+                onClose();
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat memperbarui PJ Dampingan.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+            }
         });
-        onClose();
     };
 
     return (
@@ -46,8 +85,10 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
                         <div className="flex-1 flex flex-col gap-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Nama Lengkap</label>
                             <input 
+                                name="nama"
                                 type="text" 
-                                defaultValue={data?.nama || "Budi Santoso"}
+                                value={formData.nama}
+                                onChange={handleChange}
                                 className="w-full px-4 py-2.5 bg-white rounded-[10px] border-[1.60px] border-gray-200 focus:border-sky-600 focus:outline-none text-slate-950 text-xs transition-all"
                                 placeholder="Nama Lengkap"
                             />
@@ -55,8 +96,10 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
                         <div className="flex-1 flex flex-col gap-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">No. Telepon</label>
                             <input 
+                                name="no_telepon"
                                 type="text" 
-                                defaultValue="085678901234"
+                                value={formData.no_telepon}
+                                onChange={handleChange}
                                 className="w-full px-4 py-2.5 bg-white rounded-[10px] border-[1.60px] border-gray-200 focus:border-sky-600 focus:outline-none text-slate-950 text-xs transition-all"
                                 placeholder="No. Telepon"
                             />
@@ -67,7 +110,9 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
                     <div className="flex flex-col gap-1.5">
                         <label className="text-slate-950 text-xs font-semibold leading-5">Alamat</label>
                         <textarea 
-                            defaultValue="Jonggol Kiri Utara Kanan"
+                            name="alamat"
+                            value={formData.alamat}
+                            onChange={handleChange}
                             className="w-full px-4 py-3 bg-white rounded-[10px] border-[1.60px] border-gray-200 focus:border-sky-600 focus:outline-none text-slate-400 text-xs min-h-[100px] resize-none leading-5 transition-all"
                         />
                     </div>
@@ -79,8 +124,10 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
                     <div className="flex flex-col gap-1.5">
                         <label className="text-slate-950 text-xs font-semibold leading-5">Username</label>
                         <input 
+                            name="username"
                             type="text" 
-                            defaultValue={data?.username || "budi.santoso"}
+                            value={formData.username}
+                            onChange={handleChange}
                             className="w-full px-4 py-2.5 bg-white rounded-[10px] border-[1.60px] border-gray-200 focus:border-sky-600 focus:outline-none text-slate-950 text-xs transition-all"
                         />
                     </div>
@@ -93,10 +140,11 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
                     </button>
                     <button 
                         onClick={handleSave}
-                        className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
+                        disabled={isLoading}
+                        className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold disabled:opacity-50"
                     >
-                        <Save size={16} className="text-white" />
-                        <span className="text-xs font-semibold">Simpan Perubahan</span>
+                        {isLoading ? <Loader2 size={16} className="text-white animate-spin" /> : <Save size={16} className="text-white" />}
+                        <span className="text-xs font-semibold">{isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}</span>
                     </button>
                 </div>
             </div>

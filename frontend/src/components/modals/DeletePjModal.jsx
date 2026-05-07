@@ -1,21 +1,42 @@
-import React from 'react';
-import { X, Trash2, AlertCircle, AlertTriangle } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Trash2, AlertCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { usePjGrupMutations } from '../../hooks/mutations/usePjGrupMutation';
 
 const DeletePjModal = ({ isOpen, onClose, data }) => {
+    const { deletePjGrup } = usePjGrupMutations();
+    const [isLoading, setIsLoading] = useState(false);
+
     if (!isOpen) return null;
 
     const handleDelete = () => {
-        // Simulasi hapus data
-        Swal.fire({
-            title: 'Terhapus!',
-            text: 'Data PJ Dampingan telah dihapus secara permanen.',
-            icon: 'success',
-            confirmButtonColor: '#EF4444',
-            timer: 1500,
-            showConfirmButton: false
+        setIsLoading(true);
+        deletePjGrup.mutate(data.id, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    title: 'Terhapus!',
+                    text: 'Data PJ Dampingan telah dihapus secara permanen.',
+                    icon: 'success',
+                    confirmButtonColor: '#EF4444',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+                onClose();
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat menghapus data pj dampingan.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+            }
         });
-        onClose();
     };
 
     return (
@@ -82,10 +103,11 @@ const DeletePjModal = ({ isOpen, onClose, data }) => {
                         </button>
                         <button 
                             onClick={handleDelete}
-                            className="h-10 px-6 bg-[#EF4444] text-white rounded-[10px] flex items-center gap-2 hover:bg-red-600 transition-all group"
+                            disabled={isLoading}
+                            className="h-10 px-6 bg-[#EF4444] text-white rounded-[10px] flex items-center gap-2 hover:bg-red-600 transition-all group disabled:opacity-50"
                         >
-                            <Trash2 size={16} className="text-white" />
-                            <span className="text-xs font-semibold">Ya, Hapus</span>
+                            {isLoading ? <Loader2 size={16} className="text-white animate-spin" /> : <Trash2 size={16} className="text-white" />}
+                            <span className="text-xs font-semibold">{isLoading ? 'Menghapus...' : 'Ya, Hapus'}</span>
                         </button>
                     </div>
                 </div>

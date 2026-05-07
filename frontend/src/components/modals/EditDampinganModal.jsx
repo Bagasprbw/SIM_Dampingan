@@ -6,36 +6,105 @@ import {
     ChevronDown, 
     Edit,
     User,
-    Save
+    Save,
+    Loader2
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useAnggotaMutations } from '../../hooks/mutations/useAnggotaMutation';
 
 const EditDampinganModal = ({ isOpen, onClose, data }) => {
+    const { updateAnggota } = useAnggotaMutations();
+    const [isLoading, setIsLoading] = useState(false);
     const [gender, setGender] = useState('Perempuan');
     const [status, setStatus] = useState('Aktif');
+    const [formData, setFormData] = useState({
+        nama: '',
+        no_telepon: '',
+        tempat_lahir: '',
+        tanggal_lahir: '',
+        agama: '',
+        pekerjaan: '',
+        alamat: '',
+        bidang_id: '',
+        grup_dampingan_id: '',
+        foto: null
+    });
+    const [selectedImage, setSelectedImage] = useState(null);
 
     useEffect(() => {
         if (data) {
-            setGender(data.gender || 'Perempuan');
-            // Status default aktif untuk dummy
+            setGender(data.jenis_kelamin || 'Perempuan');
+            setStatus(data.status_aktif === false ? 'Non-Aktif' : 'Aktif');
+            setFormData({
+                nama: data.nama || '',
+                no_telepon: data.no_telepon || '',
+                tempat_lahir: data.tempat_lahir || '',
+                tanggal_lahir: data.tanggal_lahir || '',
+                agama: data.agama || 'islam',
+                pekerjaan: data.pekerjaan || '',
+                alamat: data.alamat || '',
+                bidang_id: data.bidang_id || '',
+                grup_dampingan_id: data.grup_dampingan_id || '',
+                foto: null
+            });
+            if (data.foto) {
+                // Assuming data.foto is a URL to the image if it exists
+                setSelectedImage(data.foto);
+            }
         }
     }, [data]);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleImageChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            setSelectedImage(URL.createObjectURL(e.target.files[0]));
+            setFormData({ ...formData, foto: e.target.files[0] });
+        }
+    };
 
     if (!isOpen) return null;
 
     const handleSave = () => {
-        Swal.fire({
-            title: 'Berhasil!',
-            text: 'Perubahan data masyarakat berhasil disimpan.',
-            icon: 'success',
-            confirmButtonColor: '#0080C5',
-            timer: 2000,
-            showConfirmButton: false,
-            customClass: {
-                popup: 'rounded-2xl font-["Poppins"]',
+        setIsLoading(true);
+        const form = new FormData();
+        Object.keys(formData).forEach(key => {
+            if (formData[key] !== null && formData[key] !== '') {
+                form.append(key, formData[key]);
             }
         });
-        onClose();
+        form.append('jenis_kelamin', gender);
+        form.append('status_aktif', status === 'Aktif' ? 1 : 0);
+        form.append('_method', 'PUT');
+
+        updateAnggota.mutate({ id: data.id, data: form }, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Perubahan data masyarakat berhasil disimpan.',
+                    icon: 'success',
+                    confirmButtonColor: '#0080C5',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+                onClose();
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat menyimpan perubahan.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+            }
+        });
     };
 
     return (
@@ -67,14 +136,20 @@ const EditDampinganModal = ({ isOpen, onClose, data }) => {
                     
                     {/* Photo Upload Section */}
                     <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 rounded-full border-2 border-[#0080C5] bg-slate-50 flex items-center justify-center text-slate-400 relative">
-                            <User size={24} />
-                        </div>
+                        <label className="w-16 h-16 rounded-full border-2 border-[#0080C5] bg-slate-50 flex items-center justify-center text-[#0080C5] relative overflow-hidden cursor-pointer">
+                            {selectedImage ? (
+                                <img src={selectedImage} alt="Preview" className="w-full h-full object-cover" />
+                            ) : (
+                                <User size={24} />
+                            )}
+                            <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
+                        </label>
                         <div className="space-y-1.5">
-                            <button className="px-4 py-2 bg-white border border-[#0080C5] border-dashed rounded-[10px] text-[#0080C5] text-xs font-bold flex items-center gap-2 hover:bg-[#0080C5]/10 transition-all">
+                            <label className="px-4 py-2 w-max bg-white border border-[#0080C5] border-dashed rounded-[10px] text-[#0080C5] text-xs font-bold flex items-center gap-2 hover:bg-[#0080C5]/10 transition-all cursor-pointer">
                                 <Upload size={16} />
                                 Ganti Foto
-                            </button>
+                                <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
+                            </label>
                             <p className="text-slate-400 text-[10px] font-normal tracking-tight">Format: JPG, PNG. Maks. 2 MB</p>
                         </div>
                     </div>
@@ -86,16 +161,20 @@ const EditDampinganModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Nama Lengkap</label>
                             <input 
+                                name="nama"
+                                value={formData.nama}
+                                onChange={handleChange}
                                 type="text" 
-                                defaultValue={data?.nama || "Siti Rahayu"}
                                 className="w-full h-11 px-4 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-900 transition-all font-medium"
                             />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">No. Telepon</label>
                             <input 
+                                name="no_telepon"
+                                value={formData.no_telepon}
+                                onChange={handleChange}
                                 type="text" 
-                                defaultValue="082345678901"
                                 className="w-full h-11 px-4 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-900 transition-all font-medium"
                             />
                         </div>
@@ -106,8 +185,10 @@ const EditDampinganModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Tempat Lahir</label>
                             <input 
+                                name="tempat_lahir"
+                                value={formData.tempat_lahir}
+                                onChange={handleChange}
                                 type="text" 
-                                defaultValue="Bandung"
                                 className="w-full h-11 px-4 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-900 transition-all font-medium"
                             />
                         </div>
@@ -115,11 +196,12 @@ const EditDampinganModal = ({ isOpen, onClose, data }) => {
                             <label className="text-slate-950 text-xs font-semibold leading-5">Tanggal Lahir</label>
                             <div className="relative">
                                 <input 
-                                    type="text" 
-                                    defaultValue="15 / 06 / 1995"
+                                    name="tanggal_lahir"
+                                    value={formData.tanggal_lahir}
+                                    onChange={handleChange}
+                                    type="date" 
                                     className="w-full h-11 px-4 pr-10 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-900 transition-all font-medium"
                                 />
-                                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                             </div>
                         </div>
                     </div>
@@ -150,9 +232,13 @@ const EditDampinganModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Agama</label>
                             <div className="relative group">
-                                <select defaultValue="islam" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                <select name="agama" value={formData.agama} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
                                     <option value="islam">Islam</option>
                                     <option value="kristen">Kristen</option>
+                                    <option value="katolik">Katolik</option>
+                                    <option value="hindu">Hindu</option>
+                                    <option value="buddha">Buddha</option>
+                                    <option value="konghucu">Konghucu</option>
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                             </div>
@@ -164,8 +250,10 @@ const EditDampinganModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Pekerjaan Utama</label>
                             <input 
+                                name="pekerjaan"
+                                value={formData.pekerjaan}
+                                onChange={handleChange}
                                 type="text" 
-                                defaultValue="Petani"
                                 className="w-full h-11 px-4 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-900 transition-all font-medium"
                             />
                         </div>
@@ -196,6 +284,9 @@ const EditDampinganModal = ({ isOpen, onClose, data }) => {
                     <div className="space-y-1.5 text-left">
                         <label className="text-slate-950 text-xs font-semibold leading-5">Alamat</label>
                         <textarea 
+                            name="alamat"
+                            value={formData.alamat}
+                            onChange={handleChange}
                             placeholder="Masukkan alamat lengkap..."
                             className="w-full h-24 p-4 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-900 transition-all resize-none font-medium leading-relaxed"
                         ></textarea>
@@ -208,9 +299,9 @@ const EditDampinganModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Bidang Dampingan</label>
                             <div className="relative group">
-                                <select defaultValue="perekonomian" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
-                                    <option value="perekonomian">Perekonomian</option>
-                                    <option value="1">Opsi 1</option>
+                                <select name="bidang_id" value={formData.bidang_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                    <option value="">Pilih Bidang</option>
+                                    <option value="1">Perekonomian</option>
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                             </div>
@@ -218,9 +309,9 @@ const EditDampinganModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Grup Dampingan</label>
                             <div className="relative group">
-                                <select defaultValue="grup_sejahtera" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
-                                    <option value="grup_sejahtera">Grup Dampingan Sejahtera</option>
-                                    <option value="1">Opsi 1</option>
+                                <select name="grup_dampingan_id" value={formData.grup_dampingan_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                    <option value="">Pilih Grup Dampingan</option>
+                                    <option value={data?.grup_dampingan_id || "grup_sejahtera"}>{data?.grup_dampingan?.nama_grup || "Grup Dampingan Sejahtera"}</option>
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                             </div>
@@ -238,10 +329,11 @@ const EditDampinganModal = ({ isOpen, onClose, data }) => {
                     </button>
                     <button 
                         onClick={handleSave}
-                        className="h-10 px-5 bg-[#0080C5] text-white rounded-[10px] flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-xs font-semibold"
+                        disabled={isLoading}
+                        className="h-10 px-5 bg-[#0080C5] text-white rounded-[10px] flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-xs font-semibold disabled:opacity-50"
                     >
-                        <Save size={16} />
-                        <span>Simpan Perubahan</span>
+                        {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                        <span>{isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}</span>
                     </button>
                 </div>
             </div>

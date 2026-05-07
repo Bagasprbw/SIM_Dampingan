@@ -9,8 +9,10 @@ import {
     FileText, 
     ChevronLeft, 
     ChevronRight,
-    Filter
+    Filter,
+    Loader2
 } from 'lucide-react';
+import { useKegiatansAdmin } from '../../hooks/queries/useKegiatanQuery';
 
 const KegiatanDampinganPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -22,15 +24,20 @@ const KegiatanDampinganPage = () => {
         setIsDetailModalOpen(true);
     };
 
-    const activities = [
-        ...Array(6).fill({
-            id: 1,
-            image: 'https://placehold.co/330x180/0080C5/FFFFFF?text=Foto+Kegiatan',
-            bidang: 'Pertanian Terpadu',
-            tanggal: '15/11/1945',
-            judul: 'Pelatihan Wirausaha Mandiri Bagi Komunitas Difabel Sleman'
-        })
-    ];
+    const [page, setPage] = useState(1);
+
+    const { data: kegiatanData, isLoading, isError, refetch } = useKegiatansAdmin({
+        page: page,
+        search: searchTerm
+    });
+
+    const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+        setPage(1);
+    };
+
+    const activities = kegiatanData?.data || [];
+    const meta = kegiatanData?.meta || {};
 
     return (
         <AdminLayout title="Kegiatan Dampingan">
@@ -49,7 +56,7 @@ const KegiatanDampinganPage = () => {
                             placeholder="Cari judul kegiatan, bidang, atau grup dampingan..."
                             className="w-full h-11 pl-12 pr-4 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#9298B0] font-medium transition-all"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={handleSearch}
                         />
                     </div>
 
@@ -106,66 +113,93 @@ const KegiatanDampinganPage = () => {
                     </div>
 
                     {/* 3. Card Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-1">
-                        {activities.map((item, index) => (
-                            <div 
-                                key={index} 
-                                onClick={() => handleDetail(item)}
-                                className="flex flex-col bg-white rounded-2xl border border-[#F1F5F9] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
-                            >
-                                {/* Image Placeholder */}
-                                <div className="h-44 w-full bg-slate-100 overflow-hidden relative">
-                                    <img 
-                                        src={item.image} 
-                                        alt="Kegiatan" 
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+                    {isLoading ? (
+                        <div className="flex justify-center items-center py-20 flex-1">
+                            <Loader2 className="animate-spin text-[#0080C5]" size={40} />
+                        </div>
+                    ) : isError ? (
+                        <div className="flex flex-col items-center justify-center py-20 flex-1">
+                            <p className="text-red-500 mb-4">Gagal memuat data kegiatan.</p>
+                            <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
+                        </div>
+                    ) : activities.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20 flex-1">
+                            <p className="text-slate-500">Tidak ada data kegiatan ditemukan.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-1">
+                            {activities.map((item, index) => (
+                                <div 
+                                    key={item.id || index} 
+                                    onClick={() => handleDetail(item)}
+                                    className="flex flex-col bg-white rounded-2xl border border-[#F1F5F9] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
+                                >
+                                    {/* Image Placeholder */}
+                                    <div className="h-44 w-full bg-slate-100 overflow-hidden relative">
+                                        <img 
+                                            src={item.foto_kegiatan || 'https://placehold.co/330x180/0080C5/FFFFFF?text=Foto+Kegiatan'} 
+                                            alt="Kegiatan" 
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+                                    </div>
+                                    
+                                    {/* Content */}
+                                    <div className="p-5 flex flex-col items-start gap-3">
+                                        {/* Bidang Badge */}
+                                        <div className="px-3 py-1 bg-[#0080C5]/10 rounded-full">
+                                            <span className="text-[#0080C5] text-[10px] font-bold tracking-tight">{item.grup_dampingan?.bidang?.nama_bidang || 'Bidang'}</span>
+                                        </div>
+
+                                        {/* Date */}
+                                        <div className="flex items-center gap-1.5 text-[#9298B0]">
+                                            <Calendar size={14} />
+                                            <span className="text-[11px] font-semibold">{item.tanggal_kegiatan}</span>
+                                        </div>
+
+                                        {/* Title */}
+                                        <h3 className="text-[#0A0F1E] text-sm font-bold leading-relaxed line-clamp-2 min-h-[40px] group-hover:text-[#0080C5] transition-colors">
+                                            {item.judul_kegiatan}
+                                        </h3>
+
+                                        {/* Button */}
+                                        <div className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
+                                            <FileText size={18} />
+                                            <span className="text-[11px] font-semibold tracking-tight">Lihat Laporan</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                
-                                {/* Content */}
-                                <div className="p-5 flex flex-col items-start gap-3">
-                                    {/* Bidang Badge */}
-                                    <div className="px-3 py-1 bg-[#0080C5]/10 rounded-full">
-                                        <span className="text-[#0080C5] text-[10px] font-bold tracking-tight">{item.bidang}</span>
-                                    </div>
-
-                                    {/* Date */}
-                                    <div className="flex items-center gap-1.5 text-[#9298B0]">
-                                        <Calendar size={14} />
-                                        <span className="text-[11px] font-semibold">{item.tanggal}</span>
-                                    </div>
-
-                                    {/* Title */}
-                                    <h3 className="text-[#0A0F1E] text-sm font-bold leading-relaxed line-clamp-2 min-h-[40px] group-hover:text-[#0080C5] transition-colors">
-                                        {item.judul}
-                                    </h3>
-
-                                    {/* Button */}
-                                    <div className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
-                                        <FileText size={18} />
-                                        <span className="text-[11px] font-semibold tracking-tight">Lihat Laporan</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
 
                     {/* 4. Pagination (Bottom) */}
-                    <div className="mt-10 flex items-center justify-between border-t border-slate-50 pt-6">
-                        <span className="text-[#9298B0] text-[11px] font-medium">Menampilkan 1-10 dari 15 data</span>
-                        <div className="flex items-center gap-1.5">
-                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-100 text-[#0A0F1E] hover:bg-slate-50 transition-colors">
-                                <ChevronLeft size={18} />
-                            </button>
-                            <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
-                                1
-                            </button>
-                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-100 text-[#0A0F1E] hover:bg-slate-50 transition-colors">
-                                <ChevronRight size={18} />
-                            </button>
+                    {meta && meta.total > 0 && (
+                        <div className="mt-10 flex items-center justify-between border-t border-slate-50 pt-6">
+                            <span className="text-[#9298B0] text-[11px] font-medium">
+                                Menampilkan {meta.from}-{meta.to} dari {meta.total} data
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                                <button 
+                                    onClick={() => setPage(old => Math.max(old - 1, 1))}
+                                    disabled={page === 1}
+                                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-100 text-[#0A0F1E] hover:bg-slate-50 transition-colors disabled:opacity-50"
+                                >
+                                    <ChevronLeft size={18} />
+                                </button>
+                                <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
+                                    {page}
+                                </button>
+                                <button 
+                                    onClick={() => setPage(old => (meta.current_page < meta.last_page ? old + 1 : old))}
+                                    disabled={page === meta.last_page}
+                                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-100 text-[#0A0F1E] hover:bg-slate-50 transition-colors disabled:opacity-50"
+                                >
+                                    <ChevronRight size={18} />
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 

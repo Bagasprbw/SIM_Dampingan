@@ -1,22 +1,45 @@
-import React from 'react';
-import { X, AlertTriangle, Trash2, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, AlertTriangle, Trash2, AlertCircle, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useFasilitatorMutations } from '../../hooks/mutations/useFasilitatorMutation';
 
 const DeleteFacilitatorModal = ({ isOpen, onClose, data }) => {
+    const { deleteFasilitator } = useFasilitatorMutations();
+    const [isLoading, setIsLoading] = useState(false);
+
     if (!isOpen) return null;
 
     const handleDelete = () => {
-        Swal.fire({
-            icon: 'success',
-            title: 'Terhapus!',
-            text: 'Data fasilitator telah dihapus permanen.',
-            showConfirmButton: false,
-            timer: 2000,
-            customClass: {
-                popup: 'rounded-2xl font-["Poppins"]',
+        setIsLoading(true);
+        deleteFasilitator.mutate(data.id, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Terhapus!',
+                    text: 'Data fasilitator telah dihapus permanen.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: {
+                        popup: 'rounded-2xl font-["Poppins"]',
+                    }
+                });
+                onClose();
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat menghapus data fasilitator.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: {
+                        popup: 'rounded-2xl font-["Poppins"]',
+                    }
+                });
             }
         });
-        onClose();
     };
 
     return (
@@ -81,9 +104,9 @@ const DeleteFacilitatorModal = ({ isOpen, onClose, data }) => {
                         <button onClick={onClose} className="px-6 py-2 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold hover:bg-gray-50 h-10 transition-all">
                             Batal
                         </button>
-                        <button onClick={handleDelete} className="px-6 py-2 bg-red-500 text-white rounded-[10px] text-xs font-semibold hover:bg-red-600 h-10 flex items-center gap-2 transition-all">
-                            <Trash2 size={16} />
-                            Ya, Hapus
+                        <button onClick={handleDelete} disabled={isLoading} className="px-6 py-2 bg-red-500 text-white rounded-[10px] text-xs font-semibold hover:bg-red-600 h-10 flex items-center gap-2 transition-all disabled:opacity-50">
+                            {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                            {isLoading ? 'Menghapus...' : 'Ya, Hapus'}
                         </button>
                     </div>
                 </div>
