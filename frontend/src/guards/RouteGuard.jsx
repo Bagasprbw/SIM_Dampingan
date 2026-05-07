@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { isAuthenticated, getUser } from '../utils/storage';
-import { ROUTE_ACCESS } from '../constants/routes';
+import { isAuthenticated, getUser, getPermissions } from '../utils/storage';
+import { ROUTE_PERMISSIONS } from '../constants/routes';
 
 const RouteGuard = () => {
     const location = useLocation();
@@ -14,31 +14,43 @@ const RouteGuard = () => {
         return <Navigate to="/login" replace state={{ from: location }} />;
     }
 
-    // Role user saat ini
+    // Ambil role user
     let userRole = typeof user?.role === 'object' && user?.role !== null ? user.role.name : user?.role;
-    
-    // Fallback darurat jika role null tapi username adalah superadmin
     if (!userRole && user?.username === 'superadmin') {
         userRole = 'superadmin';
     }
 
-    // Cek apakah role user memiliki akses ke path ini
-    let hasAccess = false;
+    // Superadmin melewati semua permission check
+    if (userRole === 'superadmin') {
+        return <Outlet />;
+    }
 
-    // Cek strict match atau prefix match
-    for (const [route, allowedRoles] of Object.entries(ROUTE_ACCESS)) {
+    // Ambil permissions dari localStorage (dinamis dari DB)
+    const userPermissions = getPermissions(); // string[]
+
+    // Cari permission yang dibutuhkan untuk path saat ini (prefix match)
+    let requiredPermission = undefined;
+    for (const [route, perm] of Object.entries(ROUTE_PERMISSIONS)) {
         if (currentPath === route || currentPath.startsWith(route + '/')) {
-            if (allowedRoles.includes(userRole)) {
-                hasAccess = true;
-                break;
-            }
+            requiredPermission = perm;
+            break;
         }
     }
 
-    // Jika akses tidak diizinkan, kita lemparkan ke dashboard (sebagai default route) atau Forbidden.
-    // Dashboard diizinkan untuk semua role, jadi aman.
-    if (!hasAccess && currentPath !== '/dashboard') {
-        // Bisa diredirect ke dashboard, atau ke komponen halaman khusus 403.
+    // Jika path tidak ada di peta ROUTE_PERMISSIONS → izinkan (route internal/publik)
+    if (requiredPermission === undefined) {
+        return <Outlet />;
+    }
+
+    // null = semua user login boleh akses
+    if (requiredPermission === null) {
+        return <Outlet />;
+    }
+
+    // Cek apakah user punya permission yang dibutuhkan
+    const hasAccess = userPermissions.includes(requiredPermission);
+
+    if (!hasAccess) {
         return <Navigate to="/dashboard" replace />;
     }
 

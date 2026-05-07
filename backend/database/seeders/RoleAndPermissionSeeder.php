@@ -53,6 +53,7 @@ class RoleAndPermissionSeeder extends Seeder
             ['code' => 'kelola_pj_grup',        'name' => 'Kelola PJ Grup'],
             ['code' => 'view_panduan',          'name' => 'View Panduan'],
             ['code' => 'kelola_panduan',        'name' => 'Kelola Panduan'],
+            ['code' => 'view_peta_sebaran',     'name' => 'View Peta Sebaran'],
         ];
 
         $permissionData = [];
@@ -88,6 +89,7 @@ class RoleAndPermissionSeeder extends Seeder
             'kelola_pj_grup',
             'view_panduan',
             'kelola_panduan',
+            'view_peta_sebaran',
         ]);
 
         // Admin Provinsi - kelola admin bawahan, fasilitator, masyarakat, grup, pj_grup
@@ -99,6 +101,7 @@ class RoleAndPermissionSeeder extends Seeder
             'kelola_admin_bawahan',
             'kelola_pj_grup',
             'view_panduan',
+            'view_peta_sebaran',
         ]);
 
         // Admin Kabupaten - kelola admin bawahan (kecamatan), fasilitator, masyarakat, grup, pj_grup
@@ -110,6 +113,7 @@ class RoleAndPermissionSeeder extends Seeder
             'kelola_admin_bawahan',
             'kelola_pj_grup',
             'view_panduan',
+            'view_peta_sebaran',
         ]);
 
         // Admin Kecamatan - kelola fasilitator, masyarakat, grup, pj_grup
@@ -120,6 +124,7 @@ class RoleAndPermissionSeeder extends Seeder
             'kelola_grup',
             'kelola_pj_grup',
             'view_panduan',
+            'view_peta_sebaran',
         ]);
 
         // Fasilitator - buat, edit, dan hapus kegiatan, verifikasi anggota, kelola pj_grup
@@ -131,6 +136,7 @@ class RoleAndPermissionSeeder extends Seeder
             'verifikasi_anggota',
             'kelola_pj_grup',
             'view_panduan',
+            'view_peta_sebaran',
         ]);
 
         // PJ Grup - hanya lihat kegiatan, ajukan anggota, dan lihat panduan
@@ -138,6 +144,7 @@ class RoleAndPermissionSeeder extends Seeder
             'view_kegiatan',
             'ajukan_anggota',
             'view_panduan',
+            'view_peta_sebaran',
         ]);
     }
 }
