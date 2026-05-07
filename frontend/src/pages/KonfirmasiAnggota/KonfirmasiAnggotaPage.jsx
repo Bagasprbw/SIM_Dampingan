@@ -6,6 +6,7 @@ import { usePengajuanAnggotas } from '../../hooks/queries/usePengajuanAnggotaQue
 import { usePengajuanAnggotaMutations } from '../../hooks/mutations/usePengajuanAnggotaMutation';
 
 const KonfirmasiAnggotaPage = () => {
+    const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
     const { data: ajuanData, isLoading, isError, refetch } = usePengajuanAnggotas({
         page: page,
@@ -18,8 +19,10 @@ const KonfirmasiAnggotaPage = () => {
         setPage(1);
     };
 
-    const dataAjuan = ajuanData?.data || [];
-    const meta = ajuanData?.meta || {};
+    const dataAjuan = Array.isArray(ajuanData?.data) 
+        ? ajuanData.data 
+        : (ajuanData?.data?.data || ajuanData?.data || []);
+    const meta = ajuanData?.meta || ajuanData?.data || {};
 
     const handleApprove = (id, nama) => {
         Swal.fire({

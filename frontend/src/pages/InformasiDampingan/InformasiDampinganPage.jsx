@@ -26,9 +26,9 @@ const InformasiDampinganPage = () => {
     const anggotaList = grup?.anggota || [];
 
     const filtered = anggotaList.filter(a =>
-        a.nama?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.no_anggota?.includes(searchTerm) ||
-        a.alamat?.toLowerCase().includes(searchTerm.toLowerCase())
+        String(a.nama || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        String(a.no_anggota || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        String(a.alamat || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE);

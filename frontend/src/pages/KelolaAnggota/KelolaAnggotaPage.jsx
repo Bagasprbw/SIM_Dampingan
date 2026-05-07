@@ -35,8 +35,10 @@ const KelolaAnggotaPage = () => {
         setPage(1);
     };
 
-    const dataAnggota = anggotaData?.data || [];
-    const meta = anggotaData?.meta || {};
+    const dataAnggota = Array.isArray(anggotaData?.data) 
+        ? anggotaData.data 
+        : (anggotaData?.data?.data || anggotaData?.data || []);
+    const meta = anggotaData?.meta || anggotaData?.data || {};
 
     const getStatusColor = (status) => {
         switch(status) {
@@ -206,7 +208,7 @@ const KelolaAnggotaPage = () => {
                 </div>
 
                 {/* Modals */}
-                <AddDampinganModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
+                <AddDampinganModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} isPengajuan={true} />
                 <EditDampinganModal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} data={selectedData} />
                 <DeleteDampinganModal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} data={selectedData} />
 

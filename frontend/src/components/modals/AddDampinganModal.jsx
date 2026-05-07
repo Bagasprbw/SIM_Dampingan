@@ -12,8 +12,11 @@ import {
 import Swal from 'sweetalert2';
 import { useAnggotaMutations } from '../../hooks/mutations/useAnggotaMutation';
 
-const AddDampinganModal = ({ isOpen, onClose }) => {
+import { usePengajuanAnggotaMutations } from '../../hooks/mutations/usePengajuanAnggotaMutation';
+
+const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
     const { createAnggota } = useAnggotaMutations();
+    const { createPengajuanAnggota } = usePengajuanAnggotaMutations();
     const [isLoading, setIsLoading] = useState(false);
     const [gender, setGender] = useState('Laki-laki');
     const [status, setStatus] = useState('Aktif');
@@ -55,7 +58,9 @@ const AddDampinganModal = ({ isOpen, onClose }) => {
         form.append('jenis_kelamin', gender);
         form.append('status_aktif', status === 'Aktif' ? 1 : 0);
 
-        createAnggota.mutate(form, {
+        const mutation = isPengajuan ? createPengajuanAnggota : createAnggota;
+
+        mutation.mutate(form, {
             onSuccess: () => {
                 setIsLoading(false);
                 Swal.fire({
