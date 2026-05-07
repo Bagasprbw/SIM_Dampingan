@@ -6,6 +6,9 @@ const ALL_ADMINS = [...ADMIN_ROLES];
 // SuperAdmin + semua Admin
 const SUPERADMIN_AND_ADMINS = [ROLES.SUPERADMIN, ...ADMIN_ROLES];
 
+/**
+ * ROUTE_ACCESS — dipertahankan untuk kompatibilitas ke belakang (jika masih ada komponen yang pakai)
+ */
 export const ROUTE_ACCESS = {
     // ── Semua Role ──────────────────────────────────────────────────────────
     '/dashboard':  [ROLES.SUPERADMIN, ...ADMIN_ROLES, ROLES.FASILITATOR, ROLES.PJ_DAMPINGAN],
@@ -36,6 +39,36 @@ export const ROUTE_ACCESS = {
 
     // ── Tidak tampil di sidebar (halaman internal) ───────────────────────────
     '/data-dampingan': [...SUPERADMIN_AND_ADMINS],
+};
+
+/**
+ * ROUTE_PERMISSIONS — peta path → permission code (DINAMIS dari DB).
+ * null = semua user yang sudah login boleh akses (tidak perlu permission spesifik).
+ *
+ * RouteGuard akan cek: apakah permissions user (dari localStorage) mengandung
+ * permission code yang dipetakan untuk path ini.
+ */
+export const ROUTE_PERMISSIONS = {
+    // Semua user login
+    '/dashboard':   null,
+    '/peta':        'view_peta_sebaran',
+    '/log':         null,
+
+    // Permission spesifik
+    '/panduan':              'view_panduan',
+    '/hak-akses':            'manage_roles',
+    '/data-admin':           'kelola_admin_bawahan',
+    '/data-fasilitator':     'kelola_fasilitator',
+    '/data-pj':              'kelola_pj_grup',
+    '/data-grup':            'kelola_grup',
+    '/data-dampingan':       'kelola_masyarakat',
+    '/kegiatan-dampingan':   'view_kegiatan',
+    '/konfirmasi-anggota':   'verifikasi_anggota',
+    '/kelola-dampingan':     'kelola_grup',
+    '/kelola-kegiatan':      'create_kegiatan',
+    //nanti edit kegiatan juga -> 'edit_kegiatan', sesuai seeder
+    '/kelola-anggota':       'ajukan_anggota',
+    '/informasi-dampingan':  'view_kegiatan',
 };
 
 export const DEFAULT_ROUTE_BY_ROLE = {
