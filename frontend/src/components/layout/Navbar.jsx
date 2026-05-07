@@ -8,6 +8,13 @@ const Navbar = ({ title = 'Dashboard' }) => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const user = getUser();
 
+    let userRole = typeof user?.role === 'object' && user?.role !== null ? user.role.name : user?.role;
+    
+    // Fallback darurat
+    if (!userRole && user?.username === 'superadmin') {
+        userRole = 'superadmin';
+    }
+
     return (
         <header className="h-16 bg-white border-b border-black/5 flex items-center justify-between px-8 fixed top-0 left-64 right-0 z-40 font-['Poppins']">
             {/* Title Section */}
@@ -22,7 +29,7 @@ const Navbar = ({ title = 'Dashboard' }) => {
             >
                 <div className="flex flex-col items-end">
                     <span className="text-[#0A0F1E] text-sm font-semibold tracking-tight">{user?.username || user?.name || 'User'}</span>
-                    <span className="text-[#9298B0] text-[10px] font-normal uppercase tracking-wider">{ROLE_LABELS[user?.role] || user?.role || 'Guest'}</span>
+                    <span className="text-[#9298B0] text-[10px] font-normal uppercase tracking-wider">{ROLE_LABELS[userRole] || userRole || 'Guest'}</span>
                 </div>
                 <div className="relative">
                     <img 

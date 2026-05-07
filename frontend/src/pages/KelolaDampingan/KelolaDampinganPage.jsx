@@ -1,43 +1,8 @@
 import React, { useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import DetailDampinganModal from '../../components/modals/DetailDampinganModal';
-import { LayoutGrid, ChevronLeft, Search, ChevronRight } from 'lucide-react';
-
-// ─── Data ────────────────────────────────────────────────────────────────────
-const grupList = [
-    {
-        namaGrup: 'Kelompok Tani Makmur',
-        anggota: 15,
-        bidang: 'Pertanian Terpadu',
-        provinsi: 'D.I. Yogyakarta',
-        kabupaten: 'Bantul',
-        kecamatan: 'Piyungan',
-        anggotaList: [
-            { noAnggota: '340406030001', nama: 'Agil Lensana',  gender: 'Perempuan', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul', bidang: 'Pertanian Terpadu', grup: 'Kelompok Tani Makmur' },
-            { noAnggota: '340406030002', nama: 'Budi Santoso',  gender: 'Laki-laki', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul', bidang: 'Pertanian Terpadu', grup: 'Kelompok Tani Makmur' },
-            { noAnggota: '340406030003', nama: 'Siti Rahma',    gender: 'Perempuan', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul', bidang: 'Pertanian Terpadu', grup: 'Kelompok Tani Makmur' },
-            { noAnggota: '340406030004', nama: 'Ahmad Fauzi',   gender: 'Laki-laki', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul', bidang: 'Pertanian Terpadu', grup: 'Kelompok Tani Makmur' },
-            { noAnggota: '340406030005', nama: 'Dewi Lestari',  gender: 'Perempuan', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul', bidang: 'Pertanian Terpadu', grup: 'Kelompok Tani Makmur' },
-            { noAnggota: '340406030006', nama: 'Rudi Hartono',  gender: 'Laki-laki', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul', bidang: 'Pertanian Terpadu', grup: 'Kelompok Tani Makmur' },
-            { noAnggota: '340406030007', nama: 'Nur Hidayah',   gender: 'Perempuan', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul', bidang: 'Pertanian Terpadu', grup: 'Kelompok Tani Makmur' },
-            { noAnggota: '340406030008', nama: 'Eko Prasetyo',  gender: 'Laki-laki', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul', bidang: 'Pertanian Terpadu', grup: 'Kelompok Tani Makmur' },
-            { noAnggota: '340406030009', nama: 'Fitri Andriani', gender: 'Perempuan', alamat: 'Munggur 004/- Sitimulyo, Piyungan, Bantul', bidang: 'Pertanian Terpadu', grup: 'Kelompok Tani Makmur' },
-        ],
-    },
-    {
-        namaGrup: 'Kelompok Josjis',
-        anggota: 12,
-        bidang: 'Peternakan',
-        provinsi: 'Jawa Tengah',
-        kabupaten: 'Magelang',
-        kecamatan: 'Mertoyudan',
-        anggotaList: [
-            { noAnggota: '340406040001', nama: 'Hendra Wijaya', gender: 'Laki-laki', alamat: 'Jl. Mertoyudan No. 5, Magelang', bidang: 'Peternakan', grup: 'Kelompok Josjis' },
-            { noAnggota: '340406040002', nama: 'Rina Kartika',  gender: 'Perempuan', alamat: 'Jl. Mertoyudan No. 7, Magelang', bidang: 'Peternakan', grup: 'Kelompok Josjis' },
-            { noAnggota: '340406040003', nama: 'Bowo Santoso',  gender: 'Laki-laki', alamat: 'Jl. Mertoyudan No. 9, Magelang', bidang: 'Peternakan', grup: 'Kelompok Josjis' },
-        ],
-    },
-];
+import { LayoutGrid, ChevronLeft, Search, ChevronRight, Loader2 } from 'lucide-react';
+import { useFasilitatorGrups } from '../../hooks/queries/useGrupDampinganQuery';
 
 const PAGE_SIZE = 9;
 
@@ -48,10 +13,12 @@ const GrupDetailView = ({ grup, onBack }) => {
     const [selectedAnggota, setSelectedAnggota] = useState(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-    const filtered = grup.anggotaList.filter(a =>
+    const anggotaList = grup.anggota || [];
+
+    const filtered = anggotaList.filter(a =>
         a.nama.toLowerCase().includes(search.toLowerCase()) ||
-        a.noAnggota.includes(search) ||
-        a.alamat.toLowerCase().includes(search.toLowerCase())
+        a.no_anggota?.includes(search) ||
+        a.alamat?.toLowerCase().includes(search.toLowerCase())
     );
 
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
@@ -68,8 +35,8 @@ const GrupDetailView = ({ grup, onBack }) => {
                     <ChevronLeft size={14} /> Kembali
                 </button>
                 <div>
-                    <h3 className="text-sm font-bold text-[#0A0F1E]">{grup.namaGrup}</h3>
-                    <p className="text-[10px] text-[#0080C5] font-semibold">{grup.bidang} · {grup.kabupaten}, {grup.provinsi}</p>
+                    <h3 className="text-sm font-bold text-[#0A0F1E]">{grup.nama_grup}</h3>
+                    <p className="text-[10px] text-[#0080C5] font-semibold">{grup.bidang?.nama_bidang} · {grup.kabupaten?.name}, {grup.provinsi?.name}</p>
                 </div>
             </div>
 
@@ -97,17 +64,17 @@ const GrupDetailView = ({ grup, onBack }) => {
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                         {paged.map((item, i) => (
-                            <tr key={i} className="hover:bg-slate-50/70 transition-colors">
-                                <td className="py-4 px-4 text-[#0080C5] text-xs font-semibold whitespace-nowrap">{item.noAnggota}</td>
+                            <tr key={item.id || i} className="hover:bg-slate-50/70 transition-colors">
+                                <td className="py-4 px-4 text-[#0080C5] text-xs font-semibold whitespace-nowrap">{item.no_anggota || '-'}</td>
                                 <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold whitespace-nowrap">{item.nama}</td>
                                 <td className="py-4 px-4">
-                                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${item.gender === 'Laki-laki' ? 'bg-blue-50 text-[#0080C5]' : 'bg-pink-50 text-pink-500'}`}>
-                                        {item.gender}
+                                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${item.jenis_kelamin === 'L' ? 'bg-blue-50 text-[#0080C5]' : 'bg-pink-50 text-pink-500'}`}>
+                                        {item.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}
                                     </span>
                                 </td>
-                                <td className="py-4 px-4 text-[#6B7280] text-xs max-w-[180px]">{item.alamat}</td>
-                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-medium whitespace-nowrap">{item.bidang}</td>
-                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold whitespace-nowrap">{item.grup}</td>
+                                <td className="py-4 px-4 text-[#6B7280] text-xs max-w-[180px]">{item.alamat || '-'}</td>
+                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-medium whitespace-nowrap">{grup.bidang?.nama_bidang || '-'}</td>
+                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold whitespace-nowrap">{grup.nama_grup || '-'}</td>
                                 <td className="py-4 px-4">
                                     <button
                                         onClick={() => { setSelectedAnggota(item); setIsDetailOpen(true); }}
@@ -144,6 +111,14 @@ const GrupDetailView = ({ grup, onBack }) => {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 const KelolaDampinganPage = () => {
     const [selectedGrup, setSelectedGrup] = useState(null);
+    const [page, setPage] = useState(1);
+
+    const { data: grupData, isLoading, isError, refetch } = useFasilitatorGrups({
+        page: page,
+    });
+
+    const grupList = grupData?.data || [];
+    const meta = grupData?.meta || {};
 
     return (
         <AdminLayout title="Kelola Dampingan">
@@ -163,41 +138,76 @@ const KelolaDampinganPage = () => {
                             </div>
 
                             {/* Table */}
-                            <div className="overflow-x-auto">
-                                <table className="w-full border-collapse">
-                                    <thead>
-                                        <tr className="border-b border-slate-100">
-                                            {['NAMA GRUP','BIDANG DAMPINGAN','PROVINSI','KABUPATEN','KECAMATAN'].map(h => (
-                                                <th key={h} className="py-3 px-4 text-left text-[#9298B0] text-[10px] font-semibold uppercase tracking-widest">{h}</th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-50">
-                                        {grupList.map((item, i) => (
-                                            <tr
-                                                key={i}
-                                                onClick={() => setSelectedGrup(item)}
-                                                className="hover:bg-[#0080C5]/5 transition-colors cursor-pointer group"
-                                            >
-                                                <td className="py-5 px-4">
-                                                    <div className="flex flex-col gap-0.5">
-                                                        <span className="text-[#0A0F1E] text-sm font-bold group-hover:text-[#0080C5] transition-colors">{item.namaGrup}</span>
-                                                        <span className="text-[#9298B0] text-xs">{item.anggota} anggota</span>
-                                                    </div>
-                                                </td>
-                                                <td className="py-5 px-4 text-[#0A0F1E] text-xs font-bold">{item.bidang}</td>
-                                                <td className="py-5 px-4 text-[#9298B0] text-xs">{item.provinsi}</td>
-                                                <td className="py-5 px-4 text-[#9298B0] text-xs">{item.kabupaten}</td>
-                                                <td className="py-5 px-4 text-[#9298B0] text-xs">{item.kecamatan}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                            {isLoading ? (
+                                <div className="flex justify-center items-center py-20">
+                                    <Loader2 className="animate-spin text-[#0080C5]" size={40} />
+                                </div>
+                            ) : isError ? (
+                                <div className="flex flex-col items-center justify-center py-20">
+                                    <p className="text-red-500 mb-4">Gagal memuat data grup dampingan.</p>
+                                    <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
+                                </div>
+                            ) : grupList.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-20">
+                                    <p className="text-slate-500">Tidak ada data grup dampingan.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full border-collapse">
+                                            <thead>
+                                                <tr className="border-b border-slate-100">
+                                                    {['NAMA GRUP','BIDANG DAMPINGAN','PROVINSI','KABUPATEN','KECAMATAN'].map(h => (
+                                                        <th key={h} className="py-3 px-4 text-left text-[#9298B0] text-[10px] font-semibold uppercase tracking-widest">{h}</th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-50">
+                                                {grupList.map((item, i) => (
+                                                    <tr
+                                                        key={item.id || i}
+                                                        onClick={() => setSelectedGrup(item)}
+                                                        className="hover:bg-[#0080C5]/5 transition-colors cursor-pointer group"
+                                                    >
+                                                        <td className="py-5 px-4">
+                                                            <div className="flex flex-col gap-0.5">
+                                                                <span className="text-[#0A0F1E] text-sm font-bold group-hover:text-[#0080C5] transition-colors">{item.nama_grup}</span>
+                                                                <span className="text-[#9298B0] text-xs">{item.anggota_count || item.anggota?.length || 0} anggota</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-5 px-4 text-[#0A0F1E] text-xs font-bold">{item.bidang?.nama_bidang || '-'}</td>
+                                                        <td className="py-5 px-4 text-[#9298B0] text-xs">{item.provinsi?.name || '-'}</td>
+                                                        <td className="py-5 px-4 text-[#9298B0] text-xs">{item.kabupaten?.name || '-'}</td>
+                                                        <td className="py-5 px-4 text-[#9298B0] text-xs">{item.kecamatan?.name || '-'}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
 
-                            <div className="mt-5 pt-4 border-t border-slate-100">
-                                <p className="text-slate-400 text-xs">Menampilkan <span className="font-bold text-slate-950">{grupList.length}</span> Grup Dampingan</p>
-                            </div>
+                                    {meta && meta.total > 0 && (
+                                        <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+                                            <p className="text-slate-400 text-xs">Menampilkan {meta.from}-{meta.to} dari <span className="font-bold text-slate-950">{meta.total}</span> Grup Dampingan</p>
+                                            <div className="flex gap-2">
+                                                <button 
+                                                    onClick={() => setPage(old => Math.max(old - 1, 1))}
+                                                    disabled={page === 1}
+                                                    className="p-1 border rounded disabled:opacity-50"
+                                                >
+                                                    <ChevronLeft size={14} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => setPage(old => (meta.current_page < meta.last_page ? old + 1 : old))}
+                                                    disabled={page === meta.last_page}
+                                                    className="p-1 border rounded disabled:opacity-50"
+                                                >
+                                                    <ChevronRight size={14} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </>
                     )}
                 </div>

@@ -1,41 +1,63 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Plus, 
-    Printer, 
     Search, 
-    ChevronDown, 
     ChevronLeft, 
     ChevronRight,
     Edit,
     Trash2,
     Lock,
-    FileText
+    FileText,
+    ChevronDown,
+    Loader2
 } from 'lucide-react';
 import AddAdminModal from '../../components/modals/AddAdminModal';
 import EditAdminModal from '../../components/modals/EditAdminModal';
 import DeleteAdminModal from '../../components/modals/DeleteAdminModal';
 import ResetPasswordModal from '../../components/modals/ResetPasswordModal';
+import { useAdmins } from '../../hooks/queries/useAdminQuery';
+import FilterDropdown from '../../components/common/FilterDropdown';
+import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 
 const DataAdminPage = () => {
-    const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
-    const [isResetModalOpen, setIsResetModalOpen] = React.useState(false);
-    const [selectedAdmin, setSelectedAdmin] = React.useState(null);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+    const [selectedAdmin, setSelectedAdmin] = useState(null);
 
-    // Data dummy sesuai screenshot Figma
-    const dataAdmin = Array(10).fill({
-        id: 1,
-        nama: 'Jawa Barat',
-        username: 'prov.jawabarat',
-        alamat: 'Alamat',
-        telp: '089501010101',
-        role: 'Admin Provinsi',
-        provinsi: 'Jawa barat',
-        kabupaten: 'Kabupaten',
-        kecamatan: 'Kecamatan'
+    const [page, setPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [provinsiFilter, setProvinsiFilter] = useState(null);
+    const [kabupatenFilter, setKabupatenFilter] = useState(null);
+    const [kecamatanFilter, setKecamatanFilter] = useState(null);
+
+    const { data: provinsiList = [], isLoading: loadingProv } = useProvinsi();
+    const { data: kabupatenList = [], isLoading: loadingKab } = useKabupaten(provinsiFilter);
+    const { data: kecamatanList = [], isLoading: loadingKec } = useKecamatan(kabupatenFilter);
+
+    const provinsiOptions = provinsiList.map(p => ({ value: p.id, label: p.name }));
+    const kabupatenOptions = kabupatenList.map(k => ({ value: k.id, label: k.name }));
+    const kecamatanOptions = kecamatanList.map(k => ({ value: k.id, label: k.name }));
+
+
+    const { data: adminData, isLoading, isError, refetch } = useAdmins({
+        page: page,
+        search: searchQuery,
+        ...(provinsiFilter && { kode_prov: provinsiFilter }),
+        ...(kabupatenFilter && { kode_kab: kabupatenFilter }),
+        ...(kecamatanFilter && { kode_kec: kecamatanFilter }),
     });
+
+    const handleSearch = (e) => {
+        setSearchQuery(e.target.value);
+        setPage(1); // Reset to first page on search
+    };
+
+    const admins = adminData?.data || [];
+    // BE /users/admin-bawahan is not paginated in some responses, or structure varies
+    const meta = adminData?.meta || { from: 1, to: admins.length, total: admins.length, current_page: 1, last_page: 1 };
 
     return (
         <AdminLayout title="Data Admin">
@@ -71,110 +93,148 @@ const DataAdminPage = () => {
                             <input 
                                 type="text" 
                                 placeholder="Cari nama, username, alamat, no. telp..."
+                                value={searchQuery}
+                                onChange={handleSearch}
                                 className="w-full pl-12 pr-4 py-3 bg-white rounded-[10px] border-2 border-[#F1F5F9] focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-400 transition-all"
                             />
                         </div>
 
                         {/* Filter Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {['Pilih Role', 'Pilih Provinsi', 'Pilih Kecamatan', 'Pilih Kabupaten'].map((filter, idx) => (
-                                <div key={idx} className="relative cursor-pointer">
-                                    <div className="flex items-center justify-between px-4 py-3 bg-white rounded-[10px] border border-[#E5E7EB] hover:border-slate-300 transition-colors">
-                                        <span className="text-[#9298B0] text-[11px] font-semibold">{filter}</span>
-                                        <ChevronDown size={18} className="text-[#9298B0]" />
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="flex flex-wrap items-center gap-3">
+                            <FilterDropdown
+                                placeholder="Pilih Provinsi"
+                                options={provinsiOptions}
+                                value={provinsiFilter}
+                                isLoading={loadingProv}
+                                onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
+                            />
+                            <FilterDropdown
+                                placeholder="Pilih Kabupaten"
+                                options={kabupatenOptions}
+                                value={kabupatenFilter}
+                                isLoading={loadingKab}
+                                disabled={!provinsiFilter}
+                                onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
+                            />
+                            <FilterDropdown
+                                placeholder="Pilih Kecamatan"
+                                options={kecamatanOptions}
+                                value={kecamatanFilter}
+                                isLoading={loadingKec}
+                                disabled={!kabupatenFilter}
+                                onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
+                            />
                         </div>
                     </div>
 
                     {/* Table Section */}
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-separate border-spacing-0">
-                            <thead>
-                                <tr className="bg-[#F1F5F9]">
-                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tl-xl text-center">NO</th>
-                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Nama</th>
-                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Username</th>
-                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Alamat</th>
-                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">No.Telp</th>
-                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Role</th>
-                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Provinsi</th>
-                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kabupaten</th>
-                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kecamatan</th>
-                                    <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tr-xl text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {dataAdmin.map((item, index) => (
-                                    <tr key={index} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">{index + 1}</td>
-                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.nama}</td>
-                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.username}</td>
-                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.alamat}</td>
-                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.telp}</td>
-                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.role}</td>
-                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.provinsi}</td>
-                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kabupaten}</td>
-                                        <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kecamatan}</td>
-                                        <td className="py-2.5 px-4 ">
-                                            <div className="flex items-center justify-center gap-1.5">
-                                                {/* Edit Button (Orange #FB923C 12%) */}
-                                                <button 
-                                                    onClick={() => {
-                                                        setSelectedAdmin(item);
-                                                        setIsEditModalOpen(true);
-                                                    }}
-                                                    className="w-7 h-7 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
-                                                >
-                                                    <Edit size={14} />
-                                                </button>
-                                                {/* Delete Button (Red #EF4444 10%) */}
-                                                <button 
-                                                    onClick={() => {
-                                                        setSelectedAdmin(item);
-                                                        setIsDeleteModalOpen(true);
-                                                    }}
-                                                    className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
-                                                {/* Lock/Reset Button (Amber #FBBF24 12%) */}
-                                                <button 
-                                                    onClick={() => {
-                                                        setSelectedAdmin(item);
-                                                        setIsResetModalOpen(true);
-                                                    }}
-                                                    className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
-                                                >
-                                                    <Lock size={12} />
-                                                </button>
-                                            </div>
-                                        </td>
+                    {isLoading ? (
+                        <div className="flex justify-center items-center py-20">
+                            <Loader2 className="animate-spin text-[#0080C5]" size={40} />
+                        </div>
+                    ) : isError ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <p className="text-red-500 mb-4">Gagal memuat data admin.</p>
+                            <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
+                        </div>
+                    ) : admins.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <p className="text-slate-500">Tidak ada data admin ditemukan.</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-separate border-spacing-0">
+                                <thead>
+                                    <tr className="bg-[#F1F5F9]">
+                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tl-xl text-center">NO</th>
+                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Nama</th>
+                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Username</th>
+                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Alamat</th>
+                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">No.Telp</th>
+                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Provinsi</th>
+                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kabupaten</th>
+                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kecamatan</th>
+                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tr-xl text-center">Aksi</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {admins.map((item, index) => (
+                                        <tr key={item.id_user || item.id || index} className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">
+                                                {meta.from ? meta.from + index : index + 1}
+                                            </td>
+                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.nama}</td>
+                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.username}</td>
+                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.alamat || '-'}</td>
+                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.no_hp || '-'}</td>
+                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.provinsi?.name || '-'}</td>
+                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kabupaten?.name || '-'}</td>
+                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kecamatan?.name || '-'}</td>
+                                            <td className="py-2.5 px-4 ">
+                                                <div className="flex items-center justify-center gap-1.5">
+                                                    <button 
+                                                        onClick={() => {
+                                                            setSelectedAdmin(item);
+                                                            setIsEditModalOpen(true);
+                                                        }}
+                                                        className="w-7 h-7 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
+                                                    >
+                                                        <Edit size={14} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            setSelectedAdmin(item);
+                                                            setIsDeleteModalOpen(true);
+                                                        }}
+                                                        className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            setSelectedAdmin(item);
+                                                            setIsResetModalOpen(true);
+                                                        }}
+                                                        className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
+                                                    >
+                                                        <Lock size={12} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
 
                     {/* Pagination Section */}
-                    <div className="mt-8 flex items-center justify-between">
-                        <p className="text-[#9298B0] text-xs font-normal">Menampilkan 1-10 dari 15 data</p>
-                        <div className="flex items-center gap-1.5">
-                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50">
-                                <ChevronLeft size={18} />
-                            </button>
-                            <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
-                                1
-                            </button>
-                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-[#0A0F1E] text-[11px] font-semibold hover:bg-slate-50">
-                                2
-                            </button>
-                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50">
-                                <ChevronRight size={18} />
-                            </button>
+                    {meta && meta.total > 0 && (
+                        <div className="mt-8 flex items-center justify-between">
+                            <p className="text-[#9298B0] text-xs font-normal">
+                                Menampilkan {meta.from}-{meta.to} dari {meta.total} data
+                            </p>
+                            <div className="flex items-center gap-1.5">
+                                <button 
+                                    onClick={() => setPage(old => Math.max(old - 1, 1))}
+                                    disabled={page === 1}
+                                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50 disabled:opacity-50"
+                                >
+                                    <ChevronLeft size={18} />
+                                </button>
+                                <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
+                                    {page}
+                                </button>
+                                <button 
+                                    onClick={() => setPage(old => (meta.current_page < meta.last_page ? old + 1 : old))}
+                                    disabled={page === meta.last_page}
+                                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50 disabled:opacity-50"
+                                >
+                                    <ChevronRight size={18} />
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 
@@ -182,21 +242,27 @@ const DataAdminPage = () => {
                 isOpen={isAddModalOpen} 
                 onClose={() => setIsAddModalOpen(false)} 
             />
-            <EditAdminModal 
-                isOpen={isEditModalOpen} 
-                onClose={() => setIsEditModalOpen(false)} 
-                data={selectedAdmin}
-            />
-            <DeleteAdminModal 
-                isOpen={isDeleteModalOpen} 
-                onClose={() => setIsDeleteModalOpen(false)} 
-                data={selectedAdmin}
-            />
-            <ResetPasswordModal 
-                isOpen={isResetModalOpen} 
-                onClose={() => setIsResetModalOpen(false)} 
-                data={selectedAdmin}
-            />
+            {isEditModalOpen && (
+                <EditAdminModal 
+                    isOpen={isEditModalOpen} 
+                    onClose={() => setIsEditModalOpen(false)} 
+                    data={selectedAdmin}
+                />
+            )}
+            {isDeleteModalOpen && (
+                <DeleteAdminModal 
+                    isOpen={isDeleteModalOpen} 
+                    onClose={() => setIsDeleteModalOpen(false)} 
+                    data={selectedAdmin}
+                />
+            )}
+            {isResetModalOpen && (
+                <ResetPasswordModal 
+                    isOpen={isResetModalOpen} 
+                    onClose={() => setIsResetModalOpen(false)} 
+                    data={selectedAdmin}
+                />
+            )}
         </AdminLayout>
     );
 };

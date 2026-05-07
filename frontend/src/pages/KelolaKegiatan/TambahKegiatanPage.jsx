@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { useNavigate } from 'react-router-dom';
-import { ChevronDown, Save, ArrowRight, ArrowLeft, X, Plus, Upload, Image, FileText, Check, UserCircle2, Search } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ChevronDown, Save, ArrowRight, ArrowLeft, X, Plus, Upload, Image, FileText, Check, UserCircle2, Search, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useKegiatanMutations } from '../../hooks/mutations/useKegiatanMutation';
+import { kegiatanService } from '../../services/kegiatanService';
 
 // ─── Step Indicator ───────────────────────────────────────────────────────────
 const StepIndicator = ({ step }) => {
@@ -360,18 +362,64 @@ const Step3 = () => (
 // ─── Main Page ────────────────────────────────────────────────────────────────
 const TambahKegiatanPage = ({ isEdit = false }) => {
     const navigate = useNavigate();
+    const { id } = useParams();
+    const { createKegiatan, updateKegiatan } = useKegiatanMutations();
     const [step, setStep] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({});
+
+    useEffect(() => {
+        if (isEdit && id) {
+            const fetchKegiatan = async () => {
+                try {
+                    const data = await kegiatanService.getById(id);
+                    setFormData(data); // Assume data matches form shape or map it appropriately
+                } catch (error) {
+                    console.error('Failed to fetch kegiatan details:', error);
+                }
+            };
+            fetchKegiatan();
+        }
+    }, [isEdit, id]);
 
     const handleChange = (field, value) => setFormData(p => ({ ...p, [field]: value }));
 
     const handleSaveDraft = () => {
-        Swal.fire({ title: 'Tersimpan sebagai Draft', icon: 'info', confirmButtonColor: '#0080C5', timer: 1500, showConfirmButton: false, customClass: { popup: 'rounded-2xl font-["Poppins"]' } });
+        setIsLoading(true);
+        const dataToSave = { ...formData, status: 'Draft' };
+        const mutation = isEdit ? updateKegiatan : createKegiatan;
+        const payload = isEdit ? { id, data: dataToSave } : dataToSave;
+
+        mutation.mutate(payload, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({ title: 'Tersimpan sebagai Draft', icon: 'info', confirmButtonColor: '#0080C5', timer: 1500, showConfirmButton: false, customClass: { popup: 'rounded-2xl font-["Poppins"]' } })
+                    .then(() => navigate('/kelola-kegiatan'));
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({ title: 'Gagal!', text: 'Terjadi kesalahan saat menyimpan draft.', icon: 'error', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } });
+            }
+        });
     };
 
     const handleSubmit = () => {
-        Swal.fire({ title: 'Berhasil!', text: 'Laporan kegiatan berhasil disimpan.', icon: 'success', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } })
-            .then(() => navigate('/kelola-kegiatan'));
+        setIsLoading(true);
+        const dataToSave = { ...formData, status: 'Selesai' };
+        const mutation = isEdit ? updateKegiatan : createKegiatan;
+        const payload = isEdit ? { id, data: dataToSave } : dataToSave;
+
+        mutation.mutate(payload, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({ title: 'Berhasil!', text: 'Laporan kegiatan berhasil disimpan.', icon: 'success', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } })
+                    .then(() => navigate('/kelola-kegiatan'));
+            },
+            onError: () => {
+                setIsLoading(false);
+                Swal.fire({ title: 'Gagal!', text: 'Terjadi kesalahan saat menyimpan laporan kegiatan.', icon: 'error', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } });
+            }
+        });
     };
 
     return (
@@ -415,8 +463,9 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                                     Selanjutnya <ArrowRight size={14} />
                                 </button>
                             ) : (
-                                <button onClick={handleSubmit} className="h-10 px-5 bg-[#10B981] text-white rounded-[10px] text-xs font-semibold hover:bg-emerald-600 transition-all flex items-center gap-2">
-                                    <Check size={14} /> Simpan
+                                <button onClick={handleSubmit} disabled={isLoading} className="h-10 px-5 bg-[#10B981] text-white rounded-[10px] text-xs font-semibold hover:bg-emerald-600 transition-all flex items-center gap-2 disabled:opacity-50">
+                                    {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                                    {isLoading ? 'Menyimpan...' : 'Simpan'}
                                 </button>
                             )}
                         </div>

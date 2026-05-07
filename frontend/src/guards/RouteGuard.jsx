@@ -15,7 +15,12 @@ const RouteGuard = () => {
     }
 
     // Role user saat ini
-    const userRole = user?.role;
+    let userRole = typeof user?.role === 'object' && user?.role !== null ? user.role.name : user?.role;
+    
+    // Fallback darurat jika role null tapi username adalah superadmin
+    if (!userRole && user?.username === 'superadmin') {
+        userRole = 'superadmin';
+    }
 
     // Cek apakah role user memiliki akses ke path ini
     let hasAccess = false;
