@@ -32,7 +32,7 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
-        $user->load('role');
+        $user->load('role.permissions');
 
         // Catat log LOGIN
         LogAktivitasService::log(
@@ -62,7 +62,8 @@ class AuthController extends Controller
                 'status'     => $user->status,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
-                'role'       => $user->role ? $user->role->name : null,
+                'role'        => $user->role ? $user->role->name : null,
+                'permissions' => $user->role ? $user->role->permissions->pluck('code') : [],
             ],
         ]);
     }

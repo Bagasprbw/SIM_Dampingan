@@ -1,8 +1,13 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
+import { usePermissionSync } from '../../hooks/usePermissionSync';
 
 const AdminLayout = ({ children, title }) => {
+    // Sinkronisasi permissions dari server secara otomatis
+    // (detect perubahan hak akses oleh superadmin tanpa perlu login ulang)
+    usePermissionSync();
+
     return (
         <div className="min-h-screen bg-[#F0F2F8] flex">
             {/* Sidebar */}
@@ -23,3 +28,4 @@ const AdminLayout = ({ children, title }) => {
 };
 
 export default AdminLayout;
+

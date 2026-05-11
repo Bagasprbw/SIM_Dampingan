@@ -1,5 +1,5 @@
 import { loginRequest, logoutRequest, getMeRequest } from '../endpoints/authEndpoints';
-import { saveAuthData, clearAuthData } from '../../utils/storage';
+import { saveAuthData, savePermissions, clearAuthData } from '../../utils/storage';
 
 /**
  * Login: memanggil API, mengembalikan data + token TANPA menyimpan ke localStorage.
@@ -17,13 +17,17 @@ export const authRepository = {
             role: user.role,
         };
 
-        // Kembalikan token + user, JANGAN simpan dulu ke localStorage
-        return { token: access_token, user: mappedUser };
+        // Permissions dari backend (array of code strings)
+        const permissions = user.permissions ?? [];
+
+        // Kembalikan token + user + permissions, JANGAN simpan dulu ke localStorage
+        return { token: access_token, user: mappedUser, permissions };
     },
 
     // Panggil ini SETELAH modal sukses selesai (saat redirect)
-    commitLogin: ({ token, user }) => {
+    commitLogin: ({ token, user, permissions }) => {
         saveAuthData(token, user);
+        savePermissions(permissions ?? []);
     },
 
     logout: async () => {

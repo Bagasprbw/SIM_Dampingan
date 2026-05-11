@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { hakAksesService } from '../../services/hakAksesService';
-import { queryKeys } from '../../constants/queryKeys';
 
 export const useRoles = () =>
     useQuery({
         queryKey: ['rbac', 'roles'],
         queryFn: () => hakAksesService.getRoles(),
+        staleTime: 0, // selalu re-fetch agar mencerminkan state DB terbaru
     });
 
 export const usePermissions = () =>
@@ -20,7 +20,8 @@ export const useHakAksesMutations = () => {
     const updateRolePermissions = useMutation({
         mutationFn: ({ roleId, permissions }) => hakAksesService.updateRolePermissions(roleId, permissions),
         onSuccess: () => {
-            queryClient.invalidateQueries(['rbac']);
+            // Invalidate roles agar data permissions terbaru di-refetch dari DB
+            queryClient.invalidateQueries({ queryKey: ['rbac', 'roles'] });
         },
     });
 
