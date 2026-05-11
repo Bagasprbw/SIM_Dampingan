@@ -38,8 +38,8 @@ const FeatureItem = ({ title, subtitle, enabled, onChange, colorClass }) => (
 );
 
 const KelolaHakAksesPage = () => {
-    const { data: rolesData, isLoading: loadingRoles, isError: errorRoles } = useRoles();
-    const { data: permsData, isLoading: loadingPerms } = usePermissions();
+    const { data: rolesData, isLoading: loadingRoles, isError: errorRoles, refetch: refetchRoles } = useRoles();
+    const { data: permsData, isLoading: loadingPerms, isError: errorPerms, refetch: refetchPerms } = usePermissions();
     const { updateRolePermissions } = useHakAksesMutations();
 
     const [localPerms, setLocalPerms] = useState({});
@@ -48,27 +48,23 @@ const KelolaHakAksesPage = () => {
     const roles = rolesData?.data || [];
     const permissions = permsData?.data || [];
 
-    // Inject dummy permissions agar toggle UI bisa bekerja secara independen tanpa error dari backend
-    const DUMMY_PERMS = [
-        { id_permission: 'dummy_dashboard', code: 'view_dashboard', name: 'View Dashboard' },
-        { id_permission: 'dummy_peta', code: 'view_peta_sebaran', name: 'View Peta Sebaran' }
-    ];
-    
-    const allPermissions = [...permissions, ...DUMMY_PERMS];
+    // Hanya gunakan permissions real dari BE
 
     const roleMap = roles.reduce((acc, r) => ({ ...acc, [r.name]: r }), {});
-    const permMap = allPermissions.reduce((acc, p) => ({ ...acc, [p.code]: p }), {});
+    const permMap = permissions.reduce((acc, p) => ({ ...acc, [p.code]: p }), {});
 
     useEffect(() => {
-        if (roles.length > 0 && permissions.length > 0) {
+        if (roles.length > 0) {
             const initial = {};
             roles.forEach(role => {
-                // Semua default ON sesuai permintaan user, termasuk dummy
-                initial[role.id_role] = new Set(allPermissions.map(p => p.id_permission));
+                // Baca permissions aktif per role dari response BE (eager load with('permissions'))
+                initial[role.id_role] = new Set(
+                    (role.permissions || []).map(p => p.id_permission)
+                );
             });
             setLocalPerms(initial);
         }
-    }, [rolesData, permissions]);
+    }, [rolesData]);
 
     const hasPermission = (roleName, permCode) => {
         const roleId = roleMap[roleName]?.id_role;
@@ -102,15 +98,18 @@ const KelolaHakAksesPage = () => {
     };
 
     const handleReset = () => {
-        if (roles.length > 0 && permissions.length > 0) {
-            const allOn = {};
+        if (roles.length > 0) {
+            // Kembalikan ke state awal dari BE (sebelum ada perubahan lokal)
+            const original = {};
             roles.forEach(role => {
-                allOn[role.id_role] = new Set(allPermissions.map(p => p.id_permission));
+                original[role.id_role] = new Set(
+                    (role.permissions || []).map(p => p.id_permission)
+                );
             });
-            setLocalPerms(allOn);
+            setLocalPerms(original);
             Swal.fire({
-                title: 'Default Aktif!',
-                text: 'Semua fitur telah ditandai untuk diaktifkan. Klik Simpan untuk memperbarui.',
+                title: 'Reset Berhasil!',
+                text: 'Hak akses dikembalikan ke pengaturan yang tersimpan di database.',
                 icon: 'success',
                 timer: 2000,
                 showConfirmButton: false,
@@ -124,8 +123,7 @@ const KelolaHakAksesPage = () => {
         try {
             const roleEntries = Object.entries(localPerms);
             for (const [roleId, permSet] of roleEntries) {
-                // Jangan kirim dummy ID ke backend agar tidak error foreign key
-                const realPermissions = [...permSet].filter(id => !id.startsWith('dummy_'));
+                const realPermissions = [...permSet];
                 
                 await updateRolePermissions.mutateAsync({
                     roleId,
@@ -158,6 +156,26 @@ const KelolaHakAksesPage = () => {
         <AdminLayout title="Kelola Hak Akses">
             <div className="p-8 flex justify-center items-center min-h-[60vh]">
                 <Loader2 className="animate-spin text-[#0080C5]" size={40} />
+            </div>
+        </AdminLayout>
+    );
+
+    if (errorRoles || errorPerms) return (
+        <AdminLayout title="Kelola Hak Akses">
+            <div className="p-8 flex flex-col justify-center items-center min-h-[60vh] gap-4">
+                <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center">
+                    <Shield size={32} className="text-red-400" />
+                </div>
+                <div className="text-center">
+                    <h3 className="text-sm font-bold text-slate-800">Gagal Memuat Data Hak Akses</h3>
+                    <p className="text-xs text-slate-400 mt-1">Terjadi kesalahan saat mengambil data. Periksa koneksi Anda.</p>
+                </div>
+                <button
+                    onClick={() => { refetchRoles(); refetchPerms(); }}
+                    className="h-10 px-6 bg-[#0080C5] text-white rounded-xl flex items-center gap-2 text-[11px] font-bold hover:bg-sky-700 transition-all shadow-sm"
+                >
+                    <RotateCcw size={14} /> Coba Lagi
+                </button>
             </div>
         </AdminLayout>
     );
@@ -328,10 +346,9 @@ const KelolaHakAksesPage = () => {
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {[
-                                    { id: 'dash', label: 'Dashboard Statistik', sub: 'Ringkasan statistik sistem sesuai batasan akses masing-masing role.', code: 'view_dashboard' },
+                                    // view_dashboard & view_peta_sebaran dihapus — permission tidak terdaftar di BE
                                     { id: 'admin', label: 'Data Admin', sub: 'Manajemen data user dengan level akses administratif.', code: 'kelola_admin_bawahan' },
                                     { id: 'masy', label: 'Data Masyarakat', sub: 'Akses ke data profil dan histori masyarakat dampingan.', code: 'kelola_masyarakat' },
-                                    { id: 'peta', label: 'Peta Sebaran', sub: 'Visualisasi geografis titik lokasi masyarakat dan grup dampingan.', code: 'view_peta_sebaran' },
                                 ].map((item) => (
                                     <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="py-5 px-8">
