@@ -2,31 +2,54 @@ import React, { useState, useEffect } from 'react';
 import { X, Edit3, ChevronDown, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useAdminMutations } from '../../hooks/mutations/useAdminMutation';
+import { useRoles } from '../../hooks/queries/useHakAksesQuery';
+import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 
 const EditAdminModal = ({ isOpen, onClose, data }) => {
     const { updateAdmin } = useAdminMutations();
+    const { data: roles = [], isLoading: loadingRoles } = useRoles();
+    
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
-        nama: '', username: '', no_telp: '',
-        alamat: '', provinsi_id: '', kabupaten_id: '', kecamatan_id: ''
+        name: '', 
+        username: '', 
+        no_telp: '',
+        role_id: '',
+        kode_prov: '', 
+        kode_kab: '', 
+        kode_kec: ''
     });
+
+    const { data: provinsiList = [], isLoading: loadingProv } = useProvinsi();
+    const { data: kabupatenList = [], isLoading: loadingKab } = useKabupaten(formData.kode_prov);
+    const { data: kecamatanList = [], isLoading: loadingKec } = useKecamatan(formData.kode_kab);
+
+    // Filter roles to only show admin roles
+    const adminRoles = Array.isArray(roles?.data) 
+        ? roles.data.filter(role => ['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(role.name))
+        : [];
 
     useEffect(() => {
         if (data) {
             setFormData({
-                nama: data.nama || '',
+                name: data.name || '',
                 username: data.username || '',
-                no_telp: data.telp || data.no_telp || '',
-                alamat: data.alamat || '',
-                provinsi_id: data.provinsi_id || '',
-                kabupaten_id: data.kabupaten_id || '',
-                kecamatan_id: data.kecamatan_id || ''
+                no_telp: data.no_telp || '',
+                role_id: data.role_id || '',
+                kode_prov: data.kode_prov || '',
+                kode_kab: data.kode_kab || '',
+                kode_kec: data.kode_kec || ''
             });
         }
     }, [data]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        
+        // Reset dependent fields
+        if (name === 'kode_prov') setFormData(prev => ({ ...prev, kode_kab: '', kode_kec: '' }));
+        if (name === 'kode_kab') setFormData(prev => ({ ...prev, kode_kec: '' }));
     };
 
     if (!isOpen) return null;
@@ -34,7 +57,7 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
     const handleSave = (e) => {
         e.preventDefault();
         setIsLoading(true);
-        updateAdmin.mutate({ id: data.id, data: formData }, {
+        updateAdmin.mutate({ id: data.id_user || data.id, data: formData }, {
             onSuccess: () => {
                 setIsLoading(false);
                 Swal.fire({
@@ -48,12 +71,12 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                 });
                 onClose();
             },
-            onError: () => {
+            onError: (error) => {
                 setIsLoading(false);
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
-                    text: 'Terjadi kesalahan saat mengubah admin.',
+                    text: error.response?.data?.message || 'Terjadi kesalahan saat mengubah admin.',
                     showConfirmButton: false,
                     timer: 2000,
                     customClass: { popup: 'rounded-2xl font-["Poppins"]' }
@@ -68,10 +91,10 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose}></div>
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
                 
                 {/* Header */}
-                <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-[#0080C5]/10 rounded-full flex items-center justify-center text-[#0080C5]">
                             <Edit3 size={20} />
@@ -87,12 +110,12 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Form Body */}
-                <form onSubmit={handleSave} className="p-5 space-y-3">
-                    <div className="grid grid-cols-2 gap-5">
+                <form onSubmit={handleSave} className="p-5 space-y-3 overflow-y-auto">
+                    <div className="grid grid-cols-2 gap-4">
                         {/* Nama */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Nama <span className="text-red-500">*</span></label>
-                            <input name="nama" value={formData.nama} onChange={handleChange} type="text" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E]" required />
+                            <input name="name" value={formData.name} onChange={handleChange} type="text" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E]" required />
                         </div>
                         {/* Username */}
                         <div className="flex flex-col gap-1.5">
@@ -101,25 +124,36 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                         </div>
                     </div>
 
-                    {/* No. Telp */}
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-[#0A0F1E] text-xs font-semibold">No. Telp <span className="text-red-500">*</span></label>
-                        <input name="no_telp" value={formData.no_telp} onChange={handleChange} type="text" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E]" required />
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* No. Telp */}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[#0A0F1E] text-xs font-semibold">No. Telp <span className="text-red-500">*</span></label>
+                            <input name="no_telp" value={formData.no_telp} onChange={handleChange} type="text" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E]" required />
+                        </div>
+                        {/* Role */}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[#0A0F1E] text-xs font-semibold">Role <span className="text-red-500">*</span></label>
+                            <div className="relative">
+                                <select name="role_id" value={formData.role_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
+                                    <option value="">{loadingRoles ? 'Memuat...' : 'Pilih Role'}</option>
+                                    {adminRoles.map(role => (
+                                        <option key={role.id_role} value={role.id_role}>{role.name.replace('_', ' ').toUpperCase()}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                            </div>
+                        </div>
                     </div>
-
-                    {/* Alamat */}
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-[#0A0F1E] text-xs font-semibold">Alamat <span className="text-red-500">*</span></label>
-                        <textarea name="alamat" value={formData.alamat} onChange={handleChange} rows="3" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] resize-none" required></textarea>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-5">
+                    <div className="grid grid-cols-2 gap-4">
                         {/* Provinsi */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Provinsi <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <select name="provinsi_id" value={formData.provinsi_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
-                                    <option value="jabar">Jawa Barat</option>
+                                <select name="kode_prov" value={formData.kode_prov} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
+                                    <option value="">{loadingProv ? 'Memuat...' : 'Pilih Provinsi'}</option>
+                                    {provinsiList.map(p => (
+                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
                                 </select>
                                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                             </div>
@@ -128,8 +162,11 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Kabupaten <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <select name="kabupaten_id" value={formData.kabupaten_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
-                                    <option value="kab">Kabupaten</option>
+                                <select name="kode_kab" value={formData.kode_kab} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" disabled={!formData.kode_prov}>
+                                    <option value="">{loadingKab ? 'Memuat...' : 'Pilih Kabupaten'}</option>
+                                    {kabupatenList.map(k => (
+                                        <option key={k.id} value={k.id}>{k.name}</option>
+                                    ))}
                                 </select>
                                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                             </div>
@@ -140,15 +177,18 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#0A0F1E] text-xs font-semibold">Kecamatan <span className="text-red-500">*</span></label>
                         <div className="relative">
-                            <select name="kecamatan_id" value={formData.kecamatan_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
-                                <option value="kec">Kecamatan</option>
+                            <select name="kode_kec" value={formData.kode_kec} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" disabled={!formData.kode_kab}>
+                                <option value="">{loadingKec ? 'Memuat...' : 'Pilih Kecamatan'}</option>
+                                {kecamatanList.map(k => (
+                                    <option key={k.id} value={k.id}>{k.name}</option>
+                                ))}
                             </select>
                             <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                         </div>
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-3">
+                    <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
                         <button type="button" onClick={onClose} className="px-6 py-2 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold hover:bg-gray-50 transition-all h-10">
                             Batal
                         </button>

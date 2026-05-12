@@ -228,11 +228,42 @@ class UserController extends Controller
             $query->whereRaw('1 = 0');
         }
 
-        $users = $query->orderBy('name', 'asc')->get();
+        // Search Filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('no_telp', 'like', "%{$search}%");
+            });
+        }
+
+        // Wilayah Filter
+        if ($request->filled('kode_prov')) {
+            $query->where('kode_prov', $request->kode_prov);
+        }
+        if ($request->filled('kode_kab')) {
+            $query->where('kode_kab', $request->kode_kab);
+        }
+        if ($request->filled('kode_kec')) {
+            $query->where('kode_kec', $request->kode_kec);
+        }
+
+        // Pagination
+        $perPage = $request->input('per_page', 10);
+        $users = $query->orderBy('name', 'asc')->paginate($perPage);
 
         return response()->json([
             'message' => 'Data admin bawahan berhasil diambil',
-            'data' => $users
+            'data' => $users->items(),
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+                'from' => $users->firstItem(),
+                'to' => $users->lastItem()
+            ]
         ]);
     }
 
