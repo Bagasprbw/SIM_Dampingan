@@ -42,7 +42,7 @@ class PengajuanAnggotaController extends Controller
     {
         $validated = $request->validate([
             'bidang_id' => 'required|exists:bidangs,id_bidang',
-            'no_anggota' => 'required|unique:anggota_grup_dampingans,no_anggota',
+            'no_anggota' => 'nullable|unique:anggota_grup_dampingans,no_anggota',
             'name' => 'required|string|max:150',
             'tempat_lahir' => 'nullable|string|max:100',
             'tgl_lahir' => 'nullable|date',
@@ -62,6 +62,11 @@ class PengajuanAnggotaController extends Controller
         $validated['id_anggota_grup'] = (string) Str::uuid();
         $validated['status'] = 'pending'; // PENGAJUAN otomatis PENDING
         $validated['created_at'] = now();
+
+        // Generate no_anggota jika tidak ada
+        if (empty($validated['no_anggota']) || str_starts_with($validated['no_anggota'], 'TEMP-')) {
+            $validated['no_anggota'] = $this->generateNoAnggota($validated['grup_id']);
+        }
 
         if ($request->hasFile('foto')) {
             $validated['foto'] = $request->file('foto')->store('profil/anggota_grup', 'public');
@@ -252,5 +257,20 @@ class PengajuanAnggotaController extends Controller
             'message' => 'Pengajuan anggota berhasil diverifikasi menjadi: ' . $anggota->status,
             'data' => $anggota
         ]);
+    }
+
+    private function generateNoAnggota($grupId)
+    {
+        $grup = \App\Models\GrupDampingan::find($grupId);
+        $prefix = $grup ? ($grup->kode_kec ?? $grup->kode_kab ?? $grup->kode_prov ?? '00') : '00';
+        
+        $number = $prefix . date('ymd') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        
+        // Pastikan unik
+        while (AnggotaGrupDampingan::where('no_anggota', $number)->exists()) {
+            $number = $prefix . date('ymd') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        }
+        
+        return $number;
     }
 }

@@ -19,7 +19,7 @@ class QrCodeService
             return false;
         }
 
-        $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+        $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
         $url = $frontendUrl . '/anggota/' . $anggota->id_anggota_grup;
         
         $fileName = 'profil/anggota_grup/qr-code/' . $anggota->id_anggota_grup . '.svg';

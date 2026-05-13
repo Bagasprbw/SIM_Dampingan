@@ -41,7 +41,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Bidang
     Route::get('/bidang', [BidangController::class, 'index']);
-    Route::get('/pekerjaan', [PekerjaanController::class, 'index']);
     Route::post('/bidang', [BidangController::class, 'store'])->middleware('permission:kelola_masyarakat');
     Route::delete('/bidang/{id}', [BidangController::class, 'destroy'])->middleware('permission:kelola_masyarakat');
 
