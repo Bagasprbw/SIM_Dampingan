@@ -181,21 +181,29 @@ class PengajuanAnggotaController extends Controller
      */
     public function indexPending(Request $request)
     {
-        // Jika yang login adalah fasilitator, sebaiknya filter grup dampingan
-        // yang difasilitasi oleh fasilitator tersebut.
         $user = auth()->user();
 
-        $query = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan'])
+        $query = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan.bidang'])
             ->where('status', 'pending');
 
-        // Misal hanya perlihatkan dari grup fasilitator:
+        // Filter berdasarkan kewenangan Role (Cascade Downward)
         if ($user->role->name === 'fasilitator') {
             $grupFasilitatorIds = \App\Models\GrupFasilitator::where('fasilitator_id', $user->id_user)
                 ->pluck('grup_dampingan_id');
             $query->whereIn('grup_id', $grupFasilitatorIds);
         }
 
-        $pengajuan = $query->paginate($request->per_page ?? 10);
+        // Filter Search (Nama)
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter Grup Dampingan
+        if ($request->filled('grup_id')) {
+            $query->where('grup_id', $request->grup_id);
+        }
+
+        $pengajuan = $query->latest('created_at')->paginate($request->per_page ?? 10);
 
         return response()->json([
             'status' => 'success',

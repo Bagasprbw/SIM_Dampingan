@@ -4,15 +4,23 @@ import { Search, ChevronDown, Check, X, Users, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { usePengajuanAnggotas } from '../../hooks/queries/usePengajuanAnggotaQuery';
 import { usePengajuanAnggotaMutations } from '../../hooks/mutations/usePengajuanAnggotaMutation';
+import { useGrupDampingans } from '../../hooks/queries/useGrupDampinganQuery';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
 
 const KonfirmasiAnggotaPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedGrup, setSelectedGrup] = useState('');
     const [page, setPage] = useState(1);
+    const { data: user } = useCurrentUser();
+    const { data: grupsData } = useGrupDampingans();
     const { data: ajuanData, isLoading, isError, refetch } = usePengajuanAnggotas({
         page: page,
-        search: searchTerm
+        search: searchTerm,
+        grup_id: selectedGrup
     });
     const { terimaPengajuanAnggota, tolakPengajuanAnggota } = usePengajuanAnggotaMutations();
+
+    const grups = grupsData?.data || [];
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
@@ -92,15 +100,27 @@ const KonfirmasiAnggotaPage = () => {
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                                 <input
                                     type="text"
-                                    placeholder="Cari kegiatan..."
+                                    placeholder="Cari Nama Masyarakat..."
                                     value={searchTerm}
                                     onChange={handleSearch}
                                     className="pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-xs font-medium w-52 focus:outline-none focus:border-[#0080C5] transition-all"
                                 />
                             </div>
-                            <div className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all">
-                                <span className="text-xs font-medium text-slate-600">Semua Bidang</span>
-                                <ChevronDown size={14} className="text-slate-400" />
+                            <div className="relative group">
+                                <select 
+                                    value={selectedGrup}
+                                    onChange={(e) => {
+                                        setSelectedGrup(e.target.value);
+                                        setPage(1);
+                                    }}
+                                    className="pl-4 pr-10 py-2 border border-slate-200 rounded-xl text-xs font-medium w-48 focus:outline-none focus:border-[#0080C5] transition-all bg-white appearance-none cursor-pointer"
+                                >
+                                    <option value="">Semua Grup</option>
+                                    {grups.map(g => (
+                                        <option key={g.id_grup_dampingan} value={g.id_grup_dampingan}>{g.name}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" />
                             </div>
                         </div>
                     </div>
@@ -135,28 +155,28 @@ const KonfirmasiAnggotaPage = () => {
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
                                     {dataAjuan.map((item, index) => (
-                                        <tr key={item.id || index} className="hover:bg-slate-50/60 transition-colors">
+                                        <tr key={item.id_anggota_grup || index} className="hover:bg-slate-50/60 transition-colors">
                                             <td className="py-4 px-4 text-[#0A0F1E] text-xs font-semibold">{item.no_anggota || '-'}</td>
-                                            <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold">{item.nama}</td>
+                                            <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold">{item.name}</td>
                                             <td className="py-4 px-4">
                                                 <div className="flex items-center gap-2">
                                                     <div className={`w-2 h-2 rounded-full ${item.jenis_kelamin === 'L' ? 'bg-[#0080C5]' : 'bg-[#D52BCA]'}`} />
                                                     <span className="text-[#0A0F1E] text-xs font-semibold">{item.jenis_kelamin === 'L' ? 'Laki-Laki' : 'Perempuan'}</span>
                                                 </div>
                                             </td>
-                                            <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold">{item.grup_dampingan?.bidang?.nama_bidang || '-'}</td>
-                                            <td className="py-4 px-4 text-[#9298B0] text-xs font-medium">{item.grup_dampingan?.nama_grup || '-'}</td>
-                                            <td className="py-4 px-4 text-[#9298B0] text-xs font-medium">{item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
+                                            <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold">{item.grup_dampingan?.bidang?.name || '-'}</td>
+                                            <td className="py-4 px-4 text-[#9298B0] text-xs font-medium">{item.grup_dampingan?.name || '-'}</td>
+                                            <td className="py-4 px-4 text-[#9298B0] text-xs font-medium">{item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : '-'}</td>
                                             <td className="py-4 px-4">
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button
-                                                        onClick={() => handleApprove(item.id, item.nama)}
+                                                        onClick={() => handleApprove(item.id_anggota_grup, item.name)}
                                                         className="w-7 h-7 bg-[#10B981]/10 text-[#10B981] rounded-lg flex items-center justify-center hover:bg-[#10B981] hover:text-white transition-all"
                                                     >
                                                         <Check size={13} strokeWidth={3} />
                                                     </button>
                                                     <button
-                                                        onClick={() => handleReject(item.id, item.nama)}
+                                                        onClick={() => handleReject(item.id_anggota_grup, item.name)}
                                                         className="w-7 h-7 bg-[#EF4444]/10 text-[#EF4444] rounded-lg flex items-center justify-center hover:bg-[#EF4444] hover:text-white transition-all"
                                                     >
                                                         <X size={13} strokeWidth={3} />
