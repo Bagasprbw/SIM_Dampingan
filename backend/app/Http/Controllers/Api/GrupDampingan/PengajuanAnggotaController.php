@@ -26,7 +26,6 @@ class PengajuanAnggotaController extends Controller
 
         $pengajuan = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan'])
             ->whereIn('grup_id', $grupIds) // Hanya di grup yang dia pegang
-            ->whereIn('status', ['pending', 'ditolak']) // Atau tampilkan semua status, tergantung kebutuhan, jika semua hapus ini
             ->paginate($request->per_page ?? 10);
 
         return response()->json([

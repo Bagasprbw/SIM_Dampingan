@@ -17,7 +17,8 @@ export const anggotaService = {
     },
 
     update: async (id, data) => {
-        const response = await api.put(`/anggota-grup/${id}`, data);
+        // Gunakan POST dengan _method=PUT agar Laravel bisa menghandle multipart/form-data (upload file) pada update
+        const response = await api.post(`/anggota-grup/${id}`, data);
         return response.data;
     },
 

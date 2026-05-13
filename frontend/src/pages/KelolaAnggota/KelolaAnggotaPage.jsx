@@ -9,9 +9,12 @@ import {
     ChevronRight,
     Plus,
     User,
-    Loader2
+    Loader2,
+    X
 } from 'lucide-react';
 import { useAnggotas } from '../../hooks/queries/useAnggotaQuery';
+import { usePengajuanAnggotaSaya } from '../../hooks/queries/usePengajuanAnggotaQuery';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
 import AddDampinganModal from '../../components/modals/AddDampinganModal';
 import EditDampinganModal from '../../components/modals/EditDampinganModal';
 import DeleteDampinganModal from '../../components/modals/DeleteDampinganModal';
@@ -22,13 +25,17 @@ const KelolaAnggotaPage = () => {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedData, setSelectedData] = useState(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState(null);
 
     const [page, setPage] = useState(1);
-    
-    const { data: anggotaData, isLoading, isError, refetch } = useAnggotas({
-        page: page,
-        search: searchTerm
-    });
+    const { user } = useCurrentUser();
+    const isPjGrup = user?.role === 'pj_grup';
+
+    // Hook yang digunakan tergantung role
+    const { data: anggotaData, isLoading, isError, refetch } = isPjGrup 
+        ? usePengajuanAnggotaSaya({ page, search: searchTerm })
+        : useAnggotas({ page, search: searchTerm });
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
@@ -125,9 +132,8 @@ const KelolaAnggotaPage = () => {
                                     <tr>
                                         <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">NO.ANGGOTA</th>
                                         <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">NAMA</th>
+                                        <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">FOTO</th>
                                         <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">JENIS KELAMIN</th>
-                                        <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">BIDANG</th>
-                                        <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">GRUP DAMPINGAN</th>
                                         <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">ALAMAT</th>
                                         <th className="py-3 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">STATUS</th>
                                         <th className="py-3 px-4 text-center text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">AKSI</th>
@@ -140,7 +146,28 @@ const KelolaAnggotaPage = () => {
                                             <tr key={item.id || index} className="hover:bg-slate-50 transition-colors">
                                                 <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold border-y border-l border-slate-100 rounded-l-xl whitespace-nowrap">{item.no_anggota || '-'}</td>
                                                 <td className="py-4 px-4 text-left border-y border-slate-100 whitespace-nowrap">
-                                                    <span className="text-[#0A0F1E] text-xs font-bold">{item.nama}</span>
+                                                    <span className="text-[#0A0F1E] text-xs font-bold">{item.name}</span>
+                                                </td>
+                                                <td className="py-4 px-4 text-left border-y border-slate-100 whitespace-nowrap">
+                                                    <div 
+                                                        onClick={() => {
+                                                            if (item.foto) {
+                                                                setPreviewImage(item.foto.startsWith('http') ? item.foto : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000'}/storage/${item.foto}`);
+                                                                setIsPreviewOpen(true);
+                                                            }
+                                                        }}
+                                                        className={`w-10 h-10 rounded-full border border-slate-100 bg-slate-50 flex items-center justify-center overflow-hidden ${item.foto ? 'cursor-pointer hover:ring-2 hover:ring-[#0080C5] transition-all' : ''}`}
+                                                    >
+                                                        {item.foto ? (
+                                                            <img 
+                                                                src={item.foto.startsWith('http') ? item.foto : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000'}/storage/${item.foto}`} 
+                                                                alt={item.name} 
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        ) : (
+                                                            <User size={16} className="text-slate-300" />
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="py-4 px-4 text-left border-y border-slate-100 whitespace-nowrap">
                                                     <div className="flex items-center gap-2">
@@ -148,8 +175,6 @@ const KelolaAnggotaPage = () => {
                                                         <span className="text-[#0A0F1E] text-xs font-semibold">{item.jenis_kelamin === 'L' ? 'Laki-Laki' : 'Perempuan'}</span>
                                                     </div>
                                                 </td>
-                                                <td className="py-4 px-4 text-left text-[#0A0F1E] text-xs font-bold border-y border-slate-100">{item.grup_dampingan?.bidang?.nama_bidang || '-'}</td>
-                                                <td className="py-4 px-4 text-left text-[#6B7280] text-xs font-medium border-y border-slate-100">{item.grup_dampingan?.nama_grup || '-'}</td>
                                                 <td className="py-4 px-4 text-left text-[#6B7280] text-xs font-medium border-y border-slate-100 truncate max-w-[150px]">{item.alamat || '-'}</td>
                                                 <td className="py-4 px-4 text-left border-y border-slate-100">
                                                     <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${statusColor}`}>
@@ -208,11 +233,30 @@ const KelolaAnggotaPage = () => {
                 </div>
 
                 {/* Modals */}
-                <AddDampinganModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} isPengajuan={true} />
-                <EditDampinganModal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} data={selectedData} />
-                <DeleteDampinganModal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} data={selectedData} />
+                <AddDampinganModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} isPengajuan={isPjGrup} />
+                <EditDampinganModal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} data={selectedData} isPengajuan={isPjGrup} />
+                <DeleteDampinganModal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} data={selectedData} isPengajuan={isPjGrup} />
 
             </div>
+            {/* Image Preview Modal */}
+            {isPreviewOpen && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsPreviewOpen(false)}></div>
+                    <div className="relative max-w-2xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in duration-200">
+                        <button 
+                            onClick={() => setIsPreviewOpen(false)}
+                            className="absolute top-4 right-4 w-10 h-10 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center transition-colors z-10"
+                        >
+                            <X size={20} />
+                        </button>
+                        <img 
+                            src={previewImage} 
+                            alt="Preview" 
+                            className="w-full h-auto max-h-[80vh] object-contain bg-slate-50"
+                        />
+                    </div>
+                </div>
+            )}
         </AdminLayout>
     );
 };
