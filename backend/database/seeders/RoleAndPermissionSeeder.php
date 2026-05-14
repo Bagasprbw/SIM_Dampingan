@@ -134,7 +134,7 @@ class RoleAndPermissionSeeder extends Seeder
             'edit_kegiatan',
             'delete_kegiatan',
             'verifikasi_anggota',
-            'kelola_pj_grup',
+            // 'kelola_pj_grup',
             'view_panduan',
             'view_peta_sebaran',
         ]);
