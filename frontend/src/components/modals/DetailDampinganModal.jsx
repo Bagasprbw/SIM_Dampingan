@@ -8,6 +8,14 @@ import {
 const DetailDampinganModal = ({ isOpen, onClose, data }) => {
     if (!isOpen) return null;
 
+    // Helper untuk URL gambar
+    const getImageUrl = (path) => {
+        if (!path) return null;
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+        const baseUrl = apiUrl.replace('/api', '');
+        return `${baseUrl}/storage/${path}`;
+    };
+
     // Helper untuk baris detail
     const DetailRow = ({ label, value, isLast = false, valueColor = "text-slate-950", isStatus = false }) => (
         <div className={`flex border-b border-gray-200 last:border-0 h-12 items-stretch ${isLast ? 'border-b-0' : ''}`}>
@@ -16,7 +24,7 @@ const DetailDampinganModal = ({ isOpen, onClose, data }) => {
             </div>
             <div className="flex-1 px-4 flex items-center overflow-hidden">
                 <span className={`text-xs font-normal truncate ${isStatus ? 'text-green-500 font-semibold' : valueColor}`}>
-                    {value || '-'}
+                    {value || ''}
                 </span>
             </div>
         </div>
@@ -33,21 +41,29 @@ const DetailDampinganModal = ({ isOpen, onClose, data }) => {
                 {/* Header Profile Section */}
                 <div className="h-28 px-6 pt-6 pb-5 border-b border-gray-200 flex items-center justify-between bg-white relative">
                     <div className="flex items-center gap-4">
-                        {/* Avatar */}
+                        {/* Avatar / Foto */}
                         <div className="w-10 h-10 bg-blue-100 rounded-full border-2 border-sky-600 flex items-center justify-center text-sky-600 overflow-hidden shrink-0">
-                            <User size={20} />
+                            {data?.foto ? (
+                                <img 
+                                    src={getImageUrl(data.foto)} 
+                                    alt={data.name} 
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <User size={20} />
+                            )}
                         </div>
                         
                         <div className="flex flex-col gap-1">
                             <h3 className="text-neutral-950 text-base font-bold leading-tight">
-                                {data?.nama || "Siti Rahayu"}
+                                {data?.name || ""}
                             </h3>
                             <div className="flex items-center gap-2">
                                 <span className="px-2.5 py-0.5 bg-[#0080C5]/10 rounded-full text-[#0080C5] text-[10px] font-bold">
                                     Anggota
                                 </span>
                                 <span className="text-slate-400 text-xs font-normal tracking-tight">
-                                    340406030002
+                                    {data?.no_anggota || ""}
                                 </span>
                             </div>
                         </div>
@@ -63,15 +79,16 @@ const DetailDampinganModal = ({ isOpen, onClose, data }) => {
                 {/* Info Table Container */}
                 <div className="px-6 py-4 overflow-y-auto max-h-[500px] custom-scrollbar">
                     <div className="rounded-xl border border-gray-200 overflow-hidden flex flex-col bg-white">
-                        <DetailRow label="Tempat, Tanggal Lahir" value="Bandung, 15-06-1995" />
-                        <DetailRow label="Jenis Kelamin" value={data?.gender || "Perempuan"} />
-                        <DetailRow label="Agama" value="Islam" />
-                        <DetailRow label="Pekerjaan Utama" value="Petani" />
-                        <DetailRow label="No. Telepon" value="082345678901" valueColor="text-sky-600" />
-                        <DetailRow label="Alamat" value="Jl. Cihampelas No. 88, Bandung" />
-                        <DetailRow label="Status" value="Aktif" isStatus={true} />
-                        <DetailRow label="Bidang Dampingan" value={data?.bidang || "Perekonomian"} />
-                        <DetailRow label="Grup Dampingan" value={data?.grup || "Grup Dampingan Sejahtera"} />
+                        <DetailRow 
+                            label="Tempat, Tanggal Lahir" 
+                            value={`${data?.tempat_lahir || ''}${data?.tempat_lahir && data?.tgl_lahir ? ', ' : ''}${data?.tgl_lahir ? new Date(data?.tgl_lahir).toLocaleDateString('id-ID') : ''}`} 
+                        />
+                        <DetailRow label="Jenis Kelamin" value={data?.jenis_kelamin === 'L' ? 'Laki-Laki' : 'Perempuan'} />
+                        <DetailRow label="Agama" value={data?.agama} />
+                        <DetailRow label="Pekerjaan Utama" value={data?.pekerjaan?.name || ''} />
+                        <DetailRow label="No. Telepon" value={data?.no_telp} valueColor="text-sky-600" />
+                        <DetailRow label="Alamat" value={data?.alamat} />
+                        <DetailRow label="Status" value={data?.status} isStatus={true} />
                         <DetailRow label="Peran" value="Anggota" isLast={true} />
                     </div>
                 </div>
