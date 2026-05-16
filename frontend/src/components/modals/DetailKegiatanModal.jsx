@@ -47,15 +47,15 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
                     <div className="flex flex-wrap gap-3">
                         <div className="px-4 py-2 bg-white/20 backdrop-blur-md rounded-xl flex items-center gap-2 text-white text-xs font-bold">
                             <Calendar size={14} />
-                            <span>15 November 2024</span>
+                            <span>{data?.tanggal ? new Date(data.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}</span>
                         </div>
                         <div className="px-4 py-2 bg-white/20 backdrop-blur-md rounded-xl flex items-center gap-2 text-white text-xs font-bold">
                             <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                            <span>Pertanian Terpadu</span>
+                            <span>{data?.bidang?.name || 'Umum'}</span>
                         </div>
                         <div className="px-4 py-2 bg-[#22C55E]/30 backdrop-blur-md rounded-xl flex items-center gap-2 text-[#86EFAC] text-xs font-bold border border-[#86EFAC]/20">
                             <CheckCircle2 size={14} />
-                            <span>Terlaksana</span>
+                            <span>{data?.status || 'Selesai'}</span>
                         </div>
                     </div>
                 </div>
@@ -65,33 +65,31 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
                     {/* Title and Meta */}
                     <div className="mb-10">
                         <h1 className="text-lg font-bold text-[#0A0F1E] mb-4 leading-tight">
-                            {data?.judul || "Pelatihan Wirausaha Mandiri Bagi Komunitas Difabel Sleman"}
+                            {data?.judul || "-"}
                         </h1>
                         <div className="flex flex-wrap gap-6 text-[#9298B0]">
                             <div className="flex items-center gap-2 text-sm font-medium">
                                 <MapPin size={18} className="text-[#0080C5]" />
-                                <span>Balai Desa Mlati, Sleman, Yogyakarta</span>
+                                <span>{data?.lokasi || "-"}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm font-medium border-l border-gray-200 pl-6">
                                 <Clock size={18} className="text-[#0080C5]" />
-                                <span>08.00 – 12.00 WIB</span>
+                                <span>{data?.waktu || "-"} WIB</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Roles Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
                         <div className="bg-[#F8FAFC] p-5 rounded-2xl border border-slate-100 flex flex-col gap-2">
                             <span className="text-[#9298B0] text-[10px] font-bold uppercase tracking-widest">GRUP DAMPINGAN</span>
-                            <span className="text-[#0A0F1E] text-sm font-bold">Grup Dampingan Sejahtera</span>
+                            <span className="text-[#0A0F1E] text-sm font-bold">
+                                {data?.kegiatan_grups?.map(g => g.grup_dampingan?.name).join(', ') || '-'}
+                            </span>
                         </div>
                         <div className="bg-[#F8FAFC] p-5 rounded-2xl border border-slate-100 flex flex-col gap-2">
                             <span className="text-[#9298B0] text-[10px] font-bold uppercase tracking-widest">FASILITATOR</span>
-                            <span className="text-[#0A0F1E] text-sm font-bold">Ahmad Rifa'i, S.Pd</span>
-                        </div>
-                        <div className="bg-[#F8FAFC] p-5 rounded-2xl border border-slate-100 flex flex-col gap-2">
-                            <span className="text-[#9298B0] text-[10px] font-bold uppercase tracking-widest">PJ DAMPINGAN</span>
-                            <span className="text-[#0A0F1E] text-sm font-bold">Budi Santoso</span>
+                            <span className="text-[#0A0F1E] text-sm font-bold">{data?.fasilitator?.name || '-'}</span>
                         </div>
                     </div>
 
@@ -99,7 +97,7 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
                     <div className="mb-10 py-4 border-y border-gray-100">
                         <h4 className="text-sm font-bold text-[#0A0F1E] mb-4">Deskripsi Kegiatan</h4>
                         <p className="text-[#374151] text-sm leading-relaxed font-medium">
-                            Kegiatan pelatihan wirausaha mandiri ini bertujuan untuk meningkatkan kemampuan dan kemandirian ekonomi anggota komunitas difabel di wilayah Sleman. Peserta mendapatkan materi tentang pengembangan usaha kecil, manajemen keuangan sederhana, serta strategi pemasaran produk secara digital maupun konvensional.
+                            {data?.deskripsi || 'Tidak ada deskripsi.'}
                         </p>
                     </div>
 
@@ -107,23 +105,22 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
                     <div>
                         <div className="flex justify-between items-center mb-5">
                             <h4 className="text-sm font-bold text-[#0A0F1E]">Dokumentasi Kegiatan</h4>
-                            <span className="text-[#0080C5] text-[11px] font-bold">2 foto</span>
+                            <span className="text-[#0080C5] text-[11px] font-bold">{data?.foto_kegiatans?.length || 0} foto</span>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="h-56 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                                <img 
-                                    src="https://placehold.co/600x400/F0F2F8/9298B0?text=Dokumentasi+1" 
-                                    className="w-full h-full object-cover" 
-                                    alt="Dokumentasi 1"
-                                />
-                            </div>
-                            <div className="h-56 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                                <img 
-                                    src="https://placehold.co/600x400/F0F2F8/9298B0?text=Dokumentasi+2" 
-                                    className="w-full h-full object-cover" 
-                                    alt="Dokumentasi 2"
-                                />
-                            </div>
+                            {data?.foto_kegiatans?.length > 0 ? (
+                                data.foto_kegiatans.map((foto, idx) => (
+                                    <div key={idx} className="h-56 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                                        <img 
+                                            src={foto.file ? `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${foto.file}` : 'https://placehold.co/600x400/F0F2F8/9298B0?text=Dokumentasi'} 
+                                            className="w-full h-full object-cover" 
+                                            alt={`Dokumentasi ${idx + 1}`}
+                                        />
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-xs text-slate-400 italic col-span-2">Tidak ada foto dokumentasi.</p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -131,13 +128,20 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
                 {/* Footer Section */}
                 <div className="px-6 py-4 bg-[#F8FAFC] flex flex-col md:flex-row justify-between items-center gap-4 border-t border-gray-100">
                     <span className="text-[#9298B0] text-[11px] font-medium italic">
-                        Dibuat pada: 15 November 2024 · 13:24 WIB
+                        ID: {data?.id_kegiatan || '-'}
                     </span>
                     <div className="flex items-center gap-3 w-full md:w-auto">
-                        <button className="flex-1 md:flex-none h-11 px-6 bg-white border border-gray-200 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
-                            <Download size={16} />
-                            Unduh PDF
-                        </button>
+                        {data?.laporan && (
+                            <a 
+                                href={`${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${data.laporan}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 md:flex-none h-11 px-6 bg-white border border-gray-200 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                            >
+                                <Download size={16} />
+                                Unduh Laporan
+                            </a>
+                        )}
                         <button 
                             onClick={onClose}
                             className="flex-1 md:flex-none h-11 px-6 bg-[#0080C5] text-white text-xs font-bold rounded-xl shadow-lg shadow-sky-600/20 hover:bg-sky-700 transition-all"

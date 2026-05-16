@@ -407,9 +407,12 @@ const KelolaHakAksesPage = () => {
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {[
-                                    // view_dashboard & view_peta_sebaran dihapus — permission tidak terdaftar di BE
+                                    { id: 'view_kegiatan', label: 'Lihat Kegiatan', sub: 'Akses untuk melihat daftar laporan kegiatan dampingan.', code: 'view_kegiatan' },
                                     { id: 'admin', label: 'Data Admin', sub: 'Manajemen data user dengan level akses administratif.', code: 'kelola_admin_bawahan' },
                                     { id: 'masy', label: 'Data Masyarakat', sub: 'Akses ke data profil dan histori masyarakat dampingan.', code: 'kelola_masyarakat' },
+                                    { id: 'peta', label: 'Peta Sebaran', sub: 'Akses visualisasi sebaran dampingan di peta interaktif.', code: 'view_peta_sebaran' },
+                                    { id: 'panduan', label: 'Panduan Penggunaan', sub: 'Akses ke modul instruksi dan cara penggunaan sistem.', code: 'view_panduan' },
+                                    { id: 'manage_panduan', label: 'Kelola Panduan', sub: 'Hak akses untuk mengedit atau menambah konten panduan.', code: 'kelola_panduan' },
 
                                 ].map((item) => (
                                     <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">

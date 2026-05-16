@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\RolePermission\RolePermissionController;
 use App\Http\Controllers\Api\Profil\ProfilController;
 use App\Http\Controllers\Api\Profil\AnggotaGrupController as ProfilAnggotaController;
 use App\Http\Controllers\Api\Sertifikat\SertifikatController;
+use App\Http\Controllers\Api\Wilayah\WilayahController;
 use Illuminate\Support\Facades\Route;
 
 // publik
@@ -183,5 +184,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('log-aktivitas')->group(function () {
         Route::get('/', [LogAktivitasController::class, 'index']);
         Route::get('/{id}', [LogAktivitasController::class, 'show']);
+    });
+
+    // ----------- wilayah -----------------
+    Route::prefix('wilayah')->group(function () {
+        Route::get('/provinsi', [WilayahController::class, 'getProvinsi']);
+        Route::get('/kabupaten/{kodeProv}', [WilayahController::class, 'getKabupaten']);
+        Route::get('/kecamatan/{kodeKab}', [WilayahController::class, 'getKecamatan']);
     });
 });

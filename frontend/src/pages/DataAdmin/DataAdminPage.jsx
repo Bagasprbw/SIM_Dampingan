@@ -37,9 +37,9 @@ const DataAdminPage = () => {
     const { data: kabupatenList = [], isLoading: loadingKab } = useKabupaten(provinsiFilter);
     const { data: kecamatanList = [], isLoading: loadingKec } = useKecamatan(kabupatenFilter);
 
-    const provinsiOptions = provinsiList.map(p => ({ value: p.id, label: p.name }));
-    const kabupatenOptions = kabupatenList.map(k => ({ value: k.id, label: k.name }));
-    const kecamatanOptions = kecamatanList.map(k => ({ value: k.id, label: k.name }));
+    const provinsiOptions = provinsiList.map(p => ({ value: p.kode, label: p.name }));
+    const kabupatenOptions = kabupatenList.map(k => ({ value: k.kode, label: k.name }));
+    const kecamatanOptions = kecamatanList.map(k => ({ value: k.kode, label: k.name }));
 
 
     const { data: adminData, isLoading, isError, refetch } = useAdmins({
@@ -149,7 +149,6 @@ const DataAdminPage = () => {
                                         <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tl-xl text-center">NO</th>
                                         <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Nama</th>
                                         <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Username</th>
-                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Alamat</th>
                                         <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">No.Telp</th>
                                         <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Provinsi</th>
                                         <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kabupaten</th>
@@ -163,10 +162,9 @@ const DataAdminPage = () => {
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">
                                                 {meta.from ? meta.from + index : index + 1}
                                             </td>
-                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.nama}</td>
+                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.name}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.username}</td>
-                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.alamat || '-'}</td>
-                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.no_hp || '-'}</td>
+                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.no_telp || '-'}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.provinsi?.name || '-'}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kabupaten?.name || '-'}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kecamatan?.name || '-'}</td>

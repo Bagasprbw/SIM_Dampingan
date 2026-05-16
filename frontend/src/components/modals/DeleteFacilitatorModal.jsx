@@ -11,7 +11,8 @@ const DeleteFacilitatorModal = ({ isOpen, onClose, data }) => {
 
     const handleDelete = () => {
         setIsLoading(true);
-        deleteFasilitator.mutate(data.id, {
+        const fasilitatorId = data.id_user || data.id;
+        deleteFasilitator.mutate(fasilitatorId, {
             onSuccess: () => {
                 setIsLoading(false);
                 Swal.fire({
@@ -74,7 +75,7 @@ const DeleteFacilitatorModal = ({ isOpen, onClose, data }) => {
                             <div className="flex items-start text-xs">
                                 <span className="w-20 text-gray-500 font-semibold">Nama</span>
                                 <span className="mx-2 text-gray-500">:</span>
-                                <span className="flex-1 text-slate-950 font-bold">{data?.nama || "Ahmad Fauzi"}</span>
+                                <span className="flex-1 text-slate-950 font-bold">{data?.name || "-"}</span>
                             </div>
                             <div className="flex items-start text-xs">
                                 <span className="w-20 text-gray-500 font-semibold">Username</span>

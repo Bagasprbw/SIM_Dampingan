@@ -4,17 +4,29 @@ import { ChevronDown, Check, Loader2 } from 'lucide-react';
 /**
  * FilterDropdown - Komponen dropdown filter reusable
  * @param {string} placeholder - Label saat tidak ada pilihan
- * @param {Array} options - Array of { value, label }
+ * @param {Array} options - Array of objects
  * @param {string|null} value - Nilai yang dipilih
  * @param {Function} onChange - Callback saat pilihan berubah (value)
  * @param {boolean} isLoading - Tampilkan spinner saat loading
  * @param {boolean} disabled - Nonaktifkan dropdown
+ * @param {string} valueKey - Key untuk nilai (default: 'value')
+ * @param {string} labelKey - Key untuk label (default: 'label')
  */
-const FilterDropdown = ({ placeholder = 'Pilih...', options = [], value, onChange, isLoading = false, disabled = false }) => {
+const FilterDropdown = ({ 
+    placeholder = 'Pilih...', 
+    options = [], 
+    value, 
+    onChange, 
+    isLoading = false, 
+    disabled = false,
+    valueKey = 'value',
+    labelKey = 'label'
+}) => {
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
 
-    const selected = options.find(o => o.value === value);
+    const optionsArray = Array.isArray(options) ? options : [];
+    const selected = optionsArray.find(o => o[valueKey] === value);
 
     // Tutup dropdown saat klik di luar
     useEffect(() => {
@@ -24,7 +36,7 @@ const FilterDropdown = ({ placeholder = 'Pilih...', options = [], value, onChang
     }, []);
 
     const handleSelect = (opt) => {
-        onChange(opt.value === value ? null : opt.value); // toggle: klik yang sama = reset
+        onChange(opt[valueKey] === value ? null : opt[valueKey]); // toggle: klik yang sama = reset
         setOpen(false);
     };
 
@@ -44,7 +56,7 @@ const FilterDropdown = ({ placeholder = 'Pilih...', options = [], value, onChang
                 } hover:border-slate-300 transition-colors w-full text-left disabled:opacity-60 disabled:cursor-not-allowed min-w-[160px]`}
             >
                 <span className={`text-[11px] font-semibold truncate ${selected ? 'text-[#0A0F1E]' : 'text-[#9298B0]'}`}>
-                    {isLoading ? 'Memuat...' : (selected?.label || placeholder)}
+                    {isLoading ? 'Memuat...' : (selected?.[labelKey] || placeholder)}
                 </span>
                 <div className="flex items-center gap-1 shrink-0">
                     {selected && !isLoading && (
@@ -62,20 +74,20 @@ const FilterDropdown = ({ placeholder = 'Pilih...', options = [], value, onChang
 
             {open && (
                 <div className="absolute top-full left-0 mt-1 bg-white rounded-xl border border-[#E5E7EB] shadow-lg z-50 min-w-full max-h-56 overflow-y-auto">
-                    {options.length === 0 ? (
+                    {optionsArray.length === 0 ? (
                         <div className="px-4 py-3 text-[11px] text-slate-400 text-center">Tidak ada data</div>
                     ) : (
-                        options.map((opt) => (
+                        optionsArray.map((opt) => (
                             <button
-                                key={opt.value}
+                                key={opt[valueKey]}
                                 type="button"
                                 onClick={() => handleSelect(opt)}
                                 className="flex items-center justify-between w-full px-4 py-2.5 text-left text-[11px] font-medium hover:bg-sky-50 transition-colors"
                             >
-                                <span className={value === opt.value ? 'text-[#0080C5] font-semibold' : 'text-[#0A0F1E]'}>
-                                    {opt.label}
+                                <span className={value === opt[valueKey] ? 'text-[#0080C5] font-semibold' : 'text-[#0A0F1E]'}>
+                                    {opt[labelKey]}
                                 </span>
-                                {value === opt.value && <Check size={12} className="text-[#0080C5]" />}
+                                {value === opt[valueKey] && <Check size={12} className="text-[#0080C5]" />}
                             </button>
                         ))
                     )}

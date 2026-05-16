@@ -11,7 +11,8 @@ const DeletePjModal = ({ isOpen, onClose, data }) => {
 
     const handleDelete = () => {
         setIsLoading(true);
-        deletePjGrup.mutate(data.id, {
+        const pjId = data.id_user || data.id;
+        deletePjGrup.mutate(pjId, {
             onSuccess: () => {
                 setIsLoading(false);
                 Swal.fire({
@@ -71,7 +72,7 @@ const DeletePjModal = ({ isOpen, onClose, data }) => {
                             <div className="flex items-start gap-2">
                                 <span className="w-24 text-gray-500 text-xs font-semibold leading-5">Nama</span>
                                 <span className="text-gray-500 text-xs font-normal leading-5">:</span>
-                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">{data?.nama || "Anindhia Salsabila"}</span>
+                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">{data?.name || "-"}</span>
                             </div>
                             <div className="flex items-start gap-2">
                                 <span className="w-24 text-gray-500 text-xs font-semibold leading-5">Username</span>

@@ -24,5 +24,10 @@ export const pjGrupService = {
     delete: async (id) => {
         const response = await api.delete(`/users/pj-grup/${id}`);
         return response.data;
+    },
+
+    resetPassword: async (id) => {
+        const response = await api.post(`/users/reset-password/${id}`);
+        return response.data;
     }
 };

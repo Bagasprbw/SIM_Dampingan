@@ -101,6 +101,31 @@ class GrupDampinganController extends Controller
     }
 
     /**
+     * Tambahkan filter dari request (search, wilayah) ke query builder
+     */
+    private function applyRequestFilters($query, Request $request)
+    {
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        if ($request->filled('kode_prov')) {
+            $query->where('kode_prov', $request->kode_prov);
+        }
+
+        if ($request->filled('kode_kab')) {
+            $query->where('kode_kab', $request->kode_kab);
+        }
+
+        if ($request->filled('kode_kec')) {
+            $query->where('kode_kec', $request->kode_kec);
+        }
+
+        return $query;
+    }
+
+    /**
      * Tambahkan filter cascade downward ke query builder berdasarkan current user
      */
     private function applyCascadeFilter($query, User $currentUser)
@@ -160,8 +185,11 @@ class GrupDampinganController extends Controller
             'grupFasilitators.fasilitator'
         ]);
 
-        // Apply cascade downward filter
+        // Apply cascade downward filter (authority)
         $query = $this->applyCascadeFilter($query, $currentUser);
+
+        // Apply request filters (search, wilayah filters)
+        $query = $this->applyRequestFilters($query, $request);
 
         // Optional filter berdasarkan bidang
         if ($request->filled('bidang_id')) {
@@ -173,11 +201,19 @@ class GrupDampinganController extends Controller
             $query->where('level_dampingan', $request->level_dampingan);
         }
 
-        $grupos = $query->orderBy('created_at', 'desc')->get();
+        $grupos = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 10));
 
         return response()->json([
             'message' => 'Data grup dampingan berhasil diambil',
-            'data' => $grupos
+            'data' => $grupos->items(),
+            'meta' => [
+                'current_page' => $grupos->currentPage(),
+                'last_page' => $grupos->lastPage(),
+                'per_page' => $grupos->perPage(),
+                'total' => $grupos->total(),
+                'from' => $grupos->firstItem(),
+                'to' => $grupos->lastItem()
+            ]
         ]);
     }
 

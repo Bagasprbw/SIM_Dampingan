@@ -17,7 +17,7 @@ const DeleteGrupModal = ({ isOpen, onClose, data }) => {
 
     const handleDelete = () => {
         setIsLoading(true);
-        deleteGrupDampingan.mutate(data.id, {
+        deleteGrupDampingan.mutate(data.id_grup_dampingan || data.id, {
             onSuccess: () => {
                 setIsLoading(false);
                 Swal.fire({
@@ -81,22 +81,23 @@ const DeleteGrupModal = ({ isOpen, onClose, data }) => {
                             <div className="flex items-start gap-2">
                                 <span className="w-24 text-slate-500 text-xs font-semibold leading-5">Nama</span>
                                 <span className="text-slate-500 text-xs">:</span>
-                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">{data?.grup || 'Grup Dampingan Sejahtera'}</span>
+                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">{data?.name || '-'}</span>
                             </div>
                             <div className="flex items-start gap-2">
                                 <span className="w-24 text-slate-500 text-xs font-semibold leading-5">Fasilitator</span>
                                 <span className="text-slate-500 text-xs">:</span>
                                 <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">
-                                    {data?.fasilitator ? data.fasilitator.join(', ') : 'Fasilitator 5, Azizah'}
+                                    {data?.grup_fasilitators?.map(gf => gf.fasilitator?.name).join(', ') || '-'}
                                 </span>
                             </div>
                             <div className="flex items-start gap-2">
                                 <span className="w-24 text-slate-500 text-xs font-semibold leading-5">PJ Dampingan</span>
                                 <span className="text-slate-500 text-xs">:</span>
-                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">Budi Santoso</span>
+                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">{data?.pj_grup?.name || '-'}</span>
                             </div>
                         </div>
                     </div>
+
 
                     {/* Warning Note */}
                     <div className="flex gap-3 text-left">
