@@ -276,37 +276,10 @@ class UserController extends Controller
             $query->whereRaw('1 = 0');
         }
 
-<<<<<<< HEAD
         // Apply request filters (search, wilayah filters)
         $query = $this->applyRequestFilters($query, $request);
 
         $users = $query->orderBy('name', 'asc')->paginate($request->get('per_page', 10));
-=======
-        // Search Filter
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%")
-                  ->orWhere('no_telp', 'like', "%{$search}%");
-            });
-        }
-
-        // Wilayah Filter
-        if ($request->filled('kode_prov')) {
-            $query->where('kode_prov', $request->kode_prov);
-        }
-        if ($request->filled('kode_kab')) {
-            $query->where('kode_kab', $request->kode_kab);
-        }
-        if ($request->filled('kode_kec')) {
-            $query->where('kode_kec', $request->kode_kec);
-        }
-
-        // Pagination
-        $perPage = $request->input('per_page', 10);
-        $users = $query->orderBy('name', 'asc')->paginate($perPage);
->>>>>>> 465e2f8ed24ec3982f0751f25c89ae96c4d98818
 
         return response()->json([
             'message' => 'Data admin bawahan berhasil diambil',
