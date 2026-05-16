@@ -14,14 +14,18 @@ const FacilitatorDetailModal = ({ isOpen, onClose, data }) => {
                 {/* Profile Header */}
                 <div className="p-5 pb-4 border-b border-slate-50 flex items-start gap-4 text-left">
                     <div className="relative">
-                        <div className="w-10 h-10 bg-gradient-to-br from-[#0080C5] to-[#006da8] rounded-full flex items-center justify-center text-white text-base font-bold border-4 border-white shadow-md">
-                            {initials}
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#0080C5] to-[#006da8] rounded-full flex items-center justify-center text-white text-base font-bold border-4 border-white shadow-md overflow-hidden">
+                            {data?.foto ? (
+                                <img src={`${import.meta.env.VITE_API_URL}/storage/${data.foto}`} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                                initials
+                            )}
                         </div>
                         <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
                     </div>
                     <div className="flex-1 mt-1">
-                        <h3 className="text-slate-950 text-base font-bold leading-tight">{data?.nama || "Anindhia Salsabila"}</h3>
-                        <p className="text-slate-400 text-xs mt-1">@{data?.username || "anindhia.salsa"}</p>
+                        <h3 className="text-slate-950 text-base font-bold leading-tight">{data?.name || "-"}</h3>
+                        <p className="text-slate-400 text-xs mt-1">@{data?.username || "-"}</p>
                         <div className="mt-2 inline-flex px-2.5 py-0.5 bg-sky-600/10 rounded-full">
                             <span className="text-sky-600 text-[10px] font-bold">Fasilitator</span>
                         </div>
@@ -36,7 +40,7 @@ const FacilitatorDetailModal = ({ isOpen, onClose, data }) => {
                         </div>
                         <div className="flex-1 flex justify-between items-center text-left">
                             <span className="text-slate-950 text-sm font-bold">Nomor Telepon</span>
-                            <span className="text-[#00A3A3] text-sm font-medium">085239881565</span>
+                            <span className="text-[#00A3A3] text-sm font-medium">{data?.no_telp || "-"}</span>
                         </div>
                     </div>
 
@@ -44,9 +48,11 @@ const FacilitatorDetailModal = ({ isOpen, onClose, data }) => {
                         <div className="w-9 h-9 bg-sky-600/5 rounded-[10px] flex items-center justify-center text-sky-600">
                             <MapPin size={16} />
                         </div>
-                        <div className="flex-1 flex justify-between items-center text-left text-left">
-                            <span className="text-slate-950 text-sm font-bold">Alamat</span>
-                            <span className="text-slate-500 text-sm font-normal">Jebres, Surakarta</span>
+                        <div className="flex-1 flex justify-between items-center text-left">
+                            <span className="text-slate-950 text-sm font-bold">Wilayah</span>
+                            <span className="text-slate-500 text-sm font-normal">
+                                {data?.kecamatan?.name}, {data?.kabupaten?.name}
+                            </span>
                         </div>
                     </div>
 
@@ -56,9 +62,14 @@ const FacilitatorDetailModal = ({ isOpen, onClose, data }) => {
                         </div>
                         <div className="flex-1 flex justify-between items-center">
                             <span className="text-slate-950 text-sm font-bold">Bidang Dampingan</span>
-                            <div className="flex gap-2 text-left">
-                                <span className="px-3 py-1 bg-sky-600/10 rounded-full text-sky-600 text-[10px] font-bold">Perekonomian</span>
-                                <span className="px-3 py-1 bg-sky-600/10 rounded-full text-sky-600 text-[10px] font-bold">Buruh</span>
+                            <div className="flex flex-wrap gap-2 text-left justify-end">
+                                {data?.fasilitator_bidangs?.length > 0 ? (
+                                    data.fasilitator_bidangs.map((fb, idx) => (
+                                        <span key={idx} className="px-3 py-1 bg-sky-600/10 rounded-full text-sky-600 text-[10px] font-bold">
+                                            {fb.bidang?.name}
+                                        </span>
+                                    ))
+                                ) : "-"}
                             </div>
                         </div>
                     </div>
@@ -69,9 +80,14 @@ const FacilitatorDetailModal = ({ isOpen, onClose, data }) => {
                         </div>
                         <div className="flex-1 flex justify-between items-center">
                             <span className="text-slate-950 text-sm font-bold text-left">Grup Dampingan</span>
-                            <div className="flex gap-2 text-left">
-                                <span className="px-3 py-1 bg-[#00967D]/10 rounded-full text-[#00967D] text-[10px] font-bold text-left">Srawung Batik Laweyan</span>
-                                <span className="px-3 py-1 bg-[#00967D]/10 rounded-full text-[#00967D] text-[10px] font-bold text-left">KOKAP</span>
+                            <div className="flex flex-wrap gap-2 text-left justify-end">
+                                {data?.grup_fasilitators?.length > 0 ? (
+                                    data.grup_fasilitators.map((gf, idx) => (
+                                        <span key={idx} className="px-3 py-1 bg-[#00967D]/10 rounded-full text-[#00967D] text-[10px] font-bold">
+                                            {gf.grup_dampingan?.name}
+                                        </span>
+                                    ))
+                                ) : "-"}
                             </div>
                         </div>
                     </div>
@@ -79,7 +95,7 @@ const FacilitatorDetailModal = ({ isOpen, onClose, data }) => {
 
                 {/* Footer */}
                 <div className="px-6 py-4 border-t border-slate-100 flex justify-end bg-white">
-                    <button onClick={onClose} className="px-6 py-2 bg-red-500 text-white rounded-[10px] text-sm font-semibold hover:bg-red-600 transition-all">
+                    <button onClick={onClose} className="px-6 py-2 bg-slate-100 text-slate-500 rounded-[10px] text-sm font-semibold hover:bg-slate-200 transition-all">
                         Tutup
                     </button>
                 </div>

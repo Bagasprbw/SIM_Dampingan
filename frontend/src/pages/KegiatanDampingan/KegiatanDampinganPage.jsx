@@ -13,6 +13,8 @@ import {
     Loader2
 } from 'lucide-react';
 import { useKegiatansAdmin } from '../../hooks/queries/useKegiatanQuery';
+import { useBidangs } from '../../hooks/queries/useBidangQuery';
+import FilterDropdown from '../../components/common/FilterDropdown';
 
 const KegiatanDampinganPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -25,10 +27,15 @@ const KegiatanDampinganPage = () => {
     };
 
     const [page, setPage] = useState(1);
+    const [bidangFilter, setBidangFilter] = useState(null);
+
+    const { data: bidangData } = useBidangs();
+    const bidangList = Array.isArray(bidangData?.data) ? bidangData.data : [];
 
     const { data: kegiatanData, isLoading, isError, refetch } = useKegiatansAdmin({
         page: page,
-        search: searchTerm
+        search: searchTerm,
+        bidang_id: bidangFilter
     });
 
     const handleSearch = (e) => {
@@ -91,12 +98,14 @@ const KegiatanDampinganPage = () => {
                         {/* Bidang */}
                         <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
                             <label className="text-[#9298B0] text-[11px] font-semibold ml-1">Bidang :</label>
-                            <div className="relative">
-                                <select className="w-full h-10 pl-4 pr-10 rounded-[10px] border border-gray-200 text-[11px] font-semibold text-[#9298B0] appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer">
-                                    <option>Semua Bidang</option>
-                                </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9298B0] pointer-events-none" size={18} />
-                            </div>
+                            <FilterDropdown
+                                placeholder="Semua Bidang"
+                                options={bidangList}
+                                value={bidangFilter}
+                                valueKey="id_bidang"
+                                labelKey="name"
+                                onChange={(v) => { setBidangFilter(v); setPage(1); }}
+                            />
                         </div>
 
                         {/* Urutan */}
@@ -146,21 +155,21 @@ const KegiatanDampinganPage = () => {
                                     
                                     {/* Content */}
                                     <div className="p-5 flex flex-col items-start gap-3">
-                                        {/* Bidang Badge */}
-                                        <div className="px-3 py-1 bg-[#0080C5]/10 rounded-full">
-                                            <span className="text-[#0080C5] text-[10px] font-bold tracking-tight">{item.grup_dampingan?.bidang?.nama_bidang || 'Bidang'}</span>
-                                        </div>
-
-                                        {/* Date */}
-                                        <div className="flex items-center gap-1.5 text-[#9298B0]">
-                                            <Calendar size={14} />
-                                            <span className="text-[11px] font-semibold">{item.tanggal_kegiatan}</span>
-                                        </div>
-
-                                        {/* Title */}
-                                        <h3 className="text-[#0A0F1E] text-sm font-bold leading-relaxed line-clamp-2 min-h-[40px] group-hover:text-[#0080C5] transition-colors">
-                                            {item.judul_kegiatan}
-                                        </h3>
+                                         {/* Bidang Badge */}
+                                         <div className="px-3 py-1 bg-[#0080C5]/10 rounded-full">
+                                             <span className="text-[#0080C5] text-[10px] font-bold tracking-tight">{item.bidang?.name || 'Bidang'}</span>
+                                         </div>
+ 
+                                         {/* Date */}
+                                         <div className="flex items-center gap-1.5 text-[#9298B0]">
+                                             <Calendar size={14} />
+                                             <span className="text-[11px] font-semibold">{item.tanggal ? new Date(item.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}</span>
+                                         </div>
+ 
+                                         {/* Title */}
+                                         <h3 className="text-[#0A0F1E] text-sm font-bold leading-relaxed line-clamp-2 min-h-[40px] group-hover:text-[#0080C5] transition-colors">
+                                             {item.judul}
+                                         </h3>
 
                                         {/* Button */}
                                         <div className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">

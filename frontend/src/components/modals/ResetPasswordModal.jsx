@@ -66,7 +66,9 @@ const ResetPasswordModal = ({ isOpen, onClose, data }) => {
                             <div className="flex items-start text-xs">
                                 <span className="w-20 text-gray-500 font-semibold">Role</span>
                                 <span className="mx-2 text-gray-500">:</span>
-                                <span className="flex-1 text-[#0A0F1E] font-bold">{data?.role?.name?.replace('_', ' ').toUpperCase() || "-"}</span>
+                                <span className="flex-1 text-[#0A0F1E] font-bold">
+                                    {data?.role?.name?.replace(/_/g, ' ').toUpperCase() || "-"}
+                                </span>
                             </div>
                         </div>
                     </div>

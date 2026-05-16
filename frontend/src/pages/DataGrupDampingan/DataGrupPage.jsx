@@ -94,6 +94,8 @@ const DataGrupPage = () => {
                             options={provinsiOptions}
                             value={provinsiFilter}
                             isLoading={loadingProv}
+                            valueKey="kode"
+                            labelKey="name"
                             onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
                         />
                         <FilterDropdown
@@ -102,6 +104,8 @@ const DataGrupPage = () => {
                             value={kabupatenFilter}
                             isLoading={loadingKab}
                             disabled={!provinsiFilter}
+                            valueKey="kode"
+                            labelKey="name"
                             onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
                         />
                         <FilterDropdown
@@ -110,6 +114,8 @@ const DataGrupPage = () => {
                             value={kecamatanFilter}
                             isLoading={loadingKec}
                             disabled={!kabupatenFilter}
+                            valueKey="kode"
+                            labelKey="name"
                             onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
                         />
                     </div>
@@ -151,15 +157,15 @@ const DataGrupPage = () => {
                                         <td className="py-2.5 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">
                                             {meta.from ? meta.from + index : index + 1}
                                         </td>
-                                        <td className="py-2.5 px-4 text-[#0080C5] text-[11px] font-semibold">{item.nama_grup}</td>
-                                        <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-xs font-normal">{item.bidang?.nama_bidang || '-'}</td>
-                                        <td className="py-2.5 px-4 text-center text-[#0080C5] text-[11px] font-semibold">{item.jenis_grup}</td>
+                                        <td className="py-2.5 px-4 text-[#0080C5] text-[11px] font-semibold">{item.name}</td>
+                                        <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-xs font-normal">{item.bidang?.name || '-'}</td>
+                                        <td className="py-2.5 px-4 text-center text-[#0080C5] text-[11px] font-semibold">{item.level_dampingan}</td>
                                         <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.provinsi?.name || '-'}</td>
                                         <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kabupaten?.name || '-'}</td>
                                         <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kecamatan?.name || '-'}</td>
                                         <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">
-                                            <div className="text-left truncate max-w-[200px]" title={item.fasilitators?.map(f => f.nama).join(', ')}>
-                                                {item.fasilitators?.map(f => f.nama).join(', ') || '-'}
+                                            <div className="text-left truncate max-w-[200px]" title={item.grup_fasilitators?.map(gf => gf.fasilitator?.name).join(', ')}>
+                                                {item.grup_fasilitators?.map(gf => gf.fasilitator?.name).join(', ') || '-'}
                                             </div>
                                         </td>
                                         <td className="py-2.5 px-4 ">

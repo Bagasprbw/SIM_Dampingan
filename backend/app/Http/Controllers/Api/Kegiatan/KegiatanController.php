@@ -14,17 +14,58 @@ use Illuminate\Support\Facades\Storage;
 class KegiatanController extends Controller
 {
     use LogsActivity;
-    public function indexKelola()
+    /**
+     * Tambahkan filter dari request (search, wilayah, bidang) ke query builder
+     */
+    private function applyRequestFilters($query, Request $request)
+    {
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('judul', 'like', "%{$search}%");
+        }
+
+        if ($request->filled('kode_prov')) {
+            $query->where('kode_prov', $request->kode_prov);
+        }
+
+        if ($request->filled('kode_kab')) {
+            $query->where('kode_kab', $request->kode_kab);
+        }
+
+        if ($request->filled('kode_kec')) {
+            $query->where('kode_kec', $request->kode_kec);
+        }
+
+        if ($request->filled('bidang_id')) {
+            $query->where('bidang_id', $request->bidang_id);
+        }
+
+        return $query;
+    }
+
+    public function indexKelola(Request $request)
     {
         $user_id = auth()->user()->id_user; // Ambil ID user yang sedang login
 
-        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans'])
-                    ->where('fasilitator_id', $user_id)
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+        $query = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans'])
+                    ->where('fasilitator_id', $user_id);
+        
+        // Apply request filters
+        $query = $this->applyRequestFilters($query, $request);
+
+        $kegiatans = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 10));
+
         return response()->json([
             'message' => 'Semua data kegiatan (termasuk draft) berhasil diambil untuk kelola',
-            'data' => $kegiatans
+            'data' => $kegiatans->items(),
+            'meta' => [
+                'current_page' => $kegiatans->currentPage(),
+                'last_page' => $kegiatans->lastPage(),
+                'per_page' => $kegiatans->perPage(),
+                'total' => $kegiatans->total(),
+                'from' => $kegiatans->firstItem(),
+                'to' => $kegiatans->lastItem()
+            ]
         ]);
     }
 
@@ -47,15 +88,27 @@ class KegiatanController extends Controller
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $kegiatans = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans'])
-                    ->whereIn('status', ['published', 'selesai'])
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+        $query = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans'])
+                    ->whereIn('status', ['published', 'selesai']);
+
+        // Apply request filters
+        $query = $this->applyRequestFilters($query, $request);
+
+        $kegiatans = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 10));
+
         return response()->json([
             'message' => 'Data kegiatan berhasil diambil',
-            'data' => $kegiatans
+            'data' => $kegiatans->items(),
+            'meta' => [
+                'current_page' => $kegiatans->currentPage(),
+                'last_page' => $kegiatans->lastPage(),
+                'per_page' => $kegiatans->perPage(),
+                'total' => $kegiatans->total(),
+                'from' => $kegiatans->firstItem(),
+                'to' => $kegiatans->lastItem()
+            ]
         ]);
     }
 

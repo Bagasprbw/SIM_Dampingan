@@ -104,6 +104,36 @@ class UserController extends Controller
     }
 
     /**
+     * Tambahkan filter dari request (search, wilayah) ke query builder
+     */
+    private function applyRequestFilters($query, Request $request)
+    {
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('no_telp', 'like', "%{$search}%")
+                  ->orWhere('alamat', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('kode_prov')) {
+            $query->where('kode_prov', $request->kode_prov);
+        }
+
+        if ($request->filled('kode_kab')) {
+            $query->where('kode_kab', $request->kode_kab);
+        }
+
+        if ($request->filled('kode_kec')) {
+            $query->where('kode_kec', $request->kode_kec);
+        }
+
+        return $query;
+    }
+
+    /**
      * Tambahkan filter cascade downward ke query builder berdasarkan current user
      */
     private function applyCascadeFilter($query, User $currentUser)
@@ -176,17 +206,35 @@ class UserController extends Controller
     {
         $currentUser = $request->user();
 
-        $query = User::with(['role', 'provinsi', 'kabupaten', 'kecamatan'])
+        $query = User::with([
+            'role', 
+            'provinsi', 
+            'kabupaten', 
+            'kecamatan',
+            'fasilitatorBidangs.bidang',
+            'grupFasilitators.grupDampingan'
+        ])
             ->whereHas('role', fn($q) => $q->where('name', 'fasilitator'));
 
-        // Apply cascade downward filter
+        // Apply cascade downward filter (authority)
         $query = $this->applyCascadeFilter($query, $currentUser);
 
-        $users = $query->orderBy('name', 'asc')->get();
+        // Apply request filters (search, wilayah filters)
+        $query = $this->applyRequestFilters($query, $request);
+
+        $users = $query->orderBy('name', 'asc')->paginate($request->get('per_page', 10));
 
         return response()->json([
             'message' => 'Data fasilitator berhasil diambil',
-            'data' => $users
+            'data' => $users->items(),
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+                'from' => $users->firstItem(),
+                'to' => $users->lastItem()
+            ]
         ]);
     }
 
@@ -228,6 +276,12 @@ class UserController extends Controller
             $query->whereRaw('1 = 0');
         }
 
+<<<<<<< HEAD
+        // Apply request filters (search, wilayah filters)
+        $query = $this->applyRequestFilters($query, $request);
+
+        $users = $query->orderBy('name', 'asc')->paginate($request->get('per_page', 10));
+=======
         // Search Filter
         if ($request->filled('search')) {
             $search = $request->search;
@@ -252,6 +306,7 @@ class UserController extends Controller
         // Pagination
         $perPage = $request->input('per_page', 10);
         $users = $query->orderBy('name', 'asc')->paginate($perPage);
+>>>>>>> 465e2f8ed24ec3982f0751f25c89ae96c4d98818
 
         return response()->json([
             'message' => 'Data admin bawahan berhasil diambil',
@@ -275,17 +330,34 @@ class UserController extends Controller
     {
         $currentUser = $request->user();
 
-        $query = User::with(['role', 'provinsi', 'kabupaten', 'kecamatan'])
+        $query = User::with([
+            'role', 
+            'provinsi', 
+            'kabupaten', 
+            'kecamatan',
+            'grupDampingansPengurus'
+        ])
             ->whereHas('role', fn($q) => $q->where('name', 'pj_grup'));
 
         // Apply cascade downward filter
         $query = $this->applyCascadeFilter($query, $currentUser);
 
-        $users = $query->orderBy('name', 'asc')->get();
+        // Apply request filters (search, wilayah filters)
+        $query = $this->applyRequestFilters($query, $request);
+
+        $users = $query->orderBy('name', 'asc')->paginate($request->get('per_page', 10));
 
         return response()->json([
             'message' => 'Data PJ Grup berhasil diambil',
-            'data' => $users
+            'data' => $users->items(),
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+                'from' => $users->firstItem(),
+                'to' => $users->lastItem()
+            ]
         ]);
     }
 
@@ -316,7 +388,8 @@ class UserController extends Controller
             $this->validateCommonFields(),
             ['kode_prov' => 'nullable|string|exists:provinsis,kode',
              'kode_kab' => 'nullable|string|exists:kabupatens,kode',
-             'kode_kec' => 'nullable|string|exists:kecamatans,kode']
+             'kode_kec' => 'nullable|string|exists:kecamatans,kode',
+             'bidang_id' => 'required|string|exists:bidangs,id_bidang']
         ));
 
         // Validasi Wilayah
@@ -345,7 +418,17 @@ class UserController extends Controller
             'status' => 'active',
         ]);
 
-        $user->load(['role', 'provinsi', 'kabupaten', 'kecamatan']);
+        // Simpan relasi bidang ke FasilitatorBidang
+        if (isset($validated['bidang_id'])) {
+            \App\Models\FasilitatorBidang::create([
+                'id_fasilitator_bidang' => (string) Str::uuid(),
+                'user_id' => $user->id_user,
+                'bidang_id' => $validated['bidang_id'],
+                'created_at' => now(),
+            ]);
+        }
+
+        $user->load(['role', 'provinsi', 'kabupaten', 'kecamatan', 'fasilitatorBidangs.bidang']);
 
         // Catat log CREATE fasilitator
         $this->logCreate($request, 'User:Fasilitator', $user->id_user, $user->toArray(), "Fasilitator '{$user->name}' berhasil dibuat.");

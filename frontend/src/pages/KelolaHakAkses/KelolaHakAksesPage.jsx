@@ -373,9 +373,10 @@ const KelolaHakAksesPage = () => {
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {[
-                                    { id: 'kegiatan', label: 'Lihat Kegiatan Dampingan', sub: 'Akses halaman daftar dan detail kegiatan.', code: 'view_kegiatan' },
-                                    { id: 'peta',     label: 'Peta Sebaran',             sub: 'Akses halaman peta persebaran dampingan.', code: 'view_peta_sebaran' },
-                                    { id: 'panduan',  label: 'Panduan Penggunaan',       sub: 'Akses halaman panduan sistem.', code: 'view_panduan' },
+                                    { id: 'view_kegiatan', label: 'Lihat Kegiatan', sub: 'Akses untuk melihat daftar laporan kegiatan dampingan.', code: 'view_kegiatan' },
+                                    { id: 'peta', label: 'Peta Sebaran', sub: 'Akses visualisasi sebaran dampingan di peta interaktif.', code: 'view_peta_sebaran' },
+                                    { id: 'panduan', label: 'Panduan Penggunaan', sub: 'Akses ke modul instruksi dan cara penggunaan sistem.', code: 'view_panduan' },
+                                    { id: 'manage_panduan', label: 'Kelola Panduan', sub: 'Hak akses untuk mengedit atau menambah konten panduan.', code: 'kelola_panduan' },
                                 ].map((item) => (
                                     <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="py-5 px-8">

@@ -7,7 +7,8 @@ import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/use
 
 const AddAdminModal = ({ isOpen, onClose }) => {
     const { createAdmin } = useAdminMutations();
-    const { data: roles = [], isLoading: loadingRoles } = useRoles();
+    const { data: rolesData, isLoading: loadingRoles } = useRoles();
+    const roles = rolesData?.data || [];
     
     const [isLoading, setIsLoading] = useState(false);
     const [showPass, setShowPass] = useState(false);
@@ -30,17 +31,18 @@ const AddAdminModal = ({ isOpen, onClose }) => {
     const { data: kecamatanList = [], isLoading: loadingKec } = useKecamatan(formData.kode_kab);
 
     // Filter roles to only show admin roles
-    const adminRoles = Array.isArray(roles?.data) 
-        ? roles.data.filter(role => ['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(role.name))
-        : [];
+    const adminRoles = roles.filter(role => 
+        ['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(role.name)
+    );
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-        
-        // Reset dependent fields
-        if (name === 'kode_prov') setFormData(prev => ({ ...prev, kode_kab: '', kode_kec: '' }));
-        if (name === 'kode_kab') setFormData(prev => ({ ...prev, kode_kec: '' }));
+        setFormData(prev => ({ 
+            ...prev, 
+            [name]: value,
+            ...(name === 'kode_prov' ? { kode_kab: '', kode_kec: '' } : {}),
+            ...(name === 'kode_kab' ? { kode_kec: '' } : {})
+        }));
     };
 
     if (!isOpen) return null;
@@ -89,11 +91,10 @@ const AddAdminModal = ({ isOpen, onClose }) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center font-['Poppins'] p-4">
-            {/* Backdrop */}
             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose}></div>
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
+            <div className="relative w-full max-w-[550px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col text-left">
                 
                 {/* Header */}
                 <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between shrink-0">
@@ -112,108 +113,108 @@ const AddAdminModal = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Form Body */}
-                <form onSubmit={handleSave} className="p-5 space-y-3 overflow-y-auto">
+                <form onSubmit={handleSave} className="p-5 space-y-4 overflow-y-auto custom-scrollbar">
                     <div className="grid grid-cols-2 gap-4">
-                        {/* Nama */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Nama <span className="text-red-500">*</span></label>
-                            <input name="name" value={formData.name} onChange={handleChange} type="text" placeholder="Masukkan nama lengkap" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                            <input name="name" value={formData.name} onChange={handleChange} type="text" placeholder="Nama Lengkap" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" required />
                         </div>
-                        {/* Username */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Username <span className="text-red-500">*</span></label>
-                            <input name="username" value={formData.username} onChange={handleChange} type="text" placeholder="Masukkan username" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                            <input name="username" value={formData.username} onChange={handleChange} type="text" placeholder="Username" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" required />
                         </div>
-                        {/* Password */}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Password <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <input name="password" value={formData.password} onChange={handleChange} type={showPass ? "text" : "password"} placeholder="Masukkan password" size="sm" className="w-full px-3 py-2.5 pr-10 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                                <input name="password" value={formData.password} onChange={handleChange} type={showPass ? "text" : "password"} placeholder="Password" className="w-full px-3 py-2.5 pr-10 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" required />
                                 <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                                     {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
                             </div>
                         </div>
-                        {/* Konfirmasi Password */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Konfirmasi Password <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type={showConfirmPass ? "text" : "password"} placeholder="Ulangi password" size="sm" className="w-full px-3 py-2.5 pr-10 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                                <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type={showConfirmPass ? "text" : "password"} placeholder="Ulangi password" className="w-full px-3 py-2.5 pr-10 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" required />
                                 <button type="button" onClick={() => setShowConfirmPass(!showConfirmPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                                     {showConfirmPass ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
                             </div>
                         </div>
-                        {/* No. Telp */}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">No. Telp <span className="text-red-500">*</span></label>
-                            <input name="no_telp" value={formData.no_telp} onChange={handleChange} type="text" placeholder="Contoh: 08xxxxxxxxxx" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-300" required />
+                            <input name="no_telp" value={formData.no_telp} onChange={handleChange} type="text" placeholder="08xxxxxxxxxx" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" required />
                         </div>
-                        {/* Role */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Role <span className="text-red-500">*</span></label>
-                            <div className="relative">
-                                <select name="role_id" value={formData.role_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
+                            <div className="relative group">
+                                <select name="role_id" value={formData.role_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium transition-all" required>
                                     <option value="">{loadingRoles ? 'Memuat...' : 'Pilih Role'}</option>
                                     {adminRoles.map(role => (
-                                        <option key={role.id_role} value={role.id_role}>{role.name.replace('_', ' ').toUpperCase()}</option>
+                                        <option key={role.id_role} value={role.id_role}>
+                                            {role.name.replace(/_/g, ' ').toUpperCase()}
+                                        </option>
                                     ))}
                                 </select>
-                                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        {/* Provinsi */}
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[#0A0F1E] text-xs font-semibold">Provinsi <span className="text-red-500">*</span></label>
-                            <div className="relative">
-                                <select name="kode_prov" value={formData.kode_prov} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" required>
-                                    <option value="">{loadingProv ? 'Memuat...' : 'Pilih Provinsi'}</option>
-                                    {provinsiList.map(p => (
-                                        <option key={p.id} value={p.id}>{p.name}</option>
-                                    ))}
-                                </select>
-                                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                            </div>
-                        </div>
-                        {/* Kabupaten */}
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[#0A0F1E] text-xs font-semibold">Kabupaten <span className="text-red-500">*</span></label>
-                            <div className="relative">
-                                <select name="kode_kab" value={formData.kode_kab} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" disabled={!formData.kode_prov}>
-                                    <option value="">{loadingKab ? 'Memuat...' : 'Pilih Kabupaten'}</option>
-                                    {kabupatenList.map(k => (
-                                        <option key={k.id} value={k.id}>{k.name}</option>
-                                    ))}
-                                </select>
-                                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" />
                             </div>
                         </div>
                     </div>
 
-                    {/* Kecamatan */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[#0A0F1E] text-xs font-semibold">Provinsi <span className="text-red-500">*</span></label>
+                            <div className="relative group">
+                                <select name="kode_prov" value={formData.kode_prov} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium transition-all" required>
+                                    <option value="">{loadingProv ? 'Memuat...' : 'Pilih Provinsi'}</option>
+                                    {provinsiList.map(p => (
+                                        <option key={p.kode} value={p.kode}>{p.name}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" />
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[#0A0F1E] text-xs font-semibold">Kabupaten <span className="text-red-500">*</span></label>
+                            <div className="relative group">
+                                <select name="kode_kab" value={formData.kode_kab} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium transition-all disabled:opacity-50" disabled={!formData.kode_prov} required>
+                                    <option value="">{loadingKab ? 'Memuat...' : 'Pilih Kabupaten'}</option>
+                                    {kabupatenList.map(k => (
+                                        <option key={k.kode} value={k.kode}>{k.name}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" />
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#0A0F1E] text-xs font-semibold">Kecamatan <span className="text-red-500">*</span></label>
-                        <div className="relative">
-                            <select name="kode_kec" value={formData.kode_kec} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none" disabled={!formData.kode_kab}>
+                        <div className="relative group">
+                            <select name="kode_kec" value={formData.kode_kec} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium transition-all disabled:opacity-50" disabled={!formData.kode_kab} required>
                                 <option value="">{loadingKec ? 'Memuat...' : 'Pilih Kecamatan'}</option>
                                 {kecamatanList.map(k => (
-                                    <option key={k.id} value={k.id}>{k.name}</option>
+                                    <option key={k.kode} value={k.kode}>{k.name}</option>
                                 ))}
                             </select>
-                            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" />
                         </div>
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
-                        <button type="button" onClick={onClose} className="px-6 py-2 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold hover:bg-gray-50 transition-all h-10">
+                    <div className="pt-4 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
+                        <button type="button" onClick={onClose} className="px-6 h-10 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold hover:bg-gray-50 transition-all">
                             Batal
                         </button>
-                        <button type="submit" disabled={isLoading} className="px-6 py-2 bg-[#0080C5] text-white rounded-[10px] text-xs font-semibold hover:bg-[#006da8] transition-all h-10 flex items-center gap-2 disabled:opacity-50">
+                        <button type="submit" disabled={isLoading} className="px-8 h-10 bg-[#0080C5] text-white rounded-lg text-xs font-semibold hover:bg-sky-700 transition-all flex items-center gap-2 shadow-sm disabled:opacity-50 min-w-[120px] justify-center">
                             {isLoading ? <Loader2 size={16} className="animate-spin" /> : null}
-                            {isLoading ? 'Menyimpan...' : 'Simpan'}
+                            <span>{isLoading ? 'Menyimpan...' : 'Simpan'}</span>
                         </button>
                     </div>
                 </form>

@@ -30,9 +30,17 @@ export const usePjGrupMutations = () => {
         },
     });
 
+    const resetPasswordPjGrup = useMutation({
+        mutationFn: (id) => pjGrupService.resetPassword(id),
+        onSuccess: () => {
+            invalidatePjGrups();
+        },
+    });
+
     return {
         createPjGrup,
         updatePjGrup,
         deletePjGrup,
+        resetPasswordPjGrup,
     };
 };

@@ -45,7 +45,7 @@ const KelolaKegiatanPage = () => {
     const confirmDelete = () => {
         if (!selectedActivity) return;
         
-        deleteKegiatan.mutate(selectedActivity.id, {
+        deleteKegiatan.mutate(selectedActivity.id_kegiatan, {
             onSuccess: () => {
                 setIsDeleteModalOpen(false);
                 Swal.fire({ title: 'Berhasil!', text: 'Laporan kegiatan telah dihapus.', icon: 'success', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-3xl font-["Poppins"]' } });
@@ -120,19 +120,19 @@ const KelolaKegiatanPage = () => {
                                         {reports.map((item, i) => {
                                             const statusInfo = getStatusInfo(item.status);
                                             return (
-                                                <tr key={item.id || i} className="hover:bg-slate-50 transition-colors">
+                                                <tr key={item.id_kegiatan || i} className="hover:bg-slate-50 transition-colors">
                                                     <td className="py-4 px-6">
-                                                        <span onClick={() => { setSelectedActivity(item); setIsDetailModalOpen(true); }} className="text-[#0A0F1E] text-xs font-bold hover:text-[#0080C5] cursor-pointer transition-colors">{item.judul_kegiatan}</span>
+                                                        <span onClick={() => { setSelectedActivity(item); setIsDetailModalOpen(true); }} className="text-[#0A0F1E] text-xs font-bold hover:text-[#0080C5] cursor-pointer transition-colors">{item.judul}</span>
                                                     </td>
                                                     <td className="py-4 px-6 max-w-[160px]"><p className="text-gray-500 text-xs line-clamp-2">{item.deskripsi}</p></td>
                                                     <td className="py-4 px-6">
-                                                        <span className="text-slate-950 text-xs font-semibold block">{item.tanggal_pelaksanaan}</span>
-                                                        <span className="text-slate-400 text-[10px] line-clamp-1">{item.tempat_kegiatan}</span>
+                                                        <span className="text-slate-950 text-xs font-semibold block">{item.tanggal ? new Date(item.tanggal).toLocaleDateString('id-ID') : '-'}</span>
+                                                        <span className="text-slate-400 text-[10px] line-clamp-1">{item.lokasi}</span>
                                                     </td>
                                                     <td className="py-4 px-6">
-                                                        <div className="flex items-center gap-1.5"><Clock size={12} className="text-slate-400" /><span className="text-xs text-slate-700">{item.waktu_mulai} – {item.waktu_selesai}</span></div>
+                                                        <div className="flex items-center gap-1.5"><Clock size={12} className="text-slate-400" /><span className="text-xs text-slate-700">{item.waktu || '-'}</span></div>
                                                     </td>
-                                                    <td className="py-4 px-6"><span className="text-slate-700 text-xs">{item.grup_dampingan?.nama_grup || '-'}</span></td>
+                                                    <td className="py-4 px-6"><span className="text-slate-700 text-xs">{item.kegiatan_grups?.map(g => g.grup_dampingan?.name).join(', ') || '-'}</span></td>
                                                     <td className="py-4 px-6">
                                                         <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold ${statusInfo.color}`}>
                                                             <div className={`w-1.5 h-1.5 rounded-full ${statusInfo.dot}`} />{statusInfo.text}
@@ -140,7 +140,7 @@ const KelolaKegiatanPage = () => {
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center justify-center gap-2">
-                                                            <button onClick={() => navigate(`/kelola-kegiatan/edit/${item.id}`)} className="w-7 h-7 flex items-center justify-center bg-[#FB923C]/10 text-[#FB923C] rounded-md hover:bg-[#FB923C] hover:text-white transition-all"><Edit size={13} /></button>
+                                                            <button onClick={() => navigate(`/kelola-kegiatan/edit/${item.id_kegiatan}`)} className="w-7 h-7 flex items-center justify-center bg-[#FB923C]/10 text-[#FB923C] rounded-md hover:bg-[#FB923C] hover:text-white transition-all"><Edit size={13} /></button>
                                                             <button onClick={() => { setSelectedActivity(item); setIsDeleteModalOpen(true); }} className="w-7 h-7 flex items-center justify-center bg-[#EF4444]/10 text-[#EF4444] rounded-md hover:bg-[#EF4444] hover:text-white transition-all"><Trash2 size={13} /></button>
                                                         </div>
                                                     </td>

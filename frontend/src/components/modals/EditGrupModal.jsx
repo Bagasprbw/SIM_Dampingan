@@ -10,30 +10,47 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useGrupDampinganMutations } from '../../hooks/mutations/useGrupDampinganMutation';
+import { useBidangs } from '../../hooks/queries/useBidangQuery';
+import { usePjGrups } from '../../hooks/queries/usePjGrupQuery';
+import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
+import { useFasilitators } from '../../hooks/queries/useFasilitatorQuery';
 
 const EditGrupModal = ({ isOpen, onClose, data }) => {
+    const { data: bidangsData } = useBidangs();
+    const bidangs = bidangsData?.data || [];
+    
+    const { data: pjData } = usePjGrups();
+    const pjOptions = pjData?.data || [];
+
+    const { data: fasilitatorData } = useFasilitators();
+    const fasilitatorOptions = fasilitatorData?.data || [];
+
     const { updateGrupDampingan } = useGrupDampinganMutations();
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
-        nama_grup: '',
-        jenis_grup: '',
+        name: '',
+        level_dampingan: '',
         bidang_id: '',
-        provinsi_id: '',
-        kabupaten_id: '',
-        kecamatan_id: '',
-        pj_id: ''
+        kode_prov: '',
+        kode_kab: '',
+        kode_kec: '',
+        pengurus_id: ''
     });
+
+    const { data: provinsiList = [], isLoading: loadingProv } = useProvinsi();
+    const { data: kabupatenList = [], isLoading: loadingKab } = useKabupaten(formData.kode_prov);
+    const { data: kecamatanList = [], isLoading: loadingKec } = useKecamatan(formData.kode_kab);
 
     useEffect(() => {
         if (data) {
             setFormData({
-                nama_grup: data.nama_grup || '',
-                jenis_grup: data.jenis_grup || '',
+                name: data.name || '',
+                level_dampingan: data.level_dampingan || '',
                 bidang_id: data.bidang_id || '',
-                provinsi_id: data.provinsi_id || '',
-                kabupaten_id: data.kabupaten_id || '',
-                kecamatan_id: data.kecamatan_id || '',
-                pj_id: data.pj_id || ''
+                kode_prov: data.kode_prov || '',
+                kode_kab: data.kode_kab || '',
+                kode_kec: data.kode_kec || '',
+                pengurus_id: data.pengurus_id || ''
             });
         }
     }, [data]);
@@ -46,7 +63,7 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
 
     const handleSave = () => {
         setIsLoading(true);
-        updateGrupDampingan.mutate({ id: data.id, data: formData }, {
+        updateGrupDampingan.mutate({ id: data.id_grup_dampingan || data.id, data: formData }, {
             onSuccess: () => {
                 setIsLoading(false);
                 Swal.fire({
@@ -104,8 +121,8 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                     <div className="space-y-1.5">
                         <label className="text-slate-950 text-xs font-semibold leading-5">Nama Grup Dampingan</label>
                         <input 
-                            name="nama_grup"
-                            value={formData.nama_grup}
+                            name="name"
+                            value={formData.name}
                             onChange={handleChange}
                             type="text" 
                             className="w-full h-11 px-4 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-slate-900 transition-all font-medium"
@@ -117,10 +134,12 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Jenis Grup Dampingan <span className="text-red-500">*</span></label>
                             <div className="relative group">
-                                <select name="jenis_grup" value={formData.jenis_grup} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                <select name="level_dampingan" value={formData.level_dampingan} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
                                     <option value="">Pilih Jenis</option>
                                     <option value="pusat">Pusat</option>
-                                    <option value="daerah">Daerah</option>
+                                    <option value="provinsi">Provinsi</option>
+                                    <option value="kabupaten">Kabupaten</option>
+                                    <option value="kecamatan">Kecamatan</option>
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                             </div>
@@ -130,8 +149,9 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                             <div className="relative group">
                                 <select name="bidang_id" value={formData.bidang_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
                                     <option value="">Pilih Bidang</option>
-                                    <option value="1">Pertanian Terpadu</option>
-                                    <option value="2">Perekonomian</option>
+                                    {bidangs.map(b => (
+                                        <option key={b.id_bidang} value={b.id_bidang}>{b.name}</option>
+                                    ))}
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                             </div>
@@ -145,9 +165,11 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Provinsi <span className="text-red-500">*</span></label>
                             <div className="relative group">
-                                <select name="provinsi_id" value={formData.provinsi_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                <select name="kode_prov" value={formData.kode_prov} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
                                     <option value="">Pilih Provinsi</option>
-                                    <option value="jabar">Jawa Barat</option>
+                                    {provinsiList.map(p => (
+                                        <option key={p.kode} value={p.kode}>{p.name}</option>
+                                    ))}
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                             </div>
@@ -155,9 +177,11 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Kabupaten <span className="text-red-500">*</span></label>
                             <div className="relative group">
-                                <select name="kabupaten_id" value={formData.kabupaten_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                <select name="kode_kab" value={formData.kode_kab} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer" disabled={!formData.kode_prov}>
                                     <option value="">Pilih Kabupaten</option>
-                                    <option value="bogor">Bogor</option>
+                                    {kabupatenList.map(k => (
+                                        <option key={k.kode} value={k.kode}>{k.name}</option>
+                                    ))}
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                             </div>
@@ -168,32 +192,17 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                     <div className="space-y-1.5">
                         <label className="text-slate-950 text-xs font-semibold leading-5">Kecamatan</label>
                         <div className="relative group">
-                            <select name="kecamatan_id" value={formData.kecamatan_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                            <select name="kode_kec" value={formData.kode_kec} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer" disabled={!formData.kode_kab}>
                                 <option value="">Pilih Kecamatan</option>
-                                <option value="cibinong">Cibinong</option>
+                                {kecamatanList.map(k => (
+                                    <option key={k.kode} value={k.kode}>{k.name}</option>
+                                ))}
                             </select>
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                         </div>
                     </div>
 
                     <hr className="border-slate-100" />
-
-                    {/* Fasilitator */}
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <label className="text-slate-950 text-xs font-semibold leading-5">Fasilitator</label>
-                            <button className="px-3 py-1.5 bg-[#0080C5]/10 rounded-lg flex items-center gap-1.5 text-[#0080C5] hover:bg-[#0080C5]/20 transition-all">
-                                <Plus size={12} strokeWidth={3} />
-                                <span className="text-[10px] font-bold">Tambah Fasilitator</span>
-                            </button>
-                        </div>
-                        <div className="relative group">
-                            <select defaultValue="sucipto" className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
-                                <option value="sucipto">Sucipto</option>
-                            </select>
-                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
-                        </div>
-                    </div>
 
                     {/* PJ Dampingan Section */}
                     <div className="space-y-2">
@@ -202,9 +211,11 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                             <span className="text-slate-400 text-[10px] font-normal">(hanya satu)</span>
                         </div>
                         <div className="relative group">
-                            <select name="pj_id" value={formData.pj_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                            <select name="pengurus_id" value={formData.pengurus_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
                                 <option value="">Pilih PJ</option>
-                                <option value="budi">Budi Santoso</option>
+                                {pjOptions.map(p => (
+                                    <option key={p.id_user} value={p.id_user}>{p.name}</option>
+                                ))}
                             </select>
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                         </div>
@@ -238,3 +249,4 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
 };
 
 export default EditGrupModal;
+

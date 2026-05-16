@@ -110,6 +110,8 @@ const DataFasilitatorPage = () => {
                                 options={provinsiOptions}
                                 value={provinsiFilter}
                                 isLoading={loadingProv}
+                                valueKey="kode"
+                                labelKey="name"
                                 onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
                             />
                             <FilterDropdown
@@ -118,6 +120,8 @@ const DataFasilitatorPage = () => {
                                 value={kabupatenFilter}
                                 isLoading={loadingKab}
                                 disabled={!provinsiFilter}
+                                valueKey="kode"
+                                labelKey="name"
                                 onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
                             />
                             <FilterDropdown
@@ -126,6 +130,8 @@ const DataFasilitatorPage = () => {
                                 value={kecamatanFilter}
                                 isLoading={loadingKec}
                                 disabled={!kabupatenFilter}
+                                valueKey="kode"
+                                labelKey="name"
                                 onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
                             />
 
@@ -175,13 +181,13 @@ const DataFasilitatorPage = () => {
                                             <td className="py-2.5 px-4 text-xs text-slate-400 font-medium text-center">
                                                 {meta.from ? meta.from + index : index + 1}
                                             </td>
-                                            <td className="py-2.5 px-4 text-xs text-[#0080C5] font-semibold">{item.nama}</td>
+                                            <td className="py-2.5 px-4 text-xs text-[#0080C5] font-semibold">{item.name}</td>
                                             <td className="py-2.5 px-4 text-xs text-[#0080C5] font-normal">{item.username}</td>
                                             <td className="py-2.5 px-4 text-xs text-[#0A0F1E] font-normal">
-                                                {item.bidang?.map(b => b.nama_bidang).join(', ') || '-'}
+                                                {item.fasilitator_bidangs?.map(fb => fb.bidang?.name).join(', ') || '-'}
                                             </td>
                                             <td className="py-2.5 px-4 text-xs text-[#0A0F1E] font-normal">
-                                                {item.grup?.map(g => g.nama_grup).join(', ') || '-'}
+                                                {item.grup_fasilitators?.map(gf => gf.grup_dampingan?.name).join(', ') || '-'}
                                             </td>
                                             <td className="py-2.5 px-4 ">
                                                 <div className="flex items-center justify-center gap-2">

@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { X, Edit3, Image as ImageIcon, Plus, Save, ChevronDown, Upload, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useFasilitatorMutations } from '../../hooks/mutations/useFasilitatorMutation';
+import { useBidangs } from '../../hooks/queries/useBidangQuery';
 
 const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
+    const { data: bidangsData, isLoading: isLoadingBidangs } = useBidangs();
+    const bidangs = bidangsData?.data || [];
+
     const { updateFasilitator } = useFasilitatorMutations();
     const [isLoading, setIsLoading] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -15,15 +19,14 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
     useEffect(() => {
         if (data) {
             setFormData({
-                nama: data.nama || '',
-                no_telp: data.no_telepon || data.no_telp || '',
-                alamat: data.alamat || '',
-                username: data.user?.username || data.username || '',
-                bidang_id: data.bidang_id || '',
+                nama: data.name || '',
+                no_telp: data.no_telp || '',
+                username: data.username || '',
+                bidang_id: data.fasilitator_bidangs?.[0]?.bidang_id || '',
                 foto: null
             });
             if (data.foto) {
-                setSelectedImage(data.foto); // assuming it's a URL
+                setSelectedImage(`${import.meta.env.VITE_API_URL}/storage/${data.foto}`);
             }
         }
     }, [data]);
@@ -144,10 +147,7 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-[#0A0F1E] text-xs font-semibold">Alamat</label>
-                        <textarea name="alamat" value={formData.alamat} onChange={handleChange} rows="3" className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] resize-none font-medium"></textarea>
-                    </div>
+
 
                     {/* Bidang Dampingan with Tags */}
                     <div className="space-y-3">
@@ -159,12 +159,25 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
                             </button>
                         </div>
                         <div className="relative">
-                            <select name="bidang_id" value={formData.bidang_id} onChange={handleChange} className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-slate-400 appearance-none">
-                                <option value="">Pilih bidang dampingan...</option>
-                                <option value="1">Perekonomian</option>
-                                <option value="2">Buruh</option>
+                            <select 
+                                name="bidang_id" 
+                                value={formData.bidang_id} 
+                                onChange={handleChange} 
+                                className="w-full px-4 py-2.5 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none"
+                                disabled={isLoadingBidangs}
+                            >
+                                <option value="">{isLoadingBidangs ? "Memuat bidang..." : "Pilih bidang dampingan..."}</option>
+                                {bidangs?.map((bidang) => (
+                                    <option key={bidang.id_bidang} value={bidang.id_bidang}>
+                                        {bidang.name}
+                                    </option>
+                                ))}
                             </select>
-                            <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                            {isLoadingBidangs ? (
+                                <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 animate-spin pointer-events-none" />
+                            ) : (
+                                <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                            )}
                         </div>
                         {/* Tags Display */}
                         <div className="flex flex-wrap gap-2 pt-1">

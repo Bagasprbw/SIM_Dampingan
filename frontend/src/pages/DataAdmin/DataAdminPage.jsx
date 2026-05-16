@@ -37,9 +37,9 @@ const DataAdminPage = () => {
     const { data: kabupatenList = [], isLoading: loadingKab } = useKabupaten(provinsiFilter);
     const { data: kecamatanList = [], isLoading: loadingKec } = useKecamatan(kabupatenFilter);
 
-    const provinsiOptions = provinsiList.map(p => ({ value: p.id, label: p.name }));
-    const kabupatenOptions = kabupatenList.map(k => ({ value: k.id, label: k.name }));
-    const kecamatanOptions = kecamatanList.map(k => ({ value: k.id, label: k.name }));
+    const provinsiOptions = provinsiList.map(p => ({ value: p.kode, label: p.name }));
+    const kabupatenOptions = kabupatenList.map(k => ({ value: k.kode, label: k.name }));
+    const kecamatanOptions = kecamatanList.map(k => ({ value: k.kode, label: k.name }));
 
 
     const { data: adminData, isLoading, isError, refetch } = useAdmins({
@@ -158,13 +158,13 @@ const DataAdminPage = () => {
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
                                     {admins.map((item, index) => (
-                                        <tr key={item.id_user || item.id || index} className="hover:bg-slate-50/50 transition-colors group">
+                                        <tr key={item.id_user || item.id || index} className="hover:bg-slate-50/50 transition-colors group text-left">
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">
                                                 {meta.from ? meta.from + index : index + 1}
                                             </td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.name}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.username}</td>
-                                            <td className="px-4 py-3 text-[11px] text-[#0A0F1E] font-medium whitespace-nowrap">{item.no_telp || '-'}</td>
+                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal whitespace-nowrap">{item.no_telp || '-'}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.provinsi?.name || '-'}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kabupaten?.name || '-'}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kecamatan?.name || '-'}</td>

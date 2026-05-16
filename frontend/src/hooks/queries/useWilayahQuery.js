@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { wilayahService } from '../../services/wilayahService';
+import wilayahService from '../../services/wilayahService';
 
 export const useProvinsi = () =>
     useQuery({

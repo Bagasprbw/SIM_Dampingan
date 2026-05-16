@@ -93,6 +93,8 @@ const DataPjPage = () => {
                             options={provinsiOptions}
                             value={provinsiFilter}
                             isLoading={loadingProv}
+                            valueKey="kode"
+                            labelKey="name"
                             onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
                         />
                         <FilterDropdown
@@ -101,6 +103,8 @@ const DataPjPage = () => {
                             value={kabupatenFilter}
                             isLoading={loadingKab}
                             disabled={!provinsiFilter}
+                            valueKey="kode"
+                            labelKey="name"
                             onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
                         />
                         <FilterDropdown
@@ -109,6 +113,8 @@ const DataPjPage = () => {
                             value={kecamatanFilter}
                             isLoading={loadingKec}
                             disabled={!kabupatenFilter}
+                            valueKey="kode"
+                            labelKey="name"
                             onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
                         />
                     </div>
@@ -146,10 +152,10 @@ const DataPjPage = () => {
                                             <td className="py-2.5 px-4 text-center border-b border-[#F1F5F9] text-[#9298B0] text-xs font-medium">
                                                 {meta.from ? meta.from + index : index + 1}
                                             </td>
-                                            <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0080C5] text-xs font-medium text-left">{item.nama}</td>
+                                            <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0080C5] text-xs font-medium text-left">{item.name}</td>
                                             <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0080C5] text-xs font-normal text-left">{item.username}</td>
                                             <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0A0F1E] text-xs font-normal text-left">
-                                                {item.grup?.map(g => g.nama_grup).join(', ') || '-'}
+                                                {item.grup_dampingans_pengurus?.map(g => g.name).join(', ') || '-'}
                                             </td>
                                             <td className="py-2.5 px-4 border-b border-[#F1F5F9]">
                                                 <div className="flex items-center justify-center gap-2">

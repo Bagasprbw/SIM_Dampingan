@@ -1,24 +1,51 @@
-// Menggunakan ibnux.github.io - mendukung CORS dari localhost
-// Format kode: angka (mis. "33" untuk Jawa Tengah)
-const WILAYAH_BASE = 'https://ibnux.github.io/data-indonesia';
+import api from './api';
 
-export const wilayahService = {
+const wilayahService = {
+    /**
+     * Mengambil daftar provinsi dari database internal
+     * @returns {Promise<Array>} Array of { kode, name }
+     */
     getProvinsi: async () => {
-        const res = await fetch(`${WILAYAH_BASE}/provinsi.json`);
-        const data = await res.json();
-        // Format: [{ id, nama }] → kita map ke { id, name }
-        return data.map(p => ({ id: p.id, name: p.nama }));
+        try {
+            const res = await api.get('/wilayah/provinsi');
+            return res.data.data;
+        } catch (error) {
+            console.error('Error fetching provinsi:', error);
+            return [];
+        }
     },
-    getKabupaten: async (idProvinsi) => {
-        if (!idProvinsi) return [];
-        const res = await fetch(`${WILAYAH_BASE}/kabupaten/${idProvinsi}.json`);
-        const data = await res.json();
-        return data.map(k => ({ id: k.id, name: k.nama }));
+
+    /**
+     * Mengambil daftar kabupaten berdasarkan kode provinsi dari database internal
+     * @param {string} kodeProvinsi 
+     * @returns {Promise<Array>} Array of { kode, name, kode_prov }
+     */
+    getKabupaten: async (kodeProvinsi) => {
+        if (!kodeProvinsi) return [];
+        try {
+            const res = await api.get(`/wilayah/kabupaten/${kodeProvinsi}`);
+            return res.data.data;
+        } catch (error) {
+            console.error('Error fetching kabupaten:', error);
+            return [];
+        }
     },
-    getKecamatan: async (idKabupaten) => {
-        if (!idKabupaten) return [];
-        const res = await fetch(`${WILAYAH_BASE}/kecamatan/${idKabupaten}.json`);
-        const data = await res.json();
-        return data.map(k => ({ id: k.id, name: k.nama }));
+
+    /**
+     * Mengambil daftar kecamatan berdasarkan kode kabupaten dari database internal
+     * @param {string} kodeKabupaten 
+     * @returns {Promise<Array>} Array of { kode, name, kode_kab }
+     */
+    getKecamatan: async (kodeKabupaten) => {
+        if (!kodeKabupaten) return [];
+        try {
+            const res = await api.get(`/wilayah/kecamatan/${kodeKabupaten}`);
+            return res.data.data;
+        } catch (error) {
+            console.error('Error fetching kecamatan:', error);
+            return [];
+        }
     },
 };
+
+export default wilayahService;

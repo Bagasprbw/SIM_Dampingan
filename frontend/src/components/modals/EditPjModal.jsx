@@ -7,16 +7,15 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
     const { updatePjGrup } = usePjGrupMutations();
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
-        nama: '', no_telepon: '', alamat: '', username: ''
+        name: '', no_telp: '', username: ''
     });
 
     useEffect(() => {
         if (data) {
             setFormData({
-                nama: data.nama || '',
-                no_telepon: data.no_telepon || data.no_telp || '',
-                alamat: data.alamat || '',
-                username: data.username || data.user?.username || ''
+                name: data.name || '',
+                no_telp: data.no_telp || '',
+                username: data.username || ''
             });
         }
     }, [data]);
@@ -29,7 +28,7 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
 
     const handleSave = () => {
         setIsLoading(true);
-        updatePjGrup.mutate({ id: data.id, data: formData }, {
+        updatePjGrup.mutate({ id: data.id_user || data.id, data: formData }, {
             onSuccess: () => {
                 setIsLoading(false);
                 Swal.fire({
@@ -85,36 +84,25 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
                         <div className="flex-1 flex flex-col gap-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Nama Lengkap</label>
                             <input 
-                                name="nama"
+                                name="name"
                                 type="text" 
-                                value={formData.nama}
+                                value={formData.name}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2.5 bg-white rounded-[10px] border-[1.60px] border-gray-200 focus:border-sky-600 focus:outline-none text-slate-950 text-xs transition-all"
+                                className="w-full px-4 py-2.5 bg-white rounded-[10px] border-[1.60px] border-gray-200 focus:border-sky-600 focus:outline-none text-slate-950 text-xs transition-all font-medium"
                                 placeholder="Nama Lengkap"
                             />
                         </div>
                         <div className="flex-1 flex flex-col gap-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">No. Telepon</label>
                             <input 
-                                name="no_telepon"
+                                name="no_telp"
                                 type="text" 
-                                value={formData.no_telepon}
+                                value={formData.no_telp}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2.5 bg-white rounded-[10px] border-[1.60px] border-gray-200 focus:border-sky-600 focus:outline-none text-slate-950 text-xs transition-all"
-                                placeholder="No. Telepon"
+                                className="w-full px-4 py-2.5 bg-white rounded-[10px] border-[1.60px] border-gray-200 focus:border-sky-600 focus:outline-none text-slate-950 text-xs transition-all font-medium"
+                                placeholder="8xxxxxxxxx"
                             />
                         </div>
-                    </div>
-
-                    {/* Alamat Row */}
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-slate-950 text-xs font-semibold leading-5">Alamat</label>
-                        <textarea 
-                            name="alamat"
-                            value={formData.alamat}
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 bg-white rounded-[10px] border-[1.60px] border-gray-200 focus:border-sky-600 focus:outline-none text-slate-400 text-xs min-h-[100px] resize-none leading-5 transition-all"
-                        />
                     </div>
 
                     {/* Separator */}
@@ -128,23 +116,23 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
                             type="text" 
                             value={formData.username}
                             onChange={handleChange}
-                            className="w-full px-4 py-2.5 bg-white rounded-[10px] border-[1.60px] border-gray-200 focus:border-sky-600 focus:outline-none text-slate-950 text-xs transition-all"
+                            className="w-full px-4 py-2.5 bg-white rounded-[10px] border-[1.60px] border-gray-200 focus:border-sky-600 focus:outline-none text-slate-950 text-xs transition-all font-medium"
                         />
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className="h-20 px-6 py-4 border-t-[0.80px] border-gray-200 flex justify-end items-center gap-3 bg-white">
-                    <button onClick={onClose} className="w-20 h-10 px-6 bg-white rounded-[10px] border-[0.80px] border-gray-200 text-slate-400 text-xs font-semibold hover:bg-slate-50 transition-all">
+                    <button onClick={onClose} className="px-6 h-10 bg-white rounded-[10px] border-[0.80px] border-gray-200 text-slate-400 text-xs font-semibold hover:bg-slate-50 transition-all">
                         Batal
                     </button>
                     <button 
                         onClick={handleSave}
                         disabled={isLoading}
-                        className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold disabled:opacity-50"
+                        className="h-9 px-5 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold disabled:opacity-50"
                     >
                         {isLoading ? <Loader2 size={16} className="text-white animate-spin" /> : <Save size={16} className="text-white" />}
-                        <span className="text-xs font-semibold">{isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}</span>
+                        <span>{isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}</span>
                     </button>
                 </div>
             </div>
