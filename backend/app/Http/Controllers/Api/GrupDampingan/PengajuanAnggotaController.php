@@ -26,7 +26,6 @@ class PengajuanAnggotaController extends Controller
 
         $pengajuan = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan'])
             ->whereIn('grup_id', $grupIds) // Hanya di grup yang dia pegang
-            ->whereIn('status', ['pending', 'ditolak']) // Atau tampilkan semua status, tergantung kebutuhan, jika semua hapus ini
             ->paginate($request->per_page ?? 10);
 
         return response()->json([
@@ -43,7 +42,7 @@ class PengajuanAnggotaController extends Controller
     {
         $validated = $request->validate([
             'bidang_id' => 'required|exists:bidangs,id_bidang',
-            'no_anggota' => 'required|unique:anggota_grup_dampingans,no_anggota',
+            'no_anggota' => 'nullable|unique:anggota_grup_dampingans,no_anggota',
             'name' => 'required|string|max:150',
             'tempat_lahir' => 'nullable|string|max:100',
             'tgl_lahir' => 'nullable|date',
@@ -63,6 +62,11 @@ class PengajuanAnggotaController extends Controller
         $validated['id_anggota_grup'] = (string) Str::uuid();
         $validated['status'] = 'pending'; // PENGAJUAN otomatis PENDING
         $validated['created_at'] = now();
+
+        // Generate no_anggota jika tidak ada
+        if (empty($validated['no_anggota']) || str_starts_with($validated['no_anggota'], 'TEMP-')) {
+            $validated['no_anggota'] = $this->generateNoAnggota($validated['grup_id']);
+        }
 
         if ($request->hasFile('foto')) {
             $validated['foto'] = $request->file('foto')->store('profil/anggota_grup', 'public');
@@ -182,21 +186,29 @@ class PengajuanAnggotaController extends Controller
      */
     public function indexPending(Request $request)
     {
-        // Jika yang login adalah fasilitator, sebaiknya filter grup dampingan
-        // yang difasilitasi oleh fasilitator tersebut.
         $user = auth()->user();
 
-        $query = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan'])
+        $query = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan.bidang'])
             ->where('status', 'pending');
 
-        // Misal hanya perlihatkan dari grup fasilitator:
+        // Filter berdasarkan kewenangan Role (Cascade Downward)
         if ($user->role->name === 'fasilitator') {
             $grupFasilitatorIds = \App\Models\GrupFasilitator::where('fasilitator_id', $user->id_user)
                 ->pluck('grup_dampingan_id');
             $query->whereIn('grup_id', $grupFasilitatorIds);
         }
 
-        $pengajuan = $query->paginate($request->per_page ?? 10);
+        // Filter Search (Nama)
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter Grup Dampingan
+        if ($request->filled('grup_id')) {
+            $query->where('grup_id', $request->grup_id);
+        }
+
+        $pengajuan = $query->latest('created_at')->paginate($request->per_page ?? 10);
 
         return response()->json([
             'status' => 'success',
@@ -245,5 +257,20 @@ class PengajuanAnggotaController extends Controller
             'message' => 'Pengajuan anggota berhasil diverifikasi menjadi: ' . $anggota->status,
             'data' => $anggota
         ]);
+    }
+
+    private function generateNoAnggota($grupId)
+    {
+        $grup = \App\Models\GrupDampingan::find($grupId);
+        $prefix = $grup ? ($grup->kode_kec ?? $grup->kode_kab ?? $grup->kode_prov ?? '00') : '00';
+        
+        $number = $prefix . date('ymd') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        
+        // Pastikan unik
+        while (AnggotaGrupDampingan::where('no_anggota', $number)->exists()) {
+            $number = $prefix . date('ymd') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        }
+        
+        return $number;
     }
 }

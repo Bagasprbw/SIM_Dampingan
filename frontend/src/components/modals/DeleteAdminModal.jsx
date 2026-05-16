@@ -45,7 +45,7 @@ const DeleteAdminModal = ({ isOpen, onClose, data }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center font-['Poppins'] p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center font-['Poppins'] p-4 text-left">
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose}></div>
 
@@ -90,7 +90,7 @@ const DeleteAdminModal = ({ isOpen, onClose, data }) => {
                                 <span className="w-20 text-gray-500 font-semibold">Role</span>
                                 <span className="mx-2 text-gray-500">:</span>
                                 <span className="flex-1 text-[#0A0F1E] font-bold">
-                                    {data?.role?.name?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || "-"}
+                                    {data?.role?.name?.replace(/_/g, ' ').toUpperCase() || "-"}
                                 </span>
                             </div>
                         </div>

@@ -6,6 +6,7 @@ const ResetPasswordModal = ({ isOpen, onClose, data }) => {
     if (!isOpen) return null;
 
     const handleReset = () => {
+        // Implementasi sesungguhnya dari reset password bisa ditambahkan di sini via mutation
         Swal.fire({
             icon: 'success',
             title: 'Berhasil direset!',
@@ -66,7 +67,7 @@ const ResetPasswordModal = ({ isOpen, onClose, data }) => {
                                 <span className="w-20 text-gray-500 font-semibold">Role</span>
                                 <span className="mx-2 text-gray-500">:</span>
                                 <span className="flex-1 text-[#0A0F1E] font-bold">
-                                    {data?.role?.name?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || "-"}
+                                    {data?.role?.name?.replace(/_/g, ' ').toUpperCase() || "-"}
                                 </span>
                             </div>
                         </div>

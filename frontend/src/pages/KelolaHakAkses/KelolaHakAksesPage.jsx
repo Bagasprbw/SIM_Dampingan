@@ -54,8 +54,8 @@ function buildInitialPermsFromDB(roles) {
 
 // ─── Komponen Utama ──────────────────────────────────────────────────────────
 const KelolaHakAksesPage = () => {
-    const { data: rolesData, isLoading: loadingRoles, isError: errorRoles, refetch: refetchRoles } = useRoles();
-    const { data: permsData, isLoading: loadingPerms, isError: errorPerms, refetch: refetchPerms } = usePermissions();
+    const { data: rolesData, isLoading: loadingRoles } = useRoles();
+    const { data: permsData, isLoading: loadingPerms } = usePermissions();
     const { updateRolePermissions } = useHakAksesMutations();
 
     // State lokal: Map roleId → Set<permissionId> (mencerminkan perubahan UI sebelum disimpan)
@@ -65,9 +65,8 @@ const KelolaHakAksesPage = () => {
 
     const roles = rolesData?.data || [];
     const permissions = permsData?.data || [];
-    // Hanya gunakan permissions real dari BE
 
-
+    // Map untuk lookup cepat
     const roleMap = roles.reduce((acc, r) => ({ ...acc, [r.name]: r }), {});
     const permMap = permissions.reduce((acc, p) => ({ ...acc, [p.code]: p }), {});
 
@@ -77,17 +76,10 @@ const KelolaHakAksesPage = () => {
      */
     useEffect(() => {
         if (roles.length > 0) {
-            const initial = {};
-            roles.forEach(role => {
-                // Baca permissions aktif per role dari response BE (eager load with('permissions'))
-                initial[role.id_role] = new Set(
-                    (role.permissions || []).map(p => p.id_permission)
-                );
-            });
-            setLocalPerms(initial);
+            setLocalPerms(buildInitialPermsFromDB(roles));
+            setHasChanges(false);
         }
-    }, [rolesData]);
-
+    }, [rolesData]); // hanya re-init saat data dari server berubah
 
     // ── Fungsi helper ─────────────────────────────────────────────────────────
     const hasPermission = (roleName, permCode) => {
@@ -124,18 +116,12 @@ const KelolaHakAksesPage = () => {
     // Reset ke kondisi DB (bukan all-ON)
     const handleReset = () => {
         if (roles.length > 0) {
-            // Kembalikan ke state awal dari BE (sebelum ada perubahan lokal)
-            const original = {};
-            roles.forEach(role => {
-                original[role.id_role] = new Set(
-                    (role.permissions || []).map(p => p.id_permission)
-                );
-            });
-            setLocalPerms(original);
+            setLocalPerms(buildInitialPermsFromDB(roles));
+            setHasChanges(false);
             Swal.fire({
-                title: 'Reset Berhasil!',
-                text: 'Hak akses dikembalikan ke pengaturan yang tersimpan di database.',
-                icon: 'success',
+                title: 'Direset!',
+                text: 'Perubahan dibatalkan dan dikembalikan ke kondisi database.',
+                icon: 'info',
                 timer: 2000,
                 showConfirmButton: false,
                 customClass: { popup: 'rounded-2xl font-[\'Poppins\']' }
@@ -193,26 +179,6 @@ const KelolaHakAksesPage = () => {
         <AdminLayout title="Kelola Hak Akses">
             <div className="p-8 flex justify-center items-center min-h-[60vh]">
                 <Loader2 className="animate-spin text-[#0080C5]" size={40} />
-            </div>
-        </AdminLayout>
-    );
-
-    if (errorRoles || errorPerms) return (
-        <AdminLayout title="Kelola Hak Akses">
-            <div className="p-8 flex flex-col justify-center items-center min-h-[60vh] gap-4">
-                <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center">
-                    <Shield size={32} className="text-red-400" />
-                </div>
-                <div className="text-center">
-                    <h3 className="text-sm font-bold text-slate-800">Gagal Memuat Data Hak Akses</h3>
-                    <p className="text-xs text-slate-400 mt-1">Terjadi kesalahan saat mengambil data. Periksa koneksi Anda.</p>
-                </div>
-                <button
-                    onClick={() => { refetchRoles(); refetchPerms(); }}
-                    className="h-10 px-6 bg-[#0080C5] text-white rounded-xl flex items-center gap-2 text-[11px] font-bold hover:bg-sky-700 transition-all shadow-sm"
-                >
-                    <RotateCcw size={14} /> Coba Lagi
-                </button>
             </div>
         </AdminLayout>
     );
@@ -408,12 +374,9 @@ const KelolaHakAksesPage = () => {
                             <tbody className="divide-y divide-slate-50">
                                 {[
                                     { id: 'view_kegiatan', label: 'Lihat Kegiatan', sub: 'Akses untuk melihat daftar laporan kegiatan dampingan.', code: 'view_kegiatan' },
-                                    { id: 'admin', label: 'Data Admin', sub: 'Manajemen data user dengan level akses administratif.', code: 'kelola_admin_bawahan' },
-                                    { id: 'masy', label: 'Data Masyarakat', sub: 'Akses ke data profil dan histori masyarakat dampingan.', code: 'kelola_masyarakat' },
                                     { id: 'peta', label: 'Peta Sebaran', sub: 'Akses visualisasi sebaran dampingan di peta interaktif.', code: 'view_peta_sebaran' },
                                     { id: 'panduan', label: 'Panduan Penggunaan', sub: 'Akses ke modul instruksi dan cara penggunaan sistem.', code: 'view_panduan' },
                                     { id: 'manage_panduan', label: 'Kelola Panduan', sub: 'Hak akses untuk mengedit atau menambah konten panduan.', code: 'kelola_panduan' },
-
                                 ].map((item) => (
                                     <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="py-5 px-8">

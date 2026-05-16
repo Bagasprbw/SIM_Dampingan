@@ -16,6 +16,20 @@ export const usePengajuanAnggotaMutations = () => {
         },
     });
 
+    const updatePengajuanAnggota = useMutation({
+        mutationFn: ({ id, data }) => pengajuanAnggotaService.update(id, data),
+        onSuccess: () => {
+            invalidatePengajuanAnggotas();
+        },
+    });
+
+    const deletePengajuanAnggota = useMutation({
+        mutationFn: (id) => pengajuanAnggotaService.delete(id),
+        onSuccess: () => {
+            invalidatePengajuanAnggotas();
+        },
+    });
+
     const terimaPengajuanAnggota = useMutation({
         mutationFn: (id) => pengajuanAnggotaService.terima(id),
         onSuccess: () => {
@@ -32,6 +46,8 @@ export const usePengajuanAnggotaMutations = () => {
 
     return {
         createPengajuanAnggota,
+        updatePengajuanAnggota,
+        deletePengajuanAnggota,
         terimaPengajuanAnggota,
         tolakPengajuanAnggota,
     };

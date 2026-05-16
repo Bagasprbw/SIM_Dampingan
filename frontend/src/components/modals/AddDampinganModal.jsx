@@ -11,15 +11,25 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useAnggotaMutations } from '../../hooks/mutations/useAnggotaMutation';
-
 import { usePengajuanAnggotaMutations } from '../../hooks/mutations/usePengajuanAnggotaMutation';
+import { useBidangs, usePekerjaans } from '../../hooks/queries/useMasterQuery';
+import { useGrupDampingans } from '../../hooks/queries/useGrupDampinganQuery';
 
 const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
     const { createAnggota } = useAnggotaMutations();
     const { createPengajuanAnggota } = usePengajuanAnggotaMutations();
+    
+    const { data: bidangsData } = useBidangs();
+    const { data: pekerjaansData } = usePekerjaans();
+    const { data: grupsData } = useGrupDampingans();
+
+    const bidangs = bidangsData?.data || [];
+    const pekerjaans = pekerjaansData?.data || [];
+    const grups = grupsData?.data || [];
+
     const [isLoading, setIsLoading] = useState(false);
-    const [gender, setGender] = useState('Laki-laki');
-    const [status, setStatus] = useState('Aktif');
+    const [gender, setGender] = useState('L');
+    const [status, setStatus] = useState('aktif');
     const [formData, setFormData] = useState({
         nama: '',
         no_telepon: '',
@@ -32,7 +42,19 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
         grup_dampingan_id: '',
         foto: null
     });
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImage, setSelectedImage] = React.useState(null);
+
+    // Auto-fill for PJ Grup
+    React.useEffect(() => {
+        if (isPengajuan && grups.length > 0) {
+            const firstGrup = grups[0];
+            setFormData(prev => ({
+                ...prev,
+                grup_dampingan_id: firstGrup.id_grup_dampingan,
+                bidang_id: firstGrup.bidang_id
+            }));
+        }
+    }, [isPengajuan, grups]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,13 +72,34 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
     const handleSave = () => {
         setIsLoading(true);
         const form = new FormData();
-        Object.keys(formData).forEach(key => {
-            if (formData[key] !== null && formData[key] !== '') {
-                form.append(key, formData[key]);
-            }
-        });
+        
+        // Mapping fields for Backend
+        form.append('name', formData.nama);
+        form.append('no_telp', formData.no_telepon);
+        form.append('tempat_lahir', formData.tempat_lahir);
+        form.append('tgl_lahir', formData.tanggal_lahir);
+        form.append('agama', formData.agama);
+        form.append('alamat', formData.alamat);
+        form.append('bidang_id', formData.bidang_id);
+        form.append('grup_id', formData.grup_dampingan_id);
+        form.append('pekerjaan_id', formData.pekerjaan); // asumsikan ini adalah ID
         form.append('jenis_kelamin', gender);
-        form.append('status_aktif', status === 'Aktif' ? 1 : 0);
+        
+        // status di set otomatis oleh backend (pending untuk pengajuan, aktif untuk kelola_masyarakat)
+        // namun jika Admin yang input (bukan pengajuan), kita bisa kirim status aktif
+        if (!isPengajuan) {
+            form.append('status', status === 'Aktif' ? 'aktif' : 'non-aktif');
+        }
+
+        if (formData.foto) {
+            form.append('foto', formData.foto);
+        }
+
+        // Generate a temporary no_anggota if not provided (Backend usually handles this or requires it)
+        // Check backend validation: 'no_anggota' => 'required|unique:anggota_grup_dampingans,no_anggota'
+        // So we MUST provide it or the backend must generate it.
+        // For now let's assume we need to provide it.
+        form.append('no_anggota', 'TEMP-' + Date.now()); 
 
         const mutation = isPengajuan ? createPengajuanAnggota : createAnggota;
 
@@ -65,7 +108,7 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
                 setIsLoading(false);
                 Swal.fire({
                     title: 'Berhasil!',
-                    text: 'Data masyarakat berhasil ditambahkan.',
+                    text: isPengajuan ? 'Pengajuan anggota berhasil, menunggu verifikasi.' : 'Data masyarakat berhasil ditambahkan.',
                     icon: 'success',
                     confirmButtonColor: '#0080C5',
                     timer: 2000,
@@ -79,12 +122,13 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
                 });
                 setSelectedImage(null);
             },
-            onError: () => {
+            onError: (error) => {
                 setIsLoading(false);
+                const errorMsg = error.response?.data?.message || 'Terjadi kesalahan saat menambahkan data masyarakat.';
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
-                    text: 'Terjadi kesalahan saat menambahkan data masyarakat.',
+                    text: errorMsg,
                     showConfirmButton: false,
                     timer: 2000,
                     customClass: { popup: 'rounded-2xl font-["Poppins"]' }
@@ -201,18 +245,18 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
                             <label className="text-slate-950 text-xs font-semibold leading-5">Jenis Kelamin</label>
                             <div className="flex gap-3">
                                 <button 
-                                    onClick={() => setGender('Laki-laki')}
-                                    className={`flex-1 h-11 px-3.5 rounded-[10px] border flex items-center gap-2 transition-all ${gender === 'Laki-laki' ? 'bg-[#0080C5]/5 border-[#0080C5] text-[#0080C5]' : 'bg-white border-gray-200 text-slate-400'}`}
+                                    onClick={() => setGender('L')}
+                                    className={`flex-1 h-11 px-3.5 rounded-[10px] border flex items-center gap-2 transition-all ${gender === 'L' ? 'bg-[#0080C5]/5 border-[#0080C5] text-[#0080C5]' : 'bg-white border-gray-200 text-slate-400'}`}
                                 >
-                                    <div className={`w-4 h-4 rounded-full border-[5px] flex items-center justify-center ${gender === 'Laki-laki' ? 'border-[#0080C5]' : 'border-gray-200'}`}>
+                                    <div className={`w-4 h-4 rounded-full border-[5px] flex items-center justify-center ${gender === 'L' ? 'border-[#0080C5]' : 'border-gray-200'}`}>
                                     </div>
                                     <span className="text-xs font-semibold">Laki-laki</span>
                                 </button>
                                 <button 
-                                    onClick={() => setGender('Perempuan')}
-                                    className={`flex-1 h-11 px-3.5 rounded-[10px] border flex items-center gap-2 transition-all ${gender === 'Perempuan' ? 'bg-[#0080C5]/5 border-[#0080C5] text-[#0080C5]' : 'bg-white border-gray-200 text-slate-400'}`}
+                                    onClick={() => setGender('P')}
+                                    className={`flex-1 h-11 px-3.5 rounded-[10px] border flex items-center gap-2 transition-all ${gender === 'P' ? 'bg-[#0080C5]/5 border-[#0080C5] text-[#0080C5]' : 'bg-white border-gray-200 text-slate-400'}`}
                                 >
-                                    <div className={`w-4 h-4 rounded-full border-[5px] flex items-center justify-center ${gender === 'Perempuan' ? 'border-[#0080C5]' : 'border-gray-200'}`}>
+                                    <div className={`w-4 h-4 rounded-full border-[5px] flex items-center justify-center ${gender === 'P' ? 'border-[#0080C5]' : 'border-gray-200'}`}>
                                     </div>
                                     <span className="text-xs font-semibold">Perempuan</span>
                                 </button>
@@ -223,8 +267,12 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
                             <div className="relative group">
                                 <select name="agama" value={formData.agama} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
                                     <option value="" disabled>Pilih agama...</option>
-                                    <option value="islam">Islam</option>
-                                    <option value="kristen">Kristen</option>
+                                    <option value="Islam">Islam</option>
+                                    <option value="Kristen">Kristen</option>
+                                    <option value="Katolik">Katolik</option>
+                                    <option value="Hindu">Hindu</option>
+                                    <option value="Buddha">Buddha</option>
+                                    <option value="Konghucu">Konghucu</option>
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                             </div>
@@ -235,31 +283,37 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Pekerjaan Utama</label>
-                            <input 
-                                name="pekerjaan"
-                                value={formData.pekerjaan}
-                                onChange={handleChange}
-                                type="text" 
-                                placeholder="Masukkan pekerjaan utama"
-                                className="w-full h-11 px-4 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-slate-600 transition-all"
-                            />
+                            <div className="relative group">
+                                <select 
+                                    name="pekerjaan" 
+                                    value={formData.pekerjaan} 
+                                    onChange={handleChange} 
+                                    className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer"
+                                >
+                                    <option value="" disabled>Pilih pekerjaan...</option>
+                                    {pekerjaans.map(p => (
+                                        <option key={p.id_pekerjaan} value={p.id_pekerjaan}>{p.name}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
+                            </div>
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Status</label>
                             <div className="flex gap-3">
                                 <button 
-                                    onClick={() => setStatus('Aktif')}
-                                    className={`flex-1 h-11 px-3.5 rounded-[10px] border flex items-center gap-2 transition-all ${status === 'Aktif' ? 'bg-[#0080C5]/5 border-[#0080C5] text-[#0080C5]' : 'bg-white border-gray-200 text-slate-400'}`}
+                                    onClick={() => setStatus('aktif')}
+                                    className={`flex-1 h-11 px-3.5 rounded-[10px] border flex items-center gap-2 transition-all ${status === 'aktif' ? 'bg-[#0080C5]/5 border-[#0080C5] text-[#0080C5]' : 'bg-white border-gray-200 text-slate-400'}`}
                                 >
-                                    <div className={`w-4 h-4 rounded-full border-[5px] flex items-center justify-center ${status === 'Aktif' ? 'border-[#0080C5]' : 'border-gray-200'}`}>
+                                    <div className={`w-4 h-4 rounded-full border-[5px] flex items-center justify-center ${status === 'aktif' ? 'border-[#0080C5]' : 'border-gray-200'}`}>
                                     </div>
                                     <span className="text-xs font-semibold">Aktif</span>
                                 </button>
                                 <button 
-                                    onClick={() => setStatus('Non-Aktif')}
-                                    className={`flex-1 h-11 px-3.5 rounded-[10px] border flex items-center gap-2 transition-all ${status === 'Non-Aktif' ? 'bg-[#0080C5]/5 border-[#0080C5] text-[#0080C5]' : 'bg-white border-gray-200 text-slate-400'}`}
+                                    onClick={() => setStatus('non-aktif')}
+                                    className={`flex-1 h-11 px-3.5 rounded-[10px] border flex items-center gap-2 transition-all ${status === 'non-aktif' ? 'bg-[#0080C5]/5 border-[#0080C5] text-[#0080C5]' : 'bg-white border-gray-200 text-slate-400'}`}
                                 >
-                                    <div className={`w-4 h-4 rounded-full border-[5px] flex items-center justify-center ${status === 'Non-Aktif' ? 'border-gray-200' : 'border-gray-200'}`}>
+                                    <div className={`w-4 h-4 rounded-full border-[5px] flex items-center justify-center ${status === 'non-aktif' ? 'border-gray-200' : 'border-gray-200'}`}>
                                     </div>
                                     <span className="text-xs font-semibold">Non-Aktif</span>
                                 </button>
@@ -282,28 +336,34 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
                     <hr className="border-slate-100" />
 
                     {/* Bidang & Grup Row */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                            <label className="text-slate-950 text-xs font-semibold leading-5">Bidang Dampingan</label>
-                            <div className="relative group">
-                                <select name="bidang_id" value={formData.bidang_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
-                                    <option value="" disabled>Pilih bidang dampingan...</option>
-                                    <option value="1">Pertanian</option>
-                                </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
+                    {!isPengajuan && (
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-slate-950 text-xs font-semibold leading-5">Bidang Dampingan</label>
+                                <div className="relative group">
+                                    <select name="bidang_id" value={formData.bidang_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                        <option value="" disabled>Pilih bidang dampingan...</option>
+                                        {bidangs.map(b => (
+                                            <option key={b.id_bidang} value={b.id_bidang}>{b.nama_bidang}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-slate-950 text-xs font-semibold leading-5">Grup Dampingan</label>
+                                <div className="relative group">
+                                    <select name="grup_dampingan_id" value={formData.grup_dampingan_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                        <option value="" disabled>Pilih grup dampingan...</option>
+                                        {grups.map(g => (
+                                            <option key={g.id_grup_dampingan} value={g.id_grup_dampingan}>{g.nama_grup}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
+                                </div>
                             </div>
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-slate-950 text-xs font-semibold leading-5">Grup Dampingan</label>
-                            <div className="relative group">
-                                <select name="grup_dampingan_id" value={formData.grup_dampingan_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
-                                    <option value="" disabled>Pilih grup dampingan...</option>
-                                    <option value="1">Kelompok Tani</option>
-                                </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
-                            </div>
-                        </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Footer */}

@@ -42,26 +42,17 @@ export const grupDampinganService = {
     },
 
     getPjGrup: async () => {
-        // TODO: aktifkan saat endpoint BE tersedia
-        // NEEDS BE: GET /api/pj-dampingan/grup-dampingan | response: { data: { id, nama_grup, anggota: [...] } }
-        // const response = await api.get('/pj-dampingan/grup-dampingan');
-        // return response.data;
+        // Step 1: Dapatkan list grup yang dikelola (untuk PJ Grup akan return array berisi 1 grup)
+        const groupsRes = await api.get('/grup-dampingan');
+        const groups = groupsRes.data?.data || [];
+        
+        if (groups.length === 0) {
+            throw new Error('Grup tidak ditemukan');
+        }
 
-        return {
-            data: {
-                id: 1,
-                nama_grup: 'Grup Tani Makmur (Mock)',
-                bidang: { nama_bidang: 'Pertanian' },
-                kabupaten: { name: 'Kab. Bantul' },
-                provinsi: { name: 'DI Yogyakarta' },
-                fasilitators: [
-                    { id_user: 1, name: 'Budi Fasilitator' }
-                ],
-                anggota: [
-                    { id: 1, no_anggota: 'AGT-001', nama: 'Siti Aminah', jenis_kelamin: 'P', alamat: 'Bantul' },
-                    { id: 2, no_anggota: 'AGT-002', nama: 'Joko Widodo', jenis_kelamin: 'L', alamat: 'Bantul' }
-                ]
-            }
-        };
+        // Step 2: Ambil detail grup tersebut (termasuk relasi anggotaGrupDampingans)
+        const id = groups[0].id_grup_dampingan;
+        const detailRes = await api.get(`/grup-dampingan/${id}`);
+        return detailRes.data;
     }
 };

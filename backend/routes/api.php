@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Authentikasi\AuthController;
 use App\Http\Controllers\Api\Bidang\BidangController;
+use App\Http\Controllers\Api\Pekerjaan\PekerjaanController;
 use App\Http\Controllers\Api\User\UserController;
 use App\Http\Controllers\Api\FasilitatorBidang\FasilitatorBidangController;
 use App\Http\Controllers\Api\GrupDampingan\GrupDampinganController;
@@ -39,8 +40,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/change-password', [ProfilController::class, 'updatePassword']);
     });
 
-    // Bidang
+    // Bidang & Pekerjaan
     Route::get('/bidang', [BidangController::class, 'index']);
+    Route::get('/pekerjaan', [PekerjaanController::class, 'index']);
     Route::post('/bidang', [BidangController::class, 'store'])->middleware('permission:kelola_masyarakat');
     Route::delete('/bidang/{id}', [BidangController::class, 'destroy'])->middleware('permission:kelola_masyarakat');
 
@@ -54,10 +56,14 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // ----------- permission: kelola_grup -----------------
+    Route::get('/grup-dampingan', [GrupDampinganController::class, 'index'])
+        ->middleware('permission:kelola_grup,ajukan_anggota,create_kegiatan,verifikasi_anggota');
+
+    Route::get('/grup-dampingan/{id}', [GrupDampinganController::class, 'show'])
+        ->middleware('permission:kelola_grup,ajukan_anggota,verifikasi_anggota');
+
     Route::prefix('grup-dampingan')->middleware('permission:kelola_grup')->group(function () {
-        Route::get('/', [GrupDampinganController::class, 'index']);
         Route::post('/', [GrupDampinganController::class, 'store']);
-        Route::get('/{id}', [GrupDampinganController::class, 'show']);
         Route::put('/{id}', [GrupDampinganController::class, 'update']);
         Route::delete('/{id}', [GrupDampinganController::class, 'destroy']);
 

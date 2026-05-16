@@ -8,3 +8,10 @@ export const usePengajuanAnggotas = (params) => {
         queryFn: () => pengajuanAnggotaService.getAll(params),
     });
 };
+
+export const usePengajuanAnggotaSaya = (params) => {
+    return useQuery({
+        queryKey: [queryKeys.PENGAJUAN_ANGGOTA, 'saya', params],
+        queryFn: () => pengajuanAnggotaService.indexAjukanSaya(params),
+    });
+};

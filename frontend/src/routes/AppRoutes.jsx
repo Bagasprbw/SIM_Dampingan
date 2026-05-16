@@ -23,6 +23,7 @@ import KelolaAnggotaPage from '../pages/KelolaAnggota/KelolaAnggotaPage';
 import InformasiDampinganPage from '../pages/InformasiDampingan/InformasiDampinganPage';
 import KonfirmasiAnggotaPage from '../pages/KonfirmasiAnggota/KonfirmasiAnggotaPage';
 import KelolaDampinganPage from '../pages/KelolaDampingan/KelolaDampinganPage';
+import ProfilAnggotaPublicPage from '../pages/Public/ProfilAnggotaPublicPage';
 
 const AppRoutes = () => {
     return (
@@ -34,6 +35,9 @@ const AppRoutes = () => {
             <Route element={<GuestRoute />}>
                 <Route path="/login" element={<LoginPage />} />
             </Route>
+
+            {/* Public Routes */}
+            <Route path="/anggota/:id" element={<ProfilAnggotaPublicPage />} />
 
             {/* Protected Routes dengan RouteGuard */}
             <Route element={<RouteGuard />}>

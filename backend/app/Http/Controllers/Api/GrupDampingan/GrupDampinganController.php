@@ -343,7 +343,8 @@ class GrupDampinganController extends Controller
             'kabupaten',
             'kecamatan',
             'grupFasilitators.fasilitator',
-            'anggotaGrupDampingans',
+            'anggotaGrupDampingans.pekerjaan',
+            'anggotaGrupDampingans.bidang',
             'kegiatanGrups'
         ])->find($id);
 

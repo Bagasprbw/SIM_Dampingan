@@ -8,6 +8,7 @@ import {
     Leaf,
     User,
     ChevronRight,
+    ChevronLeft,
     Loader2
 } from 'lucide-react';
 import DetailDampinganModal from '../../components/modals/DetailDampinganModal';
@@ -22,11 +23,11 @@ const InformasiDampinganPage = () => {
 
     const { data: pjGrupData, isLoading, isError, refetch } = usePjGrup();
 
-    const grup = pjGrupData?.data; // { id, nama_grup, ..., anggota: [...] }
-    const anggotaList = grup?.anggota || [];
+    const grup = pjGrupData?.data; // { id_grup_dampingan, name, ..., anggota_grup_dampingans: [...] }
+    const anggotaList = grup?.anggota_grup_dampingans || [];
 
     const filtered = anggotaList.filter(a =>
-        String(a.nama || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        String(a.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         String(a.no_anggota || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         String(a.alamat || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -60,6 +61,9 @@ const InformasiDampinganPage = () => {
         );
     }
 
+    // Ambil list fasilitator untuk ditampilkan di header
+    const fasilitatorList = grup.grup_fasilitators?.map(f => f.fasilitator?.name).join(', ') || '-';
+
     return (
         <AdminLayout title="Informasi Dampingan">
             <div className="p-8 font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
@@ -72,7 +76,7 @@ const InformasiDampinganPage = () => {
                                 <Users size={24} />
                             </div>
                             <div className="flex flex-col">
-                                <h2 className="text-[#0A0F1E] text-lg font-bold tracking-tight">{grup.nama_grup}</h2>
+                                <h2 className="text-[#0A0F1E] text-lg font-bold tracking-tight">{grup.name}</h2>
                                 <p className="text-[#0080C5] text-[11px] font-semibold">Grup Dampingan</p>
                             </div>
                         </div>
@@ -84,7 +88,7 @@ const InformasiDampinganPage = () => {
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">BIDANG DAMPINGAN</span>
-                                    <span className="text-[#0A0F1E] text-sm font-bold">{grup.bidang?.nama_bidang || '-'}</span>
+                                    <span className="text-[#0A0F1E] text-sm font-bold">{grup.bidang?.name || '-'}</span>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -92,8 +96,25 @@ const InformasiDampinganPage = () => {
                                     <MapPin size={16} className="text-[#F59E0B]" />
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">ALAMAT DAMPINGAN</span>
-                                    <span className="text-[#0A0F1E] text-sm font-bold">{grup.kabupaten?.name}, {grup.provinsi?.name}</span>
+                                    <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">LOKASI DAMPINGAN</span>
+                                    <span className="text-[#0A0F1E] text-sm font-bold">
+                                        {(() => {
+                                            const parts = [];
+                                            if (grup.level_dampingan === 'provinsi') {
+                                                if (grup.provinsi?.name) parts.push(grup.provinsi.name);
+                                            } else if (grup.level_dampingan === 'kabupaten') {
+                                                if (grup.provinsi?.name) parts.push(grup.provinsi.name);
+                                                if (grup.kabupaten?.name) parts.push(grup.kabupaten.name);
+                                            } else if (grup.level_dampingan === 'kecamatan') {
+                                                if (grup.provinsi?.name) parts.push(grup.provinsi.name);
+                                                if (grup.kabupaten?.name) parts.push(grup.kabupaten.name);
+                                                if (grup.kecamatan?.name) parts.push(grup.kecamatan.name);
+                                            } else if (grup.level_dampingan === 'pusat') {
+                                                parts.push('Nasional');
+                                            }
+                                            return parts.join(', ');
+                                        })()}
+                                    </span>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -102,7 +123,9 @@ const InformasiDampinganPage = () => {
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">FASILITATOR</span>
-                                    <span className="text-[#0A0F1E] text-sm font-bold">{grup.fasilitator?.nama || '-'}</span>
+                                    <span className="text-[#0A0F1E] text-sm font-bold truncate max-w-[200px]" title={fasilitatorList}>
+                                        {fasilitatorList}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -143,10 +166,10 @@ const InformasiDampinganPage = () => {
                                         <td colSpan="6" className="py-10 text-center text-slate-500 text-xs">Tidak ada data anggota.</td>
                                     </tr>
                                 ) : paged.map((item, index) => (
-                                    <tr key={item.id || index} className="hover:bg-slate-50 transition-colors">
+                                    <tr key={item.id_anggota_grup || index} className="hover:bg-slate-50 transition-colors">
                                         <td className="py-4 px-4 text-[#0080C5] text-[11px] font-semibold whitespace-nowrap">{item.no_anggota || '-'}</td>
                                         <td className="py-4 px-4 text-left whitespace-nowrap">
-                                            <span className="text-[#0A0F1E] text-[11px] font-bold">{item.nama}</span>
+                                            <span className="text-[#0A0F1E] text-[11px] font-bold">{item.name}</span>
                                         </td>
                                         <td className="py-4 px-4 text-center whitespace-nowrap">
                                             <div className={`inline-flex items-center px-3 py-1 rounded-full ${item.jenis_kelamin === 'L' ? 'bg-blue-50 text-[#0080C5]' : 'bg-pink-50 text-pink-500'} text-[10px] font-bold`}>

@@ -8,21 +8,25 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useAnggotaMutations } from '../../hooks/mutations/useAnggotaMutation';
+import { usePengajuanAnggotaMutations } from '../../hooks/mutations/usePengajuanAnggotaMutation';
 
-const DeleteDampinganModal = ({ isOpen, onClose, data }) => {
+const DeleteDampinganModal = ({ isOpen, onClose, data, isPengajuan = false }) => {
     const { deleteAnggota } = useAnggotaMutations();
+    const { deletePengajuanAnggota } = usePengajuanAnggotaMutations();
     const [isLoading, setIsLoading] = useState(false);
 
     if (!isOpen) return null;
 
     const handleDelete = () => {
         setIsLoading(true);
-        deleteAnggota.mutate(data.id, {
+        const mutation = isPengajuan ? deletePengajuanAnggota : deleteAnggota;
+        
+        mutation.mutate(data.id_anggota_grup || data.id, {
             onSuccess: () => {
                 setIsLoading(false);
                 Swal.fire({
                     title: 'Terhapus!',
-                    text: 'Data masyarakat telah berhasil dihapus.',
+                    text: isPengajuan ? 'Pengajuan anggota berhasil dihapus.' : 'Data masyarakat telah berhasil dihapus.',
                     icon: 'success',
                     confirmButtonColor: '#EF4444',
                     timer: 1500,
@@ -31,12 +35,13 @@ const DeleteDampinganModal = ({ isOpen, onClose, data }) => {
                 });
                 onClose();
             },
-            onError: () => {
+            onError: (error) => {
                 setIsLoading(false);
+                const errorMsg = error.response?.data?.message || 'Terjadi kesalahan saat menghapus data masyarakat.';
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
-                    text: 'Terjadi kesalahan saat menghapus data masyarakat.',
+                    text: errorMsg,
                     showConfirmButton: false,
                     timer: 2000,
                     customClass: { popup: 'rounded-2xl font-["Poppins"]' }
@@ -81,22 +86,22 @@ const DeleteDampinganModal = ({ isOpen, onClose, data }) => {
                             <div className="flex items-start gap-2">
                                 <span className="w-28 text-slate-500 text-xs font-semibold leading-5">Nama</span>
                                 <span className="text-slate-500 text-xs">:</span>
-                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">{data?.nama || 'Siti Rahayu'}</span>
+                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">{data?.name || '-'}</span>
                             </div>
                             <div className="flex items-start gap-2">
                                 <span className="w-28 text-slate-500 text-xs font-semibold leading-5">No. Telepon</span>
                                 <span className="text-slate-500 text-xs">:</span>
-                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">082345678901</span>
+                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">{data?.no_telp || '-'}</span>
                             </div>
                             <div className="flex items-start gap-2">
                                 <span className="w-28 text-slate-500 text-xs font-semibold leading-5">Grup Dampingan</span>
                                 <span className="text-slate-500 text-xs">:</span>
-                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">Grup Dampingan Sejahtera</span>
+                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">{data?.grup_dampingan?.nama_grup || '-'}</span>
                             </div>
                             <div className="flex items-start gap-2">
-                                <span className="w-28 text-slate-500 text-xs font-semibold leading-5">Peran</span>
+                                <span className="w-28 text-slate-500 text-xs font-semibold leading-5">Status</span>
                                 <span className="text-slate-500 text-xs">:</span>
-                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5">Anggota</span>
+                                <span className="flex-1 text-slate-950 text-xs font-semibold leading-5 capitalize">{data?.status || '-'}</span>
                             </div>
                         </div>
                     </div>

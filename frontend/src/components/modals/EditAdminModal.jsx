@@ -2,19 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { X, Edit3, ChevronDown, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useAdminMutations } from '../../hooks/mutations/useAdminMutation';
+import { useRoles } from '../../hooks/queries/useHakAksesQuery';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 
 const EditAdminModal = ({ isOpen, onClose, data }) => {
     const { updateAdmin } = useAdminMutations();
+    const { data: rolesData, isLoading: loadingRoles } = useRoles();
+    const roles = rolesData?.data || [];
+    
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
-        name: '', username: '', no_telp: '',
-        kode_prov: '', kode_kab: '', kode_kec: ''
+        name: '', 
+        username: '', 
+        no_telp: '',
+        role_id: '',
+        kode_prov: '', 
+        kode_kab: '', 
+        kode_kec: ''
     });
 
-    const { data: provinsiOptions = [] } = useProvinsi();
-    const { data: kabupatenOptions = [] } = useKabupaten(formData.kode_prov);
-    const { data: kecamatanOptions = [] } = useKecamatan(formData.kode_kab);
+    const { data: provinsiList = [], isLoading: loadingProv } = useProvinsi();
+    const { data: kabupatenList = [], isLoading: loadingKab } = useKabupaten(formData.kode_prov);
+    const { data: kecamatanList = [], isLoading: loadingKec } = useKecamatan(formData.kode_kab);
+
+    // Filter roles to only show admin roles
+    const adminRoles = roles.filter(role => 
+        ['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(role.name)
+    );
 
     useEffect(() => {
         if (data) {
@@ -22,6 +36,7 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                 name: data.name || '',
                 username: data.username || '',
                 no_telp: data.no_telp || '',
+                role_id: data.role_id || '',
                 kode_prov: data.kode_prov || '',
                 kode_kab: data.kode_kab || '',
                 kode_kec: data.kode_kec || ''
@@ -30,7 +45,13 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
     }, [data]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData(prev => ({ 
+            ...prev, 
+            [name]: value,
+            ...(name === 'kode_prov' ? { kode_kab: '', kode_kec: '' } : {}),
+            ...(name === 'kode_kab' ? { kode_kec: '' } : {})
+        }));
     };
 
     if (!isOpen) return null;
@@ -52,12 +73,12 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                 });
                 onClose();
             },
-            onError: () => {
+            onError: (error) => {
                 setIsLoading(false);
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
-                    text: 'Terjadi kesalahan saat mengubah admin.',
+                    text: error.response?.data?.message || 'Terjadi kesalahan saat mengubah admin.',
                     showConfirmButton: false,
                     timer: 2000,
                     customClass: { popup: 'rounded-2xl font-["Poppins"]' }
@@ -69,9 +90,12 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center font-['Poppins'] p-4">
             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose}></div>
-            <div className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 text-left">
+
+            {/* Modal Content */}
+            <div className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col text-left">
                 
-                <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                {/* Header */}
+                <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-[#0080C5]/10 rounded-full flex items-center justify-center text-[#0080C5]">
                             <Edit3 size={20} />
@@ -86,8 +110,9 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                     </button>
                 </div>
 
-                <form onSubmit={handleSave} className="p-5 space-y-3">
-                    <div className="grid grid-cols-2 gap-5">
+                {/* Form Body */}
+                <form onSubmit={handleSave} className="p-5 space-y-3 overflow-y-auto custom-scrollbar">
+                    <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Nama <span className="text-red-500">*</span></label>
                             <input name="name" value={formData.name} onChange={handleChange} type="text" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" required />
@@ -98,18 +123,32 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-[#0A0F1E] text-xs font-semibold">No. Telp <span className="text-red-500">*</span></label>
-                        <input name="no_telp" value={formData.no_telp} onChange={handleChange} type="text" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" placeholder="8xxxxxxxxx" required />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[#0A0F1E] text-xs font-semibold">No. Telp <span className="text-red-500">*</span></label>
+                            <input name="no_telp" value={formData.no_telp} onChange={handleChange} type="text" className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" placeholder="08xxxxxxxxxx" required />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[#0A0F1E] text-xs font-semibold">Role <span className="text-red-500">*</span></label>
+                            <div className="relative group">
+                                <select name="role_id" value={formData.role_id} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium" required>
+                                    <option value="">{loadingRoles ? 'Memuat...' : 'Pilih Role'}</option>
+                                    {adminRoles.map(role => (
+                                        <option key={role.id_role} value={role.id_role}>{role.name.replace(/_/g, ' ').toUpperCase()}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" />
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-5">
+                    <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Provinsi <span className="text-red-500">*</span></label>
                             <div className="relative group">
                                 <select name="kode_prov" value={formData.kode_prov} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium" required>
-                                    <option value="">Pilih Provinsi</option>
-                                    {provinsiOptions.map(p => (
+                                    <option value="">{loadingProv ? 'Memuat...' : 'Pilih Provinsi'}</option>
+                                    {provinsiList.map(p => (
                                         <option key={p.kode} value={p.kode}>{p.name}</option>
                                     ))}
                                 </select>
@@ -119,9 +158,9 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Kabupaten <span className="text-red-500">*</span></label>
                             <div className="relative group">
-                                <select name="kode_kab" value={formData.kode_kab} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium" disabled={!formData.kode_prov} required>
-                                    <option value="">Pilih Kabupaten</option>
-                                    {kabupatenOptions.map(k => (
+                                <select name="kode_kab" value={formData.kode_kab} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium disabled:opacity-50" disabled={!formData.kode_prov} required>
+                                    <option value="">{loadingKab ? 'Memuat...' : 'Pilih Kabupaten'}</option>
+                                    {kabupatenList.map(k => (
                                         <option key={k.kode} value={k.kode}>{k.name}</option>
                                     ))}
                                 </select>
@@ -133,9 +172,9 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#0A0F1E] text-xs font-semibold">Kecamatan <span className="text-red-500">*</span></label>
                         <div className="relative group">
-                            <select name="kode_kec" value={formData.kode_kec} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium" disabled={!formData.kode_kab} required>
-                                <option value="">Pilih Kecamatan</option>
-                                {kecamatanOptions.map(k => (
+                            <select name="kode_kec" value={formData.kode_kec} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium disabled:opacity-50" disabled={!formData.kode_kab} required>
+                                <option value="">{loadingKec ? 'Memuat...' : 'Pilih Kecamatan'}</option>
+                                {kecamatanList.map(k => (
                                     <option key={k.kode} value={k.kode}>{k.name}</option>
                                 ))}
                             </select>
@@ -143,7 +182,8 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                         </div>
                     </div>
 
-                    <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-3">
+                    {/* Footer Actions */}
+                    <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
                         <button type="button" onClick={onClose} className="px-6 h-10 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold hover:bg-gray-50 transition-all">
                             Batal
                         </button>

@@ -36,7 +36,7 @@ const Sidebar = () => {
      * permission: string → tampil hanya jika userPermissions mengandung permission ini
      */
     const allMenuItems = [
-        { icon: <Grid2X2 size={18} />,       label: 'Dashboard',            path: '/dashboard',           permission: null },
+        { icon: <Grid2X2 size={18} />,        label: 'Dashboard',            path: '/dashboard',           permission: null },
         { icon: <Users size={18} />,          label: 'Data Admin',           path: '/data-admin',          permission: 'kelola_admin_bawahan' },
         { icon: <UserCheck size={18} />,      label: 'Data Fasilitator',     path: '/data-fasilitator',    permission: 'kelola_fasilitator' },
         { icon: <UserCog size={18} />,        label: 'Data Pj Dampingan',    path: '/data-pj',             permission: 'kelola_pj_grup' },
@@ -46,7 +46,8 @@ const Sidebar = () => {
         { icon: <LayoutGrid size={18} />,     label: 'Kelola Dampingan',     path: '/kelola-dampingan',    permission: 'kelola_grup' },
         { icon: <Settings2 size={18} />,      label: 'Kelola Kegiatan',      path: '/kelola-kegiatan',     permission: 'create_kegiatan' },
         { icon: <ShieldCheck size={18} />,    label: 'Kelola Hak Akses',     path: '/hak-akses',           permission: 'manage_roles' },
-        { icon: <Users size={18} />,          label: 'Kelola Anggota',       path: '/kelola-anggota',      permission: 'ajukan_anggota' },
+        { icon: <Users size={18} />,          label: 'Pendaftaran Anggota',       path: '/kelola-anggota',      permission: 'ajukan_anggota' },
+        { icon: <LayoutGrid size={18} />,     label: 'Informasi Dampingan',  path: '/informasi-dampingan', permission: null },
         { icon: <Map size={18} />,            label: 'Peta Sebaran',         path: '/peta',                permission: 'view_peta_sebaran' },
         { icon: <History size={18} />,        label: 'Log Aktifitas',        path: '/log',                 permission: null },
         { icon: <BookOpen size={18} />,       label: 'Panduan Penggunaan',   path: '/panduan',             permission: 'view_panduan' },

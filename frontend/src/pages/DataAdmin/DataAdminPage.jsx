@@ -92,7 +92,7 @@ const DataAdminPage = () => {
                             </div>
                             <input 
                                 type="text" 
-                                placeholder="Cari nama, username, alamat, no. telp..."
+                                placeholder="Cari nama, username, no. telp..."
                                 value={searchQuery}
                                 onChange={handleSearch}
                                 className="w-full pl-12 pr-4 py-3 bg-white rounded-[10px] border-2 border-[#F1F5F9] focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-400 transition-all"
@@ -149,7 +149,7 @@ const DataAdminPage = () => {
                                         <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tl-xl text-center">NO</th>
                                         <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Nama</th>
                                         <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Username</th>
-                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">No.Telp</th>
+                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">No. Telp</th>
                                         <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Provinsi</th>
                                         <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kabupaten</th>
                                         <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kecamatan</th>
@@ -158,13 +158,13 @@ const DataAdminPage = () => {
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
                                     {admins.map((item, index) => (
-                                        <tr key={item.id_user || item.id || index} className="hover:bg-slate-50/50 transition-colors group">
+                                        <tr key={item.id_user || item.id || index} className="hover:bg-slate-50/50 transition-colors group text-left">
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">
                                                 {meta.from ? meta.from + index : index + 1}
                                             </td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.name}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.username}</td>
-                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.no_telp || '-'}</td>
+                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal whitespace-nowrap">{item.no_telp || '-'}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.provinsi?.name || '-'}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kabupaten?.name || '-'}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kecamatan?.name || '-'}</td>
