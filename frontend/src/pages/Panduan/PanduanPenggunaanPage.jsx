@@ -146,10 +146,9 @@ const PanduanPenggunaanPage = () => {
                             <thead>
                                 <tr className="bg-slate-100/50">
                                     <th className="py-3 px-4 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[8%]">NO</th>
-                                    <th className="py-3 px-4 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[22%]">JUDUL PANDUAN</th>
-                                    <th className="py-3 px-4 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[15%]">ROLE</th>
-                                    <th className="py-3 px-4 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[15%]">TIPE</th>
-                                    <th className="py-3 px-4 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[30%]">DESKRIPSI</th>
+                                    <th className="py-3 px-4 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[30%]">JUDUL PANDUAN</th>
+                                    <th className="py-3 px-4 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[20%]">ROLE</th>
+                                    <th className="py-3 px-4 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[25%]">TIPE</th>
                                     {!isReadOnly && <th className="py-3 px-4 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest w-[10%]">AKSI</th>}
                                 </tr>
                             </thead>
@@ -159,19 +158,19 @@ const PanduanPenggunaanPage = () => {
                                         <td className="py-2.5 px-4 text-center text-slate-950 text-[11px] font-semibold">{idx + 1 + (meta?.from ? meta.from - 1 : 0)}</td>
                                         <td className="py-2.5 px-4 ">
                                             <div className="space-y-0.5">
-                                                <div className="text-slate-950 text-[11px] font-semibold">{guide.judul_panduan}</div>
+                                                <div className="text-slate-950 text-[11px] font-semibold">{guide.judul}</div>
                                             </div>
                                         </td>
                                         <td className="py-2.5 px-4 text-center">
                                             <div className="inline-flex px-4 py-1 bg-[#16A34A]/10 rounded-full">
-                                                <span className="text-[#16A34A] text-[10px] font-bold uppercase">{guide.role?.name || guide.role || '-'}</span>
+                                                <span className="text-[#16A34A] text-[10px] font-bold uppercase">{guide.role_target?.name || '-'}</span>
                                             </div>
                                         </td>
                                         <td className="py-2.5 px-4 text-center">
                                             <div className="flex justify-center gap-1.5">
-                                                {guide.file_pdf && (
+                                                {guide.link_file && (
                                                     <div 
-                                                        onClick={() => handleViewFile(guide.file_pdf)}
+                                                        onClick={() => handleViewFile(guide.link_file)}
                                                         className="inline-flex items-center gap-1 px-3 py-1 bg-red-500/10 rounded-full cursor-pointer hover:bg-red-500/20 transition-colors"
                                                     >
                                                         <FileText size={12} className="text-red-700 fill-red-700/20" />
@@ -187,14 +186,9 @@ const PanduanPenggunaanPage = () => {
                                                         <span className="text-[#A16207] text-[9px] font-bold uppercase tracking-tighter">VIDEO</span>
                                                     </div>
                                                 )}
-                                                {!guide.file_pdf && !guide.link_video && (
+                                                {!guide.link_file && !guide.link_video && (
                                                     <span className="text-slate-400 text-[10px]">-</span>
                                                 )}
-                                            </div>
-                                        </td>
-                                        <td className="py-2.5 px-4 ">
-                                            <div className="text-slate-500 text-xs font-normal line-clamp-1 italic">
-                                                {guide.deskripsi || '-'}
                                             </div>
                                         </td>
                                         {!isReadOnly && (

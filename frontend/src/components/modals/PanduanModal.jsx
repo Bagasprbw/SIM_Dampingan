@@ -7,59 +7,93 @@ import {
     FileText, 
     PlayCircle, 
     Plus, 
-    Save 
+    Save,
+    Loader2
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useRoles } from '../../hooks/queries/useHakAksesQuery';
+import { usePanduanMutation } from '../../hooks/mutations/usePanduanMutation';
 
 const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => {
+    const { data: rolesData, isLoading: loadingRoles } = useRoles();
+    const roles = rolesData?.data || [];
+    
+    const { createPanduan, updatePanduan } = usePanduanMutation();
+    const isSaving = createPanduan.isPending || updatePanduan.isPending;
     const [formData, setFormData] = useState({
-        title: '',
-        role: '',
-        pdfUrl: '',
-        videoUrl: '',
-        desc: ''
+        judul: '',
+        role_target: '',
+        link_file: '',
+        link_video: ''
     });
 
     useEffect(() => {
         if (mode === 'edit' && initialData) {
-            setFormData(initialData);
+            setFormData({
+                judul: initialData.judul || '',
+                role_target: initialData.role_target?.id_role || initialData.role_target || '',
+                link_file: initialData.link_file || '',
+                link_video: initialData.link_video || ''
+            });
         } else {
-            setFormData({ title: '', role: '', pdfUrl: '', videoUrl: '', desc: '' });
+            setFormData({ judul: '', role_target: '', link_file: '', link_video: '' });
         }
     }, [mode, initialData, isOpen]);
 
     const handleSave = () => {
-        // Simulasi simpan data
-        onClose();
-        
-        // Tampilkan Alert Sukses ala Figma (Rounded 48px)
-        Swal.fire({
-            html: `
-                <div class="flex flex-col items-center gap-6 py-4">
-                    <div class="w-24 h-24 bg-emerald-500/10 rounded-[48px] flex items-center justify-center outline outline-1 outline-emerald-500">
-                        <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        // Validasi
+        if (!formData.judul || !formData.role_target || !formData.link_file || !formData.link_video) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Data Tidak Lengkap',
+                text: 'Harap isi semua kolom yang diperlukan.',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+            });
+            return;
+        }
+
+        const action = mode === 'add' 
+            ? createPanduan.mutateAsync(formData)
+            : updatePanduan.mutateAsync({ id: initialData.id_paduan, data: formData });
+
+        action.then(() => {
+            onClose();
+            // Tampilkan Alert Sukses ala Figma (Rounded 48px)
+            Swal.fire({
+                html: `
+                    <div class="flex flex-col items-center gap-6 py-4">
+                        <div class="w-24 h-24 bg-emerald-500/10 rounded-[48px] flex items-center justify-center outline outline-1 outline-emerald-500">
+                            <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-center">
+                            <h2 class="text-lg font-bold text-slate-950 font-['Poppins'] tracking-tight">
+                                ${mode === 'add' ? 'Panduan Ditambahkan!' : 'Perubahan Disimpan!'}
+                            </h2>
+                            <p class="text-slate-500 text-base font-['Poppins']">
+                                Data panduan berhasil ${mode === 'add' ? 'ditambahkan ke sistem' : 'diperbarui di sistem'}.
+                            </p>
                         </div>
                     </div>
-                    <div class="space-y-2 text-center">
-                        <h2 class="text-lg font-bold text-slate-950 font-['Poppins'] tracking-tight">
-                            ${mode === 'add' ? 'Panduan Ditambahkan!' : 'Perubahan Disimpan!'}
-                        </h2>
-                        <p class="text-slate-500 text-base font-['Poppins']">
-                            Data panduan berhasil ${mode === 'add' ? 'ditambahkan ke sistem' : 'diperbarui di sistem'}.
-                        </p>
-                    </div>
-                </div>
-            `,
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: false,
-            width: '460px',
-            padding: '3rem',
-            background: '#ffffff',
-            customClass: {
-                popup: 'rounded-[48px] shadow-2xl border-none'
-            }
+                `,
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: false,
+                width: '460px',
+                padding: '3rem',
+                background: '#ffffff',
+                customClass: {
+                    popup: 'rounded-[48px] shadow-2xl border-none'
+                }
+            });
+        }).catch((err) => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+            });
         });
     };
 
@@ -120,24 +154,29 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
                             type="text" 
                             placeholder="Contoh: Panduan Login & Registrasi"
                             className="w-full px-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-sm font-medium focus:outline-none focus:border-[#0080C5] transition-all"
-                            value={formData.title}
-                            onChange={(e) => setFormData({...formData, title: e.target.value})}
+                            value={formData.judul}
+                            onChange={(e) => setFormData({...formData, judul: e.target.value})}
                         />
                     </div>
 
                     {/* Role Pengguna */}
                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-900 uppercase tracking-widest">ROLE PENGGUNA</label>
+                        <label className="text-[10px] font-bold text-slate-900 uppercase tracking-widest">
+                            ROLE PENGGUNA <span className="text-red-500">*</span>
+                        </label>
                         <div className="relative">
                             <select 
-                                className="w-full px-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-sm font-medium appearance-none focus:outline-none focus:border-[#0080C5] transition-all"
-                                value={formData.role}
-                                onChange={(e) => setFormData({...formData, role: e.target.value})}
+                                className="w-full px-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-sm font-medium appearance-none focus:outline-none focus:border-[#0080C5] transition-all disabled:opacity-50"
+                                value={formData.role_target}
+                                onChange={(e) => setFormData({...formData, role_target: e.target.value})}
+                                disabled={loadingRoles}
                             >
-                                <option value="" disabled>Pilih Role..</option>
-                                <option value="Admin">Admin</option>
-                                <option value="Fasilitator">Fasilitator</option>
-                                <option value="PJ Dampingan">PJ Dampingan</option>
+                                <option value="" disabled>{loadingRoles ? 'Memuat Role...' : 'Pilih Role..'}</option>
+                                {roles.map(role => (
+                                    <option key={role.id_role} value={role.id_role}>
+                                        {role.name.replace(/_/g, ' ').toUpperCase()}
+                                    </option>
+                                ))}
                             </select>
                             <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
                                 <ChevronDown size={18} className="text-slate-400" />
@@ -157,17 +196,17 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
                                     type="text" 
                                     placeholder="https://drive.google.com/..."
                                     className="w-full pl-11 pr-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-xs font-medium focus:outline-none focus:border-[#0080C5] transition-all"
-                                    value={formData.pdfUrl}
-                                    onChange={(e) => setFormData({...formData, pdfUrl: e.target.value})}
+                                    value={formData.link_file}
+                                    onChange={(e) => setFormData({...formData, link_file: e.target.value})}
                                 />
                             </div>
-                            <p className={`text-[10px] font-medium ${mode === 'edit' && formData.pdfUrl ? 'text-green-500' : 'text-slate-400'}`}>
-                                {mode === 'edit' && formData.pdfUrl ? 'Link PDF Tersedia' : 'Link file PDF panduan'}
+                            <p className={`text-[10px] font-medium ${mode === 'edit' && formData.link_file ? 'text-green-500' : 'text-slate-400'}`}>
+                                {mode === 'edit' && formData.link_file ? 'Link PDF Tersedia' : 'Link file PDF panduan'}
                             </p>
                         </div>
                         <div className="space-y-2">
                             <label className="flex items-center gap-2 text-[10px] font-bold text-orange-500 uppercase tracking-widest">
-                                <PlayCircle size={14} /> URL VIDEO
+                                <PlayCircle size={14} /> URL VIDEO <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                                 <Link size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
@@ -175,30 +214,13 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
                                     type="text" 
                                     placeholder="https://youtube.com/..."
                                     className="w-full pl-11 pr-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-xs font-medium focus:outline-none focus:border-[#0080C5] transition-all"
-                                    value={formData.videoUrl}
-                                    onChange={(e) => setFormData({...formData, videoUrl: e.target.value})}
+                                    value={formData.link_video}
+                                    onChange={(e) => setFormData({...formData, link_video: e.target.value})}
                                 />
                             </div>
-                            <p className={`text-[10px] font-medium ${mode === 'edit' && formData.videoUrl ? 'text-green-500' : 'text-slate-400'}`}>
-                                {mode === 'edit' && formData.videoUrl ? 'Link YouTube Tersedia' : 'Link YouTube atau video lainnya'}
+                            <p className={`text-[10px] font-medium ${mode === 'edit' && formData.link_video ? 'text-green-500' : 'text-slate-400'}`}>
+                                {mode === 'edit' && formData.link_video ? 'Link YouTube Tersedia' : 'Link YouTube atau video lainnya'}
                             </p>
-                        </div>
-                    </div>
-
-                    {/* Deskripsi Area */}
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-900 uppercase tracking-widest">DESKRIPSI</label>
-                        <div className="relative">
-                            <textarea 
-                                placeholder="Tulis deskripsi singkat tentang isi panduan ini..."
-                                className="w-full px-4 py-4 bg-white border-2 border-slate-100 rounded-2xl text-sm font-medium h-32 focus:outline-none focus:border-[#0080C5] transition-all resize-none"
-                                value={formData.desc}
-                                onChange={(e) => setFormData({...formData, desc: e.target.value})}
-                                maxLength={200}
-                            />
-                            <span className="absolute bottom-4 right-5 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                                {formData.desc.length}/200
-                            </span>
                         </div>
                     </div>
                 </div>
@@ -213,10 +235,11 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
                     </button>
                     <button 
                         onClick={handleSave}
-                        className="flex-[2] py-4 bg-[#0080C5] text-white rounded-xl text-sm font-bold flex items-center justify-center gap-3 hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 active:scale-95 duration-75"
+                        disabled={isSaving}
+                        className="flex-[2] py-4 bg-[#0080C5] text-white rounded-xl text-sm font-bold flex items-center justify-center gap-3 hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 active:scale-95 duration-75 disabled:opacity-50"
                     >
-                        {mode === 'add' ? <Plus size={18} /> : <Save size={18} />}
-                        {mode === 'add' ? 'Tambah Panduan' : 'Simpan Perubahan'}
+                        {isSaving ? <Loader2 size={18} className="animate-spin" /> : mode === 'add' ? <Plus size={18} /> : <Save size={18} />}
+                        {isSaving ? 'Menyimpan...' : mode === 'add' ? 'Tambah Panduan' : 'Simpan Perubahan'}
                     </button>
                 </div>
 
