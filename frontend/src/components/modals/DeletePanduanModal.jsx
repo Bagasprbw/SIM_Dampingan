@@ -5,38 +5,51 @@ import {
     AlertTriangle, 
     Trash2, 
     FileText, 
-    PlayCircle 
+    PlayCircle,
+    Loader2
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { usePanduanMutation } from '../../hooks/mutations/usePanduanMutation';
 
 const DeletePanduanModal = ({ isOpen, onClose, data }) => {
+    const { deletePanduan } = usePanduanMutation();
+
     if (!isOpen || !data) return null;
 
     const handleDelete = () => {
-        onClose();
-        
-        // Tampilkan Alert Sukses ala Figma (Rounded 48px)
-        Swal.fire({
-            html: `
-                <div class="flex flex-col items-center gap-6 py-4">
-                    <div class="w-24 h-24 bg-emerald-500/10 rounded-[48px] flex items-center justify-center outline outline-1 outline-emerald-500">
-                        <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        deletePanduan.mutateAsync(data.id_paduan).then(() => {
+            onClose();
+            
+            // Tampilkan Alert Sukses ala Figma (Rounded 48px)
+            Swal.fire({
+                html: `
+                    <div class="flex flex-col items-center gap-6 py-4">
+                        <div class="w-24 h-24 bg-emerald-500/10 rounded-[48px] flex items-center justify-center outline outline-1 outline-emerald-500">
+                            <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-center">
+                            <h2 class="text-lg font-bold text-slate-950 font-['Poppins'] tracking-tight">Berhasil Dihapus!</h2>
+                            <p class="text-slate-500 text-base font-['Poppins']">Panduan telah dihapus secara permanen dari sistem.</p>
                         </div>
                     </div>
-                    <div class="space-y-2 text-center">
-                        <h2 class="text-lg font-bold text-slate-950 font-['Poppins'] tracking-tight">Berhasil Dihapus!</h2>
-                        <p class="text-slate-500 text-base font-['Poppins']">Panduan telah dihapus secara permanen dari sistem.</p>
-                    </div>
-                </div>
-            `,
-            showConfirmButton: false,
-            timer: 2000,
-            width: '460px',
-            padding: '3rem',
-            customClass: {
-                popup: 'rounded-[48px] shadow-2xl border-none'
-            }
+                `,
+                showConfirmButton: false,
+                timer: 2000,
+                width: '460px',
+                padding: '3rem',
+                customClass: {
+                    popup: 'rounded-[48px] shadow-2xl border-none'
+                }
+            });
+        }).catch((err) => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal Menghapus',
+                text: err.response?.data?.message || 'Terjadi kesalahan saat menghapus data.',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+            });
         });
     };
 
@@ -73,12 +86,12 @@ const DeletePanduanModal = ({ isOpen, onClose, data }) => {
                             <div className="flex items-start text-xs font-medium">
                                 <span className="w-20 text-slate-400">Judul</span>
                                 <span className="w-4 text-slate-400">:</span>
-                                <span className="flex-1 text-slate-900 font-bold">{data.title}</span>
+                                <span className="flex-1 text-slate-900 font-bold">{data.judul}</span>
                             </div>
                             <div className="flex items-center text-xs font-medium">
                                 <span className="w-20 text-slate-400">Role</span>
                                 <span className="w-4 text-slate-400">:</span>
-                                <span className="flex-1 text-slate-900 font-bold">{data.role}</span>
+                                <span className="flex-1 text-slate-900 font-bold">{data.role_target?.name || '-'}</span>
                             </div>
                             <div className="flex items-center text-xs font-medium">
                                 <span className="w-20 text-slate-400">File</span>
@@ -118,10 +131,11 @@ const DeletePanduanModal = ({ isOpen, onClose, data }) => {
                     </button>
                     <button 
                         onClick={handleDelete}
-                        className="flex-1 py-4 bg-[#EF4444] text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-3 hover:bg-red-600 transition-all shadow-lg shadow-red-100 active:scale-95 duration-75"
+                        disabled={deletePanduan.isPending}
+                        className="flex-1 py-4 bg-[#EF4444] text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-3 hover:bg-red-600 transition-all shadow-lg shadow-red-100 active:scale-95 duration-75 disabled:opacity-50"
                     >
-                        <Trash2 size={18} />
-                        Ya, Hapus
+                        {deletePanduan.isPending ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                        {deletePanduan.isPending ? 'Menghapus...' : 'Ya, Hapus'}
                     </button>
                 </div>
 
