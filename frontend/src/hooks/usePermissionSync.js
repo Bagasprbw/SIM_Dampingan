@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { getToken, getPermissions, savePermissions } from '../utils/storage';
+import { getToken, getPermissions, savePermissions, getUser, saveAuthData } from '../utils/storage';
 import { authRepository } from '../api/repositories/authRepository';
 
 /**
@@ -27,6 +27,18 @@ export const usePermissionSync = () => {
             const me = await authRepository.getMe();
             const freshPermissions = me.permissions ?? [];
             const cachedPermissions = getPermissions();
+            const cachedUser = getUser();
+
+            // Auto-heal data user di localStorage (misal: penambahan kode_prov/kode_kab dari backend)
+            if (cachedUser) {
+                const freshUser = { 
+                    ...cachedUser, 
+                    ...me, 
+                    role: me.role // me.role is a string here from getMe
+                };
+                delete freshUser.permissions;
+                saveAuthData(getToken(), freshUser);
+            }
 
             // Bandingkan dengan stringify untuk deteksi perubahan
             const freshSorted = [...freshPermissions].sort().join(',');

@@ -20,6 +20,7 @@ import { usePjGrups } from '../../hooks/queries/usePjGrupQuery';
 import { Loader2 } from 'lucide-react';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
+import { isSuperAdmin } from '../../utils/permissionUtils';
 
 const DataPjPage = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -177,15 +178,17 @@ const DataPjPage = () => {
                                                     >
                                                         <Trash2 size={14} />
                                                     </button>
-                                                    <button 
-                                                        onClick={() => {
-                                                            setSelectedPj(item);
-                                                            setIsResetModalOpen(true);
-                                                        }}
-                                                        className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
-                                                    >
-                                                        <Lock size={14} />
-                                                    </button>
+                                                    {isSuperAdmin() && (
+                                                        <button 
+                                                            onClick={() => {
+                                                                setSelectedPj(item);
+                                                                setIsResetModalOpen(true);
+                                                            }}
+                                                            className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
+                                                        >
+                                                            <Lock size={14} />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="py-2.5 px-4 text-center border-b border-[#F1F5F9]">

@@ -30,9 +30,14 @@ export const useAdminMutations = () => {
         },
     });
 
+    const resetPasswordAdmin = useMutation({
+        mutationFn: (id) => adminService.resetPassword(id),
+    });
+
     return {
         createAdmin,
         updateAdmin,
         deleteAdmin,
+        resetPasswordAdmin,
     };
 };
