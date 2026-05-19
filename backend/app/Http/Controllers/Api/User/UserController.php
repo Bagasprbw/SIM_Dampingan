@@ -763,4 +763,27 @@ class UserController extends Controller
             'data' => null
         ]);
     }
+
+    public function resetPassword(Request $request, $id)
+    {
+        // Hanya superadmin yang boleh reset password
+        if ($request->user()->username !== 'superadmin' && $request->user()->role?->name !== 'superadmin') {
+            return response()->json(['message' => 'Hanya Superadmin yang dapat melakukan reset password.'], 403);
+        }
+
+        $targetUser = User::findOrFail($id);
+        
+        $dataLama = $targetUser->toArray();
+        $targetUser->password = Hash::make('12345678');
+        $targetUser->save();
+
+        // Catat log UPDATE password
+        $this->logUpdate($request, 'User', $id, $dataLama, $targetUser->toArray(), "Password user '{$targetUser->name}' berhasil direset menjadi default.");
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password berhasil direset ke 12345678',
+            'data' => null
+        ]);
+    }
 }

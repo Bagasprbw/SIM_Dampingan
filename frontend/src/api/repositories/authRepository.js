@@ -15,6 +15,9 @@ export const authRepository = {
             name: user.name,
             username: user.username,
             role: user.role,
+            kode_prov: user.kode_prov,
+            kode_kab: user.kode_kab,
+            kode_kec: user.kode_kec,
         };
 
         // Permissions dari backend (array of code strings)
@@ -47,6 +50,9 @@ export const authRepository = {
             username: user.username,
             role: user.role?.name ?? null,
             permissions: user.role?.permissions?.map((p) => p.code) ?? [],
+            kode_prov: user.kode_prov,
+            kode_kab: user.kode_kab,
+            kode_kec: user.kode_kec,
         };
     },
 };

@@ -30,9 +30,14 @@ export const useFasilitatorMutations = () => {
         },
     });
 
+    const resetPasswordFasilitator = useMutation({
+        mutationFn: (id) => fasilitatorService.resetPassword(id),
+    });
+
     return {
         createFasilitator,
         updateFasilitator,
         deleteFasilitator,
+        resetPasswordFasilitator,
     };
 };

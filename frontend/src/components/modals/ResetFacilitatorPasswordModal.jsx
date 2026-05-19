@@ -1,19 +1,38 @@
-import React from 'react';
-import { X, Key, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Key, Lock, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useFasilitatorMutations } from '../../hooks/mutations/useFasilitatorMutation';
 
 const ResetFacilitatorPasswordModal = ({ isOpen, onClose, data }) => {
+    const { resetPasswordFasilitator } = useFasilitatorMutations();
+    const [isLoading, setIsLoading] = useState(false);
+
     if (!isOpen) return null;
 
     const handleReset = () => {
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Password fasilitator telah direset ke 12345678',
-            confirmButtonColor: '#FBBF24',
-            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+        setIsLoading(true);
+        resetPasswordFasilitator.mutate(data.id_user || data.id, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Password fasilitator telah direset ke 12345678',
+                    confirmButtonColor: '#FBBF24',
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                });
+                onClose();
+            },
+            onError: (error) => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal mereset password',
+                    text: error.response?.data?.message || 'Terjadi kesalahan sistem',
+                    confirmButtonColor: '#EF4444',
+                });
+            }
         });
-        onClose();
     };
 
     return (
@@ -51,9 +70,10 @@ const ResetFacilitatorPasswordModal = ({ isOpen, onClose, data }) => {
                         </div>
                     </div>
                     <div className="pt-2 border-t border-gray-100 flex items-center justify-end gap-3">
-                        <button onClick={onClose} className="px-6 py-2 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold h-10">Batal</button>
-                        <button onClick={handleReset} className="px-6 py-2 bg-[#FBBF24] text-white rounded-[10px] text-xs font-semibold h-10 flex items-center gap-2 hover:bg-[#F59E0B] transition-all">
-                            <Key size={14} />Ya, Reset Password
+                        <button onClick={onClose} disabled={isLoading} className="px-6 py-2 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold h-10 disabled:opacity-50">Batal</button>
+                        <button onClick={handleReset} disabled={isLoading} className="px-6 py-2 bg-[#FBBF24] text-white rounded-[10px] text-xs font-semibold h-10 flex items-center gap-2 hover:bg-[#F59E0B] transition-all disabled:opacity-50">
+                            {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Key size={14} />}
+                            {isLoading ? 'Mereset...' : 'Ya, Reset Password'}
                         </button>
                     </div>
                 </div>

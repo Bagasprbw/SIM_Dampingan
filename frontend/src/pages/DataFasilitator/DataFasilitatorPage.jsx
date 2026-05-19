@@ -24,6 +24,7 @@ import ManageBidangModal from '../../components/modals/ManageBidangModal';
 import { useFasilitators } from '../../hooks/queries/useFasilitatorQuery';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
+import { isSuperAdmin } from '../../utils/permissionUtils';
 
 const DataFasilitatorPage = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -209,15 +210,17 @@ const DataFasilitatorPage = () => {
                                                     >
                                                         <Trash2 size={14} />
                                                     </button>
-                                                    <button 
-                                                        onClick={() => {
-                                                            setSelectedFasilitator(item);
-                                                            setIsResetModalOpen(true);
-                                                        }}
-                                                        className="w-6 h-6 rounded-md bg-[#FBBF24]/10 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
-                                                    >
-                                                        <Lock size={12} />
-                                                    </button>
+                                                    {isSuperAdmin() && (
+                                                        <button 
+                                                            onClick={() => {
+                                                                setSelectedFasilitator(item);
+                                                                setIsResetModalOpen(true);
+                                                            }}
+                                                            className="w-6 h-6 rounded-md bg-[#FBBF24]/10 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
+                                                        >
+                                                            <Lock size={12} />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="py-2.5 px-4 text-center">

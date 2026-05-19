@@ -49,10 +49,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // ======================= Route dengan Permission Check ======================
 
     // ----------- permission: manage_roles untk RBAC -----------------
-    Route::prefix('rbac')->middleware('permission:manage_roles')->group(function () {
-        Route::get('/permissions', [RolePermissionController::class, 'indexPermissions']); // daftar semua permissions
-        Route::get('/roles', [RolePermissionController::class, 'indexRoles']); // daftar semua roles
-        Route::put('/roles/{idRole}/permissions', [RolePermissionController::class, 'updateRolePermissions']); // update permissions untuk role tertentu
+    Route::prefix('rbac')->group(function () {
+        Route::get('/permissions', [RolePermissionController::class, 'indexPermissions'])->middleware('permission:manage_roles');
+        Route::get('/roles', [RolePermissionController::class, 'indexRoles'])->middleware('permission:manage_roles,kelola_admin_bawahan');
+        Route::put('/roles/{idRole}/permissions', [RolePermissionController::class, 'updateRolePermissions'])->middleware('permission:manage_roles');
     });
 
     // ----------- permission: kelola_grup -----------------
@@ -73,6 +73,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{grupId}/fasilitator', [GrupFasilitatorController::class, 'updateBulk']);
         Route::delete('/{grupId}/fasilitator/{fasilitatorId}', [GrupFasilitatorController::class, 'destroy']);
     });
+
+    // Reset Password (Khusus Superadmin, validasi di Controller)
+    Route::post('/users/reset-password/{id}', [UserController::class, 'resetPassword']);
 
     // ----------- permission: kelola_fasilitator -----------------
     Route::prefix('users/fasilitator')->middleware('permission:kelola_fasilitator')->group(function () {

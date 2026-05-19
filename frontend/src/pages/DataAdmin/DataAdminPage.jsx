@@ -19,6 +19,7 @@ import ResetPasswordModal from '../../components/modals/ResetPasswordModal';
 import { useAdmins } from '../../hooks/queries/useAdminQuery';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
+import { isSuperAdmin } from '../../utils/permissionUtils';
 
 const DataAdminPage = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -188,15 +189,17 @@ const DataAdminPage = () => {
                                                     >
                                                         <Trash2 size={14} />
                                                     </button>
-                                                    <button 
-                                                        onClick={() => {
-                                                            setSelectedAdmin(item);
-                                                            setIsResetModalOpen(true);
-                                                        }}
-                                                        className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
-                                                    >
-                                                        <Lock size={12} />
-                                                    </button>
+                                                    {isSuperAdmin() && (
+                                                        <button 
+                                                            onClick={() => {
+                                                                setSelectedAdmin(item);
+                                                                setIsResetModalOpen(true);
+                                                            }}
+                                                            className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
+                                                        >
+                                                            <Lock size={12} />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
