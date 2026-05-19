@@ -1,0 +1,497 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { isAuthenticated } from '../../utils/storage';
+import {
+    ArrowRight,
+    Users,
+    MapPin,
+    Calendar,
+    HeartHandshake,
+    Sprout,
+    Anchor,
+    Accessibility,
+    Briefcase,
+    BookOpen,
+    Mail,
+    Phone,
+    Map,
+    Info,
+    Shield
+} from 'lucide-react';
+
+const LandingPage = () => {
+    const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        setIsLoggedIn(isAuthenticated());
+
+        const handleScroll = () => {
+            if (window.scrollY > 20) {
+                setScrolled(true);
+            } else {
+                setScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Smooth scroll function
+    const scrollToSection = (id) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-[#0080C5]/30 selection:text-[#0080C5] overflow-x-hidden">
+            
+            {/* ── FLOAT NAVBAR ── */}
+            <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+                scrolled 
+                    ? 'py-3 bg-white/80 backdrop-blur-md shadow-md border-b border-slate-200/50' 
+                    : 'py-5 bg-transparent'
+            }`}>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                    
+                    {/* Brand Logo & Name */}
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                        <img
+                            src="/images/logo-mpm.png"
+                            alt="Logo MPM"
+                            className="w-[36px] sm:w-[42px] h-auto object-contain"
+                        />
+                        <div className="flex flex-col">
+                            <span className="text-[#0080C5] text-sm sm:text-base font-bold tracking-wider leading-none">MENTORA</span>
+                            <span className="text-slate-500 text-[10px] sm:text-xs font-medium mt-1">SIM Dampingan MPM</span>
+                        </div>
+                    </div>
+
+                    {/* Navigation Links - Desktop */}
+                    <div className="hidden md:flex items-center gap-8">
+                        <button 
+                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                            className="text-slate-600 hover:text-[#0080C5] text-sm font-semibold tracking-wide transition-colors cursor-pointer"
+                        >
+                            Beranda
+                        </button>
+                        <button 
+                            onClick={() => scrollToSection('tentang')}
+                            className="text-slate-600 hover:text-[#0080C5] text-sm font-semibold tracking-wide transition-colors cursor-pointer"
+                        >
+                            Tentang
+                        </button>
+                        <button 
+                            onClick={() => scrollToSection('program')}
+                            className="text-slate-600 hover:text-[#0080C5] text-sm font-semibold tracking-wide transition-colors cursor-pointer"
+                        >
+                            Bidang Fokus
+                        </button>
+                        <button 
+                            onClick={() => scrollToSection('kontak')}
+                            className="text-slate-600 hover:text-[#0080C5] text-sm font-semibold tracking-wide transition-colors cursor-pointer"
+                        >
+                            Kontak
+                        </button>
+                    </div>
+
+                    {/* CTAs */}
+                    <div className="flex items-center gap-3">
+                        {isLoggedIn ? (
+                            <button
+                                onClick={() => navigate('/dashboard')}
+                                className="px-5 py-2 sm:py-2.5 bg-[#0080C5] hover:bg-[#006ba6] text-white text-xs sm:text-sm font-semibold tracking-wide rounded-full flex items-center gap-1.5 shadow-lg shadow-[#0080C5]/20 hover:shadow-[#0080C5]/30 transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+                            >
+                                Ke Dashboard
+                                <ArrowRight size={16} />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="px-5 py-2 sm:py-2.5 bg-[#0080C5] hover:bg-[#006ba6] text-white text-xs sm:text-sm font-semibold tracking-wide rounded-full flex items-center gap-1.5 shadow-lg shadow-[#0080C5]/20 hover:shadow-[#0080C5]/30 transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+                            >
+                                Masuk Sistem
+                                <ArrowRight size={16} />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </nav>
+
+            {/* ── HERO SECTION ── */}
+            <header className="relative pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-b from-sky-100 via-sky-50/50 to-slate-50 overflow-hidden">
+                {/* Decorative Blurs */}
+                <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-emerald-100/40 blur-3xl pointer-events-none"></div>
+                <div className="absolute top-[20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-[#0080C5]/10 blur-3xl pointer-events-none"></div>
+
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                        
+                        {/* Hero Text */}
+                        <div className="lg:col-span-7 flex flex-col items-start text-left">
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100/80 border border-emerald-200/50 text-emerald-800 text-xs font-semibold mb-6">
+                                <Shield size={14} className="text-emerald-600" />
+                                <span>Pemberdayaan Berbasis Teologi Al-Ma'un</span>
+                            </div>
+                            
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[46px] xl:text-[52px] text-slate-900 font-bold leading-tight tracking-tight mb-6">
+                                Sistem Informasi Manajemen <br className="hidden sm:inline"/>
+                                <span className="text-[#0080C5] bg-gradient-to-r from-[#0080C5] to-emerald-600 bg-clip-text text-transparent">Dampingan MPM Muhammadiyah</span>
+                            </h1>
+
+                            <p className="text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed font-normal mb-8 max-w-[620px]">
+                                Selamat datang di Mentora, platform integrasi data dan monitoring kelompok dampingan Majelis Pemberdayaan Masyarakat (MPM) Muhammadiyah. Kami berkomitmen mewujudkan kemandirian mustadh'afin secara terukur, terarah, dan berkelanjutan.
+                            </p>
+
+                            <div className="flex flex-wrap items-center gap-4">
+                                <button
+                                    onClick={() => scrollToSection('program')}
+                                    className="px-6 py-3 bg-[#0080C5] hover:bg-[#006ba6] text-white text-sm font-semibold rounded-xl flex items-center gap-2 shadow-lg shadow-[#0080C5]/20 hover:shadow-[#0080C5]/30 transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+                                >
+                                    Jelajahi Program Dampingan
+                                </button>
+                                <button
+                                    onClick={() => scrollToSection('tentang')}
+                                    className="px-6 py-3 bg-white hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-xl border border-slate-200 flex items-center gap-2 shadow-sm transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+                                >
+                                    Pelajari Profil MPM
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Hero Image / Mockup Card */}
+                        <div className="lg:col-span-5 flex justify-center">
+                            <div className="relative w-full max-w-[460px]">
+                                {/* Card Shadow Backdrop */}
+                                <div className="absolute inset-0 bg-gradient-to-tr from-emerald-400 to-[#0080C5] rounded-[24px] blur-xl opacity-20 transform translate-x-3 translate-y-3 -rotate-1"></div>
+                                
+                                <div className="relative bg-white p-3 rounded-[24px] shadow-2xl border border-slate-100 transform hover:scale-[1.02] transition-transform duration-300">
+                                    <div className="rounded-[18px] overflow-hidden aspect-[4/3] bg-slate-100 relative">
+                                        <img
+                                            src="/images/mentora-hero.png"
+                                            alt="Mentora Hero"
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent flex items-end p-5">
+                                            <p className="text-white text-xs sm:text-sm font-medium tracking-wide">
+                                                Pendampingan Kelompok Dampingan MPM di Lapangan
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </header>
+
+            {/* ── STATISTICS SECTION ── */}
+            <section className="relative z-10 -mt-8 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 bg-white p-6 sm:p-8 rounded-[24px] shadow-xl border border-slate-200/60">
+                        
+                        {/* Stat 1 */}
+                        <div className="flex flex-col items-center text-center p-4 border-r border-slate-100 last:border-0 max-lg:even:border-r-0 max-sm:border-r-0 max-sm:border-b max-sm:pb-6 last:border-b-0">
+                            <div className="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center text-[#0080C5] mb-3">
+                                <MapPin size={24} />
+                            </div>
+                            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">12+</span>
+                            <span className="text-[11px] sm:text-xs text-slate-500 font-medium tracking-wider uppercase mt-1">Provinsi & Kab/Kota</span>
+                        </div>
+
+                        {/* Stat 2 */}
+                        <div className="flex flex-col items-center text-center p-4 border-r border-slate-100 last:border-0 max-lg:border-r-0 max-sm:border-r-0 max-sm:border-b max-sm:py-6 last:border-b-0">
+                            <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 mb-3">
+                                <Users size={24} />
+                            </div>
+                            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">150+</span>
+                            <span className="text-[11px] sm:text-xs text-slate-500 font-medium tracking-wider uppercase mt-1">Kelompok Binaan</span>
+                        </div>
+
+                        {/* Stat 3 */}
+                        <div className="flex flex-col items-center text-center p-4 border-r border-slate-100 last:border-0 max-sm:border-r-0 max-sm:border-b max-sm:py-6 last:border-b-0">
+                            <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500 mb-3">
+                                <HeartHandshake size={24} />
+                            </div>
+                            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">2.4K+</span>
+                            <span className="text-[11px] sm:text-xs text-slate-500 font-medium tracking-wider uppercase mt-1">Penerima Manfaat</span>
+                        </div>
+
+                        {/* Stat 4 */}
+                        <div className="flex flex-col items-center text-center p-4 last:border-0 max-sm:pt-6">
+                            <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500 mb-3">
+                                <Calendar size={24} />
+                            </div>
+                            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">85+</span>
+                            <span className="text-[11px] sm:text-xs text-slate-500 font-medium tracking-wider uppercase mt-1">Kegiatan Pemberdayaan</span>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            {/* ── TENTANG MPM SECTION ── */}
+            <section id="tentang" className="py-20 md:py-28 bg-slate-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+                        
+                        <div className="lg:col-span-5">
+                            <div className="p-1 bg-white rounded-3xl shadow-lg border border-slate-200/50">
+                                <div className="p-6 bg-gradient-to-br from-emerald-500 to-[#0080C5] text-white rounded-[20px]">
+                                    <h3 className="text-xl font-bold tracking-wide mb-4">Filosofi MPM</h3>
+                                    <p className="text-sky-50/90 text-sm leading-relaxed mb-6 italic">
+                                        "Mengembangkan cebong yang hanya mampu hidup di dalam kolam kecil menjadi katak yang dapat meloncat ke mana-mana."
+                                    </p>
+                                    <p className="text-sky-100 text-xs font-semibold uppercase tracking-wider">
+                                        - Mengubah Ketergantungan Menjadi Kemandirian -
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="lg:col-span-7">
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-100/80 border border-sky-200/50 text-[#0080C5] text-xs font-semibold mb-5 w-fit">
+                                <Info size={14} />
+                                <span>Profil Majelis Pemberdayaan Masyarakat</span>
+                            </div>
+                            
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl text-slate-900 font-bold tracking-tight mb-6">
+                                Mewujudkan Keadilan Sosial Melalui <br/>
+                                Pendampingan yang Komprehensif
+                            </h2>
+
+                            <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
+                                **Majelis Pemberdayaan Masyarakat (MPM) Muhammadiyah** adalah salah satu unsur pembantu pimpinan di tingkat Pimpinan Pusat (PP) Muhammadiyah yang berdiri kokoh mengemban amanat khusus untuk pemberdayaan masyarakat.
+                            </p>
+                            
+                            <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8">
+                                Fokus utama kami adalah kelompok *dhu'afa* (lemah) dan *mustadh'afin* (terpinggirkan) secara struktural maupun kultural. Melalui pendekatan ekologi perkembangan manusia, kami berupaya mengentaskan kemiskinan, memajukan kemandirian ekonomi, serta memperluas akses sosial-politik bagi mereka yang membutuhkan.
+                            </p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="flex gap-3">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-sm">✓</div>
+                                    <div>
+                                        <h4 className="text-slate-900 text-sm font-semibold mb-1">Dakwah Pemberdayaan</h4>
+                                        <p className="text-slate-500 text-xs leading-normal">Menerjemahkan teologi Al-Ma'un menjadi solusi nyata di lapangan.</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-3">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-sm">✓</div>
+                                    <div>
+                                        <h4 className="text-slate-900 text-sm font-semibold mb-1">Mandiri & Produktif</h4>
+                                        <p className="text-slate-500 text-xs leading-normal">Mentransformasi penerima manfaat menjadi subjek berdaya yang aktif.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            {/* ── PROGRAM / BIDANG FOKUS SECTION ── */}
+            <section id="program" className="py-20 md:py-28 bg-white border-y border-slate-200/50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    
+                    <div className="flex flex-col items-center text-center mb-16">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100/85 border border-emerald-200/50 text-emerald-800 text-xs font-semibold mb-5">
+                            <BookOpen size={14} className="text-emerald-600" />
+                            <span>Pilar-Pilar Pemberdayaan</span>
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl text-slate-900 font-bold tracking-tight mb-4">
+                            Bidang Fokus Dampingan MPM
+                        </h2>
+                        <p className="text-slate-500 text-sm sm:text-base max-w-[650px] leading-relaxed">
+                            Kami melaksanakan pendampingan intensif yang dikelompokkan ke dalam beberapa sektor strategis guna memaksimalkan hasil dan jangkauan pemberdayaan.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        
+                        {/* Bidang 1 */}
+                        <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
+                            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <Sprout size={24} />
+                            </div>
+                            <h3 className="text-slate-950 font-bold text-lg mb-2">Pertanian & Perkebunan</h3>
+                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                Pengembangan sistem pertanian berkelanjutan, edukasi pupuk organik mandiri, pendampingan pasca-panen, serta pembukaan akses pasar tani.
+                            </p>
+                            <span className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">Kelompok Tani Binaan</span>
+                        </div>
+
+                        {/* Bidang 2 */}
+                        <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
+                            <div className="w-12 h-12 rounded-xl bg-sky-50 text-[#0080C5] flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <Anchor size={24} />
+                            </div>
+                            <h3 className="text-slate-950 font-bold text-lg mb-2">Nelayan & Kemaritiman</h3>
+                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                Pemberdayaan nelayan tradisional melalui penyediaan alat tangkap ramah lingkungan, manajemen pemasaran hasil laut, dan penguatan ekonomi keluarga pesisir.
+                            </p>
+                            <span className="text-[11px] font-semibold text-[#0080C5] uppercase tracking-wider">Kelompok Pesisir & Nelayan</span>
+                        </div>
+
+                        {/* Bidang 3 */}
+                        <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
+                            <div className="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <Accessibility size={24} />
+                            </div>
+                            <h3 className="text-slate-950 font-bold text-lg mb-2">Penyandang Disabilitas</h3>
+                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                Penyediaan ruang pelatihan keterampilan inklusif, pendampingan kemandirian wirausaha, serta sosialisasi aksesibilitas fasilitas umum.
+                            </p>
+                            <span className="text-[11px] font-semibold text-rose-500 uppercase tracking-wider">Kelompok Difabel Berdaya</span>
+                        </div>
+
+                        {/* Bidang 4 */}
+                        <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
+                            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <Users size={24} />
+                            </div>
+                            <h3 className="text-slate-950 font-bold text-lg mb-2">Masyarakat Miskin Kota</h3>
+                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                Pembinaan bagi pemulung, pengayuh becak, dan pedagang asongan melalui koperasi simpan pinjam mikro, pendidikan alternatif anak jalanan, dan pelatihan keterampilan praktis.
+                            </p>
+                            <span className="text-[11px] font-semibold text-indigo-500 uppercase tracking-wider">Pemberdayaan Kaum Marjinal</span>
+                        </div>
+
+                        {/* Bidang 5 */}
+                        <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
+                            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <Map size={24} />
+                            </div>
+                            <h3 className="text-slate-950 font-bold text-lg mb-2">Daerah 3T & Pedalaman</h3>
+                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                Pendampingan kelompok masyarakat adat, kawasan tertinggal, terluar, dan terdepan (3T) melalui pemenuhan sanitasi air bersih, elektrifikasi mandiri, dan literasi.
+                            </p>
+                            <span className="text-[11px] font-semibold text-amber-500 uppercase tracking-wider">Aksi Daerah Tertinggal</span>
+                        </div>
+
+                        {/* Bidang 6 */}
+                        <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
+                            <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <Briefcase size={24} />
+                            </div>
+                            <h3 className="text-slate-950 font-bold text-lg mb-2">Pengembangan UMKM Binaan</h3>
+                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                Fasilitasi sertifikasi halal, standardisasi produk makanan/kerajinan, digitalisasi usaha kecil, serta pendirian unit usaha bersama.
+                            </p>
+                            <span className="text-[11px] font-semibold text-teal-600 uppercase tracking-wider">Penguatan Ekonomi Lokal</span>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            {/* ── FOOTER & KONTAK SECTION ── */}
+            <footer id="kontak" className="bg-slate-900 text-slate-300 pt-20 pb-10 border-t border-slate-800">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-16">
+                        
+                        {/* Footer Brand info */}
+                        <div className="md:col-span-5 flex flex-col items-start">
+                            <div className="flex items-center gap-3 mb-6">
+                                <img
+                                    src="/images/logo-mpm.png"
+                                    alt="Logo MPM"
+                                    className="w-[44px] h-auto object-contain brightness-0 invert"
+                                />
+                                <div className="flex flex-col">
+                                    <span className="text-white text-base font-bold tracking-wider leading-none">MENTORA</span>
+                                    <span className="text-slate-400 text-xs font-medium mt-1">SIM Dampingan MPM PP Muhammadiyah</span>
+                                </div>
+                            </div>
+                            <p className="text-slate-400 text-sm leading-relaxed max-w-[380px] mb-6">
+                                Platform integrasi manajemen data dampingan nasional Majelis Pemberdayaan Masyarakat Pimpinan Pusat Muhammadiyah.
+                            </p>
+                            <div className="flex items-center gap-4 text-slate-500">
+                                <span className="text-xs text-slate-400">© 2026 PP Muhammadiyah</span>
+                            </div>
+                        </div>
+
+                        {/* Quick links */}
+                        <div className="md:col-span-3">
+                            <h4 className="text-white text-sm font-semibold tracking-wider uppercase mb-6">Tautan Pintar</h4>
+                            <ul className="flex flex-col gap-4 text-sm font-medium">
+                                <li>
+                                    <button 
+                                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                                        className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                                    >
+                                        Beranda Utama
+                                    </button>
+                                </li>
+                                <li>
+                                    <button 
+                                        onClick={() => scrollToSection('tentang')}
+                                        className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                                    >
+                                        Tentang Kami
+                                    </button>
+                                </li>
+                                <li>
+                                    <button 
+                                        onClick={() => scrollToSection('program')}
+                                        className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                                    >
+                                        Program Binaan
+                                    </button>
+                                </li>
+                                <li>
+                                    <button 
+                                        onClick={() => navigate('/login')}
+                                        className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                                    >
+                                        Halaman Login
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Contact details */}
+                        <div className="md:col-span-4">
+                            <h4 className="text-white text-sm font-semibold tracking-wider uppercase mb-6">Hubungi Kantor MPM</h4>
+                            
+                            <div className="flex flex-col gap-4 text-sm">
+                                <div className="flex items-start gap-3">
+                                    <MapPin size={18} className="text-[#0080C5] flex-shrink-0 mt-0.5" />
+                                    <span className="text-slate-400 leading-normal">
+                                        Gedung Pimpinan Pusat Muhammadiyah<br/>
+                                        Jl. Cik Ditiro No. 23, Terban, Kec. Gondokusuman, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55223
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <Mail size={18} className="text-[#0080C5] flex-shrink-0" />
+                                    <span className="text-slate-400">info@mpm.or.id</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <Phone size={18} className="text-[#0080C5] flex-shrink-0" />
+                                    <span className="text-slate-400">+62 274 566927</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {/* Footer Bottom copyright */}
+                    <div className="pt-8 border-t border-slate-800 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <p>SIM Dampingan MPM (Mentora) - Dikembangkan dengan dedikasi untuk pemberdayaan ummat.</p>
+                        <p className="font-semibold text-slate-400">Versi 1.0.0</p>
+                    </div>
+
+                </div>
+            </footer>
+
+        </div>
+    );
+};
+
+export default LandingPage;

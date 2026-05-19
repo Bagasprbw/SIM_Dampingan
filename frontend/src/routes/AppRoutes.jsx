@@ -24,12 +24,13 @@ import InformasiDampinganPage from '../pages/InformasiDampingan/InformasiDamping
 import KonfirmasiAnggotaPage from '../pages/KonfirmasiAnggota/KonfirmasiAnggotaPage';
 import KelolaDampinganPage from '../pages/KelolaDampingan/KelolaDampinganPage';
 import ProfilAnggotaPublicPage from '../pages/Public/ProfilAnggotaPublicPage';
+import LandingPage from '../pages/Public/LandingPage';
 
 const AppRoutes = () => {
     return (
         <Routes>
-            {/* Root redirect */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            {/* Landing Page */}
+            <Route path="/" element={<LandingPage />} />
 
             {/* Guest Routes */}
             <Route element={<GuestRoute />}>
