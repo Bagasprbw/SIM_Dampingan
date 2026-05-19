@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Search, 
@@ -8,19 +8,27 @@ import {
     PlayCircle, 
     Edit3, 
     Trash2,
-    Loader2
+    Loader2,
+    X,
+    Download
 } from 'lucide-react';
 import PanduanModal from '../../components/modals/PanduanModal';
 import DeletePanduanModal from '../../components/modals/DeletePanduanModal';
 import { getUser } from '../../utils/storage';
 import { ROLES } from '../../constants/roles';
 import { usePanduansKelola, usePanduansView } from '../../hooks/queries/usePanduanQuery';
+import Swal from 'sweetalert2';
 
 const PanduanPenggunaanPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [modalMode, setModalMode] = useState('add');
     const [selectedGuide, setSelectedGuide] = useState(null);
+
+    // States for floating Document / Video viewer modal
+    const [viewerType, setViewerType] = useState(null); // 'pdf' | 'video'
+    const [viewerUrl, setViewerUrl] = useState('');
+    const [viewerTitle, setViewerTitle] = useState('');
 
     const user = getUser();
     const isPjGrup = user?.role === ROLES.PJ_DAMPINGAN;
@@ -39,8 +47,94 @@ const PanduanPenggunaanPage = () => {
     const guides = panduanData?.data || [];
     const meta = panduanData?.meta || {};
 
-    const handleViewFile = (url) => {
-        if (url) window.open(url, '_blank');
+    // Helper: Convert Google Drive Link to Direct Embed Preview
+    const getGoogleDriveEmbedUrl = (url) => {
+        if (!url) return '';
+        if (url.includes('/preview') || url.includes('/embed')) return url;
+        
+        if (url.includes('drive.google.com')) {
+            const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://drive.google.com/file/d/${match[1]}/preview`;
+            }
+            const idMatch = url.match(/id=([a-zA-Z0-9_-]+)/);
+            if (idMatch && idMatch[1]) {
+                return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+            }
+        }
+        return url;
+    };
+
+    // Helper: Convert Google Drive Link to Direct Download URL
+    const getGoogleDriveDownloadUrl = (url) => {
+        if (!url) return '';
+        if (url.includes('drive.google.com')) {
+            const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+            }
+            const idMatch = url.match(/id=([a-zA-Z0-9_-]+)/);
+            if (idMatch && idMatch[1]) {
+                return `https://drive.google.com/uc?export=download&id=${idMatch[1]}`;
+            }
+        }
+        return url; // Fallback
+    };
+
+    // Helper: Convert YouTube Link to Direct Embed
+    const getVideoEmbedUrl = (url) => {
+        if (!url) return '';
+        if (url.includes('/embed/')) return url;
+
+        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            let videoId = '';
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            if (match && match[2].length === 11) {
+                videoId = match[2];
+            }
+            if (videoId) {
+                return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            }
+        }
+        
+        if (url.includes('drive.google.com')) {
+            return getGoogleDriveEmbedUrl(url);
+        }
+        
+        return url;
+    };
+
+    const handleViewPdf = (url, title = 'Panduan PDF') => {
+        if (!url) {
+            Swal.fire({
+                title: 'Informasi',
+                text: 'Panduan PDF belum diunggah oleh admin.',
+                icon: 'info',
+                confirmButtonColor: '#0080C5',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+            });
+            return;
+        }
+        setViewerUrl(url);
+        setViewerTitle(title);
+        setViewerType('pdf');
+    };
+
+    const handleViewVideo = (url, title = 'Panduan Video') => {
+        if (!url) {
+            Swal.fire({
+                title: 'Informasi',
+                text: 'Panduan Video belum diunggah oleh admin.',
+                icon: 'info',
+                confirmButtonColor: '#0080C5',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+            });
+            return;
+        }
+        setViewerUrl(url);
+        setViewerTitle(title);
+        setViewerType('video');
     };
 
     const handleAdd = () => {
@@ -78,12 +172,24 @@ const PanduanPenggunaanPage = () => {
 
                     <div className="flex gap-4">
                         {/* Quick Access Card PDF */}
-                        <div className="w-24 h-24 bg-white/10 rounded-2xl border border-white/30 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white/20 transition-all group">
+                        <div 
+                            onClick={() => {
+                                const matched = guides.find(g => g.link_file);
+                                handleViewPdf(matched?.link_file || '', matched?.judul || 'Panduan PDF Utama');
+                            }}
+                            className="w-24 h-24 bg-white/10 rounded-2xl border border-white/30 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white/20 transition-all group"
+                        >
                             <FileText size={28} className="text-white group-hover:scale-110 transition-transform" />
                             <span className="text-white text-[10px] font-semibold">PDF Guide</span>
                         </div>
                         {/* Quick Access Card VIDEO */}
-                        <div className="w-24 h-24 bg-white/10 rounded-2xl border border-white/30 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white/20 transition-all group">
+                        <div 
+                            onClick={() => {
+                                const matched = guides.find(g => g.link_video);
+                                handleViewVideo(matched?.link_video || '', matched?.judul || 'Panduan Video Utama');
+                            }}
+                            className="w-24 h-24 bg-white/10 rounded-2xl border border-white/30 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white/20 transition-all group"
+                        >
                             <PlayCircle size={28} className="text-white group-hover:scale-110 transition-transform" />
                             <span className="text-white text-[10px] font-semibold">Video Guide</span>
                         </div>
@@ -170,7 +276,7 @@ const PanduanPenggunaanPage = () => {
                                             <div className="flex justify-center gap-1.5">
                                                 {guide.link_file && (
                                                     <div 
-                                                        onClick={() => handleViewFile(guide.link_file)}
+                                                        onClick={() => handleViewPdf(guide.link_file, guide.judul)}
                                                         className="inline-flex items-center gap-1 px-3 py-1 bg-red-500/10 rounded-full cursor-pointer hover:bg-red-500/20 transition-colors"
                                                     >
                                                         <FileText size={12} className="text-red-700 fill-red-700/20" />
@@ -179,7 +285,7 @@ const PanduanPenggunaanPage = () => {
                                                 )}
                                                 {guide.link_video && (
                                                     <div 
-                                                        onClick={() => handleViewFile(guide.link_video)}
+                                                        onClick={() => handleViewVideo(guide.link_video, guide.judul)}
                                                         className="inline-flex items-center gap-1 px-3 py-1 bg-[#A16207]/10 rounded-full cursor-pointer hover:bg-[#A16207]/20 transition-colors"
                                                     >
                                                         <PlayCircle size={12} className="text-[#A16207] fill-[#A16207]/20" />
@@ -240,6 +346,78 @@ const PanduanPenggunaanPage = () => {
                     onClose={() => setIsDeleteOpen(false)}
                     data={selectedGuide}
                 />
+
+                {/* Custom Viewer Modal (PDF & Video) */}
+                {viewerType && (
+                    <div className="fixed inset-0 z-[120] flex items-center justify-center font-['Poppins'] p-4 animate-in fade-in duration-200">
+                        {/* Backdrop */}
+                        <div 
+                            className="absolute inset-0 bg-black/70 backdrop-blur-md" 
+                            onClick={() => {
+                                setViewerType(null);
+                                setViewerUrl('');
+                            }}
+                        ></div>
+
+                        {/* Container */}
+                        <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[85vh] animate-in zoom-in-95 duration-200 border border-slate-100">
+                            {/* Header */}
+                            <div className="h-16 px-6 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${viewerType === 'pdf' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600'}`}>
+                                        {viewerType === 'pdf' ? <FileText size={16} /> : <PlayCircle size={16} />}
+                                    </div>
+                                    <div className="text-left">
+                                        <h4 className="text-slate-900 text-sm font-bold truncate max-w-md">{viewerTitle}</h4>
+                                        <p className="text-slate-400 text-[10px]">{viewerType === 'pdf' ? 'Dokumen PDF Reader' : 'Video Player Tutorial'}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {viewerType === 'pdf' && (
+                                        <a 
+                                            href={getGoogleDriveDownloadUrl(viewerUrl)} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="h-8 px-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg flex items-center justify-center gap-1.5 text-[11px] font-bold transition-all shadow-sm"
+                                        >
+                                            <Download size={14} />
+                                            Unduh PDF
+                                        </a>
+                                    )}
+                                    <button 
+                                        onClick={() => {
+                                            setViewerType(null);
+                                            setViewerUrl('');
+                                        }} 
+                                        className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-colors"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Content Area */}
+                            <div className="flex-1 bg-slate-900 relative">
+                                {viewerType === 'pdf' ? (
+                                    <iframe 
+                                        src={getGoogleDriveEmbedUrl(viewerUrl)} 
+                                        className="w-full h-full border-none"
+                                        allow="autoplay"
+                                        title={viewerTitle}
+                                    ></iframe>
+                                ) : (
+                                    <iframe 
+                                        src={getVideoEmbedUrl(viewerUrl)} 
+                                        className="w-full h-full border-none"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowFullScreen
+                                        title={viewerTitle}
+                                    ></iframe>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </AdminLayout>
     );

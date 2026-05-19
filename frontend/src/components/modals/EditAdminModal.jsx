@@ -4,11 +4,15 @@ import Swal from 'sweetalert2';
 import { useAdminMutations } from '../../hooks/mutations/useAdminMutation';
 import { useRoles } from '../../hooks/queries/useHakAksesQuery';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
+import { getUser } from '../../utils/storage';
 
 const EditAdminModal = ({ isOpen, onClose, data }) => {
     const { updateAdmin } = useAdminMutations();
     const { data: rolesData, isLoading: loadingRoles } = useRoles();
     const roles = rolesData?.data || [];
+    
+    const currentUser = getUser();
+    const currentUserRoleName = typeof currentUser?.role === 'object' && currentUser?.role !== null ? currentUser.role.name : currentUser?.role;
     
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -25,10 +29,49 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
     const { data: kabupatenList = [], isLoading: loadingKab } = useKabupaten(formData.kode_prov);
     const { data: kecamatanList = [], isLoading: loadingKec } = useKecamatan(formData.kode_kab);
 
-    // Filter roles to only show admin roles
-    const adminRoles = roles.filter(role => 
-        ['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(role.name)
-    );
+    // Filter roles to only show admin roles allowed for the current logged-in user
+    const adminRoles = roles.filter(role => {
+        if (!['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(role.name)) {
+            return false;
+        }
+        if (currentUserRoleName === 'admin_provinsi') {
+            return ['admin_kabupaten', 'admin_kecamatan'].includes(role.name);
+        }
+        if (currentUserRoleName === 'admin_kabupaten') {
+            return ['admin_kecamatan'].includes(role.name);
+        }
+        return true; // superadmin can see all admin roles
+    });
+
+    const selectedRole = adminRoles.find(r => r.id_role?.toString() === formData.role_id?.toString());
+    const selectedRoleName = selectedRole ? selectedRole.name : (data?.role?.name || '');
+
+    const isProvDisabled = currentUserRoleName === 'admin_provinsi' || currentUserRoleName === 'admin_kabupaten';
+
+    const isKabDisabled = !formData.kode_prov || selectedRoleName === 'admin_provinsi' || currentUserRoleName === 'admin_kabupaten';
+    const isKabRequired = selectedRoleName === 'admin_kabupaten' || selectedRoleName === 'admin_kecamatan';
+
+    const isKecDisabled = !formData.kode_kab || selectedRoleName === 'admin_provinsi' || selectedRoleName === 'admin_kabupaten';
+    const isKecRequired = selectedRoleName === 'admin_kecamatan';
+
+    useEffect(() => {
+        if (selectedRoleName === 'admin_provinsi') {
+            if (formData.kode_kab !== '' || formData.kode_kec !== '') {
+                setFormData(prev => ({
+                    ...prev,
+                    kode_kab: '',
+                    kode_kec: ''
+                }));
+            }
+        } else if (selectedRoleName === 'admin_kabupaten') {
+            if (formData.kode_kec !== '') {
+                setFormData(prev => ({
+                    ...prev,
+                    kode_kec: ''
+                }));
+            }
+        }
+    }, [formData.role_id, selectedRoleName]);
 
     useEffect(() => {
         if (data) {
@@ -146,7 +189,7 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Provinsi <span className="text-red-500">*</span></label>
                             <div className="relative group">
-                                <select name="kode_prov" value={formData.kode_prov} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium" required>
+                                <select name="kode_prov" value={formData.kode_prov} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium disabled:opacity-50" disabled={isProvDisabled} required>
                                     <option value="">{loadingProv ? 'Memuat...' : 'Pilih Provinsi'}</option>
                                     {provinsiList.map(p => (
                                         <option key={p.kode} value={p.kode}>{p.name}</option>
@@ -156,9 +199,9 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                             </div>
                         </div>
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-[#0A0F1E] text-xs font-semibold">Kabupaten <span className="text-red-500">*</span></label>
+                            <label className="text-[#0A0F1E] text-xs font-semibold">Kabupaten {isKabRequired && <span className="text-red-500">*</span>}</label>
                             <div className="relative group">
-                                <select name="kode_kab" value={formData.kode_kab} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium disabled:opacity-50" disabled={!formData.kode_prov} required>
+                                <select name="kode_kab" value={formData.kode_kab} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium disabled:opacity-50" disabled={isKabDisabled} required={isKabRequired}>
                                     <option value="">{loadingKab ? 'Memuat...' : 'Pilih Kabupaten'}</option>
                                     {kabupatenList.map(k => (
                                         <option key={k.kode} value={k.kode}>{k.name}</option>
@@ -170,9 +213,9 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-[#0A0F1E] text-xs font-semibold">Kecamatan <span className="text-red-500">*</span></label>
+                        <label className="text-[#0A0F1E] text-xs font-semibold">Kecamatan {isKecRequired && <span className="text-red-500">*</span>}</label>
                         <div className="relative group">
-                            <select name="kode_kec" value={formData.kode_kec} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium disabled:opacity-50" disabled={!formData.kode_kab} required>
+                            <select name="kode_kec" value={formData.kode_kec} onChange={handleChange} className="w-full px-3 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] appearance-none font-medium disabled:opacity-50" disabled={isKecDisabled} required={isKecRequired}>
                                 <option value="">{loadingKec ? 'Memuat...' : 'Pilih Kecamatan'}</option>
                                 {kecamatanList.map(k => (
                                     <option key={k.kode} value={k.kode}>{k.name}</option>

@@ -1,24 +1,42 @@
-import React from 'react';
-import { X, Key, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Key, Lock, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useAdminMutations } from '../../hooks/mutations/useAdminMutation';
 
 const ResetPasswordModal = ({ isOpen, onClose, data }) => {
+    const { resetPasswordAdmin } = useAdminMutations();
+    const [isLoading, setIsLoading] = useState(false);
+
     if (!isOpen) return null;
 
     const handleReset = () => {
-        // Implementasi sesungguhnya dari reset password bisa ditambahkan di sini via mutation
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil direset!',
-            text: 'Password admin telah dikembalikan ke default: 12345678',
-            showConfirmButton: true,
-            confirmButtonColor: '#FBBF24',
-            customClass: {
-                popup: 'rounded-2xl font-["Poppins"]',
-                confirmButton: 'rounded-xl px-6 py-2.5 text-sm font-semibold'
+        setIsLoading(true);
+        resetPasswordAdmin.mutate(data.id_user || data.id, {
+            onSuccess: () => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil direset!',
+                    text: 'Password admin telah dikembalikan ke default: 12345678',
+                    showConfirmButton: true,
+                    confirmButtonColor: '#FBBF24',
+                    customClass: {
+                        popup: 'rounded-2xl font-["Poppins"]',
+                        confirmButton: 'rounded-xl px-6 py-2.5 text-sm font-semibold'
+                    }
+                });
+                onClose();
+            },
+            onError: (error) => {
+                setIsLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal mereset password',
+                    text: error.response?.data?.message || 'Terjadi kesalahan sistem',
+                    confirmButtonColor: '#EF4444',
+                });
             }
         });
-        onClose();
     };
 
     return (
@@ -88,12 +106,12 @@ const ResetPasswordModal = ({ isOpen, onClose, data }) => {
 
                     {/* Footer Actions */}
                     <div className="pt-2 border-t border-gray-100 flex items-center justify-end gap-3">
-                        <button onClick={onClose} className="px-6 py-2 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold hover:bg-gray-50 transition-all h-10">
+                        <button onClick={onClose} disabled={isLoading} className="px-6 py-2 bg-white rounded-[10px] border border-gray-200 text-slate-400 text-xs font-semibold hover:bg-gray-50 transition-all h-10 disabled:opacity-50">
                             Batal
                         </button>
-                        <button onClick={handleReset} className="px-6 py-2 bg-[#FBBF24] text-white rounded-[10px] text-xs font-semibold hover:bg-[#F59E0B] transition-all h-10 flex items-center gap-2">
-                            <Key size={14} />
-                            Ya, Reset Password
+                        <button onClick={handleReset} disabled={isLoading} className="px-6 py-2 bg-[#FBBF24] text-white rounded-[10px] text-xs font-semibold hover:bg-[#F59E0B] transition-all h-10 flex items-center gap-2 disabled:opacity-50">
+                            {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Key size={14} />}
+                            {isLoading ? 'Mereset...' : 'Ya, Reset Password'}
                         </button>
                     </div>
                 </div>

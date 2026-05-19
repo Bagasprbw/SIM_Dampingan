@@ -403,6 +403,8 @@ class GrupDampinganController extends Controller
             'kode_prov' => 'nullable|string|exists:provinsis,kode',
             'kode_kab' => 'nullable|string|exists:kabupatens,kode',
             'kode_kec' => 'nullable|string|exists:kecamatans,kode',
+            'fasilitator_ids' => 'nullable|array',
+            'fasilitator_ids.*' => 'string|exists:users,id_user',
         ]);
 
         // Jika mengubah pengurus, validasi bahwa baru pengurus adalah PJ Grup
@@ -417,7 +419,36 @@ class GrupDampinganController extends Controller
 
         // Update grup dampingan
         $dataLama = $grupDampingan->toArray();
-        $grupDampingan->update($validated);
+        
+        // Exclude fasilitator_ids from direct update
+        $updateData = collect($validated)->except('fasilitator_ids')->toArray();
+        $grupDampingan->update($updateData);
+
+        // Update Fasilitator jika dikirim
+        if ($request->has('fasilitator_ids')) {
+            // Hapus yang lama
+            GrupFasilitator::where('grup_dampingan_id', $grupDampingan->id_grup_dampingan)->delete();
+
+            if (is_array($validated['fasilitator_ids'])) {
+                $fasilitatorIds = array_unique($validated['fasilitator_ids']);
+                foreach ($fasilitatorIds as $fasilitatorId) {
+                    $fasilitator = User::find($fasilitatorId);
+                    if (!$fasilitator || $fasilitator->role->name !== 'fasilitator') {
+                        continue;
+                    }
+                    if (!$this->canAccessUser($currentUser, $fasilitator)) {
+                        continue;
+                    }
+                    GrupFasilitator::create([
+                        'id_grup_fasilitator' => (string) Str::uuid(),
+                        'grup_dampingan_id' => $grupDampingan->id_grup_dampingan,
+                        'fasilitator_id' => $fasilitatorId,
+                        'created_at' => now(),
+                    ]);
+                }
+            }
+        }
+
         $grupDampingan->load(['bidang', 'pengurus', 'provinsi', 'kabupaten', 'kecamatan', 'grupFasilitators.fasilitator']);
 
         // Catat log UPDATE

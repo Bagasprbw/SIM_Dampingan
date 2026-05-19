@@ -362,7 +362,8 @@ class UserController extends Controller
             ['kode_prov' => 'nullable|string|exists:provinsis,kode',
              'kode_kab' => 'nullable|string|exists:kabupatens,kode',
              'kode_kec' => 'nullable|string|exists:kecamatans,kode',
-             'bidang_id' => 'required|string|exists:bidangs,id_bidang']
+             'bidang_ids' => 'required|array',
+             'bidang_ids.*' => 'exists:bidangs,id_bidang']
         ));
 
         // Validasi Wilayah
@@ -391,14 +392,16 @@ class UserController extends Controller
             'status' => 'active',
         ]);
 
-        // Simpan relasi bidang ke FasilitatorBidang
-        if (isset($validated['bidang_id'])) {
-            \App\Models\FasilitatorBidang::create([
-                'id_fasilitator_bidang' => (string) Str::uuid(),
-                'user_id' => $user->id_user,
-                'bidang_id' => $validated['bidang_id'],
-                'created_at' => now(),
-            ]);
+        // Simpan relasi bidang ke FasilitatorBidang (Multiple)
+        if (isset($validated['bidang_ids']) && is_array($validated['bidang_ids'])) {
+            foreach ($validated['bidang_ids'] as $bidang_id) {
+                \App\Models\FasilitatorBidang::create([
+                    'id_fasilitator_bidang' => (string) Str::uuid(),
+                    'user_id' => $user->id_user,
+                    'bidang_id' => $bidang_id,
+                    'created_at' => now(),
+                ]);
+            }
         }
 
         $user->load(['role', 'provinsi', 'kabupaten', 'kecamatan', 'fasilitatorBidangs.bidang']);
@@ -679,6 +682,8 @@ class UserController extends Controller
             'kode_kab' => 'nullable|string|exists:kabupatens,kode',
             'kode_kec' => 'nullable|string|exists:kecamatans,kode',
             'status' => 'sometimes|enum:active,inactive',
+            'bidang_ids' => 'sometimes|array',
+            'bidang_ids.*' => 'exists:bidangs,id_bidang'
         ]);
 
         // Jika update wilayah, validasi bahwa wilayah baru sesuai kewenangan
@@ -710,7 +715,23 @@ class UserController extends Controller
         // Update fields (including foto jika ada)
         $dataLama = $targetUser->toArray();
         $targetUser->update($validated);
-        $targetUser->load(['role', 'provinsi', 'kabupaten', 'kecamatan']);
+
+        // Update FasilitatorBidang if provided
+        if ($request->has('bidang_ids') && is_array($request->bidang_ids)) {
+            // Delete old ones
+            \App\Models\FasilitatorBidang::where('user_id', $targetUser->id_user)->delete();
+            // Insert new ones
+            foreach ($request->bidang_ids as $bidang_id) {
+                \App\Models\FasilitatorBidang::create([
+                    'id_fasilitator_bidang' => (string) Str::uuid(),
+                    'user_id' => $targetUser->id_user,
+                    'bidang_id' => $bidang_id,
+                    'created_at' => now(),
+                ]);
+            }
+        }
+
+        $targetUser->load(['role', 'provinsi', 'kabupaten', 'kecamatan', 'fasilitatorBidangs.bidang']);
 
         // Catat log UPDATE
         $this->logUpdate($request, 'User', $targetUser->id_user, $dataLama, $targetUser->toArray(), "User '{$targetUser->name}' berhasil diperbarui.");
@@ -760,6 +781,29 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User berhasil dihapus',
+            'data' => null
+        ]);
+    }
+
+    public function resetPassword(Request $request, $id)
+    {
+        // Hanya superadmin yang boleh reset password
+        if ($request->user()->username !== 'superadmin' && $request->user()->role?->name !== 'superadmin') {
+            return response()->json(['message' => 'Hanya Superadmin yang dapat melakukan reset password.'], 403);
+        }
+
+        $targetUser = User::findOrFail($id);
+        
+        $dataLama = $targetUser->toArray();
+        $targetUser->password = Hash::make('12345678');
+        $targetUser->save();
+
+        // Catat log UPDATE password
+        $this->logUpdate($request, 'User', $id, $dataLama, $targetUser->toArray(), "Password user '{$targetUser->name}' berhasil direset menjadi default.");
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password berhasil direset ke 12345678',
             'data' => null
         ]);
     }
