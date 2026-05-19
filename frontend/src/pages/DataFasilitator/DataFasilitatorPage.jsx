@@ -168,10 +168,11 @@ const DataFasilitatorPage = () => {
                                 <thead>
                                     <tr className="bg-slate-100 border-b-2 border-slate-100">
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider rounded-tl-xl w-12 text-center">NO</th>
-                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Nama</th>
-                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Username</th>
-                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[180px]">Bidang Dampingan</th>
-                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[250px]">Grup Dampingan</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[120px]">Nama</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[120px]">Username</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Wilayah</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[120px]">Bidang Dampingan</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Grup Dampingan</th>
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-28">Aksi</th>
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center rounded-tr-xl w-24">Detail</th>
                                     </tr>
@@ -184,6 +185,13 @@ const DataFasilitatorPage = () => {
                                             </td>
                                             <td className="py-2.5 px-4 text-xs text-[#0080C5] font-semibold">{item.name}</td>
                                             <td className="py-2.5 px-4 text-xs text-[#0080C5] font-normal">{item.username}</td>
+                                            <td className="py-2.5 px-4 text-xs text-[#0A0F1E] font-normal">
+                                                {[
+                                                    item.provinsi?.name,
+                                                    item.kabupaten?.name,
+                                                    item.kecamatan?.name
+                                                ].filter(Boolean).join(', ') || '-'}
+                                            </td>
                                             <td className="py-2.5 px-4 text-xs text-[#0A0F1E] font-normal">
                                                 {item.fasilitator_bidangs?.map(fb => fb.bidang?.name).join(', ') || '-'}
                                             </td>
