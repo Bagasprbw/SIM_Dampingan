@@ -362,7 +362,8 @@ class UserController extends Controller
             ['kode_prov' => 'nullable|string|exists:provinsis,kode',
              'kode_kab' => 'nullable|string|exists:kabupatens,kode',
              'kode_kec' => 'nullable|string|exists:kecamatans,kode',
-             'bidang_id' => 'required|string|exists:bidangs,id_bidang']
+             'bidang_ids' => 'required|array',
+             'bidang_ids.*' => 'exists:bidangs,id_bidang']
         ));
 
         // Validasi Wilayah
@@ -391,14 +392,16 @@ class UserController extends Controller
             'status' => 'active',
         ]);
 
-        // Simpan relasi bidang ke FasilitatorBidang
-        if (isset($validated['bidang_id'])) {
-            \App\Models\FasilitatorBidang::create([
-                'id_fasilitator_bidang' => (string) Str::uuid(),
-                'user_id' => $user->id_user,
-                'bidang_id' => $validated['bidang_id'],
-                'created_at' => now(),
-            ]);
+        // Simpan relasi bidang ke FasilitatorBidang (Multiple)
+        if (isset($validated['bidang_ids']) && is_array($validated['bidang_ids'])) {
+            foreach ($validated['bidang_ids'] as $bidang_id) {
+                \App\Models\FasilitatorBidang::create([
+                    'id_fasilitator_bidang' => (string) Str::uuid(),
+                    'user_id' => $user->id_user,
+                    'bidang_id' => $bidang_id,
+                    'created_at' => now(),
+                ]);
+            }
         }
 
         $user->load(['role', 'provinsi', 'kabupaten', 'kecamatan', 'fasilitatorBidangs.bidang']);
@@ -679,6 +682,8 @@ class UserController extends Controller
             'kode_kab' => 'nullable|string|exists:kabupatens,kode',
             'kode_kec' => 'nullable|string|exists:kecamatans,kode',
             'status' => 'sometimes|enum:active,inactive',
+            'bidang_ids' => 'sometimes|array',
+            'bidang_ids.*' => 'exists:bidangs,id_bidang'
         ]);
 
         // Jika update wilayah, validasi bahwa wilayah baru sesuai kewenangan
@@ -710,7 +715,23 @@ class UserController extends Controller
         // Update fields (including foto jika ada)
         $dataLama = $targetUser->toArray();
         $targetUser->update($validated);
-        $targetUser->load(['role', 'provinsi', 'kabupaten', 'kecamatan']);
+
+        // Update FasilitatorBidang if provided
+        if ($request->has('bidang_ids') && is_array($request->bidang_ids)) {
+            // Delete old ones
+            \App\Models\FasilitatorBidang::where('user_id', $targetUser->id_user)->delete();
+            // Insert new ones
+            foreach ($request->bidang_ids as $bidang_id) {
+                \App\Models\FasilitatorBidang::create([
+                    'id_fasilitator_bidang' => (string) Str::uuid(),
+                    'user_id' => $targetUser->id_user,
+                    'bidang_id' => $bidang_id,
+                    'created_at' => now(),
+                ]);
+            }
+        }
+
+        $targetUser->load(['role', 'provinsi', 'kabupaten', 'kecamatan', 'fasilitatorBidangs.bidang']);
 
         // Catat log UPDATE
         $this->logUpdate($request, 'User', $targetUser->id_user, $dataLama, $targetUser->toArray(), "User '{$targetUser->name}' berhasil diperbarui.");

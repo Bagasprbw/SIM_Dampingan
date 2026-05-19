@@ -50,8 +50,8 @@ const FacilitatorDetailModal = ({ isOpen, onClose, data }) => {
                         </div>
                         <div className="flex-1 flex justify-between items-center text-left">
                             <span className="text-slate-950 text-sm font-bold">Wilayah</span>
-                            <span className="text-slate-500 text-sm font-normal">
-                                {data?.kecamatan?.name}, {data?.kabupaten?.name}
+                            <span className="text-slate-500 text-sm font-normal text-right">
+                                {[data?.kecamatan?.name, data?.kabupaten?.name, data?.provinsi?.name].filter(Boolean).join(', ') || '-'}
                             </span>
                         </div>
                     </div>
