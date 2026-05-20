@@ -362,26 +362,31 @@ const PanduanPenggunaanPage = () => {
                         {/* Container */}
                         <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[85vh] animate-in zoom-in-95 duration-200 border border-slate-100">
                             {/* Header */}
-                            <div className="h-16 px-6 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${viewerType === 'pdf' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600'}`}>
+                            <div className="h-16 px-4 sm:px-6 border-b border-gray-100 flex items-center justify-between bg-white shrink-0 gap-2">
+                                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${viewerType === 'pdf' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600'}`}>
                                         {viewerType === 'pdf' ? <FileText size={16} /> : <PlayCircle size={16} />}
                                     </div>
-                                    <div className="text-left">
-                                        <h4 className="text-slate-900 text-sm font-bold truncate max-w-md">{viewerTitle}</h4>
-                                        <p className="text-slate-400 text-[10px]">{viewerType === 'pdf' ? 'Dokumen PDF Reader' : 'Video Player Tutorial'}</p>
+                                    <div className="text-left min-w-0">
+                                        <h4 className="text-slate-900 text-xs sm:text-sm font-bold truncate max-w-[120px] xs:max-w-[160px] sm:max-w-md">
+                                            {viewerTitle}
+                                        </h4>
+                                        <p className="text-slate-400 text-[9px] sm:text-[10px] hidden xs:block truncate">
+                                            {viewerType === 'pdf' ? 'Dokumen PDF Reader' : 'Video Player Tutorial'}
+                                        </p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                                     {viewerType === 'pdf' && (
                                         <a 
                                             href={getGoogleDriveDownloadUrl(viewerUrl)} 
                                             target="_blank" 
                                             rel="noopener noreferrer"
-                                            className="h-8 px-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg flex items-center justify-center gap-1.5 text-[11px] font-bold transition-all shadow-sm"
+                                            className="h-8 px-2.5 sm:px-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg flex items-center justify-center gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-bold transition-all shadow-sm shrink-0"
                                         >
-                                            <Download size={14} />
-                                            Unduh PDF
+                                            <Download size={13} />
+                                            <span className="hidden sm:inline">Unduh PDF</span>
+                                            <span className="inline sm:hidden">Unduh</span>
                                         </a>
                                     )}
                                     <button 
@@ -389,7 +394,7 @@ const PanduanPenggunaanPage = () => {
                                             setViewerType(null);
                                             setViewerUrl('');
                                         }} 
-                                        className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-colors"
+                                        className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-colors shrink-0"
                                     >
                                         <X size={16} />
                                     </button>
