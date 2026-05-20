@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['id_log', 'user_id', 'aksi', 'modul', 'data_id', 'deskripsi', 'data_lama', 'data_baru', 'ip_address', 'user_agent', 'kode_prov', 'kode_kab', 'kode_kec'])]
 class LogAktivitas extends Model
 {
+    protected $table = 'log_aktivitas';
     protected $primaryKey = 'id_log';
     public $incrementing = false;
     protected $keyType = 'string';

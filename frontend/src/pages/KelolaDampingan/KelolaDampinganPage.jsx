@@ -3,6 +3,7 @@ import AdminLayout from '../../components/layout/AdminLayout';
 import DetailDampinganModal from '../../components/modals/DetailDampinganModal';
 import { LayoutGrid, ChevronLeft, Search, ChevronRight, Loader2 } from 'lucide-react';
 import { useFasilitatorGrups } from '../../hooks/queries/useGrupDampinganQuery';
+import { grupDampinganService } from '../../services/grupDampinganService';
 
 const PAGE_SIZE = 9;
 
@@ -13,12 +14,12 @@ const GrupDetailView = ({ grup, onBack }) => {
     const [selectedAnggota, setSelectedAnggota] = useState(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-    const anggotaList = grup.anggota || [];
+    const anggotaList = grup.anggota_grup_dampingans || [];
 
     const filtered = anggotaList.filter(a =>
-        a.nama.toLowerCase().includes(search.toLowerCase()) ||
-        a.no_anggota?.includes(search) ||
-        a.alamat?.toLowerCase().includes(search.toLowerCase())
+        String(a.name || '').toLowerCase().includes(search.toLowerCase()) ||
+        String(a.no_anggota || '').includes(search) ||
+        String(a.alamat || '').toLowerCase().includes(search.toLowerCase())
     );
 
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
@@ -35,8 +36,8 @@ const GrupDetailView = ({ grup, onBack }) => {
                     <ChevronLeft size={14} /> Kembali
                 </button>
                 <div>
-                    <h3 className="text-sm font-bold text-[#0A0F1E]">{grup.nama_grup}</h3>
-                    <p className="text-[10px] text-[#0080C5] font-semibold">{grup.bidang?.nama_bidang} · {grup.kabupaten?.name}, {grup.provinsi?.name}</p>
+                    <h3 className="text-sm font-bold text-[#0A0F1E]">{grup.name}</h3>
+                    <p className="text-[10px] text-[#0080C5] font-semibold">{grup.bidang?.name} · {grup.kabupaten?.name}, {grup.provinsi?.name}</p>
                 </div>
             </div>
 
@@ -64,17 +65,17 @@ const GrupDetailView = ({ grup, onBack }) => {
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                         {paged.map((item, i) => (
-                            <tr key={item.id || i} className="hover:bg-slate-50/70 transition-colors">
+                            <tr key={item.id_anggota_grup || i} className="hover:bg-slate-50/70 transition-colors">
                                 <td className="py-4 px-4 text-[#0080C5] text-xs font-semibold whitespace-nowrap">{item.no_anggota || '-'}</td>
-                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold whitespace-nowrap">{item.nama}</td>
+                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold whitespace-nowrap">{item.name}</td>
                                 <td className="py-4 px-4">
                                     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${item.jenis_kelamin === 'L' ? 'bg-blue-50 text-[#0080C5]' : 'bg-pink-50 text-pink-500'}`}>
                                         {item.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}
                                     </span>
                                 </td>
                                 <td className="py-4 px-4 text-[#6B7280] text-xs max-w-[180px]">{item.alamat || '-'}</td>
-                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-medium whitespace-nowrap">{grup.bidang?.nama_bidang || '-'}</td>
-                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold whitespace-nowrap">{grup.nama_grup || '-'}</td>
+                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-medium whitespace-nowrap">{grup.bidang?.name || '-'}</td>
+                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold whitespace-nowrap">{grup.name || '-'}</td>
                                 <td className="py-4 px-4">
                                     <button
                                         onClick={() => { setSelectedAnggota(item); setIsDetailOpen(true); }}
@@ -119,6 +120,15 @@ const KelolaDampinganPage = () => {
 
     const grupList = grupData?.data || [];
     const meta = grupData?.meta || {};
+
+    const handleOpenDetail = async (item) => {
+        try {
+            const res = await grupDampinganService.getById(item.id_grup_dampingan);
+            setSelectedGrup(res?.data || res);
+        } catch {
+            setSelectedGrup(item);
+        }
+    };
 
     return (
         <AdminLayout title="Kelola Dampingan">
@@ -165,17 +175,17 @@ const KelolaDampinganPage = () => {
                                             <tbody className="divide-y divide-slate-50">
                                                 {grupList.map((item, i) => (
                                                     <tr
-                                                        key={item.id || i}
-                                                        onClick={() => setSelectedGrup(item)}
+                                                        key={item.id_grup_dampingan || i}
+                                                        onClick={() => handleOpenDetail(item)}
                                                         className="hover:bg-[#0080C5]/5 transition-colors cursor-pointer group"
                                                     >
                                                         <td className="py-5 px-4">
                                                             <div className="flex flex-col gap-0.5">
-                                                                <span className="text-[#0A0F1E] text-sm font-bold group-hover:text-[#0080C5] transition-colors">{item.nama_grup}</span>
-                                                                <span className="text-[#9298B0] text-xs">{item.anggota_count || item.anggota?.length || 0} anggota</span>
+                                                                <span className="text-[#0A0F1E] text-sm font-bold group-hover:text-[#0080C5] transition-colors">{item.name}</span>
+                                                                <span className="text-[#9298B0] text-xs">{item.anggota_count || item.anggota_grup_dampingans?.length || 0} anggota</span>
                                                             </div>
                                                         </td>
-                                                        <td className="py-5 px-4 text-[#0A0F1E] text-xs font-bold">{item.bidang?.nama_bidang || '-'}</td>
+                                                        <td className="py-5 px-4 text-[#0A0F1E] text-xs font-bold">{item.bidang?.name || '-'}</td>
                                                         <td className="py-5 px-4 text-[#9298B0] text-xs">{item.provinsi?.name || '-'}</td>
                                                         <td className="py-5 px-4 text-[#9298B0] text-xs">{item.kabupaten?.name || '-'}</td>
                                                         <td className="py-5 px-4 text-[#9298B0] text-xs">{item.kecamatan?.name || '-'}</td>
