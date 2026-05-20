@@ -135,69 +135,83 @@ const PetaSebaranPage = () => {
 
     return (
         <AdminLayout title="Peta Sebaran">
-            <div className="p-8 font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left flex flex-col gap-6">
+            <div className="p-4 lg:p-8 font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left flex flex-col gap-4 lg:gap-6">
 
                 {/* Stat Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 shrink-0">
-                    <div className="bg-white rounded-2xl p-4 flex items-center gap-4 border border-gray-100 shadow-sm">
-                        <div className="w-12 h-12 bg-[#0080C5]/10 rounded-xl flex items-center justify-center text-[#0080C5]">
-                            <Users size={22} />
+                <div className="flex flex-row lg:flex lg:flex-row justify-between gap-3 lg:gap-[20px] shrink-0 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 hide-scrollbar lg:w-[1102px] lg:mx-auto lg:mt-[35px]">
+                    {/* Total Anggota Card */}
+                    <div className="bg-white rounded-[16px] lg:rounded-[16px] p-4 lg:py-[22px] lg:px-[26px] border-[0.8px] lg:border-none border-[#F0F2F8] shadow-sm flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-[21px] min-w-[150px] flex-1 lg:flex-none lg:w-[541px] lg:h-[123.1px]">
+                        <div className="w-10 h-10 lg:w-[52px] lg:h-[52px] bg-[#0080C5]/10 rounded-[14px] lg:rounded-[14px] flex items-center justify-center shrink-0 text-[#0080C5]">
+                            <Users size={20} className="lg:hidden stroke-[1.8]" />
+                            {/* Desktop Icon based on Figma */}
+                            <svg className="hidden lg:block w-[28px] h-[28px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" fill="#0080C5"/>
+                                <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="#0080C5"/>
+                            </svg>
                         </div>
-                        <div>
-                            <p className="text-[11px] font-semibold text-slate-400">Total Anggota Aktif</p>
+                        <div className="flex flex-col mt-1 lg:mt-0 lg:gap-[3px]">
+                            <p className="text-[10px] lg:text-[12px] font-semibold text-[#9298B0] lg:leading-[18px]">Total Anggota</p>
                             {loadingAnggota
-                                ? <Loader2 size={20} className="animate-spin text-[#0080C5] mt-1" />
-                                : <h3 className="text-2xl font-bold text-slate-950">{totalAnggota.toLocaleString('id-ID')}</h3>
+                                ? <Loader2 size={16} className="animate-spin text-[#0080C5] mt-1 lg:w-5 lg:h-5" />
+                                : <h3 className="text-[24px] lg:text-[26px] font-bold text-[#0A0F1E] leading-[32px] lg:leading-[39px] mt-1 lg:mt-0">{totalAnggota.toLocaleString('id-ID')}</h3>
                             }
-                            <p className="text-[10px] font-medium text-[#0080C5]">Di seluruh wilayah</p>
+                            <p className="text-[10px] lg:text-[11px] font-medium text-[#0080C5] lg:leading-[16px] mt-1 lg:mt-0">Di 34 provinsi Indonesia</p>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-4 flex items-center gap-4 border border-gray-100 shadow-sm">
-                        <div className="w-12 h-12 bg-[#00A870]/10 rounded-xl flex items-center justify-center text-[#00A870]">
-                            <LayoutGrid size={22} />
+                    {/* Grup Dampingan Card */}
+                    <div className="bg-white rounded-[16px] lg:rounded-[16px] p-4 lg:py-[22px] lg:px-[26px] border-[0.8px] lg:border-none border-[#F0F2F8] shadow-sm flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-[21px] min-w-[150px] flex-1 lg:flex-none lg:w-[541px] lg:h-[123.1px]">
+                        <div className="w-10 h-10 lg:w-[52px] lg:h-[52px] bg-[#00C580]/10 rounded-[14px] lg:rounded-[14px] flex items-center justify-center shrink-0 text-[#00C580] lg:text-[#00C580]">
+                            <LayoutGrid size={20} className="lg:hidden stroke-[1.8]" />
+                            {/* Desktop Icon based on Figma */}
+                            <svg className="hidden lg:block w-[28px] h-[28px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="3" width="7" height="7" rx="1" stroke="#00C580" strokeWidth="2"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1" stroke="#00C580" strokeWidth="2"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1" stroke="#00C580" strokeWidth="2"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1" stroke="#00C580" strokeWidth="2"/>
+                            </svg>
                         </div>
-                        <div>
-                            <p className="text-[11px] font-semibold text-slate-400">Grup Dampingan</p>
+                        <div className="flex flex-col mt-1 lg:mt-0 lg:gap-[3px]">
+                            <p className="text-[10px] lg:text-[12px] font-semibold text-[#9298B0] lg:leading-[18px]">Grup Dampingan</p>
                             {loadingGrup
-                                ? <Loader2 size={20} className="animate-spin text-[#00A870] mt-1" />
-                                : <h3 className="text-2xl font-bold text-slate-950">{totalGrup.toLocaleString('id-ID')}</h3>
+                                ? <Loader2 size={16} className="animate-spin text-[#00A870] mt-1 lg:w-5 lg:h-5" />
+                                : <h3 className="text-[24px] lg:text-[26px] font-bold text-[#0A0F1E] leading-[32px] lg:leading-[39px] mt-1 lg:mt-0">{totalGrup.toLocaleString('id-ID')}</h3>
                             }
-                            <p className="text-[10px] font-medium text-[#00A870]">Aktif di seluruh Indonesia</p>
+                            <p className="text-[10px] lg:text-[11px] font-medium text-[#00A870] lg:leading-[16px] mt-1 lg:mt-0">Aktif Di Seluruh Indonesia</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Map Card */}
-                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col flex-1 min-h-[480px]">
-                    <div className="mb-4">
-                        <h2 className="text-base font-bold text-slate-950 tracking-tight">Peta Sebaran Anggota</h2>
-                        <p className="text-xs font-medium text-[#0080C5]">Distribusi anggota dan grup dampingan per kabupaten/kota — data real dari sistem</p>
+                <div className="bg-white rounded-[16px] lg:rounded-[20px] border-[0.8px] lg:border-none border-[#F0F2F8] shadow-sm flex flex-col overflow-hidden min-h-[400px] lg:h-[644.88px] lg:w-[1102px] lg:mx-auto lg:p-[30.8px_32.8px]">
+                    <div className="p-[16.8px] pb-2 lg:p-0 lg:mb-[15px]">
+                        <h2 className="text-[14px] lg:text-[16px] font-bold text-[#0A0F1E] leading-[21px] lg:leading-[24px]">Peta Sebaran Anggota</h2>
+                        <p className="text-[11px] lg:text-[12px] font-normal lg:font-medium text-[#0080C5] leading-[16px] lg:leading-[18px]">Distribusi anggota dan grup dampingan per provinsi di Indonesia</p>
                     </div>
 
-                    {/* Legenda */}
-                    <div className="flex items-center gap-5 mb-4 text-[10px] text-slate-500">
+                    {/* Legenda (Desktop Only) - Hidden based on CSS provided but we keep it or maybe hide if not in CSS. Actually we can keep it as it's useful, but the CSS didn't explicitly show it. We'll leave it but position nicely. */}
+                    <div className="hidden lg:flex items-center gap-5 mb-4 text-[10px] text-slate-500">
                         <div className="flex items-center gap-1.5">
                             <div className="w-4 h-4 rounded bg-[#0080C5] opacity-70" />
                             <span>Ada data dampingan</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <div className="w-4 h-4 rounded bg-slate-200" />
+                            <div className="w-4 h-4 rounded bg-[#CBD5E1]" />
                             <span>Belum ada data</span>
                         </div>
                     </div>
 
-                    <div className="relative rounded-2xl overflow-hidden bg-sky-50/30 flex-1 border border-gray-200 z-0">
+                    <div className="relative overflow-hidden bg-[#F0F2F8]/30 lg:bg-sky-50/30 flex-1 z-0 h-[350px] lg:h-auto mx-1 lg:mx-0 rounded-[20px] lg:rounded-2xl lg:border lg:border-gray-200">
                         {isLoading && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-10">
-                                <div className="w-10 h-10 border-4 border-[#0080C5]/20 border-t-[#0080C5] rounded-full animate-spin" />
-                                <p className="mt-3 text-sm font-semibold text-[#0080C5]">Memuat data peta...</p>
+                                <div className="w-8 h-8 lg:w-10 lg:h-10 border-4 border-[#0080C5]/20 border-t-[#0080C5] rounded-full animate-spin" />
+                                <p className="mt-3 text-[13px] lg:text-sm font-semibold text-[#0080C5]">Memuat data peta...</p>
                             </div>
                         )}
                         <MapContainer
                             center={[-2.5489, 118.0149]}
-                            zoom={5}
-                            style={{ height: '450px', width: '100%', borderRadius: '1rem' }}
+                            zoom={4.5}
+                            style={{ height: '100%', minHeight: '350px', width: '100%' }}
                             scrollWheelZoom={false}
                         >
                             <TileLayer
@@ -214,9 +228,11 @@ const PetaSebaranPage = () => {
                         </MapContainer>
                     </div>
 
-                    <p className="mt-4 text-right text-[10px] text-[#0080C5]/60 italic">
-                        * Klik pada area kabupaten/kota untuk melihat detail statistik
-                    </p>
+                    <div className="px-4 py-2 lg:px-0 lg:py-0 lg:mt-4">
+                        <p className="text-[10px] text-[#0080C5]/70 italic text-right lg:text-slate-400">
+                            * Ketuk pin provinsi untuk melihat detail
+                        </p>
+                    </div>
                 </div>
             </div>
         </AdminLayout>

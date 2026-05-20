@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Menu } from 'lucide-react';
 import ProfileModal from '../modals/ProfileModal';
 import { getUser } from '../../utils/storage';
 import { ROLE_LABELS } from '../../constants/roles';
 
-const Navbar = ({ title = 'Dashboard' }) => {
+const Navbar = ({ title = 'Dashboard', onMenuClick }) => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const user = getUser();
 
@@ -16,11 +16,19 @@ const Navbar = ({ title = 'Dashboard' }) => {
     }
 
     return (
-        <header className="h-16 bg-white border-b border-black/5 flex items-center justify-between px-8 fixed top-0 left-64 right-0 z-40 font-['Poppins']">
+        <header className="h-16 bg-white border-b border-black/5 flex items-center justify-between px-4 lg:px-8 fixed top-0 left-0 lg:left-64 right-0 z-30 font-['Poppins']">
             {/* Title Section */}
-            <h1 className="text-[#0A0F1E] text-xl font-bold tracking-tight">
-                {title}
-            </h1>
+            <div className="flex items-center gap-3">
+                <button 
+                    className="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg"
+                    onClick={onMenuClick}
+                >
+                    <Menu size={24} />
+                </button>
+                <h1 className="text-[#0A0F1E] text-lg lg:text-xl font-bold tracking-tight">
+                    {title}
+                </h1>
+            </div>
 
             {/* Profile Section */}
             <div 

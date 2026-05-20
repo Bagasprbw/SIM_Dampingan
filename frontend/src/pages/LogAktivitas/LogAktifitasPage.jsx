@@ -26,7 +26,6 @@ const LogAktifitasPage = () => {
         ...(tanggalAkhir && { tanggal_akhir: tanggalAkhir }),
     });
 
-    // BE response: { status, data: { data: [...], current_page, last_page, total, from, to } }
     const pagination = logData?.data || {};
     const logs = pagination?.data || [];
     const meta = {
@@ -61,14 +60,14 @@ const LogAktifitasPage = () => {
 
     return (
         <AdminLayout title="Log Aktifitas">
-            <div className="p-8 font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
+            <div className="font-['Poppins']">
 
-                <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-transparent lg:bg-white rounded-none lg:rounded-[24px] shadow-none lg:shadow-sm border-0 lg:border lg:border-slate-200 overflow-hidden lg:m-8">
 
-                    {/* Header */}
-                    <div className="px-8 py-4 border-b border-slate-100 flex justify-between items-center flex-wrap gap-3">
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-[#0080C5]/10 rounded-full flex items-center justify-center text-[#0080C5]">
+                    {/* Header Desktop */}
+                    <div className="hidden lg:flex px-8 py-5 border-b border-slate-100 flex-row justify-between items-center gap-3">
+                        <div className="flex items-center gap-4 w-auto pb-0">
+                            <div className="w-10 h-10 bg-[#0080C5]/10 rounded-full flex items-center justify-center text-[#0080C5] shrink-0">
                                 <Clock size={20} />
                             </div>
                             <div>
@@ -77,43 +76,43 @@ const LogAktifitasPage = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3 flex-wrap">
+                        <div className="flex flex-row items-center gap-3 w-auto">
                             {/* Filter tanggal mulai */}
-                            <div className="h-10 px-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2">
-                                <Calendar size={13} className="text-slate-400" />
+                            <div className="h-10 px-3 w-auto bg-white border border-slate-200 rounded-xl flex items-center gap-2">
+                                <Calendar size={14} className="text-slate-400 shrink-0" />
                                 <input
                                     type="date"
                                     value={tanggalMulai}
                                     onChange={e => { setTanggalMulai(e.target.value); setPage(1); }}
-                                    className="text-[11px] font-medium text-slate-700 outline-none bg-transparent"
+                                    className="text-[11px] font-medium text-slate-700 outline-none bg-transparent w-full"
                                 />
                             </div>
                             {/* Filter tanggal akhir */}
-                            <div className="h-10 px-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2">
-                                <Calendar size={13} className="text-slate-400" />
+                            <div className="h-10 px-3 w-auto bg-white border border-slate-200 rounded-xl flex items-center gap-2">
+                                <Calendar size={14} className="text-slate-400 shrink-0" />
                                 <input
                                     type="date"
                                     value={tanggalAkhir}
                                     onChange={e => { setTanggalAkhir(e.target.value); setPage(1); }}
-                                    className="text-[11px] font-medium text-slate-700 outline-none bg-transparent"
+                                    className="text-[11px] font-medium text-slate-700 outline-none bg-transparent w-full"
                                 />
                             </div>
                             {/* Filter aksi */}
-                            <div className="relative">
+                            <div className="relative w-auto">
                                 <button
                                     onClick={() => setShowAksiDropdown(v => !v)}
-                                    className="h-10 px-4 min-w-[140px] bg-white border border-slate-200 rounded-xl flex items-center justify-between gap-3 hover:bg-slate-50 transition-all"
+                                    className="h-10 px-4 w-auto min-w-[140px] bg-white border border-slate-200 rounded-xl flex items-center justify-between gap-3 hover:bg-slate-50 transition-all"
                                 >
                                     <span className="text-[11px] font-semibold text-slate-700">{selectedAksiLabel}</span>
-                                    <ChevronDown size={13} className={`text-slate-400 transition-transform ${showAksiDropdown ? 'rotate-180' : ''}`} />
+                                    <ChevronDown size={14} className={`text-slate-400 transition-transform ${showAksiDropdown ? 'rotate-180' : ''}`} />
                                 </button>
                                 {showAksiDropdown && (
-                                    <div className="absolute top-full right-0 mt-1 bg-white rounded-xl border border-slate-200 shadow-lg z-50 min-w-full">
+                                    <div className="absolute top-full right-0 mt-1 bg-white rounded-xl border border-slate-200 shadow-lg z-50 min-w-[160px] w-full">
                                         {AKSI_OPTIONS.map(opt => (
                                             <button
                                                 key={opt.value}
                                                 onClick={() => { setAksiFilter(opt.value); setShowAksiDropdown(false); setPage(1); }}
-                                                className={`block w-full text-left px-4 py-2.5 text-[11px] font-medium hover:bg-sky-50 transition-colors ${aksiFilter === opt.value ? 'text-[#0080C5] font-semibold' : 'text-[#0A0F1E]'}`}
+                                                className={`block w-full text-left px-4 py-2.5 text-[11px] font-medium hover:bg-sky-50 transition-colors ${aksiFilter === opt.value ? 'text-[#0080C5] font-semibold bg-sky-50/50' : 'text-[#0A0F1E]'}`}
                                             >
                                                 {opt.label}
                                             </button>
@@ -124,73 +123,210 @@ const LogAktifitasPage = () => {
                         </div>
                     </div>
 
-                    {/* Tabel */}
+                    {/* Header Mobile - Figma styles */}
+                    <div className="flex lg:hidden flex-col gap-3 mb-4 px-4 mt-4">
+                        {/* Header Box */}
+                        <div className="bg-white border-[0.8px] border-[#F0F2F8] rounded-[16px] px-[16.8px] pt-[16.8px] pb-4 flex flex-row items-center gap-2">
+                            <div className="w-[32px] h-[32px] bg-[#0080C5]/10 rounded-[14px] flex items-center justify-center shrink-0">
+                                <Clock size={16} strokeWidth={2.5} className="text-[#0080C5]" />
+                            </div>
+                            <div className="flex flex-col">
+                                <h3 className="text-[14px] font-bold text-[#0A0F1E] leading-[21px]">Log Aktifitas</h3>
+                                <p className="text-[10px] text-[#9298B0] leading-[15px]">Riwayat seluruh aktifitas pengguna sistem</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-row items-center gap-2 w-full">
+                            {/* Filter tanggal */}
+                            <div className="flex-1 h-[34.1px] px-3 bg-white border-[0.8px] border-[#E5E7EB] rounded-[14px] flex items-center gap-2">
+                                <Calendar size={13} strokeWidth={2} className="text-[#9298B0] shrink-0" />
+                                <input
+                                    type="date"
+                                    value={tanggalMulai}
+                                    onChange={e => { setTanggalMulai(e.target.value); setPage(1); }}
+                                    className="text-[11px] font-semibold text-[#0A0F1E] outline-none bg-transparent w-full"
+                                />
+                            </div>
+                            {/* Filter aksi */}
+                            <div className="relative w-auto shrink-0">
+                                <button
+                                    onClick={() => setShowAksiDropdown(v => !v)}
+                                    className="h-[34.1px] px-3 w-[110px] bg-white border-[0.8px] border-[#E5E7EB] rounded-[14px] flex items-center justify-between gap-1 hover:bg-slate-50 transition-all"
+                                >
+                                    <span className="text-[11px] font-semibold text-[#0A0F1E] text-center w-full">{selectedAksiLabel}</span>
+                                    <ChevronDown size={13} strokeWidth={2} className={`text-[#9298B0] transition-transform ${showAksiDropdown ? 'rotate-180' : ''}`} />
+                                </button>
+                                {showAksiDropdown && (
+                                    <div className="absolute top-full right-0 mt-1 bg-white rounded-[14px] border border-slate-200 shadow-lg z-50 w-full min-w-[120px]">
+                                        {AKSI_OPTIONS.map(opt => (
+                                            <button
+                                                key={opt.value}
+                                                onClick={() => { setAksiFilter(opt.value); setShowAksiDropdown(false); setPage(1); }}
+                                                className={`block w-full text-left px-3 py-2 text-[11px] font-medium hover:bg-sky-50 transition-colors first:rounded-t-[14px] last:rounded-b-[14px] ${aksiFilter === opt.value ? 'text-[#0080C5] font-semibold bg-sky-50/50' : 'text-[#0A0F1E]'}`}
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Content */}
                     {isLoading ? (
                         <div className="flex justify-center items-center py-20">
                             <Loader2 className="animate-spin text-[#0080C5]" size={40} />
                         </div>
                     ) : isError ? (
-                        <div className="flex flex-col items-center justify-center py-20">
-                            <p className="text-red-500 mb-4">Gagal memuat log aktivitas.</p>
-                            <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
+                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl mx-4 lg:mx-0">
+                            <p className="text-red-500 mb-4 text-center">Gagal memuat log aktivitas.</p>
+                            <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg text-sm font-semibold">Coba Lagi</button>
                         </div>
                     ) : logs.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20">
-                            <p className="text-slate-500">Tidak ada log aktivitas.</p>
+                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl mx-4 lg:mx-0">
+                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                                <Clock size={24} className="text-slate-300" />
+                            </div>
+                            <p className="text-slate-500 text-[13px] font-medium">Tidak ada log aktivitas.</p>
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full border-collapse">
-                                <thead>
-                                    <tr className="bg-[#FAFBFD] border-b border-slate-100">
-                                        <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">AKSI</th>
-                                        <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">MODUL</th>
-                                        <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">NAMA</th>
-                                        <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">DESKRIPSI</th>
-                                        <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">WAKTU</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-50">
-                                    {logs.map((log, index) => {
-                                        const aksi = log.aksi || 'Unknown';
-                                        const style = getAksiStyles(aksi);
-                                        const initial = log.user?.name ? log.user.name.substring(0, 2).toUpperCase() : '??';
-                                        return (
-                                            <tr key={log.id_log || index} className="hover:bg-slate-50/50 transition-colors">
-                                                <td className="py-3.5 px-6">
-                                                    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 ${style.bg} ${style.text} rounded-full`}>
-                                                        <div className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-                                                        <span className="text-[10px] font-bold">{aksi}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="py-3.5 px-6 text-[11px] font-semibold text-slate-600">{log.modul || '-'}</td>
-                                                <td className="py-3.5 px-6">
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className={`w-8 h-8 ${style.bg} ${style.text} rounded-full flex items-center justify-center text-[10px] font-bold shrink-0`}>{initial}</div>
-                                                        <div>
-                                                            <div className="text-[11px] font-semibold text-slate-950">{log.user?.name || '-'}</div>
-                                                            <div className="text-[10px] text-slate-400 capitalize">{log.user?.role?.name?.replace(/_/g, ' ') || ''}</div>
+                        <>
+                            {/* MOBILE TABLE VIEW (Figma exact match) */}
+                            <div className="lg:hidden px-4 mt-2 mb-4">
+                                <div className="bg-white border-[0.8px] border-[#F0F2F8] rounded-[16px] overflow-hidden">
+                                    <div className="flex flex-row items-center px-4 py-2.5 bg-[#F8FAFC] border-b-[0.8px] border-[#F0F2F8]">
+                                        <div className="w-[80px] shrink-0 text-[9px] font-semibold text-[#9298B0]">ROLE</div>
+                                        <div className="w-[80px] shrink-0 text-[9px] font-semibold text-[#9298B0]">NAMA</div>
+                                        <div className="flex-1 min-w-[116px] text-[9px] font-semibold text-[#9298B0]">AKTIFITAS</div>
+                                        <div className="w-[56px] shrink-0 text-right text-[9px] font-semibold text-[#9298B0]">WAKTU</div>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        {logs.map((log, index) => {
+                                            const aksi = log.aksi || 'Unknown';
+                                            const style = getAksiStyles(aksi);
+                                            const initial = log.user?.name ? log.user.name.substring(0, 2).toUpperCase() : '??';
+                                            const roleName = log.user?.role?.name?.replace(/_/g, ' ') || '';
+                                            
+                                            // Get random time ago format for Figma feel or format actual time
+                                            const timeAgo = formatTime(log.created_at).split(' ')[1] || '00:00';
+                                            
+                                            return (
+                                                <div key={log.id_log || index} className="flex flex-row items-start px-4 py-3 border-b-[0.8px] border-[#F0F2F8] gap-2 last:border-b-0 bg-white">
+                                                    {/* Role */}
+                                                    <div className="w-[72px] shrink-0 pr-2 pt-1.5">
+                                                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 ${style.bg} ${style.text} rounded-full`}>
+                                                            <div className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
+                                                            <span className="text-[9px] font-semibold capitalize whitespace-nowrap overflow-hidden text-ellipsis max-w-[45px]">{roleName.substring(0, 6)}</span>
                                                         </div>
                                                     </div>
-                                                </td>
-                                                <td className="py-3.5 px-6">
-                                                    <div className="flex items-start gap-2">
-                                                        <CheckSquare size={13} className="text-[#00BC7D] shrink-0 mt-0.5" />
-                                                        <span className="text-xs text-slate-600 line-clamp-2">{log.deskripsi || '-'}</span>
+                                                    
+                                                    {/* Nama */}
+                                                    <div className="w-[72px] shrink-0 pr-1 flex flex-row items-start gap-1.5">
+                                                        <div className={`w-6 h-6 ${style.bg} text-[#0A0F1E] rounded-full flex items-center justify-center text-[9px] font-bold shrink-0`}>
+                                                            {initial}
+                                                        </div>
+                                                        <span className="text-[10px] font-semibold text-[#0A0F1E] leading-[12px] break-words line-clamp-2 mt-0.5">{log.user?.name || '-'}</span>
                                                     </div>
-                                                </td>
-                                                <td className="py-3.5 px-6 text-[11px] text-slate-400 font-medium whitespace-nowrap">{formatTime(log.created_at)}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
+                                                    
+                                                    {/* Aktifitas */}
+                                                    <div className="flex-1 min-w-[116px] flex flex-row items-start gap-1">
+                                                        <CheckSquare size={12} strokeWidth={1} className="text-[#22C55E] shrink-0 mt-0.5" />
+                                                        <span className="text-[10px] text-[#0A0F1E] leading-[14px] line-clamp-3">{log.deskripsi || '-'}</span>
+                                                    </div>
+                                                    
+                                                    {/* Waktu */}
+                                                    <div className="w-[56px] shrink-0 text-right">
+                                                        <span className="text-[9px] text-[#9298B0]">{timeAgo}</span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* DESKTOP TABLE VIEW */}
+                            <div className="hidden lg:block overflow-x-auto">
+                                <table className="w-full border-collapse">
+                                    <thead>
+                                        <tr className="bg-[#FAFBFD] border-b border-slate-100">
+                                            <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">AKSI</th>
+                                            <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">MODUL</th>
+                                            <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">NAMA</th>
+                                            <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">DESKRIPSI</th>
+                                            <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">WAKTU</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-50">
+                                        {logs.map((log, index) => {
+                                            const aksi = log.aksi || 'Unknown';
+                                            const style = getAksiStyles(aksi);
+                                            const initial = log.user?.name ? log.user.name.substring(0, 2).toUpperCase() : '??';
+                                            return (
+                                                <tr key={log.id_log || index} className="hover:bg-slate-50/50 transition-colors">
+                                                    <td className="py-3.5 px-6">
+                                                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 ${style.bg} ${style.text} rounded-full`}>
+                                                            <div className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
+                                                            <span className="text-[10px] font-bold tracking-wide">{aksi}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-3.5 px-6 text-[11px] font-semibold text-slate-600">{log.modul || '-'}</td>
+                                                    <td className="py-3.5 px-6">
+                                                        <div className="flex items-center gap-2.5">
+                                                            <div className={`w-8 h-8 ${style.bg} ${style.text} rounded-full flex items-center justify-center text-[10px] font-bold shrink-0`}>{initial}</div>
+                                                            <div>
+                                                                <div className="text-[11px] font-semibold text-slate-950">{log.user?.name || '-'}</div>
+                                                                <div className="text-[10px] text-slate-400 capitalize">{log.user?.role?.name?.replace(/_/g, ' ') || ''}</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-3.5 px-6">
+                                                        <div className="flex items-start gap-2">
+                                                            <CheckSquare size={14} className="text-[#00BC7D] shrink-0 mt-0.5" />
+                                                            <span className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{log.deskripsi || '-'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-3.5 px-6 text-[11px] text-slate-400 font-medium whitespace-nowrap">{formatTime(log.created_at)}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
                     )}
 
                     {/* Pagination */}
                     {meta.total > 0 && (
-                        <div className="px-8 py-4 border-t border-slate-100 flex justify-between items-center">
+                        <div className="px-4 lg:hidden mt-2 pb-6">
+                            <div className="flex flex-row items-center justify-between bg-white border-[0.8px] border-[#E5E7EB] rounded-[16px] px-4 py-3 shadow-sm w-full">
+                                <p className="text-[10px] text-[#9298B0]">
+                                    Menampilkan {meta.from}–{meta.to} dari {meta.total} aktifitas
+                                </p>
+                                <div className="flex items-center gap-1.5">
+                                    <button 
+                                        onClick={() => setPage(p => Math.max(p - 1, 1))} 
+                                        disabled={page === 1} 
+                                        className="w-7 h-7 flex items-center justify-center border-[0.8px] border-[#E5E7EB] rounded-[10px] text-[#0A0F1E] disabled:opacity-40"
+                                    >
+                                        <ChevronLeft size={14} strokeWidth={2.5} />
+                                    </button>
+                                    <span className="w-7 h-7 bg-[#0080C5] text-white rounded-[10px] flex items-center justify-center text-[12px] font-bold">{page}</span>
+                                    <button 
+                                        onClick={() => setPage(p => p < meta.last_page ? p + 1 : p)} 
+                                        disabled={page === meta.last_page} 
+                                        className="w-7 h-7 flex items-center justify-center border-[0.8px] border-[#E5E7EB] rounded-[10px] text-[#0A0F1E] disabled:opacity-40"
+                                    >
+                                        <ChevronRight size={14} strokeWidth={2.5} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {/* Desktop Pagination */}
+                    {meta.total > 0 && (
+                        <div className="hidden lg:flex mt-4 px-4 lg:px-8 py-5 lg:py-4 border-t lg:border-slate-100 flex-row justify-between items-center bg-white">
                             <p className="text-xs text-slate-400">
                                 Menampilkan <span className="font-bold text-slate-950">{meta.from}–{meta.to}</span> dari <span className="font-bold text-slate-950">{meta.total}</span> aktivitas
                             </p>
@@ -198,7 +334,7 @@ const LogAktifitasPage = () => {
                                 <button onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1} className="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 disabled:opacity-50">
                                     <ChevronLeft size={14} />
                                 </button>
-                                <span className="h-7 px-3 bg-[#0080C5] text-white rounded-lg flex items-center text-xs font-bold">{page}</span>
+                                <span className="h-7 px-3 bg-[#0080C5] text-white rounded-lg flex items-center justify-center text-xs font-bold shadow-sm">{page}</span>
                                 <button onClick={() => setPage(p => p < meta.last_page ? p + 1 : p)} disabled={page === meta.last_page} className="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 disabled:opacity-50">
                                     <ChevronRight size={14} />
                                 </button>
