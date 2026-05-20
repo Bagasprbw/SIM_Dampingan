@@ -13,11 +13,12 @@ class LogAktivitasController extends Controller
      *
      * Aturan akses:
      *  - superadmin → semua log (semua user, semua aksi)
-     *  - role lain  → hanya log LOGIN milik dirinya sendiri
+     *  - role lain  → hanya log milik dirinya sendiri
      *
-     * Query params opsional (hanya berlaku untuk superadmin):
+     * Query params opsional:
      *  - user_id    : filter berdasarkan user tertentu
-     *  - aksi       : LOGIN | LOGOUT | CREATE | UPDATE | DELETE | VIEW
+     *  - aksi       : LOGIN | LOGOUT | CREATE | UPDATE | DELETE | VIEW | VERIFIKASI
+     *  - role       : nama role (hanya superadmin)
      *  - modul      : nama modul
      *  - tanggal_mulai / tanggal_akhir : rentang tanggal (Y-m-d)
      *  - per_page   : jumlah data per halaman (default 15)
@@ -38,25 +39,31 @@ class LogAktivitasController extends Controller
                 $query->where('user_id', $request->user_id);
             }
 
-            if ($request->filled('aksi')) {
-                $query->where('aksi', strtoupper($request->aksi));
+            if ($request->filled('role')) {
+                $query->whereHas('user.role', function ($q) use ($request) {
+                    $q->where('name', $request->role);
+                });
             }
 
             if ($request->filled('modul')) {
                 $query->where('modul', 'like', '%' . $request->modul . '%');
             }
 
-            if ($request->filled('tanggal_mulai')) {
-                $query->whereDate('created_at', '>=', $request->tanggal_mulai);
-            }
-
-            if ($request->filled('tanggal_akhir')) {
-                $query->whereDate('created_at', '<=', $request->tanggal_akhir);
-            }
         } else {
-            // ---------- Role lain: hanya log LOGIN diri sendiri ----------
-            $query->where('user_id', $user->id_user)
-                  ->where('aksi', 'LOGIN');
+            // ---------- Role lain: hanya log milik dirinya sendiri ----------
+            $query->where('user_id', $user->id_user);
+        }
+
+        if ($request->filled('aksi')) {
+            $query->where('aksi', strtoupper($request->aksi));
+        }
+
+        if ($request->filled('tanggal_mulai')) {
+            $query->whereDate('created_at', '>=', $request->tanggal_mulai);
+        }
+
+        if ($request->filled('tanggal_akhir')) {
+            $query->whereDate('created_at', '<=', $request->tanggal_akhir);
         }
 
         $perPage = (int) ($request->per_page ?? 15);
@@ -73,7 +80,7 @@ class LogAktivitasController extends Controller
      *
      * Aturan akses:
      *  - superadmin → bisa lihat log manapun
-     *  - role lain  → hanya bisa lihat log LOGIN miliknya sendiri
+     *  - role lain  → hanya bisa lihat log miliknya sendiri
      */
     public function show(Request $request, $id)
     {
@@ -93,13 +100,11 @@ class LogAktivitasController extends Controller
         }
 
         // Cek akses untuk non-superadmin
-        if (!$isSuperadmin) {
-            if ($log->user_id !== $user->id_user || $log->aksi !== 'LOGIN') {
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'Akses ditolak. Anda hanya dapat melihat log login milik Anda sendiri.',
-                ], 403);
-            }
+        if (!$isSuperadmin && $log->user_id !== $user->id_user) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Akses ditolak. Anda hanya dapat melihat log milik Anda sendiri.',
+            ], 403);
         }
 
         return response()->json([

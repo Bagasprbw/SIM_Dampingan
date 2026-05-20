@@ -63,10 +63,18 @@ export const ROUTE_PERMISSIONS = {
     '/data-grup':            'kelola_grup',
     '/data-dampingan':       'kelola_masyarakat',
     '/kegiatan-dampingan':   'view_kegiatan',
+
+    // Fasilitator
     '/konfirmasi-anggota':   'verifikasi_anggota',
-    '/kelola-dampingan':     'kelola_grup',
-    '/kelola-kegiatan':      'create_kegiatan',
-    //nanti edit kegiatan juga -> 'edit_kegiatan', sesuai seeder
+    // Fasilitator mengakses grup yang didampingi (backend /grup-dampingan mengizinkan verifikasi_anggota)
+    '/kelola-dampingan':     'verifikasi_anggota',
+
+    // Kelola Kegiatan (lebih spesifik dulu sebelum prefix /kelola-kegiatan)
+    '/kelola-kegiatan/tambah': 'create_kegiatan',
+    '/kelola-kegiatan/edit':   'edit_kegiatan',
+    '/kelola-kegiatan':        ['create_kegiatan', 'edit_kegiatan', 'delete_kegiatan'],
+
+    // PJ Grup
     '/kelola-anggota':       'ajukan_anggota',
     '/informasi-dampingan':  'view_kegiatan',
 };

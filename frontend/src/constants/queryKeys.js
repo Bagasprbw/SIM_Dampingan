@@ -11,4 +11,5 @@ export const queryKeys = {
     LOG_AKTIVITAS: 'log_aktivitas',
     PANDUAN: 'panduan',
     RBAC: 'rbac',
+    DASHBOARD_FASILITATOR: 'dashboard_fasilitator',
 };

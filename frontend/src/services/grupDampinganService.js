@@ -27,18 +27,9 @@ export const grupDampinganService = {
     },
 
     getFasilitatorGrup: async (params) => {
-        // TODO: aktifkan saat endpoint BE tersedia
-        // NEEDS BE: GET /api/fasilitator/grup-dampingan | response: { data: [{ id, nama_grup, ... }] }
-        // const response = await api.get('/fasilitator/grup-dampingan', { params });
-        // return response.data;
-        
-        return {
-            data: [
-                { id: 1, nama_grup: 'Grup Tani Makmur', bidang: { nama_bidang: 'Pertanian' } },
-                { id: 2, nama_grup: 'Grup Nelayan Jaya', bidang: { nama_bidang: 'Perikanan' } }
-            ],
-            meta: { current_page: 1, last_page: 1, total: 2 }
-        };
+        // Backend sudah melakukan cascade filter: fasilitator hanya melihat grup yang ia dampingi
+        const response = await api.get('/grup-dampingan', { params });
+        return response.data;
     },
 
     getPjGrup: async () => {

@@ -1,0 +1,8 @@
+import api from './api';
+
+export const dashboardService = {
+    getFasilitator: async () => {
+        const response = await api.get('/dashboard/fasilitator');
+        return response.data;
+    },
+};
