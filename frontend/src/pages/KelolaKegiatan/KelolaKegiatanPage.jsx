@@ -37,6 +37,7 @@ const KelolaKegiatanPage = () => {
     const getStatusInfo = (status) => {
         switch(status?.toLowerCase()) {
             case 'selesai': return { text: 'Selesai', color: 'bg-[#ECFDF5] text-[#10B981]', dot: 'bg-[#10B981]' };
+            case 'published': return { text: 'Selesai', color: 'bg-[#ECFDF5] text-[#10B981]', dot: 'bg-[#10B981]' };
             case 'draft': return { text: 'Draft', color: 'bg-amber-50 text-amber-500', dot: 'bg-amber-500' };
             default: return { text: status || 'Selesai', color: 'bg-[#ECFDF5] text-[#10B981]', dot: 'bg-[#10B981]' };
         }

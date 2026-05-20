@@ -6,6 +6,7 @@ export const queryKeys = {
     ANGGOTA_GRUP: 'anggota_grup',
     KEGIATAN: 'kegiatan',
     BIDANG: 'bidang',
+    LEVEL_KEGIATAN: 'level_kegiatan',
     PROFIL: 'profil',
     LOG_AKTIVITAS: 'log_aktivitas',
     PANDUAN: 'panduan',

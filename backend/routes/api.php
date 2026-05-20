@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\GrupDampingan\PengajuanAnggotaController;
 use App\Http\Controllers\Api\Kegiatan\KegiatanController;
 use App\Http\Controllers\Api\Kegiatan\FotoAbsensiController;
 use App\Http\Controllers\Api\Kegiatan\FotoKegiatanController;
+use App\Http\Controllers\Api\Kegiatan\LevelKegiatanController;
 use App\Http\Controllers\Api\Kegiatan\PesertaKegiatanController;
 use App\Http\Controllers\Api\LogAktivitas\LogAktivitasController;
 use App\Http\Controllers\Api\Panduan\PanduanController;
@@ -43,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Bidang & Pekerjaan
     Route::get('/bidang', [BidangController::class, 'index']);
     Route::get('/pekerjaan', [PekerjaanController::class, 'index']);
+    Route::get('/level-kegiatan', [LevelKegiatanController::class, 'index']);
     Route::post('/bidang', [BidangController::class, 'store'])->middleware('permission:kelola_masyarakat');
     Route::delete('/bidang/{id}', [BidangController::class, 'destroy'])->middleware('permission:kelola_masyarakat');
 
