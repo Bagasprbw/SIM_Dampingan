@@ -419,7 +419,7 @@ class GrupDampinganController extends Controller
 
         // Update grup dampingan
         $dataLama = $grupDampingan->toArray();
-        
+
         // Exclude fasilitator_ids from direct update
         $updateData = collect($validated)->except('fasilitator_ids')->toArray();
         $grupDampingan->update($updateData);
@@ -468,7 +468,7 @@ class GrupDampinganController extends Controller
 
     /**
      * DELETE /api/grup-dampingan/{id}
-     * Delete grup dampingan
+     * Delete grup dampingan dan PJ Grup (pengurus) yang mengelolanya
      */
     public function destroy(Request $request, $id)
     {
@@ -487,14 +487,23 @@ class GrupDampinganController extends Controller
             ], 403);
         }
 
+        // Get pengurus user sebelum dihapus grup
+        $pengurusId = $grupDampingan->pengurus_id;
         $dataLama = $grupDampingan->toArray();
+
+        // Delete grup dampingan (ini akan cascade delete grup_fasilitators dan anggota_grup_dampingans)
         $grupDampingan->delete();
+
+        // Delete user PJ Grup (pengurus) setelah grup dihapus
+        if ($pengurusId) {
+            User::where('id_user', $pengurusId)->delete();
+        }
 
         // Catat log DELETE
         $this->logDelete($request, 'GrupDampingan', $id, $dataLama);
 
         return response()->json([
-            'message' => 'Grup dampingan berhasil dihapus'
+            'message' => 'Grup dampingan dan pengurus berhasil dihapus'
         ]);
     }
 

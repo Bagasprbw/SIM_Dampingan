@@ -57,7 +57,15 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
     }, [isPengajuan, grups]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        if (e.target.name === 'bidang_id') {
+            setFormData({
+                ...formData,
+                bidang_id: e.target.value,
+                grup_dampingan_id: ''
+            });
+        } else {
+            setFormData({ ...formData, [e.target.name]: e.target.value });
+        }
     };
 
     const handleImageChange = (e) => {
@@ -341,10 +349,10 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
                             <div className="space-y-1.5">
                                 <label className="text-slate-950 text-xs font-semibold leading-5">Bidang Dampingan</label>
                                 <div className="relative group">
-                                    <select name="bidang_id" value={formData.bidang_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
-                                        <option value="" disabled>Pilih bidang dampingan...</option>
+                                    <select name="bidang_id" value={formData.bidang_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
+                                        <option value="" disabled className="text-slate-500">Pilih bidang dampingan...</option>
                                         {bidangs.map(b => (
-                                            <option key={b.id_bidang} value={b.id_bidang}>{b.nama_bidang}</option>
+                                            <option key={b.id_bidang} value={b.id_bidang} className="text-slate-900">{b.name}</option>
                                         ))}
                                     </select>
                                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
@@ -353,11 +361,22 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
                             <div className="space-y-1.5">
                                 <label className="text-slate-950 text-xs font-semibold leading-5">Grup Dampingan</label>
                                 <div className="relative group">
-                                    <select name="grup_dampingan_id" value={formData.grup_dampingan_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-400 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
-                                        <option value="" disabled>Pilih grup dampingan...</option>
-                                        {grups.map(g => (
-                                            <option key={g.id_grup_dampingan} value={g.id_grup_dampingan}>{g.nama_grup}</option>
-                                        ))}
+                                    <select 
+                                        name="grup_dampingan_id" 
+                                        value={formData.grup_dampingan_id} 
+                                        onChange={handleChange} 
+                                        disabled={!formData.bidang_id}
+                                        className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                    >
+                                        <option value="" disabled className="text-slate-500">
+                                            {formData.bidang_id ? 'Pilih grup dampingan...' : 'Pilih bidang terlebih dahulu'}
+                                        </option>
+                                        {grups
+                                            .filter(g => g.bidang_id === formData.bidang_id)
+                                            .map(g => (
+                                                <option key={g.id_grup_dampingan} value={g.id_grup_dampingan} className="text-slate-900">{g.name}</option>
+                                            ))
+                                        }
                                     </select>
                                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                                 </div>

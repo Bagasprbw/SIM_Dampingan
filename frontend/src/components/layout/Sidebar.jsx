@@ -43,6 +43,7 @@ const Sidebar = () => {
         { icon: <UserCheck size={18} />,      label: 'Data Fasilitator',     path: '/data-fasilitator',    permission: 'kelola_fasilitator' },
         { icon: <UserCog size={18} />,        label: 'Data Pj Dampingan',    path: '/data-pj',             permission: 'kelola_pj_grup' },
         { icon: <UsersRound size={18} />,     label: 'Data Grup Dampingan',  path: '/data-grup',           permission: 'kelola_grup' },
+        { icon: <Users size={18} />,          label: 'Data Dampingan',       path: '/data-dampingan',      permission: 'kelola_masyarakat' },
         { icon: <ClipboardList size={18} />,  label: 'Kegiatan Dampingan',   path: '/kegiatan-dampingan',  permission: 'view_kegiatan' },
 
         // Fasilitator
@@ -66,7 +67,7 @@ const Sidebar = () => {
     // Path sidebar khusus superadmin
     const SUPERADMIN_PATHS = [
         '/dashboard', '/data-admin', '/data-fasilitator', '/data-pj',
-        '/data-grup', '/kegiatan-dampingan', '/kelola-kegiatan',
+        '/data-grup', '/data-dampingan', '/kegiatan-dampingan', '/kelola-kegiatan',
         '/hak-akses', '/peta', '/log', '/panduan'
     ];
 
