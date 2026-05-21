@@ -37,17 +37,28 @@ const Sidebar = () => {
      */
     const allMenuItems = [
         { icon: <Grid2X2 size={18} />,        label: 'Dashboard',            path: '/dashboard',           permission: null },
+
+        // Admin menus
         { icon: <Users size={18} />,          label: 'Data Admin',           path: '/data-admin',          permission: 'kelola_admin_bawahan' },
         { icon: <UserCheck size={18} />,      label: 'Data Fasilitator',     path: '/data-fasilitator',    permission: 'kelola_fasilitator' },
         { icon: <UserCog size={18} />,        label: 'Data Pj Dampingan',    path: '/data-pj',             permission: 'kelola_pj_grup' },
         { icon: <UsersRound size={18} />,     label: 'Data Grup Dampingan',  path: '/data-grup',           permission: 'kelola_grup' },
+        { icon: <Users size={18} />,          label: 'Data Dampingan',       path: '/data-dampingan',      permission: 'kelola_masyarakat' },
         { icon: <ClipboardList size={18} />,  label: 'Kegiatan Dampingan',   path: '/kegiatan-dampingan',  permission: 'view_kegiatan' },
+
+        // Fasilitator
         { icon: <Users size={18} />,          label: 'Konfirmasi Anggota',   path: '/konfirmasi-anggota',  permission: 'verifikasi_anggota' },
-        { icon: <LayoutGrid size={18} />,     label: 'Kelola Dampingan',     path: '/kelola-dampingan',    permission: 'kelola_grup' },
-        { icon: <Settings2 size={18} />,      label: 'Kelola Kegiatan',      path: '/kelola-kegiatan',     permission: 'create_kegiatan' },
+        { icon: <LayoutGrid size={18} />,     label: 'Kelola Dampingan',     path: '/kelola-dampingan',    permission: 'verifikasi_anggota' },
+        { icon: <Settings2 size={18} />,      label: 'Kelola Kegiatan',      path: '/kelola-kegiatan',     permission: ['create_kegiatan','edit_kegiatan','delete_kegiatan'] },
+
+        // Superadmin only
         { icon: <ShieldCheck size={18} />,    label: 'Kelola Hak Akses',     path: '/hak-akses',           permission: 'manage_roles' },
-        { icon: <Users size={18} />,          label: 'Pendaftaran Anggota',       path: '/kelola-anggota',      permission: 'ajukan_anggota' },
+
+        // PJ Grup
+        { icon: <Users size={18} />,          label: 'Pendaftaran Anggota',  path: '/kelola-anggota',      permission: 'ajukan_anggota' },
         { icon: <LayoutGrid size={18} />,     label: 'Informasi Dampingan',  path: '/informasi-dampingan', permission: null },
+
+        // Shared
         { icon: <Map size={18} />,            label: 'Peta Sebaran',         path: '/peta',                permission: 'view_peta_sebaran' },
         { icon: <History size={18} />,        label: 'Log Aktifitas',        path: '/log',                 permission: null },
         { icon: <BookOpen size={18} />,       label: 'Panduan Penggunaan',   path: '/panduan',             permission: 'view_panduan' },
@@ -56,34 +67,64 @@ const Sidebar = () => {
     // Path sidebar khusus superadmin
     const SUPERADMIN_PATHS = [
         '/dashboard', '/data-admin', '/data-fasilitator', '/data-pj',
-        '/data-grup', '/kegiatan-dampingan', '/kelola-kegiatan',
+        '/data-grup', '/data-dampingan', '/kegiatan-dampingan', '/kelola-kegiatan',
         '/hak-akses', '/peta', '/log', '/panduan'
     ];
 
-    const menuItems = allMenuItems.filter(item => {
+    const ROLE_MENU_ORDER = {
+        fasilitator: [
+            '/dashboard',
+            '/konfirmasi-anggota',
+            '/kelola-dampingan',
+            '/kelola-kegiatan',
+            '/peta',
+            '/log',
+            '/panduan',
+        ],
+        pj_grup: [
+            '/dashboard',
+            '/kelola-anggota',
+            '/informasi-dampingan',
+            '/peta',
+            '/log',
+            '/panduan',
+        ],
+    };
+
+    const hasPermission = (item) => {
+        if (item.permission === null) return true;
+        if (Array.isArray(item.permission)) return item.permission.some((p) => userPermissions.includes(p));
+        return userPermissions.includes(item.permission);
+    };
+
+    const menuItems = (() => {
         if (isSuperAdmin) {
-            return SUPERADMIN_PATHS.includes(item.path);
+            return allMenuItems.filter((item) => SUPERADMIN_PATHS.includes(item.path));
         }
 
-        // Cek permission dari localStorage
-        if (item.permission !== null && !userPermissions.includes(item.permission)) {
-            return false;
+        // Role menu khusus (biar urutan konsisten & tidak kebawa menu lintas role)
+        const orderedPaths = ROLE_MENU_ORDER[userRole];
+        if (orderedPaths) {
+            return orderedPaths
+                .map((path) => allMenuItems.find((item) => item.path === path))
+                .filter(Boolean)
+                .filter(hasPermission);
         }
 
-        // Hindari menu overlap antar role:
-        // /data-grup hanya untuk admin (bukan fasilitator)
-        if (item.path === '/data-grup' && userRole === 'fasilitator') return false;
-        // /kelola-dampingan hanya untuk fasilitator (bukan admin)
-        if (item.path === '/kelola-dampingan' && userRole?.includes('admin')) return false;
-        if (item.path === '/kelola-dampingan' && userRole === 'pj_grup') return false;
-        // /konfirmasi-anggota hanya untuk fasilitator
-        if (item.path === '/konfirmasi-anggota' && userRole !== 'fasilitator') return false;
-        // /kelola-anggota & /informasi-dampingan hanya untuk pj_grup
-        if (item.path === '/kelola-anggota' && userRole !== 'pj_grup') return false;
-        if (item.path === '/informasi-dampingan' && userRole !== 'pj_grup') return false;
-
-        return true;
-    });
+        // Default: permission-based (admin roles)
+        return allMenuItems
+            .filter(hasPermission)
+            // Hindari menu overlap antar role
+            .filter((item) => {
+                if (item.path === '/data-grup' && userRole === 'fasilitator') return false;
+                if (item.path === '/kelola-dampingan' && userRole?.includes('admin')) return false;
+                if (item.path === '/kelola-dampingan' && userRole === 'pj_grup') return false;
+                if (item.path === '/konfirmasi-anggota' && userRole !== 'fasilitator') return false;
+                if (item.path === '/kelola-anggota' && userRole !== 'pj_grup') return false;
+                if (item.path === '/informasi-dampingan' && userRole !== 'pj_grup') return false;
+                return true;
+            });
+    })();
 
     return (
         <aside className="w-64 h-screen bg-white border-r border-black/10 flex flex-col fixed left-0 top-0 z-50 font-['Poppins']">

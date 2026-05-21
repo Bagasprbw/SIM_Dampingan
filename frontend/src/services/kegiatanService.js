@@ -16,18 +16,56 @@ export const kegiatanService = {
         return response.data;
     },
 
+    getById: async (id) => {
+        const response = await api.get(`/kelola-kegiatan/${id}`);
+        return response.data;
+    },
+
     create: async (data) => {
-        const response = await api.post('/kelola-kegiatan', data);
+        const isFormData = data instanceof FormData;
+        const response = await api.post(
+            '/kelola-kegiatan',
+            data,
+            isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined
+        );
         return response.data;
     },
 
     update: async (id, data) => {
-        const response = await api.put(`/kelola-kegiatan/${id}`, data);
+        const isFormData = data instanceof FormData;
+        const response = await api.put(
+            `/kelola-kegiatan/${id}`,
+            data,
+            isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined
+        );
         return response.data;
     },
 
     delete: async (id) => {
         const response = await api.delete(`/kelola-kegiatan/${id}`);
         return response.data;
-    }
+    },
+
+    uploadFotoKegiatan: async (kegiatanId, files) => {
+        const formData = new FormData();
+        files.forEach((file) => formData.append('files[]', file));
+        const response = await api.post(`/kelola-kegiatan/${kegiatanId}/foto-kegiatan`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        return response.data;
+    },
+
+    uploadFotoAbsensi: async (kegiatanId, files) => {
+        const formData = new FormData();
+        files.forEach((file) => formData.append('files[]', file));
+        const response = await api.post(`/kelola-kegiatan/${kegiatanId}/foto-absensi`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        return response.data;
+    },
+
+    addPeserta: async (kegiatanId, data) => {
+        const response = await api.post(`/kelola-kegiatan/${kegiatanId}/peserta`, data);
+        return response.data;
+    },
 };

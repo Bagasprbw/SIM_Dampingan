@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Authentikasi\AuthController;
 use App\Http\Controllers\Api\Bidang\BidangController;
+use App\Http\Controllers\Api\Dashboard\DashboardFasilitatorController;
 use App\Http\Controllers\Api\Pekerjaan\PekerjaanController;
 use App\Http\Controllers\Api\User\UserController;
 use App\Http\Controllers\Api\FasilitatorBidang\FasilitatorBidangController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Api\GrupDampingan\PengajuanAnggotaController;
 use App\Http\Controllers\Api\Kegiatan\KegiatanController;
 use App\Http\Controllers\Api\Kegiatan\FotoAbsensiController;
 use App\Http\Controllers\Api\Kegiatan\FotoKegiatanController;
+use App\Http\Controllers\Api\Kegiatan\LevelKegiatanController;
 use App\Http\Controllers\Api\Kegiatan\PesertaKegiatanController;
 use App\Http\Controllers\Api\LogAktivitas\LogAktivitasController;
 use App\Http\Controllers\Api\Panduan\PanduanController;
@@ -43,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Bidang & Pekerjaan
     Route::get('/bidang', [BidangController::class, 'index']);
     Route::get('/pekerjaan', [PekerjaanController::class, 'index']);
+    Route::get('/level-kegiatan', [LevelKegiatanController::class, 'index']);
     Route::post('/bidang', [BidangController::class, 'store'])->middleware('permission:kelola_masyarakat');
     Route::delete('/bidang/{id}', [BidangController::class, 'destroy'])->middleware('permission:kelola_masyarakat');
 
@@ -194,6 +197,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [LogAktivitasController::class, 'index']);
         Route::get('/{id}', [LogAktivitasController::class, 'show']);
     });
+
+    // ----------- dashboard fasilitator -----------------
+    Route::get('/dashboard/fasilitator', [DashboardFasilitatorController::class, 'index'])
+        ->middleware('permission:verifikasi_anggota');
 
     // ----------- wilayah -----------------
     Route::prefix('wilayah')->group(function () {

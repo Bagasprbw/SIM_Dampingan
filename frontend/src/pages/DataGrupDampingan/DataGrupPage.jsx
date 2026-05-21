@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Search, 
@@ -17,6 +17,7 @@ import { useGrupDampingans } from '../../hooks/queries/useGrupDampinganQuery';
 import { Loader2 } from 'lucide-react';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
 
 const DataGrupPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -27,15 +28,44 @@ const DataGrupPage = () => {
 
     const [page, setPage] = useState(1);
 
+    // Get current logged-in user
+    const { user: currentUser } = useCurrentUser();
+    const userRole = typeof currentUser?.role === 'object' ? currentUser?.role?.name : currentUser?.role;
+    const isSuper = userRole === 'superadmin';
+    const isAdminProvinsi = userRole === 'admin_provinsi';
+    const isAdminKabupaten = userRole === 'admin_kabupaten';
+    const isAdminKecamatan = userRole === 'admin_kecamatan';
+
     // Filter State
     const [provinsiFilter, setProvinsiFilter] = useState(null);
     const [kabupatenFilter, setKabupatenFilter] = useState(null);
     const [kecamatanFilter, setKecamatanFilter] = useState(null);
 
+    // Initialize filters based on user role on mount
+    useEffect(() => {
+        if (!isSuper && currentUser) {
+            if (isAdminProvinsi && currentUser.kode_prov) {
+                setProvinsiFilter(currentUser.kode_prov);
+            } else if (isAdminKabupaten && currentUser.kode_kab) {
+                setProvinsiFilter(currentUser.kode_prov);
+                setKabupatenFilter(currentUser.kode_kab);
+            } else if (isAdminKecamatan && currentUser.kode_kec) {
+                setProvinsiFilter(currentUser.kode_prov);
+                setKabupatenFilter(currentUser.kode_kab);
+                setKecamatanFilter(currentUser.kode_kec);
+            }
+        }
+    }, [currentUser, isSuper, isAdminProvinsi, isAdminKabupaten, isAdminKecamatan]);
+
     // Wilayah Queries
     const { data: provinsiOptions = [], isLoading: loadingProv } = useProvinsi();
     const { data: kabupatenOptions = [], isLoading: loadingKab } = useKabupaten(provinsiFilter);
     const { data: kecamatanOptions = [], isLoading: loadingKec } = useKecamatan(kabupatenFilter);
+
+    // Filter provinsi list based on user role
+    const filteredProvinsiOptions = isSuper 
+        ? provinsiOptions 
+        : provinsiOptions.filter(p => p.kode === currentUser?.kode_prov);
 
     const { data: grupData, isLoading, isError, refetch } = useGrupDampingans({
         page: page,
@@ -91,11 +121,12 @@ const DataGrupPage = () => {
                     <div className="flex flex-wrap items-center gap-3">
                         <FilterDropdown
                             placeholder="Pilih Provinsi"
-                            options={provinsiOptions}
+                            options={filteredProvinsiOptions}
                             value={provinsiFilter}
                             isLoading={loadingProv}
                             valueKey="kode"
                             labelKey="name"
+                            disabled={!isSuper || filteredProvinsiOptions.length <= 1}
                             onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
                         />
                         <FilterDropdown
@@ -103,7 +134,7 @@ const DataGrupPage = () => {
                             options={kabupatenOptions}
                             value={kabupatenFilter}
                             isLoading={loadingKab}
-                            disabled={!provinsiFilter}
+                            disabled={!provinsiFilter || isAdminKabupaten || isAdminKecamatan}
                             valueKey="kode"
                             labelKey="name"
                             onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
@@ -113,7 +144,7 @@ const DataGrupPage = () => {
                             options={kecamatanOptions}
                             value={kecamatanFilter}
                             isLoading={loadingKec}
-                            disabled={!kabupatenFilter}
+                            disabled={!kabupatenFilter || isAdminKecamatan}
                             valueKey="kode"
                             labelKey="name"
                             onChange={(v) => { setKecamatanFilter(v); setPage(1); }}

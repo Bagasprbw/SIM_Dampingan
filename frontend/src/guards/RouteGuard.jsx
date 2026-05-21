@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { isAuthenticated, getUser, getPermissions } from '../utils/storage';
-import { ROUTE_PERMISSIONS } from '../constants/routes';
+import { ROUTE_ACCESS, ROUTE_PERMISSIONS, DEFAULT_ROUTE_BY_ROLE } from '../constants/routes';
 
 const RouteGuard = () => {
     const location = useLocation();
@@ -20,9 +20,24 @@ const RouteGuard = () => {
         userRole = 'superadmin';
     }
 
-    // Superadmin melewati semua permission check
+    // Superadmin melewati semua check
     if (userRole === 'superadmin') {
         return <Outlet />;
+    }
+
+    // Role-based guard (defense-in-depth): pastikan route memang untuk role ini.
+    // Ini mencegah kasus fasilitator "kebawa" permission admin dari cache/konfigurasi.
+    let allowedRoles = undefined;
+    for (const [route, roles] of Object.entries(ROUTE_ACCESS)) {
+        if (currentPath === route || currentPath.startsWith(route + '/')) {
+            allowedRoles = roles;
+            break;
+        }
+    }
+
+    if (Array.isArray(allowedRoles) && allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const fallback = DEFAULT_ROUTE_BY_ROLE?.[userRole] || '/dashboard';
+        return <Navigate to={fallback} replace />;
     }
 
     // Ambil permissions dari localStorage (dinamis dari DB)
@@ -48,7 +63,9 @@ const RouteGuard = () => {
     }
 
     // Cek apakah user punya permission yang dibutuhkan
-    const hasAccess = userPermissions.includes(requiredPermission);
+    const hasAccess = Array.isArray(requiredPermission)
+        ? requiredPermission.some((perm) => userPermissions.includes(perm))
+        : userPermissions.includes(requiredPermission);
 
     if (!hasAccess) {
         return <Navigate to="/dashboard" replace />;
