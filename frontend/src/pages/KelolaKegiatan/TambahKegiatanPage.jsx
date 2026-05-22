@@ -850,43 +850,7 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                     </div>
                 </div>
 
-                {/* Card */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
-                    <StepIndicator step={step} />
-                    {step === 1 && (
-                        <Step1
-                            data={formData}
-                            onChange={handleChange}
-                            onWilayahChange={handleWilayahChange}
-                            bidangs={bidangs}
-                            levelLabel={selectedLevelLabel}
-                            provinsiList={provinsiList}
-                            kabupatenList={kabupatenList}
-                            kecamatanList={kecamatanList}
-                            isProvDisabled={isProvDisabled}
-                            isKabDisabled={isKabDisabled}
-                            isKecDisabled={isKecDisabled}
-                        />
-                    )}
-                    {step === 2 && (
-                        <Step2
-                            grupOptions={grupOptions}
-                            selectedGrupIds={selectedGrupIds}
-                            onAddGrup={handleAddGrup}
-                            onRemoveGrup={handleRemoveGrup}
-                            activeGrupId={activeGrupId}
-                            setActiveGrupId={setActiveGrupId}
-                            grupDetails={grupDetails}
-                            loadingGrupIds={loadingGrupIds}
-                            attendance={attendance}
-                            setAttendance={setAttendance}
-                            pesertaManual={pesertaManual}
-                            setPesertaManual={setPesertaManual}
-                        />
-                    )}
-                    {step === 3 && <Step3 uploads={uploads} onUploadChange={handleUploadChange} />}
-
-                {/* Card Container */}
+                                {/* Card Container */}
                 <div className="bg-white rounded-b-[16px] lg:rounded-2xl border-x border-b lg:border-[0.8px] border-[#F0F2F8] lg:border-slate-200 shadow-sm p-4 lg:p-8">
                     {/* Stepper with horizontal scroll on mobile */}
                     <div className="mb-6 lg:mb-8 overflow-x-auto hide-scrollbar pb-2 lg:pb-0">
@@ -895,9 +859,38 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                     
                     {/* Content Steps */}
                     <div className="min-h-[300px]">
-                        {step === 1 && <Step1 data={formData} onChange={handleChange} />}
-                        {step === 2 && <Step2 />}
-                        {step === 3 && <Step3 />}
+                        {step === 1 && (
+                            <Step1
+                                data={formData}
+                                onChange={handleChange}
+                                onWilayahChange={handleWilayahChange}
+                                bidangs={bidangs}
+                                levelLabel={selectedLevelLabel}
+                                provinsiList={provinsiList}
+                                kabupatenList={kabupatenList}
+                                kecamatanList={kecamatanList}
+                                isProvDisabled={isProvDisabled}
+                                isKabDisabled={isKabDisabled}
+                                isKecDisabled={isKecDisabled}
+                            />
+                        )}
+                        {step === 2 && (
+                            <Step2
+                                grupOptions={grupOptions}
+                                selectedGrupIds={selectedGrupIds}
+                                onAddGrup={handleAddGrup}
+                                onRemoveGrup={handleRemoveGrup}
+                                activeGrupId={activeGrupId}
+                                setActiveGrupId={setActiveGrupId}
+                                grupDetails={grupDetails}
+                                loadingGrupIds={loadingGrupIds}
+                                attendance={attendance}
+                                setAttendance={setAttendance}
+                                pesertaManual={pesertaManual}
+                                setPesertaManual={setPesertaManual}
+                            />
+                        )}
+                        {step === 3 && <Step3 uploads={uploads} onUploadChange={handleUploadChange} />}
                     </div>
 
                     {/* Footer Actions Desktop */}

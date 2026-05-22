@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Search, 
@@ -9,23 +9,18 @@ import {
     ChevronLeft, 
     ChevronRight,
     FileText,
-    Printer,
-    Loader2,
-    UserX,
-    UserCheck
+    Eye
 } from 'lucide-react';
-import Swal from 'sweetalert2';
 
 import EditPjModal from '../../components/modals/EditPjModal';
 import DeletePjModal from '../../components/modals/DeletePjModal';
 import ResetPjPasswordModal from '../../components/modals/ResetPjPasswordModal';
 import PjDetailModal from '../../components/modals/PjDetailModal';
 import { usePjGrups } from '../../hooks/queries/usePjGrupQuery';
-import { usePjGrupMutations } from '../../hooks/mutations/usePjGrupMutation';
+import { Loader2 } from 'lucide-react';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 import { isSuperAdmin } from '../../utils/permissionUtils';
-import { useCurrentUser } from '../../hooks/useCurrentUser';
 
 const DataPjPage = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -38,47 +33,15 @@ const DataPjPage = () => {
     const [page, setPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Get current logged-in user
-    const { user: currentUser } = useCurrentUser();
-    const userRole = typeof currentUser?.role === 'object' ? currentUser?.role?.name : currentUser?.role;
-    const isSuper = userRole === 'superadmin';
-    const isAdminProvinsi = userRole === 'admin_provinsi';
-    const isAdminKabupaten = userRole === 'admin_kabupaten';
-    const isAdminKecamatan = userRole === 'admin_kecamatan';
-
-    // Mutation for toggle status
-    const { toggleStatusPjGrup } = usePjGrupMutations();
-
     // Filter State
     const [provinsiFilter, setProvinsiFilter] = useState(null);
     const [kabupatenFilter, setKabupatenFilter] = useState(null);
     const [kecamatanFilter, setKecamatanFilter] = useState(null);
 
-    // Initialize filters based on user role on mount
-    useEffect(() => {
-        if (!isSuper && currentUser) {
-            if (isAdminProvinsi && currentUser.kode_prov) {
-                setProvinsiFilter(currentUser.kode_prov);
-            } else if (isAdminKabupaten && currentUser.kode_kab) {
-                setProvinsiFilter(currentUser.kode_prov);
-                setKabupatenFilter(currentUser.kode_kab);
-            } else if (isAdminKecamatan && currentUser.kode_kec) {
-                setProvinsiFilter(currentUser.kode_prov);
-                setKabupatenFilter(currentUser.kode_kab);
-                setKecamatanFilter(currentUser.kode_kec);
-            }
-        }
-    }, [currentUser, isSuper, isAdminProvinsi, isAdminKabupaten, isAdminKecamatan]);
-
     // Wilayah Queries
     const { data: provinsiOptions = [], isLoading: loadingProv } = useProvinsi();
     const { data: kabupatenOptions = [], isLoading: loadingKab } = useKabupaten(provinsiFilter);
     const { data: kecamatanOptions = [], isLoading: loadingKec } = useKecamatan(kabupatenFilter);
-
-    // Filter provinsi list based on user role
-    const filteredProvinsiOptions = isSuper 
-        ? provinsiOptions 
-        : provinsiOptions.filter(p => p.kode === currentUser?.kode_prov);
 
     const { data: pjData, isLoading, isError, refetch } = usePjGrups({
         page: page,
@@ -93,50 +56,12 @@ const DataPjPage = () => {
         setPage(1);
     };
 
-    // Handle toggle status with SweetAlert confirmation
-    const handleToggleStatus = (item) => {
-        const isActive = item.status === 'active';
-        Swal.fire({
-            title: isActive ? 'Nonaktifkan PJ Dampingan?' : 'Aktifkan PJ Dampingan?',
-            html: `Apakah Anda yakin ingin ${isActive ? 'menonaktifkan' : 'mengaktifkan'} <b>${item.name}</b>?${isActive ? '<br><br><span style="color:#EF4444;font-size:12px;">⚠ User yang dinonaktifkan tidak akan bisa login ke sistem.</span>' : ''}`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: isActive ? '#EF4444' : '#22C55E',
-            cancelButtonColor: '#94A3B8',
-            confirmButtonText: isActive ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
-            cancelButtonText: 'Batal',
-            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const pjId = item.id_user || item.id;
-                toggleStatusPjGrup.mutate(pjId, {
-                    onSuccess: (res) => {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: res?.message || `PJ Dampingan berhasil ${isActive ? 'dinonaktifkan' : 'diaktifkan'}.`,
-                            showConfirmButton: false,
-                            timer: 2000,
-                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
-                        });
-                        // Update selectedPj if details are open
-                        if (selectedPj && (selectedPj.id_user === pjId || selectedPj.id === pjId)) {
-                            setSelectedPj(prev => ({ ...prev, status: isActive ? 'inactive' : 'active' }));
-                        }
-                    },
-                    onError: () => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal!',
-                            text: `Terjadi kesalahan saat ${isActive ? 'menonaktifkan' : 'mengaktifkan'} PJ Dampingan.`,
-                            showConfirmButton: false,
-                            timer: 2000,
-                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
-                        });
-                    }
-                });
-            }
-        });
+    const toggleCard = (id) => {
+        if (expandedCardId === id) {
+            setExpandedCardId(null);
+        } else {
+            setExpandedCardId(id);
+        }
     };
 
     const dataPj = pjData?.data || [];
@@ -173,38 +98,44 @@ const DataPjPage = () => {
                             />
                         </div>
 
-                    {/* Filter Section */}
-                    <div className="flex flex-wrap items-center gap-3 mb-6">
-                        <FilterDropdown
-                            placeholder="Pilih Provinsi"
-                            options={filteredProvinsiOptions}
-                            value={provinsiFilter}
-                            isLoading={loadingProv}
-                            valueKey="kode"
-                            labelKey="name"
-                            disabled={!isSuper || filteredProvinsiOptions.length <= 1}
-                            onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
-                        />
-                        <FilterDropdown
-                            placeholder="Pilih Kabupaten"
-                            options={kabupatenOptions}
-                            value={kabupatenFilter}
-                            isLoading={loadingKab}
-                            disabled={!provinsiFilter || isAdminKabupaten || isAdminKecamatan}
-                            valueKey="kode"
-                            labelKey="name"
-                            onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
-                        />
-                        <FilterDropdown
-                            placeholder="Pilih Kecamatan"
-                            options={kecamatanOptions}
-                            value={kecamatanFilter}
-                            isLoading={loadingKec}
-                            disabled={!kabupatenFilter || isAdminKecamatan}
-                            valueKey="kode"
-                            labelKey="name"
-                            onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
-                        />
+                        {/* Filter Section */}
+                        <div className="flex flex-wrap items-center gap-3">
+                            <div className="w-auto">
+                                <FilterDropdown
+                                    placeholder="Pilih Provinsi"
+                                    options={provinsiOptions}
+                                    value={provinsiFilter}
+                                    isLoading={loadingProv}
+                                    valueKey="kode"
+                                    labelKey="name"
+                                    onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
+                                />
+                            </div>
+                            <div className="w-auto">
+                                <FilterDropdown
+                                    placeholder="Pilih Kabupaten"
+                                    options={kabupatenOptions}
+                                    value={kabupatenFilter}
+                                    isLoading={loadingKab}
+                                    disabled={!provinsiFilter}
+                                    valueKey="kode"
+                                    labelKey="name"
+                                    onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
+                                />
+                            </div>
+                            <div className="w-auto">
+                                <FilterDropdown
+                                    placeholder="Pilih Kecamatan"
+                                    options={kecamatanOptions}
+                                    value={kecamatanFilter}
+                                    isLoading={loadingKec}
+                                    disabled={!kabupatenFilter}
+                                    valueKey="kode"
+                                    labelKey="name"
+                                    onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Table Section */}
@@ -222,75 +153,191 @@ const DataPjPage = () => {
                             <p className="text-slate-500">Tidak ada data PJ Dampingan ditemukan.</p>
                         </div>
                     ) : (
-                        <div className="overflow-x-auto text-left">
-                            <table className="w-full text-left border-collapse text-left">
-                                <thead>
-                                    <tr className="bg-slate-100 border-b-2 border-slate-100 text-left">
-                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider rounded-tl-xl w-12 text-center text-left">No</th>
-                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Nama</th>
-                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Username</th>
-                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Grup Dampingan</th>
-                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-20">Status</th>
-                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-32">Aksi</th>
-                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center rounded-tr-xl w-24">Detail</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100 text-left">
-                                    {dataPj.map((item, index) => (
-                                        <tr key={item.id_user || item.id || index} className={`group hover:bg-slate-50/50 transition-colors ${item.status === 'inactive' ? 'opacity-50' : ''}`}>
-                                            <td className="py-2.5 px-4 text-center border-b border-[#F1F5F9] text-[#9298B0] text-xs font-medium">
-                                                {meta.from ? meta.from + index : index + 1}
-                                            </td>
-                                            <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0080C5] text-xs font-medium text-left">{item.name}</td>
-                                            <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0080C5] text-xs font-normal text-left">{item.username}</td>
-                                            <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0A0F1E] text-xs font-normal text-left">
-                                                {item.grup_dampingans_pengurus?.map(g => g.name).join(', ') || '-'}
-                                            </td>
-                                            <td className="py-2.5 px-4 text-center border-b border-[#F1F5F9]">
-                                                {item.status === 'active' ? (
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
-                                                        Aktif
-                                                    </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-600">
-                                                        Nonaktif
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="py-2.5 px-4 border-b border-[#F1F5F9]">
-                                                <div className="flex items-center justify-center gap-2">
+                        <>
+                            {/* MOBILE LIST VIEW */}
+                            <div className="lg:hidden flex flex-col pb-24 bg-[#F0F2F8] min-h-screen gap-3">
+                                {/* Mobile Action Buttons */}
+                                <div className="flex flex-row justify-end items-center gap-2 w-full">
+                                    <button className="h-[34px] px-3 bg-[#22C55E] text-white rounded-[14px] flex items-center justify-center gap-1.5 shadow-sm">
+                                        <FileText size={14} />
+                                        <span className="text-[12px] font-semibold">Cetak Data</span>
+                                        <ChevronDown size={13} />
+                                    </button>
+                                </div>
+
+                                {/* Mobile Search Bar */}
+                                <div className="relative w-full h-[41px] bg-white border border-[#E5E7EB] rounded-[14px] flex items-center px-3 gap-2">
+                                    <Search size={16} className="text-[#9298B0]" />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Cari nama, username, grup dampingan..."
+                                        value={searchQuery}
+                                        onChange={handleSearch}
+                                        className="flex-1 h-full bg-transparent outline-none text-[12px] text-[#0A0F1E] placeholder:text-[#9298B0]"
+                                    />
+                                </div>
+
+                                {/* Mobile Filter Dropdowns */}
+                                <div className="grid grid-cols-2 gap-2 w-full">
+                                    <div className="col-span-2">
+                                        <FilterDropdown
+                                            placeholder="Pilih Provinsi"
+                                            options={provinsiOptions}
+                                            value={provinsiFilter}
+                                            isLoading={loadingProv}
+                                            valueKey="kode"
+                                            labelKey="name"
+                                            onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
+                                            className="!h-[34px] !rounded-[14px] !border-[#E5E7EB] !text-[11px]"
+                                        />
+                                    </div>
+                                    <FilterDropdown
+                                        placeholder="Pilih Kabupaten"
+                                        options={kabupatenOptions}
+                                        value={kabupatenFilter}
+                                        isLoading={loadingKab}
+                                        disabled={!provinsiFilter}
+                                        valueKey="kode"
+                                        labelKey="name"
+                                        onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
+                                        className="!h-[34px] !rounded-[14px] !border-[#E5E7EB] !text-[11px]"
+                                    />
+                                    <FilterDropdown
+                                        placeholder="Pilih Kecamatan"
+                                        options={kecamatanOptions}
+                                        value={kecamatanFilter}
+                                        isLoading={loadingKec}
+                                        disabled={!kabupatenFilter}
+                                        valueKey="kode"
+                                        labelKey="name"
+                                        onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
+                                        className="!h-[34px] !rounded-[14px] !border-[#E5E7EB] !text-[11px]"
+                                    />
+                                </div>
+
+                                {/* Mobile Data Cards */}
+                                <div className="flex flex-col gap-2 w-full mt-1">
+                                    {dataPj.map((item, index) => {
+                                        const isExpanded = expandedCardId === (item.id_user || item.id || index);
+                                        
+                                        return (
+                                            <div key={item.id_user || item.id || index} className="bg-white border border-[#F0F2F8] rounded-[16px] p-2.5 flex flex-col w-full shadow-sm relative overflow-hidden transition-all duration-200">
+                                                <div className="flex items-center w-full cursor-pointer" onClick={() => toggleCard(item.id_user || item.id || index)}>
+                                                    <div className="w-[38px] h-[38px] bg-[#0080C5] rounded-[14px] flex justify-center items-center shrink-0">
+                                                        <span className="text-white text-[11px] font-semibold">{meta.from ? meta.from + index : index + 1}</span>
+                                                    </div>
+                                                    
+                                                    <div className="flex flex-col ml-3 flex-1 overflow-hidden">
+                                                        <span className="text-[13px] font-semibold text-[#0080C5] truncate">{item.name}</span>
+                                                        <span className="text-[11px] font-normal text-[#9298B0] truncate">{item.username}</span>
+                                                    </div>
+                                                    
                                                     <button 
                                                         onClick={(e) => { e.stopPropagation(); setSelectedPj(item); setIsDetailModalOpen(true); }}
                                                         className="h-8 px-3 ml-2 bg-[#0080C5] text-white rounded-[10px] flex items-center justify-center shrink-0 shadow-sm"
                                                     >
                                                         <span className="text-[10px] font-semibold">Detail</span>
                                                     </button>
-                                                    {/* Superadmin: tombol hapus di tabel */}
-                                                    {isSuper ? (
-                                                        <button 
-                                                            onClick={() => {
-                                                                setSelectedPj(item);
-                                                                setIsDeleteModalOpen(true);
-                                                            }}
-                                                            className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                    ) : (
-                                                        /* Non-superadmin: tombol nonaktifkan/aktifkan di tabel (gantikan hapus) */
-                                                        <button 
-                                                            onClick={() => handleToggleStatus(item)}
-                                                            title={item.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
-                                                            className={`w-7 h-7 rounded-md flex items-center justify-center transition-all ${
-                                                                item.status === 'active'
-                                                                    ? 'bg-[#F59E0B]/10 text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white'
-                                                                    : 'bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E] hover:text-white'
-                                                            }`}
-                                                        >
-                                                            {item.status === 'active' ? <UserX size={14} /> : <UserCheck size={14} />}
-                                                        </button>
-                                                    )}
-                                                    {isSuperAdmin() && (
+                                                    
+                                                    <div className="w-4 h-4 flex items-center justify-center shrink-0 ml-2">
+                                                        <ChevronDown size={14} className={`text-[#9298B0] transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                                    </div>
+                                                </div>
+                                                
+                                                {isExpanded && (
+                                                    <div className="mt-3 pt-3 border-t border-slate-100 flex flex-col gap-2 animate-fadeIn w-full">
+                                                        <div className="grid grid-cols-2 gap-2 text-[11px]">
+                                                            <div className="col-span-2">
+                                                                <span className="text-slate-400 block mb-0.5">Grup Dampingan</span>
+                                                                <span className="text-slate-800 font-medium whitespace-pre-wrap">
+                                                                    {item.grup_dampingans_pengurus?.map(g => g.name).join(', ') || '-'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex flex-wrap items-center justify-end gap-2 mt-2 w-full">
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); setSelectedPj(item); setIsEditModalOpen(true); }}
+                                                                className="px-3 py-1.5 rounded-lg bg-[#FB923C]/10 text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all text-[11px] font-semibold flex items-center gap-1.5"
+                                                            >
+                                                                <Edit size={12} /> Edit
+                                                            </button>
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); setSelectedPj(item); setIsDeleteModalOpen(true); }}
+                                                                className="px-3 py-1.5 rounded-lg bg-[#EF4444]/10 text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all text-[11px] font-semibold flex items-center gap-1.5"
+                                                            >
+                                                                <Trash2 size={12} /> Hapus
+                                                            </button>
+                                                            {isSuperAdmin() && (
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); setSelectedPj(item); setIsResetModalOpen(true); }}
+                                                                    className="px-3 py-1.5 rounded-lg bg-[#FBBF24]/10 text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all text-[11px] font-semibold flex items-center gap-1.5"
+                                                                >
+                                                                    <Lock size={12} /> Reset
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Mobile Pagination */}
+                                {meta && meta.total > 0 && (
+                                    <div className="flex flex-row justify-between items-center w-full mt-2 px-1">
+                                        <p className="text-[#9298B0] text-[10px] font-normal">
+                                            Menampilkan {meta.from}-{meta.to} dari {meta.total} data
+                                        </p>
+                                        <div className="flex items-center gap-1.5">
+                                            <button 
+                                                onClick={() => setPage(old => Math.max(old - 1, 1))}
+                                                disabled={page === 1}
+                                                className="w-7 h-7 flex items-center justify-center rounded-[10px] border border-[#E5E7EB] text-[#0A0F1E] opacity-50 hover:bg-slate-50 disabled:opacity-30"
+                                            >
+                                                <ChevronLeft size={14} />
+                                            </button>
+                                            <button className="w-7 h-7 bg-[#0080C5] text-white rounded-[10px] flex items-center justify-center text-[12px] font-bold">
+                                                {page}
+                                            </button>
+                                            <button 
+                                                onClick={() => setPage(old => (meta.current_page < meta.last_page ? old + 1 : old))}
+                                                disabled={page === meta.last_page}
+                                                className="w-7 h-7 flex items-center justify-center rounded-[10px] border border-[#E5E7EB] text-[#0A0F1E] hover:bg-slate-50 disabled:opacity-30"
+                                            >
+                                                <ChevronRight size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* DESKTOP TABLE VIEW */}
+                            <div className="hidden lg:block overflow-x-auto text-left">
+                                <table className="w-full text-left border-collapse text-left">
+                                    <thead>
+                                        <tr className="bg-slate-100 border-b-2 border-slate-100 text-left">
+                                            <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider rounded-tl-xl w-12 text-center text-left">No</th>
+                                            <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Nama</th>
+                                            <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Username</th>
+                                            <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Grup Dampingan</th>
+                                            <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-32">Aksi</th>
+                                            <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center rounded-tr-xl w-24">Detail</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 text-left">
+                                        {dataPj.map((item, index) => (
+                                            <tr key={item.id_user || item.id || index} className="group hover:bg-slate-50/50 transition-colors">
+                                                <td className="py-2.5 px-4 text-center border-b border-[#F1F5F9] text-[#9298B0] text-xs font-medium">
+                                                    {meta.from ? meta.from + index : index + 1}
+                                                </td>
+                                                <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0080C5] text-xs font-medium text-left">{item.name}</td>
+                                                <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0080C5] text-xs font-normal text-left">{item.username}</td>
+                                                <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0A0F1E] text-xs font-normal text-left">
+                                                    {item.grup_dampingans_pengurus?.map(g => g.name).join(', ') || '-'}
+                                                </td>
+                                                <td className="py-2.5 px-4 border-b border-[#F1F5F9]">
+                                                    <div className="flex items-center justify-center gap-2">
                                                         <button 
                                                             onClick={() => {
                                                                 setSelectedPj(item);
@@ -392,7 +439,6 @@ const DataPjPage = () => {
                 isOpen={isDetailModalOpen} 
                 onClose={() => setIsDetailModalOpen(false)} 
                 data={selectedPj}
-                onToggleStatus={handleToggleStatus}
             />
         </AdminLayout>
     );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Plus, 
@@ -10,21 +10,16 @@ import {
     Lock,
     FileText,
     ChevronDown,
-    Loader2,
-    UserX,
-    UserCheck
+    Loader2
 } from 'lucide-react';
-import Swal from 'sweetalert2';
 import AddAdminModal from '../../components/modals/AddAdminModal';
 import EditAdminModal from '../../components/modals/EditAdminModal';
 import DeleteAdminModal from '../../components/modals/DeleteAdminModal';
 import ResetPasswordModal from '../../components/modals/ResetPasswordModal';
 import { useAdmins } from '../../hooks/queries/useAdminQuery';
-import { useAdminMutations } from '../../hooks/mutations/useAdminMutation';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 import { isSuperAdmin } from '../../utils/permissionUtils';
-import { useCurrentUser } from '../../hooks/useCurrentUser';
 
 const DataAdminPage = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -40,43 +35,11 @@ const DataAdminPage = () => {
     const [kabupatenFilter, setKabupatenFilter] = useState(null);
     const [kecamatanFilter, setKecamatanFilter] = useState(null);
 
-    // Get current logged-in user
-    const { user: currentUser } = useCurrentUser();
-    const userRole = typeof currentUser?.role === 'object' ? currentUser?.role?.name : currentUser?.role;
-    const isSuper = userRole === 'superadmin';
-    const isAdminProvinsi = userRole === 'admin_provinsi';
-    const isAdminKabupaten = userRole === 'admin_kabupaten';
-    const isAdminKecamatan = userRole === 'admin_kecamatan';
-
-    // Mutation for toggle status
-    const { toggleStatusAdmin } = useAdminMutations();
-
-    // Initialize filters based on user role on mount
-    useEffect(() => {
-        if (!isSuper && currentUser) {
-            if (isAdminProvinsi && currentUser.kode_prov) {
-                setProvinsiFilter(currentUser.kode_prov);
-            } else if (isAdminKabupaten && currentUser.kode_kab) {
-                setProvinsiFilter(currentUser.kode_prov);
-                setKabupatenFilter(currentUser.kode_kab);
-            } else if (isAdminKecamatan && currentUser.kode_kec) {
-                setProvinsiFilter(currentUser.kode_prov);
-                setKabupatenFilter(currentUser.kode_kab);
-                setKecamatanFilter(currentUser.kode_kec);
-            }
-        }
-    }, [currentUser, isSuper, isAdminProvinsi, isAdminKabupaten, isAdminKecamatan]);
-
     const { data: provinsiList = [], isLoading: loadingProv } = useProvinsi();
     const { data: kabupatenList = [], isLoading: loadingKab } = useKabupaten(provinsiFilter);
     const { data: kecamatanList = [], isLoading: loadingKec } = useKecamatan(kabupatenFilter);
 
-    // Filter provinsi list based on user role
-    const filteredProvinsiList = isSuper 
-        ? provinsiList 
-        : provinsiList.filter(p => p.kode === currentUser?.kode_prov);
-    
-    const provinsiOptions = filteredProvinsiList.map(p => ({ value: p.kode, label: p.name }));
+    const provinsiOptions = provinsiList.map(p => ({ value: p.kode, label: p.name }));
     const kabupatenOptions = kabupatenList.map(k => ({ value: k.kode, label: k.name }));
     const kecamatanOptions = kecamatanList.map(k => ({ value: k.kode, label: k.name }));
 
@@ -93,46 +56,12 @@ const DataAdminPage = () => {
         setPage(1); // Reset to first page on search
     };
 
-    // Handle toggle status with SweetAlert confirmation
-    const handleToggleStatus = (item) => {
-        const isActive = item.status === 'active';
-        Swal.fire({
-            title: isActive ? 'Nonaktifkan Admin?' : 'Aktifkan Admin?',
-            html: `Apakah Anda yakin ingin ${isActive ? 'menonaktifkan' : 'mengaktifkan'} <b>${item.name}</b>?${isActive ? '<br><br><span style="color:#EF4444;font-size:12px;">⚠ User yang dinonaktifkan tidak akan bisa login ke sistem.</span>' : ''}`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: isActive ? '#EF4444' : '#22C55E',
-            cancelButtonColor: '#94A3B8',
-            confirmButtonText: isActive ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
-            cancelButtonText: 'Batal',
-            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const adminId = item.id_user || item.id;
-                toggleStatusAdmin.mutate(adminId, {
-                    onSuccess: (res) => {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: res?.message || `Admin berhasil ${isActive ? 'dinonaktifkan' : 'diaktifkan'}.`,
-                            showConfirmButton: false,
-                            timer: 2000,
-                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
-                        });
-                    },
-                    onError: () => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal!',
-                            text: `Terjadi kesalahan saat ${isActive ? 'menonaktifkan' : 'mengaktifkan'} admin.`,
-                            showConfirmButton: false,
-                            timer: 2000,
-                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
-                        });
-                    }
-                });
-            }
-        });
+    const toggleCard = (id) => {
+        if (expandedCardId === id) {
+            setExpandedCardId(null);
+        } else {
+            setExpandedCardId(id);
+        }
     };
 
     const admins = adminData?.data || [];
@@ -176,30 +105,43 @@ const DataAdminPage = () => {
                         </div>
 
                         <div className="flex flex-wrap items-center gap-3">
-                            <FilterDropdown
-                                placeholder="Pilih Provinsi"
-                                options={provinsiOptions}
-                                value={provinsiFilter}
-                                isLoading={loadingProv}
-                                disabled={!isSuper || provinsiOptions.length <= 1}
-                                onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
-                            />
-                            <FilterDropdown
-                                placeholder="Pilih Kabupaten"
-                                options={kabupatenOptions}
-                                value={kabupatenFilter}
-                                isLoading={loadingKab}
-                                disabled={!provinsiFilter || isAdminKabupaten || isAdminKecamatan}
-                                onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
-                            />
-                            <FilterDropdown
-                                placeholder="Pilih Kecamatan"
-                                options={kecamatanOptions}
-                                value={kecamatanFilter}
-                                isLoading={loadingKec}
-                                disabled={!kabupatenFilter || isAdminKecamatan}
-                                onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
-                            />
+                            <div className="w-auto">
+                                <FilterDropdown
+                                    placeholder="Pilih Role"
+                                    options={[{value: 'admin_prov', label: 'Admin Provinsi'}, {value: 'admin_kab', label: 'Admin Kabupaten'}]}
+                                    value={null}
+                                    onChange={() => {}}
+                                />
+                            </div>
+                            <div className="w-auto">
+                                <FilterDropdown
+                                    placeholder="Pilih Provinsi"
+                                    options={provinsiOptions}
+                                    value={provinsiFilter}
+                                    isLoading={loadingProv}
+                                    onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
+                                />
+                            </div>
+                            <div className="w-auto">
+                                <FilterDropdown
+                                    placeholder="Pilih Kecamatan"
+                                    options={kecamatanOptions}
+                                    value={kecamatanFilter}
+                                    isLoading={loadingKec}
+                                    disabled={!kabupatenFilter}
+                                    onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
+                                />
+                            </div>
+                            <div className="w-auto">
+                                <FilterDropdown
+                                    placeholder="Pilih Kabupaten"
+                                    options={kabupatenOptions}
+                                    value={kabupatenFilter}
+                                    isLoading={loadingKab}
+                                    disabled={!provinsiFilter}
+                                    onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -218,92 +160,19 @@ const DataAdminPage = () => {
                             <p className="text-slate-500">Tidak ada data admin ditemukan.</p>
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-separate border-spacing-0">
-                                <thead>
-                                    <tr className="bg-[#F1F5F9]">
-                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tl-xl text-center">NO</th>
-                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Nama</th>
-                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Username</th>
-                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">No. Telp</th>
-                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Provinsi</th>
-                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kabupaten</th>
-                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kecamatan</th>
-                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">Status</th>
-                                        <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tr-xl text-center">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-50">
-                                    {admins.map((item, index) => (
-                                        <tr key={item.id_user || item.id || index} className={`hover:bg-slate-50/50 transition-colors group text-left ${item.status === 'inactive' ? 'opacity-50' : ''}`}>
-                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">
-                                                {meta.from ? meta.from + index : index + 1}
-                                            </td>
-                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.name}</td>
-                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.username}</td>
-                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal whitespace-nowrap">{item.no_telp || '-'}</td>
-                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.provinsi?.name || '-'}</td>
-                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kabupaten?.name || '-'}</td>
-                                            <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kecamatan?.name || '-'}</td>
-                                            <td className="py-2.5 px-4 text-center">
-                                                {item.status === 'active' ? (
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
-                                                        Aktif
-                                                    </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-600">
-                                                        Nonaktif
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="py-2.5 px-4 ">
-                                                <div className="flex items-center justify-center gap-1.5">
-                                                    <button 
-                                                        onClick={() => {
-                                                            setSelectedAdmin(item);
-                                                            setIsEditModalOpen(true);
-                                                        }}
-                                                        className="w-7 h-7 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
-                                                    >
-                                                        <Edit size={14} />
-                                                    </button>
-                                                    {/* Tombol Hapus - hanya untuk Superadmin */}
-                                                    {isSuper && (
-                                                        <button 
-                                                            onClick={() => {
-                                                                setSelectedAdmin(item);
-                                                                setIsDeleteModalOpen(true);
-                                                            }}
-                                                            className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                    )}
-                                                    {/* Tombol Nonaktifkan/Aktifkan - untuk semua role */}
-                                                    <button 
-                                                        onClick={() => handleToggleStatus(item)}
-                                                        title={item.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
-                                                        className={`w-7 h-7 rounded-md flex items-center justify-center transition-all ${
-                                                            item.status === 'active'
-                                                                ? 'bg-[#F59E0B]/10 text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white'
-                                                                : 'bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E] hover:text-white'
-                                                        }`}
-                                                    >
-                                                        {item.status === 'active' ? <UserX size={14} /> : <UserCheck size={14} />}
-                                                    </button>
-                                                    {isSuperAdmin() && (
-                                                        <button 
-                                                            onClick={() => {
-                                                                setSelectedAdmin(item);
-                                                                setIsResetModalOpen(true);
-                                                            }}
-                                                            className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
-                                                        >
-                                                            <Lock size={12} />
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </td>
+                        <>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-separate border-spacing-0">
+                                    <thead>
+                                        <tr className="bg-[#F1F5F9]">
+                                            <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tl-xl text-center">NO</th>
+                                            <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Nama</th>
+                                            <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Username</th>
+                                            <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">No. Telp</th>
+                                            <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Provinsi</th>
+                                            <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kabupaten</th>
+                                            <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kecamatan</th>
+                                            <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tr-xl text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
