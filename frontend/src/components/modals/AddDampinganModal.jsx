@@ -78,6 +78,44 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
     if (!isOpen) return null;
 
     const handleSave = () => {
+        // Frontend validation
+        if (!formData.nama?.trim()) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Nama Lengkap Wajib Diisi',
+                text: 'Silakan masukkan nama lengkap masyarakat.',
+                confirmButtonColor: '#0080C5',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+            });
+            return;
+        }
+
+        if (!formData.bidang_id) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Bidang Belum Dipilih',
+                text: isPengajuan 
+                    ? 'Akun Anda belum terasosiasi dengan kelompok dampingan apa pun. Silakan hubungi Admin.'
+                    : 'Silakan pilih bidang dampingan terlebih dahulu.',
+                confirmButtonColor: '#0080C5',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+            });
+            return;
+        }
+
+        if (!formData.grup_dampingan_id) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Grup Belum Dipilih',
+                text: isPengajuan 
+                    ? 'Akun Anda belum terasosiasi dengan kelompok dampingan apa pun. Silakan hubungi Admin.'
+                    : 'Silakan pilih grup dampingan terlebih dahulu.',
+                confirmButtonColor: '#0080C5',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+            });
+            return;
+        }
+
         setIsLoading(true);
         const form = new FormData();
         
