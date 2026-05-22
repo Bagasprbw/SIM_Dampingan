@@ -29,5 +29,10 @@ export const adminService = {
     resetPassword: async (id) => {
         const response = await api.post(`/users/reset-password/${id}`);
         return response.data;
+    },
+
+    toggleStatus: async (id) => {
+        const response = await api.patch(`/users/admin-bawahan/${id}/toggle-status`);
+        return response.data;
     }
 };

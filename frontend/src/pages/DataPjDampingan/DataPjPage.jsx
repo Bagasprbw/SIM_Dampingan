@@ -9,15 +9,19 @@ import {
     ChevronLeft, 
     ChevronRight,
     FileText,
-    Printer
+    Printer,
+    Loader2,
+    UserX,
+    UserCheck
 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 import EditPjModal from '../../components/modals/EditPjModal';
 import DeletePjModal from '../../components/modals/DeletePjModal';
 import ResetPjPasswordModal from '../../components/modals/ResetPjPasswordModal';
 import PjDetailModal from '../../components/modals/PjDetailModal';
 import { usePjGrups } from '../../hooks/queries/usePjGrupQuery';
-import { Loader2 } from 'lucide-react';
+import { usePjGrupMutations } from '../../hooks/mutations/usePjGrupMutation';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 import { isSuperAdmin } from '../../utils/permissionUtils';
@@ -40,6 +44,9 @@ const DataPjPage = () => {
     const isAdminProvinsi = userRole === 'admin_provinsi';
     const isAdminKabupaten = userRole === 'admin_kabupaten';
     const isAdminKecamatan = userRole === 'admin_kecamatan';
+
+    // Mutation for toggle status
+    const { toggleStatusPjGrup } = usePjGrupMutations();
 
     // Filter State
     const [provinsiFilter, setProvinsiFilter] = useState(null);
@@ -83,6 +90,52 @@ const DataPjPage = () => {
     const handleSearch = (e) => {
         setSearchQuery(e.target.value);
         setPage(1);
+    };
+
+    // Handle toggle status with SweetAlert confirmation
+    const handleToggleStatus = (item) => {
+        const isActive = item.status === 'active';
+        Swal.fire({
+            title: isActive ? 'Nonaktifkan PJ Dampingan?' : 'Aktifkan PJ Dampingan?',
+            html: `Apakah Anda yakin ingin ${isActive ? 'menonaktifkan' : 'mengaktifkan'} <b>${item.name}</b>?${isActive ? '<br><br><span style="color:#EF4444;font-size:12px;">⚠ User yang dinonaktifkan tidak akan bisa login ke sistem.</span>' : ''}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: isActive ? '#EF4444' : '#22C55E',
+            cancelButtonColor: '#94A3B8',
+            confirmButtonText: isActive ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const pjId = item.id_user || item.id;
+                toggleStatusPjGrup.mutate(pjId, {
+                    onSuccess: (res) => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: res?.message || `PJ Dampingan berhasil ${isActive ? 'dinonaktifkan' : 'diaktifkan'}.`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                        });
+                        // Update selectedPj if details are open
+                        if (selectedPj && (selectedPj.id_user === pjId || selectedPj.id === pjId)) {
+                            setSelectedPj(prev => ({ ...prev, status: isActive ? 'inactive' : 'active' }));
+                        }
+                    },
+                    onError: () => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: `Terjadi kesalahan saat ${isActive ? 'menonaktifkan' : 'mengaktifkan'} PJ Dampingan.`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                        });
+                    }
+                });
+            }
+        });
     };
 
     const dataPj = pjData?.data || [];
@@ -174,13 +227,14 @@ const DataPjPage = () => {
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Nama</th>
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Username</th>
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Grup Dampingan</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-20">Status</th>
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-32">Aksi</th>
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center rounded-tr-xl w-24">Detail</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 text-left">
                                     {dataPj.map((item, index) => (
-                                        <tr key={item.id_user || item.id || index} className="group hover:bg-slate-50/50 transition-colors">
+                                        <tr key={item.id_user || item.id || index} className={`group hover:bg-slate-50/50 transition-colors ${item.status === 'inactive' ? 'opacity-50' : ''}`}>
                                             <td className="py-2.5 px-4 text-center border-b border-[#F1F5F9] text-[#9298B0] text-xs font-medium">
                                                 {meta.from ? meta.from + index : index + 1}
                                             </td>
@@ -188,6 +242,17 @@ const DataPjPage = () => {
                                             <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0080C5] text-xs font-normal text-left">{item.username}</td>
                                             <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0A0F1E] text-xs font-normal text-left">
                                                 {item.grup_dampingans_pengurus?.map(g => g.name).join(', ') || '-'}
+                                            </td>
+                                            <td className="py-2.5 px-4 text-center border-b border-[#F1F5F9]">
+                                                {item.status === 'active' ? (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
+                                                        Aktif
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-600">
+                                                        Nonaktif
+                                                    </span>
+                                                )}
                                             </td>
                                             <td className="py-2.5 px-4 border-b border-[#F1F5F9]">
                                                 <div className="flex items-center justify-center gap-2">
@@ -200,15 +265,31 @@ const DataPjPage = () => {
                                                     >
                                                         <Edit size={14} />
                                                     </button>
-                                                    <button 
-                                                        onClick={() => {
-                                                            setSelectedPj(item);
-                                                            setIsDeleteModalOpen(true);
-                                                        }}
-                                                        className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </button>
+                                                    {/* Superadmin: tombol hapus di tabel */}
+                                                    {isSuper ? (
+                                                        <button 
+                                                            onClick={() => {
+                                                                setSelectedPj(item);
+                                                                setIsDeleteModalOpen(true);
+                                                            }}
+                                                            className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    ) : (
+                                                        /* Non-superadmin: tombol nonaktifkan/aktifkan di tabel (gantikan hapus) */
+                                                        <button 
+                                                            onClick={() => handleToggleStatus(item)}
+                                                            title={item.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
+                                                            className={`w-7 h-7 rounded-md flex items-center justify-center transition-all ${
+                                                                item.status === 'active'
+                                                                    ? 'bg-[#F59E0B]/10 text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white'
+                                                                    : 'bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E] hover:text-white'
+                                                            }`}
+                                                        >
+                                                            {item.status === 'active' ? <UserX size={14} /> : <UserCheck size={14} />}
+                                                        </button>
+                                                    )}
                                                     {isSuperAdmin() && (
                                                         <button 
                                                             onClick={() => {
@@ -291,6 +372,7 @@ const DataPjPage = () => {
                 isOpen={isDetailModalOpen} 
                 onClose={() => setIsDetailModalOpen(false)} 
                 data={selectedPj}
+                onToggleStatus={handleToggleStatus}
             />
         </AdminLayout>
     );

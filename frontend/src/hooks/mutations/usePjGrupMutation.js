@@ -37,10 +37,18 @@ export const usePjGrupMutations = () => {
         },
     });
 
+    const toggleStatusPjGrup = useMutation({
+        mutationFn: (id) => pjGrupService.toggleStatus(id),
+        onSuccess: () => {
+            invalidatePjGrups();
+        },
+    });
+
     return {
         createPjGrup,
         updatePjGrup,
         deletePjGrup,
         resetPasswordPjGrup,
+        toggleStatusPjGrup,
     };
 };

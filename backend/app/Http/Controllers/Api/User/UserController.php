@@ -748,7 +748,15 @@ class UserController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $currentUser = $request->user();
+        $currentUser = $request->user()->load('role');
+
+        // Hanya superadmin yang boleh menghapus user
+        if ($currentUser->role->name !== 'superadmin') {
+            return response()->json([
+                'message' => 'Hanya Superadmin yang dapat menghapus user'
+            ], 403);
+        }
+
         $targetUser = User::find($id);
 
         if (!$targetUser) {
@@ -782,6 +790,45 @@ class UserController extends Controller
         return response()->json([
             'message' => 'User berhasil dihapus',
             'data' => null
+        ]);
+    }
+
+    /**
+     * PATCH /api/users/{type}/{id}/toggle-status
+     * Toggle status user antara active dan inactive
+     */
+    public function toggleStatus(Request $request, $id)
+    {
+        $currentUser = $request->user()->load('role');
+        $targetUser = User::find($id);
+
+        if (!$targetUser) {
+            return response()->json([
+                'message' => 'User tidak ditemukan'
+            ], 404);
+        }
+
+        // Check akses
+        if (!$this->canAccessUser($currentUser, $targetUser)) {
+            return response()->json([
+                'message' => 'Anda tidak memiliki akses untuk mengubah status user ini'
+            ], 403);
+        }
+
+        $dataLama = $targetUser->toArray();
+        $newStatus = $targetUser->status === 'active' ? 'inactive' : 'active';
+        $targetUser->update(['status' => $newStatus]);
+
+        $targetUser->load(['role', 'provinsi', 'kabupaten', 'kecamatan']);
+
+        // Catat log UPDATE status
+        $statusLabel = $newStatus === 'active' ? 'diaktifkan' : 'dinonaktifkan';
+        $this->logUpdate($request, 'User', $id, $dataLama, $targetUser->toArray(),
+            "User '{$targetUser->name}' berhasil {$statusLabel}.");
+
+        return response()->json([
+            'message' => "User berhasil {$statusLabel}",
+            'data' => $targetUser
         ]);
     }
 

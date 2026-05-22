@@ -34,10 +34,18 @@ export const useFasilitatorMutations = () => {
         mutationFn: (id) => fasilitatorService.resetPassword(id),
     });
 
+    const toggleStatusFasilitator = useMutation({
+        mutationFn: (id) => fasilitatorService.toggleStatus(id),
+        onSuccess: () => {
+            invalidateFasilitators();
+        },
+    });
+
     return {
         createFasilitator,
         updateFasilitator,
         deleteFasilitator,
         resetPasswordFasilitator,
+        toggleStatusFasilitator,
     };
 };
