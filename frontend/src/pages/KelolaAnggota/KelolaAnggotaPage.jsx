@@ -9,9 +9,13 @@ import {
     ChevronRight,
     Plus,
     User,
+    Users,
+    MapPin,
+    Leaf,
     Loader2,
     X
 } from 'lucide-react';
+import { usePjGrup } from '../../hooks/queries/useGrupDampinganQuery';
 import { useAnggotas } from '../../hooks/queries/useAnggotaQuery';
 import { usePengajuanAnggotaSaya } from '../../hooks/queries/usePengajuanAnggotaQuery';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
@@ -31,6 +35,9 @@ const KelolaAnggotaPage = () => {
     const [page, setPage] = useState(1);
     const { user } = useCurrentUser();
     const isPjGrup = user?.role === 'pj_grup';
+    const { data: pjGrupData } = usePjGrup();
+    const grup = pjGrupData?.data;
+    const fasilitatorList = grup?.grup_fasilitators?.map(f => f.fasilitator?.name).join(', ') || '-';
 
     // Hook yang digunakan tergantung role
     const { data: anggotaData, isLoading, isError, refetch } = isPjGrup 
@@ -69,9 +76,127 @@ const KelolaAnggotaPage = () => {
     return (
         <AdminLayout title="Kelola Anggota">
             <div className="font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
+
+                {/* MOBILE VIEW */}
+                <div className="lg:hidden flex flex-col gap-3 mb-6">
+                    {/* Header Card (Mobile) */}
+                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div className="p-4 flex items-center gap-3 border-b border-slate-100">
+                            <div className="w-11 h-11 rounded-full bg-[#0080C5]/10 border border-[#0080C5] flex items-center justify-center shrink-0">
+                                <Users size={16} className="text-[#0080C5]" />
+                            </div>
+                            <div className="flex flex-col">
+                                <h3 className="text-[#0A0F1E] text-[15px] font-bold leading-tight">{grup?.name || 'Grup Dampingan'}</h3>
+                                <p className="text-[#0080C5] text-xs font-semibold">Grup Dampingan</p>
+                            </div>
+                        </div>
+                        
+                        <div className="flex items-center px-4 py-3">
+                            <div className="flex-1 flex flex-col items-center border-r border-slate-100 pr-2">
+                                <div className="w-7 h-7 rounded-full bg-emerald-100/50 flex items-center justify-center mb-1 border border-emerald-500/20">
+                                    <Leaf size={10} className="text-emerald-500" />
+                                </div>
+                                <span className="text-[#9298B0] text-[8px] font-bold tracking-wider uppercase mb-0.5">Bidang</span>
+                                <span className="text-[#0A0F1E] text-[11px] font-bold text-center leading-tight truncate w-full">{grup?.bidang?.name || '-'}</span>
+                            </div>
+                            
+                            <div className="flex-1 flex flex-col items-center border-r border-slate-100 px-2">
+                                <div className="w-7 h-7 rounded-full bg-amber-100/50 flex items-center justify-center mb-1">
+                                    <MapPin size={10} className="text-amber-500" />
+                                </div>
+                                <span className="text-[#9298B0] text-[8px] font-bold tracking-wider uppercase mb-0.5">Alamat</span>
+                                <span className="text-[#0A0F1E] text-[11px] font-bold text-center leading-tight truncate w-full">
+                                    {grup?.kabupaten?.name || '-'}
+                                </span>
+                            </div>
+
+                            <div className="flex-1 flex flex-col items-center pl-2">
+                                <div className="w-7 h-7 rounded-full bg-[#0080C5]/10 flex items-center justify-center mb-1">
+                                    <User size={10} className="text-[#0080C5]" />
+                                </div>
+                                <span className="text-[#9298B0] text-[8px] font-bold tracking-wider uppercase mb-0.5">Fasilitator</span>
+                                <span className="text-[#0A0F1E] text-[11px] font-bold text-center leading-tight truncate w-full">
+                                    {fasilitatorList}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Data List Mobile */}
+                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-8">
+                        <div className="flex items-center px-4 py-3 border-b border-slate-100 gap-2">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                                <input 
+                                    type="text" 
+                                    placeholder="Cari nama, no.anggota..." 
+                                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[11px] focus:outline-none focus:border-[#0080C5]"
+                                    value={searchTerm}
+                                    onChange={handleSearch}
+                                />
+                            </div>
+                            <button 
+                                onClick={() => setIsAddOpen(true)}
+                                className="h-9 px-3 bg-[#0080C5] text-white rounded-xl flex items-center justify-center shadow-sm text-[11px] font-semibold gap-1 shrink-0"
+                            >
+                                <Plus size={14} />
+                                <span className="hidden sm:block">Tambah</span>
+                            </button>
+                        </div>
+
+                        <div className="flex items-center bg-[#FAFBFD] border-b border-slate-100 px-4 py-2.5">
+                            <span className="text-[#9298B0] text-[8px] font-bold tracking-widest w-[80px]">NO. ANGGOTA</span>
+                            <span className="text-[#9298B0] text-[8px] font-bold tracking-widest flex-1">NAMA</span>
+                            <span className="text-[#9298B0] text-[8px] font-bold tracking-widest w-[40px] text-center">J.KEL</span>
+                            <span className="text-[#9298B0] text-[8px] font-bold tracking-widest w-[60px] text-center">AKSI</span>
+                        </div>
+
+                        <div className="flex flex-col divide-y divide-[#F0F2F8]">
+                            {isLoading ? (
+                                <div className="py-10 flex justify-center"><Loader2 className="animate-spin text-[#0080C5]" size={24}/></div>
+                            ) : dataAnggota.length === 0 ? (
+                                <div className="py-10 text-center text-xs text-slate-400">Tidak ada data anggota</div>
+                            ) : dataAnggota.map((item, idx) => (
+                                <div key={idx} className="flex items-center px-4 py-3 gap-2">
+                                    <span className="text-[#0080C5] text-[10px] font-semibold w-[80px]">{item.no_anggota || '-'}</span>
+                                    <div className="flex-1 flex flex-col">
+                                        <span className="text-[#0A0F1E] text-[11px] font-bold">{item.name}</span>
+                                        <span className="text-[#9298B0] text-[9px] truncate max-w-[120px]">{item.alamat || '-'}</span>
+                                        <span className={"text-[9px] font-bold mt-0.5 " + getStatusColor(item.status).statusColor.replace('bg-', 'text-').split(' ')[1]}>{item.status}</span>
+                                    </div>
+                                    <div className="w-[40px] flex justify-center">
+                                        <div className={`w-5 h-5 flex items-center justify-center rounded-full text-[9px] font-semibold ${item.jenis_kelamin === 'L' ? 'bg-blue-50 text-blue-500' : 'bg-pink-50 text-pink-500'}`}>
+                                            {item.jenis_kelamin === 'L' ? 'L' : 'P'}
+                                        </div>
+                                    </div>
+                                    <div className="w-[60px] flex items-center justify-center gap-1">
+                                        <button onClick={() => handleEdit(item)} className="w-6 h-6 flex items-center justify-center bg-[#0080C5]/10 text-[#0080C5] rounded-md">
+                                            <Edit size={10} />
+                                        </button>
+                                        <button onClick={() => handleDelete(item)} className="w-6 h-6 flex items-center justify-center bg-[#EF4444]/10 text-[#EF4444] rounded-md">
+                                            <Trash2 size={10} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        {meta && meta.total > 0 && (
+                            <div className="flex justify-between items-center px-4 py-3 border-t border-slate-100">
+                                <span className="text-[#9298B0] text-[10px]">1-{dataAnggota.length} dari {meta.total}</span>
+                                <div className="flex items-center gap-1">
+                                    <button onClick={() => setPage(p => Math.max(1, p-1))} className="w-6 h-6 border rounded flex items-center justify-center"><ChevronLeft size={12}/></button>
+                                    <div className="w-6 h-6 bg-[#0080C5] text-white rounded flex items-center justify-center text-[10px] font-bold">{page}</div>
+                                    <button onClick={() => setPage(p => (meta.current_page < meta.last_page ? p + 1 : p))} className="w-6 h-6 border rounded flex items-center justify-center"><ChevronRight size={12}/></button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
                 
-                {/* Unified Card Container */}
-                <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-200">
+                {/* DESKTOP VIEW */}
+                <div className="hidden lg:block bg-white rounded-[20px] p-6 shadow-sm border border-slate-200">
+
                     
                     {/* Header Row */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">

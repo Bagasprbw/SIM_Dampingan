@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isAuthenticated } from '../../utils/storage';
+import PublicMap from '../../components/common/PublicMap';
 import {
     ArrowRight,
     Users,
@@ -78,6 +79,12 @@ const LandingPage = () => {
                             className="text-slate-600 hover:text-[#0080C5] text-sm font-semibold tracking-wide transition-colors cursor-pointer"
                         >
                             Beranda
+                        </button>
+                        <button 
+                            onClick={() => scrollToSection('peta')}
+                            className="text-slate-600 hover:text-[#0080C5] text-sm font-semibold tracking-wide transition-colors cursor-pointer"
+                        >
+                            Peta Sebaran
                         </button>
                         <button 
                             onClick={() => scrollToSection('tentang')}
@@ -231,6 +238,28 @@ const LandingPage = () => {
                             <span className="text-[11px] sm:text-xs text-slate-500 font-medium tracking-wider uppercase mt-1">Kegiatan Pemberdayaan</span>
                         </div>
 
+                    </div>
+                </div>
+            </section>
+
+            
+            {/* ── MAP SECTION ── */}
+            <section id="peta" className="py-20 bg-slate-50 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-sky-100/30 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div className="text-center mb-10">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0080C5]/10 border border-[#0080C5]/20 text-[#0080C5] text-xs font-semibold mb-4">
+                            <Map size={14} className="text-[#0080C5]" />
+                            <span>Jangkauan Dampingan</span>
+                        </div>
+                        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight">Peta Sebaran Mentora</h2>
+                        <p className="text-slate-500 max-w-2xl mx-auto text-sm md:text-base">
+                            Persebaran kelompok dampingan Majelis Pemberdayaan Masyarakat (MPM) Muhammadiyah di berbagai wilayah Indonesia.
+                        </p>
+                    </div>
+                    
+                    <div className="bg-white p-3 rounded-[32px] shadow-xl border border-slate-200">
+                        <PublicMap />
                     </div>
                 </div>
             </section>
