@@ -88,6 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [UserController::class, 'show']);
         Route::put('/{id}', [UserController::class, 'update']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
+        Route::patch('/{id}/toggle-status', [UserController::class, 'toggleStatus']);
     });
     // untuk manajemen fasilitator bidang, misal: saat ingin menambahkan bidang untuk fasilitator, dll
     Route::prefix('fasilitator-bidang')->middleware('permission:kelola_fasilitator')->group(function () {
@@ -104,6 +105,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [UserController::class, 'show']);
         Route::put('/{id}', [UserController::class, 'update']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
+        Route::patch('/{id}/toggle-status', [UserController::class, 'toggleStatus']);
     });
 
     // ----------- permission: kelola_pj_grup -----------------
@@ -113,6 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [UserController::class, 'show']);
         Route::put('/{id}', [UserController::class, 'update']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
+        Route::patch('/{id}/toggle-status', [UserController::class, 'toggleStatus']);
     });
 
     // ----------- permission: ajukan_anggota -----------------

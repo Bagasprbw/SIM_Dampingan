@@ -34,10 +34,18 @@ export const useAdminMutations = () => {
         mutationFn: (id) => adminService.resetPassword(id),
     });
 
+    const toggleStatusAdmin = useMutation({
+        mutationFn: (id) => adminService.toggleStatus(id),
+        onSuccess: () => {
+            invalidateAdmins();
+        },
+    });
+
     return {
         createAdmin,
         updateAdmin,
         deleteAdmin,
         resetPasswordAdmin,
+        toggleStatusAdmin,
     };
 };
