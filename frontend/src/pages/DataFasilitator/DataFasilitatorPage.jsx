@@ -13,8 +13,11 @@ import {
     Settings,
     Eye,
     FileText,
-    Loader2
+    Loader2,
+    UserX,
+    UserCheck
 } from 'lucide-react';
+import Swal from 'sweetalert2';
 import AddFacilitatorModal from '../../components/modals/AddFacilitatorModal';
 import EditFacilitatorModal from '../../components/modals/EditFacilitatorModal';
 import DeleteFacilitatorModal from '../../components/modals/DeleteFacilitatorModal';
@@ -22,6 +25,7 @@ import ResetFacilitatorPasswordModal from '../../components/modals/ResetFacilita
 import FacilitatorDetailModal from '../../components/modals/FacilitatorDetailModal';
 import ManageBidangModal from '../../components/modals/ManageBidangModal';
 import { useFasilitators } from '../../hooks/queries/useFasilitatorQuery';
+import { useFasilitatorMutations } from '../../hooks/mutations/useFasilitatorMutation';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 import { isSuperAdmin } from '../../utils/permissionUtils';
@@ -46,6 +50,9 @@ const DataFasilitatorPage = () => {
     const isAdminProvinsi = userRole === 'admin_provinsi';
     const isAdminKabupaten = userRole === 'admin_kabupaten';
     const isAdminKecamatan = userRole === 'admin_kecamatan';
+
+    // Mutation for toggle status
+    const { toggleStatusFasilitator } = useFasilitatorMutations();
 
     // Filter State
     const [provinsiFilter, setProvinsiFilter] = useState(null);
@@ -89,6 +96,51 @@ const DataFasilitatorPage = () => {
     const handleSearch = (e) => {
         setSearchQuery(e.target.value);
         setPage(1);
+    };
+
+    // Handle toggle status with SweetAlert confirmation
+    const handleToggleStatus = (item) => {
+        const isActive = item.status === 'active';
+        Swal.fire({
+            title: isActive ? 'Nonaktifkan Fasilitator?' : 'Aktifkan Fasilitator?',
+            html: `Apakah Anda yakin ingin ${isActive ? 'menonaktifkan' : 'mengaktifkan'} <b>${item.name}</b>?${isActive ? '<br><br><span style="color:#EF4444;font-size:12px;">⚠ User yang dinonaktifkan tidak akan bisa login ke sistem.</span>' : ''}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: isActive ? '#EF4444' : '#22C55E',
+            cancelButtonColor: '#94A3B8',
+            confirmButtonText: isActive ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const fasilitatorId = item.id_user || item.id;
+                toggleStatusFasilitator.mutate(fasilitatorId, {
+                    onSuccess: (res) => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: res?.message || `Fasilitator berhasil ${isActive ? 'dinonaktifkan' : 'diaktifkan'}.`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                        });
+                        if (selectedFasilitator && (selectedFasilitator.id_user === fasilitatorId || selectedFasilitator.id === fasilitatorId)) {
+                            setSelectedFasilitator(prev => ({ ...prev, status: isActive ? 'inactive' : 'active' }));
+                        }
+                    },
+                    onError: () => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: `Terjadi kesalahan saat ${isActive ? 'menonaktifkan' : 'mengaktifkan'} fasilitator.`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                        });
+                    }
+                });
+            }
+        });
     };
 
     const dataFasilitator = fasilitatorData?.data || [];
@@ -204,13 +256,14 @@ const DataFasilitatorPage = () => {
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Wilayah</th>
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[120px]">Bidang Dampingan</th>
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider min-w-[150px]">Grup Dampingan</th>
+                                        <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-20">Status</th>
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-28">Aksi</th>
                                         <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center rounded-tr-xl w-24">Detail</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {dataFasilitator.map((item, index) => (
-                                        <tr key={item.id_user || item.id || index} className="hover:bg-slate-50/50 transition-colors border-b border-slate-100">
+                                        <tr key={item.id_user || item.id || index} className={`hover:bg-slate-50/50 transition-colors border-b border-slate-100 ${item.status === 'inactive' ? 'opacity-50' : ''}`}>
                                             <td className="py-2.5 px-4 text-xs text-slate-400 font-medium text-center">
                                                 {meta.from ? meta.from + index : index + 1}
                                             </td>
@@ -229,6 +282,17 @@ const DataFasilitatorPage = () => {
                                             <td className="py-2.5 px-4 text-xs text-[#0A0F1E] font-normal">
                                                 {item.grup_fasilitators?.map(gf => gf.grup_dampingan?.name).join(', ') || '-'}
                                             </td>
+                                            <td className="py-2.5 px-4 text-center">
+                                                {item.status === 'active' ? (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
+                                                        Aktif
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-600">
+                                                        Nonaktif
+                                                    </span>
+                                                )}
+                                            </td>
                                             <td className="py-2.5 px-4 ">
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button 
@@ -240,15 +304,31 @@ const DataFasilitatorPage = () => {
                                                     >
                                                         <Edit size={14} />
                                                     </button>
-                                                    <button 
-                                                        onClick={() => {
-                                                            setSelectedFasilitator(item);
-                                                            setIsDeleteModalOpen(true);
-                                                        }}
-                                                        className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </button>
+                                                    {/* Superadmin: tombol hapus di tabel */}
+                                                    {isSuper ? (
+                                                        <button 
+                                                            onClick={() => {
+                                                                setSelectedFasilitator(item);
+                                                                setIsDeleteModalOpen(true);
+                                                            }}
+                                                            className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    ) : (
+                                                        /* Non-superadmin: tombol nonaktifkan/aktifkan di tabel (gantikan hapus) */
+                                                        <button 
+                                                            onClick={() => handleToggleStatus(item)}
+                                                            title={item.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
+                                                            className={`w-7 h-7 rounded-md flex items-center justify-center transition-all ${
+                                                                item.status === 'active'
+                                                                    ? 'bg-[#F59E0B]/10 text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white'
+                                                                    : 'bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E] hover:text-white'
+                                                            }`}
+                                                        >
+                                                            {item.status === 'active' ? <UserX size={14} /> : <UserCheck size={14} />}
+                                                        </button>
+                                                    )}
                                                     {isSuperAdmin() && (
                                                         <button 
                                                             onClick={() => {
@@ -333,6 +413,7 @@ const DataFasilitatorPage = () => {
                 isOpen={isDetailModalOpen} 
                 onClose={() => setIsDetailModalOpen(false)} 
                 data={selectedFasilitator}
+                onToggleStatus={handleToggleStatus}
             />
             <ManageBidangModal 
                 isOpen={isManageBidangOpen} 

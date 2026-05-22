@@ -1,10 +1,17 @@
 import React from 'react';
-import { X, Phone, MapPin, Layers, Users } from 'lucide-react';
+import { X, Phone, MapPin, Layers, Users, UserX, UserCheck } from 'lucide-react';
+import { getUser } from '../../utils/storage';
 
-const FacilitatorDetailModal = ({ isOpen, onClose, data }) => {
+const FacilitatorDetailModal = ({ isOpen, onClose, data, onToggleStatus }) => {
     if (!isOpen) return null;
 
     const initials = data?.nama?.split(' ').map(n => n[0]).join('').toUpperCase() || 'AS';
+
+    const currentUser = getUser();
+    const roleName = typeof currentUser?.role === 'object' ? currentUser?.role?.name : currentUser?.role;
+    const isSuper = roleName === 'superadmin' || currentUser?.username === 'superadmin';
+
+    const isActive = data?.status === 'active';
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center font-['Poppins'] p-4">
@@ -21,13 +28,20 @@ const FacilitatorDetailModal = ({ isOpen, onClose, data }) => {
                                 initials
                             )}
                         </div>
-                        <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                        <div className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white ${isActive ? 'bg-green-500' : 'bg-red-500'}`} title={isActive ? 'Status: Aktif' : 'Status: Nonaktif'}></div>
                     </div>
                     <div className="flex-1 mt-1">
                         <h3 className="text-slate-950 text-base font-bold leading-tight">{data?.name || "-"}</h3>
                         <p className="text-slate-400 text-xs mt-1">@{data?.username || "-"}</p>
-                        <div className="mt-2 inline-flex px-2.5 py-0.5 bg-sky-600/10 rounded-full">
-                            <span className="text-sky-600 text-[10px] font-bold">Fasilitator</span>
+                        <div className="mt-2 flex items-center gap-2">
+                            <div className="inline-flex px-2.5 py-0.5 bg-sky-600/10 rounded-full">
+                                <span className="text-sky-600 text-[10px] font-bold">Fasilitator</span>
+                            </div>
+                            <div className={`inline-flex px-2.5 py-0.5 rounded-full ${isActive ? 'bg-green-100' : 'bg-red-100'}`}>
+                                <span className={`text-[10px] font-bold ${isActive ? 'text-green-700' : 'text-red-700'}`}>
+                                    {isActive ? 'Aktif' : 'Nonaktif'}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -94,7 +108,22 @@ const FacilitatorDetailModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t border-slate-100 flex justify-end bg-white">
+                <div className="px-6 py-4 border-t border-slate-100 flex justify-between bg-white items-center">
+                    <div>
+                        {isSuper && onToggleStatus && (
+                            <button 
+                                onClick={() => onToggleStatus(data)}
+                                className={`px-4 py-2 rounded-[10px] text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${
+                                    isActive 
+                                        ? 'bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200' 
+                                        : 'bg-green-50 text-green-600 hover:bg-green-100 border border-green-200'
+                                }`}
+                            >
+                                {isActive ? <UserX size={14} /> : <UserCheck size={14} />}
+                                <span>{isActive ? 'Nonaktifkan' : 'Aktifkan'}</span>
+                            </button>
+                        )}
+                    </div>
                     <button onClick={onClose} className="px-6 py-2 bg-slate-100 text-slate-500 rounded-[10px] text-sm font-semibold hover:bg-slate-200 transition-all">
                         Tutup
                     </button>
