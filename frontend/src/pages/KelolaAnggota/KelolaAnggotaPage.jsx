@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Search, 
@@ -73,6 +74,20 @@ const KelolaAnggotaPage = () => {
         setIsDeleteOpen(true);
     };
 
+    const handleTambahAnggota = () => {
+        if (isPjGrup && !grup) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Kelompok Belum Terdaftar',
+                text: 'Akun Anda belum terasosiasi dengan kelompok dampingan apa pun. Silakan hubungi Admin.',
+                confirmButtonColor: '#0080C5',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+            });
+            return;
+        }
+        setIsAddOpen(true);
+    };
+
     return (
         <AdminLayout title="Kelola Anggota">
             <div className="font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
@@ -136,7 +151,7 @@ const KelolaAnggotaPage = () => {
                                 />
                             </div>
                             <button 
-                                onClick={() => setIsAddOpen(true)}
+                                onClick={handleTambahAnggota}
                                 className="h-9 px-3 bg-[#0080C5] text-white rounded-xl flex items-center justify-center shadow-sm text-[11px] font-semibold gap-1 shrink-0"
                             >
                                 <Plus size={14} />
@@ -227,7 +242,7 @@ const KelolaAnggotaPage = () => {
                                 <ChevronDown size={16} className="text-slate-400" />
                             </div>
                             <button 
-                                onClick={() => setIsAddOpen(true)}
+                                onClick={handleTambahAnggota}
                                 className="h-10 px-4 bg-[#0080C5] text-white rounded-xl flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-xs font-semibold whitespace-nowrap"
                             >
                                 <Plus size={16} />

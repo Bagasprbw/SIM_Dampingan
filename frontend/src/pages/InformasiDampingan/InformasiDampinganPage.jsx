@@ -12,11 +12,13 @@ import {
     Loader2
 } from 'lucide-react';
 import DetailDampinganModal from '../../components/modals/DetailDampinganModal';
+import KartuDampinganModal from '../../components/modals/KartuDampinganModal';
 import { usePjGrup } from '../../hooks/queries/useGrupDampinganQuery';
 
 const InformasiDampinganPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [isKartuOpen, setIsKartuOpen] = useState(false);
     const [selectedData, setSelectedData] = useState(null);
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 9;
@@ -38,6 +40,11 @@ const InformasiDampinganPage = () => {
     const handleDetail = (item) => {
         setSelectedData(item);
         setIsDetailOpen(true);
+    };
+
+    const handleCetak = (item) => {
+        setSelectedData(item);
+        setIsKartuOpen(true);
     };
 
     if (isLoading) {
@@ -301,7 +308,11 @@ const InformasiDampinganPage = () => {
                                         </td>
                                         <td className="py-4 px-4 text-left text-[#6B7280] text-[11px] font-medium max-w-[180px] truncate">{item.alamat || '-'}</td>
                                         <td className="py-4 px-4 text-center">
-                                            <button className="text-[#0080C5] hover:text-[#006da8] transition-colors">
+                                            <button 
+                                                onClick={() => handleCetak(item)}
+                                                title="Cetak Kartu Dampingan"
+                                                className="text-[#0080C5] hover:text-[#006da8] transition-colors"
+                                            >
                                                 <Printer size={18} />
                                             </button>
                                         </td>
@@ -341,6 +352,7 @@ const InformasiDampinganPage = () => {
 
                 {/* Modals */}
                 <DetailDampinganModal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} data={selectedData} />
+                <KartuDampinganModal isOpen={isKartuOpen} onClose={() => setIsKartuOpen(false)} anggota={selectedData} grup={grup} />
             </div>
         </AdminLayout>
     );
