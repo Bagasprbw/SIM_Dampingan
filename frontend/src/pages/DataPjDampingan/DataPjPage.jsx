@@ -33,6 +33,7 @@ const DataPjPage = () => {
     const [isResetModalOpen, setIsResetModalOpen] = useState(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedPj, setSelectedPj] = useState(null);
+    const [expandedCardId, setExpandedCardId] = useState(null);
 
     const [page, setPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
@@ -143,12 +144,12 @@ const DataPjPage = () => {
 
     return (
         <AdminLayout title="Data PJ Dampingan">
-            <div className="p-8 font-['Poppins']">
-                {/* Main Card Container - Shadow/Size synced with Facilitator */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-7">
+            <div className="font-['Poppins']">
+                {/* Main Card Container */}
+                <div className="bg-transparent lg:bg-white rounded-none lg:rounded-2xl shadow-none lg:shadow-sm border-0 lg:border lg:border-slate-100 p-0 lg:p-7">
                     
-                    {/* Header Action Row */}
-                    <div className="flex justify-end items-center mb-6">
+                    {/* Header Action Row - DESKTOP */}
+                    <div className="hidden lg:flex justify-end items-center mb-6">
                         <button className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold">
                             <FileText size={18} />
                             <span>Cetak Data</span>
@@ -156,19 +157,21 @@ const DataPjPage = () => {
                         </button>
                     </div>
 
-                    {/* Search Bar */}
-                    <div className="relative mb-6">
-                        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
-                            <Search size={18} />
+                    {/* Search and Filters - DESKTOP */}
+                    <div className="hidden lg:block space-y-6 mb-6">
+                        {/* Search Bar */}
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
+                                <Search size={18} />
+                            </div>
+                            <input 
+                                type="text" 
+                                value={searchQuery}
+                                onChange={handleSearch}
+                                className="w-full pl-12 pr-4 py-3 bg-white border-2 border-[#F1F5F9] rounded-[10px] focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-400 transition-all text-left"
+                                placeholder="Cari nama, username, grup dampingan..."
+                            />
                         </div>
-                        <input 
-                            type="text" 
-                            value={searchQuery}
-                            onChange={handleSearch}
-                            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-[#F1F5F9] rounded-[10px] focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] placeholder:text-slate-400 transition-all text-left"
-                            placeholder="Cari nama, username, grup dampingan..."
-                        />
-                    </div>
 
                     {/* Filter Section */}
                     <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -210,12 +213,12 @@ const DataPjPage = () => {
                             <Loader2 className="animate-spin text-[#0080C5]" size={40} />
                         </div>
                     ) : isError ? (
-                        <div className="flex flex-col items-center justify-center py-20">
+                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl">
                             <p className="text-red-500 mb-4">Gagal memuat data PJ Dampingan.</p>
                             <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
                         </div>
                     ) : dataPj.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20">
+                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl">
                             <p className="text-slate-500">Tidak ada data PJ Dampingan ditemukan.</p>
                         </div>
                     ) : (
@@ -257,13 +260,10 @@ const DataPjPage = () => {
                                             <td className="py-2.5 px-4 border-b border-[#F1F5F9]">
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button 
-                                                        onClick={() => {
-                                                            setSelectedPj(item);
-                                                            setIsEditModalOpen(true);
-                                                        }}
-                                                        className="w-7 h-7 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
+                                                        onClick={(e) => { e.stopPropagation(); setSelectedPj(item); setIsDetailModalOpen(true); }}
+                                                        className="h-8 px-3 ml-2 bg-[#0080C5] text-white rounded-[10px] flex items-center justify-center shrink-0 shadow-sm"
                                                     >
-                                                        <Edit size={14} />
+                                                        <span className="text-[10px] font-semibold">Detail</span>
                                                     </button>
                                                     {/* Superadmin: tombol hapus di tabel */}
                                                     {isSuper ? (
@@ -294,56 +294,76 @@ const DataPjPage = () => {
                                                         <button 
                                                             onClick={() => {
                                                                 setSelectedPj(item);
-                                                                setIsResetModalOpen(true);
+                                                                setIsEditModalOpen(true);
                                                             }}
-                                                            className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
+                                                            className="w-7 h-7 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
                                                         >
-                                                            <Lock size={14} />
+                                                            <Edit size={14} />
                                                         </button>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="py-2.5 px-4 text-center border-b border-[#F1F5F9]">
-                                                <button 
-                                                    onClick={() => {
-                                                        setSelectedPj(item);
-                                                        setIsDetailModalOpen(true);
-                                                    }}
-                                                    className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
-                                                >
-                                                    Detail
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                                        <button 
+                                                            onClick={() => {
+                                                                setSelectedPj(item);
+                                                                setIsDeleteModalOpen(true);
+                                                            }}
+                                                            className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                        {isSuperAdmin() && (
+                                                            <button 
+                                                                onClick={() => {
+                                                                    setSelectedPj(item);
+                                                                    setIsResetModalOpen(true);
+                                                                }}
+                                                                className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
+                                                            >
+                                                                <Lock size={14} />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="py-2.5 px-4 text-center border-b border-[#F1F5F9]">
+                                                    <button 
+                                                        onClick={() => {
+                                                            setSelectedPj(item);
+                                                            setIsDetailModalOpen(true);
+                                                        }}
+                                                        className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
+                                                    >
+                                                        Detail
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
                     )}
 
-                    {/* Pagination Section */}
+                    {/* Pagination Section - DESKTOP */}
                     {meta && meta.total > 0 && (
-                        <div className="flex items-center justify-between mt-4">
-                            <span className="text-[#9298B0] text-xs font-normal">
+                        <div className="hidden lg:flex mt-8 flex-row items-center justify-between gap-4">
+                            <p className="text-[#9298B0] text-xs font-normal text-left">
                                 Menampilkan {meta.from}-{meta.to} dari {meta.total} data
-                            </span>
-                            <div className="flex items-center gap-1">
+                            </p>
+                            <div className="flex items-center gap-1.5">
                                 <button 
                                     onClick={() => setPage(old => Math.max(old - 1, 1))}
                                     disabled={page === 1}
-                                    className="w-7 h-7 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#9298B0] hover:bg-gray-50 disabled:opacity-50"
+                                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50 disabled:opacity-50"
                                 >
-                                    <ChevronLeft size={14} />
+                                    <ChevronLeft size={18} />
                                 </button>
-                                <button className="w-7 h-7 flex items-center justify-center rounded-md bg-[#0080C5] text-white text-[11px] font-semibold shadow-sm">
+                                <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
                                     {page}
                                 </button>
                                 <button 
                                     onClick={() => setPage(old => (meta.current_page < meta.last_page ? old + 1 : old))}
                                     disabled={page === meta.last_page}
-                                    className="w-7 h-7 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#9298B0] hover:bg-gray-50 disabled:opacity-50"
+                                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-slate-400 hover:bg-slate-50 disabled:opacity-50"
                                 >
-                                    <ChevronRight size={14} />
+                                    <ChevronRight size={18} />
                                 </button>
                             </div>
                         </div>

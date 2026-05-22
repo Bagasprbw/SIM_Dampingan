@@ -14,10 +14,11 @@ import {
     History,
     BookOpen,
     LogOut,
-    LayoutGrid
+    LayoutGrid,
+    X
 } from 'lucide-react';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, setIsOpen }) => {
     const { logout } = useLogout();
     const user = getUser();
 
@@ -127,14 +128,22 @@ const Sidebar = () => {
     })();
 
     return (
-        <aside className="w-64 h-screen bg-white border-r border-black/10 flex flex-col fixed left-0 top-0 z-50 font-['Poppins']">
+        <aside className={`w-64 h-screen bg-white border-r border-black/10 flex flex-col fixed left-0 top-0 z-50 font-['Poppins'] transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
             {/* Logo Section */}
-            <div className="h-20 px-6 border-b border-black/10 flex items-center gap-3 shrink-0">
-                <img src="/images/logo-mpm.png" alt="MPM" className="w-9 h-11 object-contain" />
-                <div className="flex flex-col">
-                    <span className="text-[#1E1E1E] text-base font-bold tracking-tight">MPM</span>
-                    <span className="text-[#9298B0] text-sm font-normal">Muhammadiyah</span>
+            <div className="h-20 px-6 border-b border-black/10 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                    <img src="/images/logo-mpm.png" alt="MPM" className="w-9 h-11 object-contain" />
+                    <div className="flex flex-col">
+                        <span className="text-[#1E1E1E] text-base font-bold tracking-tight">MPM</span>
+                        <span className="text-[#9298B0] text-sm font-normal">Muhammadiyah</span>
+                    </div>
                 </div>
+                <button 
+                    className="lg:hidden text-slate-400 hover:text-slate-600 p-1"
+                    onClick={() => setIsOpen(false)}
+                >
+                    <X size={20} />
+                </button>
             </div>
 
             {/* Navigation Section */}

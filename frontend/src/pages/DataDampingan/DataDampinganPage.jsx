@@ -335,8 +335,8 @@ const DataDampinganPage = () => {
                 {/* Unified Card Container */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-7">
                     
-                    {/* Row 1: Action Buttons (Top Right) */}
-                    <div className="flex justify-end items-center gap-3 mb-6">
+                    {/* Row 1: Action Buttons (Top Right) - DESKTOP */}
+                    <div className="hidden lg:flex justify-end items-center gap-3 mb-6">
                         <button 
                             onClick={() => setIsAddModalOpen(true)}
                             className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
@@ -436,12 +436,12 @@ const DataDampinganPage = () => {
                             <Loader2 className="animate-spin text-[#0080C5]" size={40} />
                         </div>
                     ) : isError ? (
-                        <div className="flex flex-col items-center justify-center py-20">
+                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl">
                             <p className="text-red-500 mb-4">Gagal memuat data dampingan.</p>
                             <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
                         </div>
                     ) : dataDampingan.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20">
+                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl">
                             <p className="text-slate-500">Tidak ada data dampingan ditemukan.</p>
                         </div>
                     ) : (
@@ -514,13 +514,50 @@ const DataDampinganPage = () => {
                                                 </button>
                                             </td>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody className="divide-y divide-[#F0F2F8]">
+                                        {dataDampingan.map((item, index) => (
+                                            <tr key={item.id_anggota_grup || item.id || index} className="hover:bg-slate-50 transition-colors">
+                                                <td className="py-2.5 px-4 text-center text-[#9298B0] text-[12px] font-medium border-x-0">{item.no_anggota || '-'}</td>
+                                                <td className="py-2.5 px-4 text-left border-x-0">
+                                                    <span className="text-[#0080C5] text-[12px] font-bold hover:underline cursor-pointer">{item.nama}</span>
+                                                </td>
+                                                <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.jenis_kelamin}</td>
+                                                <td className="py-2.5 px-4 text-left text-[#0A0F1E] text-[12px] font-normal max-w-[220px] leading-relaxed border-x-0">
+                                                    {item.alamat || '-'}
+                                                </td>
+                                                <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.grup_dampingan?.bidang?.nama_bidang || '-'}</td>
+                                                <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.grup_dampingan?.nama_grup || '-'}</td>
+                                                <td className="py-2.5 px-4 border-x-0 text-center">
+                                                    <div className="flex items-center justify-center gap-2.5">
+                                                        <button onClick={() => handleEdit(item)} className="w-7 h-7 flex items-center justify-center bg-[#FB923C]/12 text-[#FB923C] rounded-md hover:bg-[#FB923C] hover:text-white transition-all shadow-sm">
+                                                            <Edit size={14} />
+                                                        </button>
+                                                        <button onClick={() => handleDelete(item)} className="w-7 h-7 flex items-center justify-center bg-[#EF4444]/10 text-[#EF4444] rounded-md hover:bg-[#EF4444] hover:text-white transition-all shadow-sm">
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                        <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
+                                                            <Printer size={14} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td className="py-2.5 px-4 text-center border-x-0">
+                                                    <button 
+                                                        onClick={() => handleDetail(item)}
+                                                        className="h-7 px-3 bg-[#0080C5]/10 text-[#0080C5] rounded-md flex items-center justify-center hover:bg-[#0080C5] hover:text-white transition-all text-[11px] font-bold mx-auto"
+                                                    >
+                                                        Detail
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
                     )}
 
-                    {/* Pagination */}
+                    {/* Pagination - DESKTOP */}
                     {meta && meta.total > 0 && (
                         <div className="mt-8 flex items-center justify-between">
                             <span className="text-[#9298B0] text-xs font-normal">

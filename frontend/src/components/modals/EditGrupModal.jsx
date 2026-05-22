@@ -300,7 +300,7 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                     </div>
 
                     {/* Jenis & Bidang Row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Jenis Grup Dampingan <span className="text-red-500">*</span></label>
                             <div className="relative group">
@@ -330,7 +330,7 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                     <hr className="border-slate-100" />
 
                     {/* Provinsi & Kabupaten Row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Provinsi <span className="text-red-500">*</span></label>
                             <div className="relative group">

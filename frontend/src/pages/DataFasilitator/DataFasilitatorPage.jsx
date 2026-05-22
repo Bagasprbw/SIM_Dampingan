@@ -39,6 +39,7 @@ const DataFasilitatorPage = () => {
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [isManageBidangOpen, setIsManageBidangOpen] = useState(false);
     const [selectedFasilitator, setSelectedFasilitator] = useState(null);
+    const [expandedCardId, setExpandedCardId] = useState(null);
 
     const [page, setPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
@@ -148,12 +149,12 @@ const DataFasilitatorPage = () => {
 
     return (
         <AdminLayout title="Data Fasilitator">
-            <div className="p-8 font-['Poppins']">
+            <div className="font-['Poppins']">
                 {/* Main Card Container */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-7">
+                <div className="bg-transparent lg:bg-white rounded-none lg:rounded-2xl shadow-none lg:shadow-sm border-0 lg:border lg:border-slate-100 p-0 lg:p-7">
                     
-                    {/* Top Action Buttons */}
-                    <div className="flex justify-end items-center gap-3.5 mb-6">
+                    {/* Top Action Buttons - DESKTOP */}
+                    <div className="hidden lg:flex justify-end items-center gap-3.5 mb-6">
                         <button 
                             onClick={() => setIsAddModalOpen(true)}
                             className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
@@ -170,8 +171,8 @@ const DataFasilitatorPage = () => {
                         </div>
                     </div>
 
-                    {/* Search and Filters */}
-                    <div className="space-y-6 mb-6">
+                    {/* Search and Filters - DESKTOP */}
+                    <div className="hidden lg:block space-y-6 mb-6">
                         {/* Search Bar */}
                         <div className="relative">
                             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
@@ -219,15 +220,17 @@ const DataFasilitatorPage = () => {
                                 onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
                             />
 
-                            <div className="h-6 w-[1px] bg-slate-200 mx-1 hidden sm:block" />
+                            <div className="h-6 w-[1px] bg-slate-200 mx-1 hidden lg:block" />
 
-                            <button 
-                                onClick={() => setIsManageBidangOpen(true)}
-                                className="h-10 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
-                            >
-                                <Settings size={16} />
-                                <span className="text-[11px] font-semibold tracking-tight">Kelola Bidang</span>
-                            </button>
+                            <div className="w-auto">
+                                <button 
+                                    onClick={() => setIsManageBidangOpen(true)}
+                                    className="h-10 lg:h-10 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm font-semibold"
+                                >
+                                    <Settings size={16} />
+                                    <span className="text-[11px] font-semibold tracking-tight">Kelola Bidang</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -237,12 +240,12 @@ const DataFasilitatorPage = () => {
                             <Loader2 className="animate-spin text-[#0080C5]" size={40} />
                         </div>
                     ) : isError ? (
-                        <div className="flex flex-col items-center justify-center py-20">
+                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl">
                             <p className="text-red-500 mb-4">Gagal memuat data fasilitator.</p>
                             <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
                         </div>
                     ) : dataFasilitator.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20">
+                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl">
                             <p className="text-slate-500">Tidak ada data fasilitator ditemukan.</p>
                         </div>
                     ) : (
@@ -296,13 +299,10 @@ const DataFasilitatorPage = () => {
                                             <td className="py-2.5 px-4 ">
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button 
-                                                        onClick={() => {
-                                                            setSelectedFasilitator(item);
-                                                            setIsEditModalOpen(true);
-                                                        }}
-                                                        className="w-6 h-6 rounded-md bg-[#FB923C]/10 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
+                                                        onClick={(e) => { e.stopPropagation(); setSelectedFasilitator(item); setIsDetailModalOpen(true); }}
+                                                        className="h-8 px-3 ml-2 bg-[#0080C5] text-white rounded-[10px] flex items-center justify-center shrink-0 shadow-sm"
                                                     >
-                                                        <Edit size={14} />
+                                                        <span className="text-[10px] font-semibold">Detail</span>
                                                     </button>
                                                     {/* Superadmin: tombol hapus di tabel */}
                                                     {isSuper ? (
@@ -333,37 +333,57 @@ const DataFasilitatorPage = () => {
                                                         <button 
                                                             onClick={() => {
                                                                 setSelectedFasilitator(item);
-                                                                setIsResetModalOpen(true);
+                                                                setIsEditModalOpen(true);
                                                             }}
-                                                            className="w-6 h-6 rounded-md bg-[#FBBF24]/10 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
+                                                            className="w-6 h-6 rounded-md bg-[#FB923C]/10 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
                                                         >
-                                                            <Lock size={12} />
+                                                            <Edit size={14} />
                                                         </button>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="py-2.5 px-4 text-center">
-                                                <button 
-                                                    onClick={() => {
-                                                        setSelectedFasilitator(item);
-                                                        setIsDetailModalOpen(true);
-                                                    }}
-                                                    className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
-                                                >
-                                                    Detail
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                                        <button 
+                                                            onClick={() => {
+                                                                setSelectedFasilitator(item);
+                                                                setIsDeleteModalOpen(true);
+                                                            }}
+                                                            className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                        {isSuperAdmin() && (
+                                                            <button 
+                                                                onClick={() => {
+                                                                    setSelectedFasilitator(item);
+                                                                    setIsResetModalOpen(true);
+                                                                }}
+                                                                className="w-6 h-6 rounded-md bg-[#FBBF24]/10 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
+                                                            >
+                                                                <Lock size={12} />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="py-2.5 px-4 text-center">
+                                                    <button 
+                                                        onClick={() => {
+                                                            setSelectedFasilitator(item);
+                                                            setIsDetailModalOpen(true);
+                                                        }}
+                                                        className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
+                                                    >
+                                                        Detail
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
                     )}
 
-                    {/* Pagination Section */}
+                    {/* Pagination Section - DESKTOP */}
                     {meta && meta.total > 0 && (
-                        <div className="mt-8 flex items-center justify-between">
-                            <p className="text-[#9298B0] text-xs font-normal">
+                        <div className="hidden lg:flex mt-8 flex-row items-center justify-between gap-4">
+                            <p className="text-[#9298B0] text-xs font-normal text-left">
                                 Menampilkan {meta.from}-{meta.to} dari {meta.total} data
                             </p>
                             <div className="flex items-center gap-1.5">

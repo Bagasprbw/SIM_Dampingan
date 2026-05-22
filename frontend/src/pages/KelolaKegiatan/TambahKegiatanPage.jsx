@@ -68,7 +68,7 @@ const Step1 = ({
                 <textarea value={data.deskripsi || ''} onChange={e => onChange('deskripsi', e.target.value)} placeholder="Tuliskan deskripsi kegiatan secara lengkap, minimal 500 karakter..." rows={5} className="w-full px-4 py-3 border border-slate-200 rounded-lg text-xs focus:border-[#0080C5] focus:outline-none transition-all resize-none" />
                 {!valid && <div className="flex items-center gap-1.5 mt-1"><span className="text-red-400 text-[10px]">⚠ Belum memenuhi syarat</span><span className="ml-auto text-[10px] text-slate-400">{charCount} / 500</span></div>}
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div>
                     <label className="block text-xs font-semibold text-slate-800 mb-1.5">Masalah <span className="text-red-500">*</span></label>
                     <textarea value={data.masalah || ''} onChange={e => onChange('masalah', e.target.value)} placeholder="Tuliskan masalah yang dihadapi..." rows={4} className="w-full px-4 py-3 border border-slate-200 rounded-lg text-xs focus:border-[#0080C5] focus:outline-none transition-all resize-none" />
@@ -135,7 +135,7 @@ const Step1 = ({
                     </div>
                 </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div>
                     <label className="block text-xs font-semibold text-slate-800 mb-1.5">Tanggal Pelaksanaan <span className="text-red-500">*</span></label>
                     <input type="date" value={data.tanggal || ''} onChange={e => onChange('tanggal', e.target.value)} className="w-full h-11 px-4 border border-slate-200 rounded-lg text-xs focus:border-[#0080C5] focus:outline-none transition-all" />
@@ -363,29 +363,50 @@ const Step2 = ({
             )}
 
             {/* Peserta Manual */}
-            <div className="border-t border-slate-100 pt-4">
+            <div className="border-t border-slate-100 pt-4 mt-6">
                 <p className="text-center text-xs text-slate-400 mb-4">— Tamu Undangan / Peserta Luar —</p>
                 <h4 className="text-xs font-bold text-slate-800 mb-3">Tambah Peserta Manual</h4>
-                <div className="flex gap-3 mb-3">
-                    <input value={namaTamu} onChange={e => setNamaTamu(e.target.value)} placeholder="Masukkan nama tamu/peserta luar..." className="flex-1 h-10 px-4 border border-slate-200 rounded-lg text-xs focus:border-[#0080C5] focus:outline-none transition-all" />
-                    <input value={ketTamu} onChange={e => setKetTamu(e.target.value)} placeholder="Narasumber, Undangan, dll..." className="flex-1 h-10 px-4 border border-slate-200 rounded-lg text-xs focus:border-[#0080C5] focus:outline-none transition-all" />
-                    <button onClick={() => { if(namaTamu) { setPesertaManual(p => [...p, {nama: namaTamu, ket: ketTamu}]); setNamaTamu(''); setKetTamu(''); }}} className="h-10 px-4 bg-[#0080C5] text-white rounded-lg text-xs font-semibold hover:bg-sky-700 transition-all flex items-center gap-1.5 whitespace-nowrap"><Plus size={14} /> Tambah</button>
+                <div className="flex flex-col lg:flex-row gap-3 mb-4">
+                    <input value={namaTamu} onChange={e => setNamaTamu(e.target.value)} placeholder="Masukkan nama tamu/peserta luar..." className="flex-1 h-11 lg:h-10 px-4 border border-slate-200 rounded-lg text-xs focus:border-[#0080C5] focus:outline-none transition-all bg-white" />
+                    <input value={ketTamu} onChange={e => setKetTamu(e.target.value)} placeholder="Narasumber, Undangan, dll..." className="flex-1 h-11 lg:h-10 px-4 border border-slate-200 rounded-lg text-xs focus:border-[#0080C5] focus:outline-none transition-all bg-white" />
+                    <button onClick={() => { if(namaTamu) { setPesertaManual(p => [...p, {nama: namaTamu, ket: ketTamu}]); setNamaTamu(''); setKetTamu(''); }}} className="h-11 lg:h-10 px-4 bg-[#0080C5] text-white rounded-lg text-xs font-semibold hover:bg-sky-700 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95"><Plus size={14} /> Tambah</button>
                 </div>
-                <table className="w-full text-xs">
-                    <thead><tr className="border-b border-slate-100"><th className="py-2 px-3 text-left text-[10px] text-slate-400 font-bold uppercase tracking-wide">#</th><th className="py-2 px-3 text-left text-[10px] text-slate-400 font-bold uppercase tracking-wide">NAMA PESERTA</th><th className="py-2 px-3 text-left text-[10px] text-slate-400 font-bold uppercase tracking-wide">KETERANGAN</th><th className="py-2 px-3 text-left text-[10px] text-slate-400 font-bold uppercase tracking-wide">AKSI</th></tr></thead>
-                    <tbody>
-                        {pesertaManual.length === 0 ? (
-                            <tr><td colSpan={4} className="text-center py-6 text-slate-300 text-xs">Belum ada peserta manual</td></tr>
-                        ) : pesertaManual.map((p, i) => (
-                            <tr key={i} className="border-b border-slate-50">
-                                <td className="py-2 px-3 text-slate-500">{i + 1}</td>
-                                <td className="py-2 px-3 font-semibold text-slate-800">{p.nama}</td>
-                                <td className="py-2 px-3 text-slate-500">{p.ket}</td>
-                                <td className="py-2 px-3"><button onClick={() => setPesertaManual(prev => prev.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 transition-colors"><X size={14} /></button></td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                
+                {/* Desktop Table View */}
+                <div className="hidden lg:block overflow-x-auto">
+                    <table className="w-full text-xs">
+                        <thead><tr className="border-b border-slate-100"><th className="py-2 px-3 text-left text-[10px] text-slate-400 font-bold uppercase tracking-wide">#</th><th className="py-2 px-3 text-left text-[10px] text-slate-400 font-bold uppercase tracking-wide">NAMA PESERTA</th><th className="py-2 px-3 text-left text-[10px] text-slate-400 font-bold uppercase tracking-wide">KETERANGAN</th><th className="py-2 px-3 text-left text-[10px] text-slate-400 font-bold uppercase tracking-wide">AKSI</th></tr></thead>
+                        <tbody>
+                            {pesertaManual.length === 0 ? (
+                                <tr><td colSpan={4} className="text-center py-6 text-slate-300 text-xs">Belum ada peserta manual</td></tr>
+                            ) : pesertaManual.map((p, i) => (
+                                <tr key={i} className="border-b border-slate-50">
+                                    <td className="py-2 px-3 text-slate-500">{i + 1}</td>
+                                    <td className="py-2 px-3 font-semibold text-slate-800">{p.nama}</td>
+                                    <td className="py-2 px-3 text-slate-500">{p.ket}</td>
+                                    <td className="py-2 px-3"><button onClick={() => setPesertaManual(prev => prev.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 transition-colors"><X size={14} /></button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="lg:hidden flex flex-col gap-2">
+                    {pesertaManual.length === 0 ? (
+                        <div className="text-center py-6 text-slate-300 text-[11px]">Belum ada peserta manual</div>
+                    ) : pesertaManual.map((p, i) => (
+                        <div key={i} className="flex items-center justify-between p-3 border border-slate-100 rounded-xl bg-white shadow-sm">
+                            <div className="flex flex-col">
+                                <span className="font-semibold text-slate-800 text-[11px]">{p.nama}</span>
+                                <span className="text-[10px] text-slate-500">{p.ket}</span>
+                            </div>
+                            <button onClick={() => setPesertaManual(prev => prev.filter((_, j) => j !== i))} className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors">
+                                <X size={14} />
+                            </button>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {/* Total Peserta Hadir Kalkulasi Otomatis */}
@@ -815,9 +836,9 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
 
     return (
         <AdminLayout title="Kelola Kegiatan">
-            <div className="p-8 font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
-                {/* Top Banner */}
-                <div className="bg-[#0080C5] rounded-2xl px-6 py-4 flex items-center gap-4 mb-6">
+            <div className="font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
+                {/* Top Banner Desktop */}
+                <div className="hidden lg:flex bg-[#0080C5] rounded-2xl px-6 py-4 items-center gap-4 mb-6">
                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                         <UserCircle2 size={22} className="text-white" />
                     </div>
@@ -865,8 +886,22 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                     )}
                     {step === 3 && <Step3 uploads={uploads} onUploadChange={handleUploadChange} />}
 
-                    {/* Footer Actions */}
-                    <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between">
+                {/* Card Container */}
+                <div className="bg-white rounded-b-[16px] lg:rounded-2xl border-x border-b lg:border-[0.8px] border-[#F0F2F8] lg:border-slate-200 shadow-sm p-4 lg:p-8">
+                    {/* Stepper with horizontal scroll on mobile */}
+                    <div className="mb-6 lg:mb-8 overflow-x-auto hide-scrollbar pb-2 lg:pb-0">
+                        <StepIndicator step={step} />
+                    </div>
+                    
+                    {/* Content Steps */}
+                    <div className="min-h-[300px]">
+                        {step === 1 && <Step1 data={formData} onChange={handleChange} />}
+                        {step === 2 && <Step2 />}
+                        {step === 3 && <Step3 />}
+                    </div>
+
+                    {/* Footer Actions Desktop */}
+                    <div className="hidden lg:flex mt-8 pt-5 border-t border-slate-100 items-center justify-between">
                         <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-full">Langkah {step} dari 3</span>
                         <div className="flex items-center gap-3">
                             <button onClick={() => navigate('/kelola-kegiatan')} className="h-10 px-5 border border-slate-200 rounded-[10px] text-xs font-semibold text-slate-500 hover:bg-slate-50 transition-all">Batal</button>
@@ -888,6 +923,35 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                                     {isLoading ? 'Menyimpan...' : 'Simpan'}
                                 </button>
                             )}
+                        </div>
+                    </div>
+
+                    {/* Footer Actions Mobile */}
+                    <div className="lg:hidden mt-6 pt-4 border-t-[0.8px] border-[#F0F2F8] flex flex-col gap-3">
+                        <div className="flex items-center gap-2">
+                            {step > 1 && (
+                                <button onClick={() => setStep(s => s - 1)} className="flex-1 h-11 border border-[#E5E7EB] bg-white rounded-[12px] text-[12px] font-semibold text-slate-600 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 active:scale-95">
+                                    <ArrowLeft size={14} /> Kembali
+                                </button>
+                            )}
+                            {step < 3 ? (
+                                <button onClick={() => setStep(s => s + 1)} className="flex-1 h-11 bg-[#0080C5] text-white rounded-[12px] text-[12px] font-semibold hover:bg-sky-700 transition-all flex items-center justify-center gap-2 active:scale-95">
+                                    Selanjutnya <ArrowRight size={14} />
+                                </button>
+                            ) : (
+                                <button onClick={handleSubmit} disabled={isLoading} className="flex-1 h-11 bg-[#10B981] text-white rounded-[12px] text-[12px] font-semibold hover:bg-emerald-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50 active:scale-95">
+                                    {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                                    {isLoading ? 'Menyimpan...' : 'Simpan Laporan'}
+                                </button>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button onClick={() => navigate('/kelola-kegiatan')} className="flex-1 h-10 text-[11px] font-bold text-slate-400 hover:text-slate-600 transition-colors">
+                                Batal
+                            </button>
+                            <button onClick={handleSaveDraft} className="flex-1 h-10 text-[11px] font-bold text-[#0080C5] hover:text-sky-700 transition-colors flex items-center justify-center gap-1.5">
+                                <Save size={12} /> Simpan Draf
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -66,10 +66,133 @@ const InformasiDampinganPage = () => {
 
     return (
         <AdminLayout title="Informasi Dampingan">
-            <div className="p-8 font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
+            <div className="font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
+
+                {/* MOBILE VIEW */}
+                <div className="lg:hidden flex flex-col gap-3 mb-6">
+                    {/* Header Card (Mobile) */}
+                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div className="p-4 flex items-center gap-3 border-b border-slate-100">
+                            <div className="w-11 h-11 rounded-full bg-[#0080C5]/10 border border-[#0080C5] flex items-center justify-center shrink-0">
+                                <Users size={16} className="text-[#0080C5]" />
+                            </div>
+                            <div className="flex flex-col">
+                                <h3 className="text-[#0A0F1E] text-[15px] font-bold leading-tight">{grup?.name || 'Grup Dampingan'}</h3>
+                                <p className="text-[#0080C5] text-xs font-semibold">Grup Dampingan</p>
+                            </div>
+                        </div>
+                        
+                        <div className="flex items-center px-4 py-3 border-b border-slate-100">
+                            <div className="flex-1 flex flex-col items-center border-r border-slate-100 pr-2">
+                                <div className="w-7 h-7 rounded-full bg-emerald-100/50 flex items-center justify-center mb-1 border border-emerald-500/20">
+                                    <Leaf size={10} className="text-emerald-500" />
+                                </div>
+                                <span className="text-[#9298B0] text-[8px] font-bold tracking-wider uppercase mb-0.5">Bidang</span>
+                                <span className="text-[#0A0F1E] text-[11px] font-bold text-center leading-tight truncate w-full">{grup?.bidang?.name || '-'}</span>
+                            </div>
+                            
+                            <div className="flex-1 flex flex-col items-center border-r border-slate-100 px-2">
+                                <div className="w-7 h-7 rounded-full bg-amber-100/50 flex items-center justify-center mb-1">
+                                    <MapPin size={10} className="text-amber-500" />
+                                </div>
+                                <span className="text-[#9298B0] text-[8px] font-bold tracking-wider uppercase mb-0.5">Alamat</span>
+                                <span className="text-[#0A0F1E] text-[11px] font-bold text-center leading-tight truncate w-full">
+                                    {grup?.kabupaten?.name || '-'}
+                                </span>
+                            </div>
+
+                            <div className="flex-1 flex flex-col items-center pl-2">
+                                <div className="w-7 h-7 rounded-full bg-[#0080C5]/10 flex items-center justify-center mb-1">
+                                    <User size={10} className="text-[#0080C5]" />
+                                </div>
+                                <span className="text-[#9298B0] text-[8px] font-bold tracking-wider uppercase mb-0.5">Fasilitator</span>
+                                <span className="text-[#0A0F1E] text-[11px] font-bold text-center leading-tight truncate w-full">
+                                    {fasilitatorList}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Stats Info */}
+                        <div className="flex items-center justify-between px-4 py-3 gap-2">
+                            <div className="flex-1 bg-[#0080C5]/5 rounded-xl p-2 flex flex-col items-center justify-center border border-[#0080C5]/10">
+                                <span className="text-[#0080C5] text-[17px] font-bold leading-tight">{anggotaList.length}</span>
+                                <span className="text-[#9298B0] text-[8px] mt-0.5 text-center">Total Anggota</span>
+                            </div>
+                            <div className="flex-1 bg-blue-500/5 rounded-xl p-2 flex flex-col items-center justify-center border border-blue-500/10">
+                                <span className="text-blue-500 text-[17px] font-bold leading-tight">{anggotaList.filter(a => a.jenis_kelamin === 'L').length}</span>
+                                <span className="text-[#9298B0] text-[8px] mt-0.5 text-center">Laki-laki</span>
+                            </div>
+                            <div className="flex-1 bg-pink-500/5 rounded-xl p-2 flex flex-col items-center justify-center border border-pink-500/10">
+                                <span className="text-pink-500 text-[17px] font-bold leading-tight">{anggotaList.filter(a => a.jenis_kelamin === 'P').length}</span>
+                                <span className="text-[#9298B0] text-[8px] mt-0.5 text-center">Perempuan</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Data List Mobile */}
+                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-8">
+                        <div className="flex items-center px-4 py-3 border-b border-slate-100">
+                            <div className="relative w-full flex-1">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                                <input 
+                                    type="text" 
+                                    placeholder="Cari nama, no.anggota..." 
+                                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[11px] focus:outline-none focus:border-[#0080C5]"
+                                    value={searchTerm}
+                                    onChange={(e) => {setSearchTerm(e.target.value); setPage(1);}}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center bg-[#FAFBFD] border-b border-slate-100 px-4 py-2.5">
+                            <span className="text-[#9298B0] text-[8px] font-bold tracking-widest w-[80px]">NO. ANGGOTA</span>
+                            <span className="text-[#9298B0] text-[8px] font-bold tracking-widest flex-1">NAMA</span>
+                            <span className="text-[#9298B0] text-[8px] font-bold tracking-widest w-[40px] text-center">J.KEL</span>
+                            <span className="text-[#9298B0] text-[8px] font-bold tracking-widest w-[50px] text-center">AKSI</span>
+                        </div>
+
+                        <div className="flex flex-col divide-y divide-[#F0F2F8]">
+                            {paged.length === 0 ? (
+                                <div className="py-10 text-center text-xs text-slate-400">Tidak ada data anggota</div>
+                            ) : paged.map((item, idx) => (
+                                <div key={idx} className="flex items-center px-4 py-3 gap-2">
+                                    <span className="text-[#0080C5] text-[10px] font-semibold w-[80px]">{item.no_anggota || '-'}</span>
+                                    <div className="flex-1 flex flex-col">
+                                        <span className="text-[#0A0F1E] text-[11px] font-bold">{item.name}</span>
+                                        <span className="text-[#9298B0] text-[9px] truncate max-w-[120px]">{item.alamat || '-'}</span>
+                                    </div>
+                                    <div className="w-[40px] flex justify-center">
+                                        <div className={`w-5 h-5 flex items-center justify-center rounded-full text-[9px] font-semibold ${item.jenis_kelamin === 'L' ? 'bg-blue-50 text-blue-500' : 'bg-pink-50 text-pink-500'}`}>
+                                            {item.jenis_kelamin === 'L' ? 'L' : 'P'}
+                                        </div>
+                                    </div>
+                                    <div className="w-[50px] flex items-center justify-center">
+                                        <button onClick={() => handleDetail(item)} className="px-2 py-1 bg-[#0080C5]/10 text-[#0080C5] rounded-md text-[9px] font-bold hover:bg-[#0080C5] hover:text-white transition-colors">
+                                            Detail
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        {totalPages > 0 && (
+                            <div className="flex justify-between items-center px-4 py-3 border-t border-slate-100">
+                                <span className="text-[#9298B0] text-[10px]">1-{paged.length} dari {filtered.length}</span>
+                                <div className="flex items-center gap-1">
+                                    <button onClick={() => setPage(p => Math.max(1, p-1))} className="w-6 h-6 border rounded flex items-center justify-center"><ChevronLeft size={12}/></button>
+                                    <div className="w-6 h-6 bg-[#0080C5] text-white rounded flex items-center justify-center text-[10px] font-bold">{page}</div>
+                                    <button onClick={() => setPage(p => Math.min(totalPages, p+1))} className="w-6 h-6 border rounded flex items-center justify-center"><ChevronRight size={12}/></button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
                 
-                {/* Header Card (Kelompok Info) */}
-                <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-200 mb-6">
+                {/* DESKTOP VIEW */}
+                <div className="hidden lg:flex flex-col gap-6">
+                    {/* Header Card (Kelompok Info) Desktop */}
+                    <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-200">
+
                     <div className="flex flex-col gap-6">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-blue-50 text-[#0080C5] rounded-xl flex items-center justify-center">
@@ -213,6 +336,7 @@ const InformasiDampinganPage = () => {
                         </div>
                     )}
 
+                </div>
                 </div>
 
                 {/* Modals */}

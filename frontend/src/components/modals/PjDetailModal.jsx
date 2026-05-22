@@ -16,7 +16,7 @@ const PjDetailModal = ({ isOpen, onClose, data, onToggleStatus }) => {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center font-['Poppins'] p-4 text-left">
             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose}></div>
-            <div className="relative w-[500px] bg-white rounded-2xl shadow-[0px_20px_60px_0px_rgba(0,0,0,0.18)] overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-[0px_20px_60px_0px_rgba(0,0,0,0.18)] overflow-hidden animate-in fade-in zoom-in duration-200">
                 <div className="w-full h-[5px] bg-white" />
                 
                 {/* Profile Header */}

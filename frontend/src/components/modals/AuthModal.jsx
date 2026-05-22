@@ -8,7 +8,7 @@ const AuthModal = ({ isOpen, type = 'success' }) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 font-['Poppins']">
-            <div className="w-[460px] px-12 py-12 bg-white rounded-[20px] flex flex-col justify-center items-center gap-6 shadow-2xl">
+            <div className="w-full max-w-[460px] px-6 md:px-12 py-12 bg-white rounded-[20px] flex flex-col justify-center items-center gap-6 shadow-2xl">
 
                 {/* Icon */}
                 <div className={`w-24 h-24 p-1.5 rounded-[48px] outline outline-1 outline-offset-[-1px] flex justify-center items-center ${

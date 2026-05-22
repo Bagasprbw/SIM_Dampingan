@@ -59,7 +59,7 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center font-['Poppins'] p-4">
             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose}></div>
-            <div className="relative w-[580px] bg-white rounded-2xl shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden animate-in fade-in zoom-in duration-200 text-left">
+            <div className="relative w-full max-w-[580px] bg-white rounded-2xl shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden animate-in fade-in zoom-in duration-200 text-left">
                 
                 {/* Header */}
                 <div className="h-20 px-6 py-5 border-b-[0.80px] border-gray-200 flex justify-between items-center bg-white">

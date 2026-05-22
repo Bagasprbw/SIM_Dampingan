@@ -185,7 +185,7 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
                     </div>
 
                     {/* URL Row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className="flex items-center gap-2 text-[10px] font-bold text-red-500 uppercase tracking-widest">
                                 <FileText size={14} /> URL PDF

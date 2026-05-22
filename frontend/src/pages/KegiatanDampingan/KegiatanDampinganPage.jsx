@@ -5,11 +5,9 @@ import {
     Search, 
     ChevronDown, 
     Calendar, 
-    MapPin, 
     FileText, 
     ChevronLeft, 
     ChevronRight,
-    Filter,
     Loader2
 } from 'lucide-react';
 import { useKegiatansAdmin } from '../../hooks/queries/useKegiatanQuery';
@@ -48,56 +46,56 @@ const KegiatanDampinganPage = () => {
 
     return (
         <AdminLayout title="Kegiatan Dampingan">
-            <div className="p-8 font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
+            <div className="font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
                 
                 {/* Main Content Container */}
-                <div className="bg-white rounded-2xl p-7 shadow-sm border border-[#E5E7EB] min-h-[1000px] flex flex-col">
+                <div className="bg-transparent lg:bg-white rounded-none lg:rounded-2xl lg:p-7 shadow-none lg:shadow-sm border-0 lg:border lg:border-[#E5E7EB] min-h-[calc(100vh-160px)] flex flex-col m-0 lg:m-8">
                     
                     {/* 1. Search Bar (Full Width) */}
                     <div className="relative mb-4">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9298B0]">
-                            <Search size={20} />
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                            <Search size={18} />
                         </div>
                         <input
                             type="text"
-                            placeholder="Cari judul kegiatan, bidang, atau grup dampingan..."
-                            className="w-full h-11 pl-12 pr-4 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-[#9298B0] font-medium transition-all"
+                            placeholder="Cari judul kegiatan, bidang, atau grup..."
+                            className="w-full h-11 lg:h-12 pl-12 pr-4 bg-white rounded-xl lg:rounded-[10px] border border-slate-200 lg:border-gray-100 focus:border-[#0080C5] focus:outline-none text-[13px] lg:text-xs text-slate-800 lg:text-[#9298B0] font-medium transition-all shadow-sm lg:shadow-none"
                             value={searchTerm}
                             onChange={handleSearch}
                         />
                     </div>
 
                     {/* 2. Filters Row */}
-                    <div className="flex flex-wrap items-center gap-4 mb-8">
+                    <div className="grid grid-cols-2 lg:flex lg:flex-wrap items-center gap-2 lg:gap-4 mb-6 lg:mb-8">
                         {/* Dari Tanggal */}
-                        <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
-                            <label className="text-[#9298B0] text-[11px] font-semibold ml-1">Dari tanggal :</label>
+                        <div className="flex flex-col gap-1 lg:gap-1.5 w-full lg:flex-1 lg:min-w-[200px]">
+                            <label className="text-[#9298B0] text-[10px] lg:text-[11px] font-semibold ml-1">Dari tanggal :</label>
                             <div className="relative">
-                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9298B0]" size={16} />
+                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9298B0]" size={14} />
                                 <input 
                                     type="text" 
                                     placeholder="dd/mm/yy"
-                                    className="w-full h-10 pl-10 pr-4 rounded-[10px] border border-gray-200 text-[11px] font-semibold text-[#9298B0] focus:outline-none focus:border-[#0080C5]"
+                                    className="w-full h-10 lg:h-10 pl-9 pr-3 bg-white rounded-xl lg:rounded-[10px] border border-slate-200 lg:border-gray-200 text-[11px] font-semibold text-slate-700 focus:outline-none focus:border-[#0080C5] shadow-sm lg:shadow-none"
                                 />
                             </div>
                         </div>
 
                         {/* Sampai Tanggal */}
-                        <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
-                            <label className="text-[#9298B0] text-[11px] font-semibold ml-1">Sampai tanggal :</label>
+                        <div className="flex flex-col gap-1 lg:gap-1.5 w-full lg:flex-1 lg:min-w-[200px]">
+                            <label className="text-[#9298B0] text-[10px] lg:text-[11px] font-semibold ml-1">Sampai tanggal :</label>
                             <div className="relative">
-                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9298B0]" size={16} />
+                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9298B0]" size={14} />
                                 <input 
                                     type="text" 
                                     placeholder="dd/mm/yy"
-                                    className="w-full h-10 pl-10 pr-4 rounded-[10px] border border-gray-200 text-[11px] font-semibold text-[#9298B0] focus:outline-none focus:border-[#0080C5]"
+                                    className="w-full h-10 lg:h-10 pl-9 pr-3 bg-white rounded-xl lg:rounded-[10px] border border-slate-200 lg:border-gray-200 text-[11px] font-semibold text-slate-700 focus:outline-none focus:border-[#0080C5] shadow-sm lg:shadow-none"
                                 />
                             </div>
                         </div>
 
                         {/* Bidang */}
-                        <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
-                            <label className="text-[#9298B0] text-[11px] font-semibold ml-1">Bidang :</label>
+                        <div className="flex flex-col gap-1 lg:gap-1.5 w-full lg:flex-1 lg:min-w-[200px]">
+                            <label className="text-[#9298B0] text-[10px] lg:text-[11px] font-semibold ml-1 hidden lg:block">Bidang :</label>
                             <FilterDropdown
                                 placeholder="Semua Bidang"
                                 options={bidangList}
@@ -109,14 +107,14 @@ const KegiatanDampinganPage = () => {
                         </div>
 
                         {/* Urutan */}
-                        <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
-                            <label className="text-[#9298B0] text-[11px] font-semibold ml-1">Urutan :</label>
+                        <div className="flex flex-col gap-1 lg:gap-1.5 w-full lg:flex-1 lg:min-w-[200px]">
+                            <label className="text-[#9298B0] text-[10px] lg:text-[11px] font-semibold ml-1 hidden lg:block">Urutan :</label>
                             <div className="relative">
-                                <select className="w-full h-10 pl-4 pr-10 rounded-[10px] border border-gray-200 text-[11px] font-semibold text-[#9298B0] appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer">
+                                <select className="w-full h-10 lg:h-10 pl-4 pr-10 bg-white rounded-xl lg:rounded-[10px] border border-slate-200 lg:border-gray-200 text-[11px] font-semibold text-[#9298B0] appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer shadow-sm lg:shadow-none">
                                     <option>Terbaru</option>
                                     <option>Terlama</option>
                                 </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9298B0] pointer-events-none" size={18} />
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9298B0] pointer-events-none" size={16} />
                             </div>
                         </div>
                     </div>
@@ -127,24 +125,24 @@ const KegiatanDampinganPage = () => {
                             <Loader2 className="animate-spin text-[#0080C5]" size={40} />
                         </div>
                     ) : isError ? (
-                        <div className="flex flex-col items-center justify-center py-20 flex-1">
+                        <div className="flex flex-col items-center justify-center py-20 flex-1 bg-white rounded-2xl">
                             <p className="text-red-500 mb-4">Gagal memuat data kegiatan.</p>
                             <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
                         </div>
                     ) : activities.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 flex-1">
+                        <div className="flex flex-col items-center justify-center py-20 flex-1 bg-white rounded-2xl">
                             <p className="text-slate-500">Tidak ada data kegiatan ditemukan.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 flex-1">
                             {activities.map((item, index) => (
                                 <div 
                                     key={item.id || index} 
                                     onClick={() => handleDetail(item)}
-                                    className="flex flex-col bg-white rounded-2xl border border-[#F1F5F9] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
+                                    className="flex flex-col bg-white rounded-2xl border border-slate-200 lg:border-[#F1F5F9] overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer group shadow-sm lg:shadow-none"
                                 >
                                     {/* Image Placeholder */}
-                                    <div className="h-44 w-full bg-slate-100 overflow-hidden relative">
+                                    <div className="h-40 lg:h-44 w-full bg-slate-100 overflow-hidden relative">
                                         <img 
                                             src={item.foto_kegiatan || 'https://placehold.co/330x180/0080C5/FFFFFF?text=Foto+Kegiatan'} 
                                             alt="Kegiatan" 
@@ -154,9 +152,9 @@ const KegiatanDampinganPage = () => {
                                     </div>
                                     
                                     {/* Content */}
-                                    <div className="p-5 flex flex-col items-start gap-3">
+                                    <div className="p-4 lg:p-5 flex flex-col items-start gap-3">
                                          {/* Bidang Badge */}
-                                         <div className="px-3 py-1 bg-[#0080C5]/10 rounded-full">
+                                         <div className="px-3 py-1 bg-sky-50 lg:bg-[#0080C5]/10 rounded-full">
                                              <span className="text-[#0080C5] text-[10px] font-bold tracking-tight">{item.bidang?.name || 'Bidang'}</span>
                                          </div>
  
@@ -167,14 +165,14 @@ const KegiatanDampinganPage = () => {
                                          </div>
  
                                          {/* Title */}
-                                         <h3 className="text-[#0A0F1E] text-sm font-bold leading-relaxed line-clamp-2 min-h-[40px] group-hover:text-[#0080C5] transition-colors">
+                                         <h3 className="text-[#0A0F1E] text-[13px] lg:text-sm font-bold leading-relaxed line-clamp-2 min-h-[40px] group-hover:text-[#0080C5] transition-colors">
                                              {item.judul}
                                          </h3>
 
                                         {/* Button */}
-                                        <div className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
-                                            <FileText size={18} />
-                                            <span className="text-[11px] font-semibold tracking-tight">Lihat Laporan</span>
+                                        <div className="w-full h-10 lg:h-9 px-4 bg-[#0080C5] text-white rounded-xl lg:rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold mt-1">
+                                            <FileText size={16} />
+                                            <span className="text-[12px] lg:text-[11px] font-semibold tracking-tight">Lihat Laporan</span>
                                         </div>
                                     </div>
                                 </div>
@@ -184,27 +182,27 @@ const KegiatanDampinganPage = () => {
 
                     {/* 4. Pagination (Bottom) */}
                     {meta && meta.total > 0 && (
-                        <div className="mt-10 flex items-center justify-between border-t border-slate-50 pt-6">
-                            <span className="text-[#9298B0] text-[11px] font-medium">
+                        <div className="mt-6 lg:mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-between border-t-0 lg:border-t lg:border-slate-50 pt-0 lg:pt-6 gap-4">
+                            <span className="text-[#9298B0] text-[11px] font-medium text-center sm:text-left">
                                 Menampilkan {meta.from}-{meta.to} dari {meta.total} data
                             </span>
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-2 lg:gap-1.5">
                                 <button 
                                     onClick={() => setPage(old => Math.max(old - 1, 1))}
                                     disabled={page === 1}
-                                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-100 text-[#0A0F1E] hover:bg-slate-50 transition-colors disabled:opacity-50"
+                                    className="w-8 h-8 lg:w-7 lg:h-7 flex items-center justify-center rounded-lg border border-slate-200 lg:border-gray-100 text-[#0A0F1E] bg-white hover:bg-slate-50 transition-colors disabled:opacity-50 shadow-sm lg:shadow-none"
                                 >
-                                    <ChevronLeft size={18} />
+                                    <ChevronLeft size={18} className="lg:w-[14px] lg:h-[14px]" />
                                 </button>
-                                <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
+                                <button className="h-8 lg:h-9 px-3 lg:px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[12px] lg:text-[13px] font-semibold">
                                     {page}
                                 </button>
                                 <button 
                                     onClick={() => setPage(old => (meta.current_page < meta.last_page ? old + 1 : old))}
                                     disabled={page === meta.last_page}
-                                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-100 text-[#0A0F1E] hover:bg-slate-50 transition-colors disabled:opacity-50"
+                                    className="w-8 h-8 lg:w-7 lg:h-7 flex items-center justify-center rounded-lg border border-slate-200 lg:border-gray-100 text-[#0A0F1E] bg-white hover:bg-slate-50 transition-colors disabled:opacity-50 shadow-sm lg:shadow-none"
                                 >
-                                    <ChevronRight size={18} />
+                                    <ChevronRight size={18} className="lg:w-[14px] lg:h-[14px]" />
                                 </button>
                             </div>
                         </div>

@@ -6,7 +6,7 @@ const SuccessModal = ({ isOpen }) => {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 font-['Poppins']">
             {/* Start of Figma Code */}
-            <div className="w-[460px] h-80 px-12 py-12 bg-white rounded-[20px] inline-flex justify-center items-start gap-2.5 shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div className="w-full max-w-[460px] min-h-[320px] h-auto px-12 py-12 bg-white rounded-[20px] inline-flex justify-center items-start gap-2.5 shadow-2xl animate-in fade-in zoom-in duration-300">
                 <div className="w-48 h-60 inline-flex flex-col justify-start items-center gap-6">
                     {/* Icon Section */}
                     <div className="w-24 h-24 p-1.5 bg-gradient-to-b from-emerald-500/20 to-emerald-500/5 rounded-[48px] outline outline-1 outline-offset-[-1px] outline-emerald-500 inline-flex justify-start items-start gap-2.5">

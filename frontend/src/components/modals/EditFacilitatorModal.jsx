@@ -221,7 +221,7 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
 
                     <div className="h-px bg-slate-100" />
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Nama Lengkap <span className="text-red-500">*</span></label>
                             <input name="nama" value={formData.nama} onChange={handleChange} type="text" className="w-full px-4 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" required />
@@ -284,7 +284,7 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
                     <div className="h-px bg-slate-100" />
 
                     {/* Wilayah Section */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Provinsi <span className="text-red-500">*</span></label>
                             <div className="relative group">
