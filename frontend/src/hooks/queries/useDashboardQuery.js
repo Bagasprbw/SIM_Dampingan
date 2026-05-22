@@ -9,3 +9,11 @@ export const useDashboardFasilitator = ({ enabled = true } = {}) => {
         enabled,
     });
 };
+
+export const useDashboardAdmin = ({ enabled = true } = {}) => {
+    return useQuery({
+        queryKey: [queryKeys.DASHBOARD_ADMIN],
+        queryFn: () => dashboardService.getAdmin(),
+        enabled,
+    });
+};

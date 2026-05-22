@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Authentikasi\AuthController;
 use App\Http\Controllers\Api\Bidang\BidangController;
 use App\Http\Controllers\Api\Dashboard\DashboardFasilitatorController;
+use App\Http\Controllers\Api\Dashboard\DashboardAdminController;
 use App\Http\Controllers\Api\Pekerjaan\PekerjaanController;
 use App\Http\Controllers\Api\User\UserController;
 use App\Http\Controllers\Api\FasilitatorBidang\FasilitatorBidangController;
@@ -201,6 +202,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // ----------- dashboard fasilitator -----------------
     Route::get('/dashboard/fasilitator', [DashboardFasilitatorController::class, 'index'])
         ->middleware('permission:verifikasi_anggota');
+
+    // ----------- dashboard admin / superadmin -----------------
+    Route::get('/dashboard/admin', [DashboardAdminController::class, 'index']);
 
     // ----------- wilayah -----------------
     Route::prefix('wilayah')->group(function () {

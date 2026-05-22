@@ -5,4 +5,8 @@ export const dashboardService = {
         const response = await api.get('/dashboard/fasilitator');
         return response.data;
     },
+    getAdmin: async () => {
+        const response = await api.get('/dashboard/admin');
+        return response.data;
+    },
 };

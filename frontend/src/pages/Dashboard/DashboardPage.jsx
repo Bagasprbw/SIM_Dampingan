@@ -1,8 +1,8 @@
 import React from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { getUser } from '../../utils/storage';
-import { ROLES } from '../../constants/roles';
-import { useDashboardFasilitator } from '../../hooks/queries/useDashboardQuery';
+import { ROLES, ADMIN_ROLES } from '../../constants/roles';
+import { useDashboardFasilitator, useDashboardAdmin } from '../../hooks/queries/useDashboardQuery';
 import { 
     ChevronDown,
     Info,
@@ -26,11 +26,18 @@ const DashboardPage = () => {
     const user = getUser();
     const isPjGrup = user?.role === ROLES.PJ_DAMPINGAN;
     const isFasilitator = user?.role === ROLES.FASILITATOR;
-    const { data: dashboardRes, isLoading: isDashboardLoading, isError: isDashboardError, refetch: refetchDashboard } = useDashboardFasilitator({
+    const isAdminUser = [ROLES.SUPERADMIN, ...ADMIN_ROLES].includes(user?.role);
+
+    const { data: dashboardFasilitatorRes, isLoading: isDashboardFasilitatorLoading, isError: isDashboardFasilitatorError, refetch: refetchDashboardFasilitator } = useDashboardFasilitator({
         enabled: isFasilitator,
     });
 
-    const dashboardData = dashboardRes?.data || {};
+    const { data: dashboardAdminRes, isLoading: isDashboardAdminLoading, isError: isDashboardAdminError, refetch: refetchDashboardAdmin } = useDashboardAdmin({
+        enabled: isAdminUser,
+    });
+
+    const dashboardFasilitatorData = dashboardFasilitatorRes?.data || {};
+    const dashboardAdminData = dashboardAdminRes?.data || {};
 
     const toWibDate = (dateString) => {
         if (!dateString) return null;
@@ -202,7 +209,7 @@ const DashboardPage = () => {
     };
 
     const renderFasilitatorDashboard = () => {
-        if (isDashboardLoading) {
+        if (isDashboardFasilitatorLoading) {
             return (
                 <div className="flex items-center justify-center py-20">
                     <Loader2 className="animate-spin text-[#0080C5]" size={36} />
@@ -210,19 +217,19 @@ const DashboardPage = () => {
             );
         }
 
-        if (isDashboardError) {
+        if (isDashboardFasilitatorError) {
             return (
                 <div className="flex flex-col items-center justify-center py-20">
                     <p className="text-red-500 mb-4">Gagal memuat dashboard fasilitator.</p>
-                    <button onClick={() => refetchDashboard()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
+                    <button onClick={() => refetchDashboardFasilitator()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
                 </div>
             );
         }
 
-        const totals = dashboardData?.totals || {};
-        const statistik = dashboardData?.statistik_dampingan || [];
-        const period = dashboardData?.period || {};
-        const logItems = dashboardData?.log_aktivitas_login || [];
+        const totals = dashboardFasilitatorData?.totals || {};
+        const statistik = dashboardFasilitatorData?.statistik_dampingan || [];
+        const period = dashboardFasilitatorData?.period || {};
+        const logItems = dashboardFasilitatorData?.log_aktivitas_login || [];
 
         const totalDampingan = totals.total_dampingan_aktif ?? 0;
         const totalGrup = totals.total_grup_dampingan ?? 0;
@@ -238,7 +245,7 @@ const DashboardPage = () => {
             color: colors[index % colors.length],
         }));
 
-        const lineData = dashboardData?.kegiatan_per_bulan || [];
+        const lineData = dashboardFasilitatorData?.kegiatan_per_bulan || [];
         const hasPieData = pieData.length > 0 && pieData.some((item) => item.value > 0);
 
         return (
@@ -403,36 +410,77 @@ const DashboardPage = () => {
     };
 
     const renderAdminDashboard = () => {
+        if (isDashboardAdminLoading) {
+            return (
+                <div className="flex items-center justify-center py-20">
+                    <Loader2 className="animate-spin text-[#0080C5]" size={36} />
+                </div>
+            );
+        }
+
+        if (isDashboardAdminError) {
+            return (
+                <div className="flex flex-col items-center justify-center py-20">
+                    <p className="text-red-500 mb-4">Gagal memuat dashboard admin.</p>
+                    <button className="px-4 py-2 bg-[#0080C5] text-white rounded-lg" onClick={() => refetchDashboardAdmin()}>Coba Lagi</button>
+                </div>
+            );
+        }
+
+        const totals = dashboardAdminData?.totals || {};
+        const statistik = dashboardAdminData?.statistik_dampingan || [];
+        const kegiatanPerBulan = dashboardAdminData?.kegiatan_per_bulan || [];
+        const grupDistribusi = dashboardAdminData?.grup_distribusi || [];
+        const adminActivities = dashboardAdminData?.log_aktivitas || [];
+
         const stats = [
-            { label: 'Total Admin Daerah', value: '118', icon: <Users size={24} className="text-[#8B5CF6]" />, bgColor: 'bg-[#8B5CF6]/10' },
-            { label: 'Total Fasilitator', value: '118', icon: <UserPlus size={24} className="text-[#0080C5]" />, bgColor: 'bg-[#0080C5]/10' },
-            { label: 'Total Dampingan', value: '118', icon: <Users size={24} className="text-[#F59E0B]" />, bgColor: 'bg-[#F59E0B]/10' },
-            { label: 'Total Grup Dampingan', value: '118', icon: <LayoutGrid size={24} className="text-[#10B981]" />, bgColor: 'bg-[#10B981]/10' },
+            { label: 'Total Admin Daerah', value: totals.total_admin_daerah ?? 0, icon: <Users size={24} className="text-[#8B5CF6]" />, bgColor: 'bg-[#8B5CF6]/10' },
+            { label: 'Total Fasilitator', value: totals.total_fasilitator ?? 0, icon: <UserPlus size={24} className="text-[#0080C5]" />, bgColor: 'bg-[#0080C5]/10' },
+            { label: 'Total Dampingan', value: totals.total_dampingan ?? 0, icon: <Users size={24} className="text-[#F59E0B]" />, bgColor: 'bg-[#F59E0B]/10' },
+            { label: 'Total Grup Dampingan', value: totals.total_grup_dampingan ?? 0, icon: <LayoutGrid size={24} className="text-[#10B981]" />, bgColor: 'bg-[#10B981]/10' },
         ];
-    
+
+        const activityItems = adminActivities.map((log) => ({
+            id: log.user?.role?.name?.split('_').pop()?.toUpperCase() || 'AKT',
+            name: log.user?.name || 'Pengguna',
+            action: log.deskripsi || `${log.aksi || 'Update'} ${log.modul || ''}`.trim(),
+            time: formatRelativeTime(log.created_at),
+            statusColor: 'bg-[#43DE20]',
+            role: log.user?.role?.name,
+        }));
+
         const activities = [
-            { 
-                title: 'Admin Daerah', 
-                items: [
-                    { id: 'PJ', name: 'Provinsi Jawa Tengah', action: 'menambahkan data fasilitator baru', time: '1 jam lalu', statusColor: 'bg-[#43DE20]' },
-                    { id: 'PJ', name: 'Provinsi Jawa Tengah', action: 'menambahkan data fasilitator baru', time: '1 jam lalu', statusColor: 'bg-[#43DE20]' },
-                ]
+            {
+                title: 'Admin Daerah',
+                items: activityItems.filter((item) => item.role?.startsWith('admin')).slice(0, 3),
             },
-            { 
-                title: 'Fasilitator', 
-                items: [
-                    { id: 'PJ', name: 'Paijo Pamungkas', action: 'menambahkan laporan baru', time: '1 jam lalu', statusColor: 'bg-[#43DE20]' },
-                    { id: 'PJ', name: 'Paijo Pamungkas', action: 'menambahkan laporan baru', time: '1 jam lalu', statusColor: 'bg-[#43DE20]' },
-                ]
+            {
+                title: 'Fasilitator',
+                items: activityItems.filter((item) => item.role === ROLES.FASILITATOR).slice(0, 3),
             },
-            { 
-                title: 'PJ Dampingan', 
-                items: [
-                    { id: 'PJ', name: 'PJ Mbejen', action: 'menambahkan anggota baru', time: '1 jam lalu', statusColor: 'bg-[#43DE20]' },
-                    { id: 'PJ', name: 'PJ Mbejen', action: 'menambahkan anggota baru', time: '1 jam lalu', statusColor: 'bg-[#43DE20]' },
-                ]
-            }
+            {
+                title: 'PJ Dampingan',
+                items: activityItems.filter((item) => item.role === ROLES.PJ_DAMPINGAN).slice(0, 3),
+            },
         ];
+
+        const pieData = statistik.length > 0
+            ? statistik.map((item, index) => ({
+                name: item.wilayah,
+                value: item.total,
+                color: ['#2332DB', '#D52BCA', '#10B981', '#F59E0B', '#0EA5E9', '#8B5CF6'][index % 6],
+            }))
+            : [];
+
+        const lineData = kegiatanPerBulan.length > 0 ? kegiatanPerBulan : [];
+        const groupData = grupDistribusi.length > 0 ? grupDistribusi : [
+            { name: 'Pusat', grup: 0 },
+            { name: 'Provinsi', grup: 0 },
+            { name: 'Kabupaten', grup: 0 },
+            { name: 'Kecamatan', grup: 0 },
+        ];
+
+        const totalKegiatanBulanIni = totals.total_kegiatan_bulan_ini ?? 0;
 
         return (
             <div className="flex flex-col gap-8 font-['Poppins']">
@@ -486,12 +534,20 @@ const DashboardPage = () => {
                         </div>
                         <div className="flex items-center gap-1">
                             <span className="text-[#9298B0] text-xs font-normal">Total Kegiatan Bulan ini: </span>
-                            <span className="text-[#0A0F1E] text-[11px] font-semibold">0</span>
+                            <span className="text-[#0A0F1E] text-[11px] font-semibold">{totalKegiatanBulanIni}</span>
                         </div>
-                        <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
-                            <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center"><Info size={20} className="text-slate-300" /></div>
-                            <p className="text-[#9298B0] text-xs font-medium px-8 leading-relaxed">Kegiatan tidak ditemukan pada bulan ini.</p>
-                        </div>
+                        {totalKegiatanBulanIni === 0 ? (
+                            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
+                                <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center"><Info size={20} className="text-slate-300" /></div>
+                                <p className="text-[#9298B0] text-xs font-medium px-8 leading-relaxed">Kegiatan tidak ditemukan pada bulan ini.</p>
+                            </div>
+                        ) : (
+                            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
+                                <div className="w-10 h-10 bg-[#ECFDF5] rounded-lg flex items-center justify-center"><TrendingUp size={18} className="text-[#10B981]" /></div>
+                                <p className="text-[#0A0F1E] text-xs font-bold">{totalKegiatanBulanIni} kegiatan</p>
+                                <p className="text-[#9298B0] text-[10px] font-medium leading-relaxed">Total kegiatan pada bulan ini.</p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="bg-white p-6 rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-sm h-80">
@@ -504,7 +560,7 @@ const DashboardPage = () => {
                         </div>
                         <div className="flex-1 min-h-0">
                             <ResponsiveContainer width="100%" height={160}>
-                                <LineChart data={lineData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+                                <LineChart data={groupData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f2f8" />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#636364' }} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#636364' }} />
