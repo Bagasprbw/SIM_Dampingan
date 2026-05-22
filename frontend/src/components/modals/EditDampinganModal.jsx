@@ -187,7 +187,7 @@ const EditDampinganModal = ({ isOpen, onClose, data, isPengajuan = false }) => {
                     <hr className="border-slate-100" />
 
                     {/* Nama & No Telp Row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Nama Lengkap</label>
                             <input 
@@ -211,7 +211,7 @@ const EditDampinganModal = ({ isOpen, onClose, data, isPengajuan = false }) => {
                     </div>
 
                     {/* Tempat & Tanggal Lahir Row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Tempat Lahir</label>
                             <input 
@@ -237,7 +237,7 @@ const EditDampinganModal = ({ isOpen, onClose, data, isPengajuan = false }) => {
                     </div>
 
                     {/* Jenis Kelamin & Agama Row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Jenis Kelamin</label>
                             <div className="flex gap-3">
@@ -276,7 +276,7 @@ const EditDampinganModal = ({ isOpen, onClose, data, isPengajuan = false }) => {
                     </div>
 
                     {/* Pekerjaan & Status Row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <label className="text-slate-950 text-xs font-semibold leading-5">Pekerjaan Utama</label>
                             <div className="relative group">
@@ -333,7 +333,7 @@ const EditDampinganModal = ({ isOpen, onClose, data, isPengajuan = false }) => {
                     
                     {/* Bidang & Grup Row */}
                     {!isPengajuan && (
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                                 <label className="text-slate-950 text-xs font-semibold leading-5">Bidang Dampingan</label>
                                 <div className="relative group">

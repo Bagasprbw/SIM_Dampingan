@@ -170,7 +170,7 @@ const KelolaHakAksesPage = () => {
 
     return (
         <AdminLayout title="Kelola Hak Akses">
-            <div className="p-4 lg:p-8 font-['Poppins'] bg-[#F0F2F8] lg:bg-[#F0F2F8] min-h-screen text-left">
+            <div className="font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
 
                 {/* Header Section */}
                 <div className="flex flex-col lg:flex-row justify-between items-start mb-6 lg:mb-8 gap-4 lg:gap-0">
@@ -205,11 +205,11 @@ const KelolaHakAksesPage = () => {
                 </div>
 
                 {/* Role Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
 
                     {/* ── Role Admin Card ─────────────────────────────────── */}
-                    <div className="bg-white rounded-2xl lg:rounded-[24px] p-5 lg:p-6 shadow-sm border border-slate-100 flex flex-col">
-                        <div className="flex items-center gap-3 lg:gap-4 mb-4 lg:mb-6 pb-4 border-b border-slate-50">
+                    <div className="bg-white rounded-2xl md:rounded-[24px] p-5 md:p-6 shadow-sm border border-slate-100 flex flex-col">
+                        <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6 pb-4 border-b border-slate-50">
                             <div className="w-10 h-10 lg:w-12 lg:h-12 bg-sky-50 rounded-xl lg:rounded-2xl flex items-center justify-center text-[#0080C5]">
                                 <User size={20} className="lg:w-6 lg:h-6" />
                             </div>
@@ -258,8 +258,8 @@ const KelolaHakAksesPage = () => {
                     </div>
 
                     {/* ── Role Fasilitator Card ───────────────────────────── */}
-                    <div className="bg-white rounded-2xl lg:rounded-[24px] p-5 lg:p-6 shadow-sm border border-slate-100 flex flex-col">
-                        <div className="flex items-center gap-3 lg:gap-4 mb-4 lg:mb-6 pb-4 border-b border-slate-50">
+                    <div className="bg-white rounded-2xl md:rounded-[24px] p-5 md:p-6 shadow-sm border border-slate-100 flex flex-col">
+                        <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6 pb-4 border-b border-slate-50">
                             <div className="w-10 h-10 lg:w-12 lg:h-12 bg-orange-50 rounded-xl lg:rounded-2xl flex items-center justify-center text-[#EA580C]">
                                 <UserCheck size={20} className="lg:w-6 lg:h-6" />
                             </div>
@@ -294,8 +294,8 @@ const KelolaHakAksesPage = () => {
                     </div>
 
                     {/* ── Role PJ Dampingan Card ──────────────────────────── */}
-                    <div className="bg-white rounded-2xl lg:rounded-[24px] p-5 lg:p-6 shadow-sm border border-slate-100 flex flex-col md:col-span-2 lg:col-span-1">
-                        <div className="flex items-center gap-3 lg:gap-4 mb-4 lg:mb-6 pb-4 border-b border-slate-50">
+                    <div className="bg-white rounded-2xl md:rounded-[24px] p-5 md:p-6 shadow-sm border border-slate-100 flex flex-col">
+                        <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6 pb-4 border-b border-slate-50">
                             <div className="w-10 h-10 lg:w-12 lg:h-12 bg-indigo-50 rounded-xl lg:rounded-2xl flex items-center justify-center text-[#6366F1]">
                                 <Users size={20} className="lg:w-6 lg:h-6" />
                             </div>
@@ -317,8 +317,8 @@ const KelolaHakAksesPage = () => {
                 </div>
 
                 {/* Global Features Table */}
-                <div className="bg-white rounded-2xl lg:rounded-[24px] shadow-sm border border-slate-100 overflow-hidden">
-                    <div className="px-5 lg:px-8 py-5 border-b border-slate-50 flex items-center gap-3 lg:gap-4 bg-[#FAFBFD]/30">
+                <div className="bg-white rounded-2xl md:rounded-[24px] shadow-sm border border-slate-100 overflow-hidden">
+                    <div className="px-5 md:px-8 py-5 border-b border-slate-50 flex items-center gap-3 md:gap-4 bg-[#FAFBFD]/30">
                         <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 shrink-0">
                             <Globe size={20} />
                         </div>
@@ -329,7 +329,7 @@ const KelolaHakAksesPage = () => {
                     </div>
 
                     {/* Mobile View for Global Features */}
-                    <div className="lg:hidden flex flex-col gap-3 p-4 bg-[#F0F2F8]/30">
+                    <div className="md:hidden flex flex-col gap-3 p-4 bg-[#F0F2F8]/30">
                         {[
                             { id: 'view_kegiatan', label: 'Lihat Kegiatan', sub: 'Akses untuk melihat daftar laporan kegiatan dampingan.', code: 'view_kegiatan' },
                             { id: 'peta', label: 'Peta Sebaran', sub: 'Akses visualisasi sebaran dampingan di peta interaktif.', code: 'view_peta_sebaran' },
@@ -381,7 +381,7 @@ const KelolaHakAksesPage = () => {
                     </div>
 
                     {/* Desktop View for Global Features */}
-                    <div className="hidden lg:block overflow-x-auto">
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full min-w-[600px]">
                             <thead>
                                 <tr className="bg-[#FAFBFD]/50 border-b border-slate-50">

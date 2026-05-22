@@ -66,7 +66,7 @@ const InformasiDampinganPage = () => {
 
     return (
         <AdminLayout title="Informasi Dampingan">
-            <div className="p-8 font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
+            <div className="font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
                 
                 {/* Header Card (Kelompok Info) */}
                 <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-200 mb-6">

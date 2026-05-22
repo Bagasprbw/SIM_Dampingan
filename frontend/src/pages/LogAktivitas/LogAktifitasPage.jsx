@@ -60,9 +60,9 @@ const LogAktifitasPage = () => {
 
     return (
         <AdminLayout title="Log Aktifitas">
-            <div className="font-['Poppins']">
+            <div className="font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left flex flex-col">
 
-                <div className="bg-transparent lg:bg-white rounded-none lg:rounded-[24px] shadow-none lg:shadow-sm border-0 lg:border lg:border-slate-200 overflow-hidden lg:m-8">
+                <div className="bg-transparent lg:bg-white lg:rounded-[20px] lg:shadow-sm lg:border lg:border-[#E5E7EB] lg:overflow-hidden flex flex-col">
 
                     {/* Header Desktop */}
                     <div className="hidden lg:flex px-8 py-5 border-b border-slate-100 flex-row justify-between items-center gap-3">
@@ -124,9 +124,9 @@ const LogAktifitasPage = () => {
                     </div>
 
                     {/* Header Mobile - Figma styles */}
-                    <div className="flex lg:hidden flex-col gap-3 mb-4 px-4 mt-4">
+                    <div className="flex lg:hidden flex-col gap-3 mb-4 mt-4">
                         {/* Header Box */}
-                        <div className="bg-white border-[0.8px] border-[#F0F2F8] rounded-[16px] px-[16.8px] pt-[16.8px] pb-4 flex flex-row items-center gap-2">
+                        <div className="bg-white border-[0.8px] border-[#F0F2F8] rounded-[16px] px-[16.8px] pt-[16.8px] pb-4 flex flex-row items-center gap-2 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
                             <div className="w-[32px] h-[32px] bg-[#0080C5]/10 rounded-[14px] flex items-center justify-center shrink-0">
                                 <Clock size={16} strokeWidth={2.5} className="text-[#0080C5]" />
                             </div>
@@ -179,12 +179,12 @@ const LogAktifitasPage = () => {
                             <Loader2 className="animate-spin text-[#0080C5]" size={40} />
                         </div>
                     ) : isError ? (
-                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl mx-4 lg:mx-0">
+                        <div className="flex flex-col items-center justify-center py-20 bg-white lg:rounded-2xl mx-0">
                             <p className="text-red-500 mb-4 text-center">Gagal memuat log aktivitas.</p>
                             <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg text-sm font-semibold">Coba Lagi</button>
                         </div>
                     ) : logs.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl mx-4 lg:mx-0">
+                        <div className="flex flex-col items-center justify-center py-20 bg-white lg:rounded-2xl mx-0">
                             <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                                 <Clock size={24} className="text-slate-300" />
                             </div>
@@ -193,51 +193,55 @@ const LogAktifitasPage = () => {
                     ) : (
                         <>
                             {/* MOBILE TABLE VIEW (Figma exact match) */}
-                            <div className="lg:hidden px-4 mt-2 mb-4">
-                                <div className="bg-white border-[0.8px] border-[#F0F2F8] rounded-[16px] overflow-hidden">
-                                    <div className="flex flex-row items-center px-4 py-2.5 bg-[#F8FAFC] border-b-[0.8px] border-[#F0F2F8]">
-                                        <div className="w-[80px] shrink-0 text-[9px] font-semibold text-[#9298B0]">ROLE</div>
-                                        <div className="w-[80px] shrink-0 text-[9px] font-semibold text-[#9298B0]">NAMA</div>
-                                        <div className="flex-1 min-w-[116px] text-[9px] font-semibold text-[#9298B0]">AKTIFITAS</div>
-                                        <div className="w-[56px] shrink-0 text-right text-[9px] font-semibold text-[#9298B0]">WAKTU</div>
+                            <div className="lg:hidden mt-2 mb-4 w-full">
+                                <div className="bg-white border-[0.8px] border-[#F0F2F8] rounded-[16px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] w-full">
+                                    <div className="flex flex-row items-center px-3 py-2.5 bg-[#F8FAFC] border-b-[0.8px] border-[#F0F2F8] gap-1 rounded-t-[16px]">
+                                        <div className="w-[52px] shrink-0 text-[9px] font-semibold text-[#9298B0]">ROLE</div>
+                                        <div className="w-[72px] shrink-0 text-[9px] font-semibold text-[#9298B0]">NAMA</div>
+                                        <div className="flex-1 text-[9px] font-semibold text-[#9298B0]">AKTIFITAS</div>
+                                        <div className="w-[32px] shrink-0 text-right text-[9px] font-semibold text-[#9298B0]">WAKTU</div>
                                     </div>
-                                    <div className="flex flex-col">
+                                    <div className="flex flex-col w-full">
                                         {logs.map((log, index) => {
                                             const aksi = log.aksi || 'Unknown';
                                             const style = getAksiStyles(aksi);
                                             const initial = log.user?.name ? log.user.name.substring(0, 2).toUpperCase() : '??';
                                             const roleName = log.user?.role?.name?.replace(/_/g, ' ') || '';
                                             
-                                            // Get random time ago format for Figma feel or format actual time
-                                            const timeAgo = formatTime(log.created_at).split(' ')[1] || '00:00';
+                                            // Format time to strictly HH:MM (avoiding the "Mei" bug)
+                                            let timeAgo = '00:00';
+                                            if (log.created_at) {
+                                                const d = new Date(log.created_at);
+                                                timeAgo = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+                                            }
                                             
                                             return (
-                                                <div key={log.id_log || index} className="flex flex-row items-start px-4 py-3 border-b-[0.8px] border-[#F0F2F8] gap-2 last:border-b-0 bg-white">
+                                                <div key={log.id_log || index} className="flex flex-row items-start px-3 py-3 border-b-[0.8px] border-[#F0F2F8] gap-1 last:border-b-0 bg-white last:rounded-b-[16px]">
                                                     {/* Role */}
-                                                    <div className="w-[72px] shrink-0 pr-2 pt-1.5">
-                                                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 ${style.bg} ${style.text} rounded-full`}>
-                                                            <div className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-                                                            <span className="text-[9px] font-semibold capitalize whitespace-nowrap overflow-hidden text-ellipsis max-w-[45px]">{roleName.substring(0, 6)}</span>
+                                                    <div className="w-[52px] shrink-0 pt-1">
+                                                        <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 ${style.bg} ${style.text} rounded-full w-fit max-w-[50px]`}>
+                                                            <div className={`w-1 h-1 rounded-full ${style.dot} shrink-0`} />
+                                                            <span className="text-[8px] font-semibold capitalize truncate">{roleName.substring(0, 6)}</span>
                                                         </div>
                                                     </div>
                                                     
                                                     {/* Nama */}
-                                                    <div className="w-[72px] shrink-0 pr-1 flex flex-row items-start gap-1.5">
-                                                        <div className={`w-6 h-6 ${style.bg} text-[#0A0F1E] rounded-full flex items-center justify-center text-[9px] font-bold shrink-0`}>
+                                                    <div className="w-[72px] shrink-0 flex flex-row items-start gap-1.5">
+                                                        <div className={`w-[20px] h-[20px] ${style.bg} text-[#0A0F1E] rounded-full flex items-center justify-center text-[8px] font-bold shrink-0 mt-0.5`}>
                                                             {initial}
                                                         </div>
-                                                        <span className="text-[10px] font-semibold text-[#0A0F1E] leading-[12px] break-words line-clamp-2 mt-0.5">{log.user?.name || '-'}</span>
+                                                        <span className="text-[9px] font-semibold text-[#0A0F1E] leading-[12px] break-words line-clamp-2 mt-1">{log.user?.name || '-'}</span>
                                                     </div>
                                                     
                                                     {/* Aktifitas */}
-                                                    <div className="flex-1 min-w-[116px] flex flex-row items-start gap-1">
-                                                        <CheckSquare size={12} strokeWidth={1} className="text-[#22C55E] shrink-0 mt-0.5" />
-                                                        <span className="text-[10px] text-[#0A0F1E] leading-[14px] line-clamp-3">{log.deskripsi || '-'}</span>
+                                                    <div className="flex-1 flex flex-row items-start gap-1.5">
+                                                        <CheckSquare size={10} strokeWidth={2} className="text-[#22C55E] shrink-0 mt-1" />
+                                                        <span className="text-[9px] text-[#0A0F1E] leading-[14px] line-clamp-3">{log.deskripsi || '-'}</span>
                                                     </div>
                                                     
                                                     {/* Waktu */}
-                                                    <div className="w-[56px] shrink-0 text-right">
-                                                        <span className="text-[9px] text-[#9298B0]">{timeAgo}</span>
+                                                    <div className="w-[32px] shrink-0 text-right">
+                                                        <span className="text-[8px] font-medium text-[#9298B0] mt-1 block">{timeAgo}</span>
                                                     </div>
                                                 </div>
                                             );
@@ -247,7 +251,7 @@ const LogAktifitasPage = () => {
                             </div>
 
                             {/* DESKTOP TABLE VIEW */}
-                            <div className="hidden lg:block overflow-x-auto">
+                            <div className="hidden lg:block overflow-x-auto bg-white border-t border-slate-100">
                                 <table className="w-full border-collapse">
                                     <thead>
                                         <tr className="bg-[#FAFBFD] border-b border-slate-100">
@@ -299,7 +303,7 @@ const LogAktifitasPage = () => {
 
                     {/* Pagination */}
                     {meta.total > 0 && (
-                        <div className="px-4 lg:hidden mt-2 pb-6">
+                        <div className="lg:hidden mt-2 pb-6">
                             <div className="flex flex-row items-center justify-between bg-white border-[0.8px] border-[#E5E7EB] rounded-[16px] px-4 py-3 shadow-sm w-full">
                                 <p className="text-[10px] text-[#9298B0]">
                                     Menampilkan {meta.from}–{meta.to} dari {meta.total} aktifitas
@@ -326,7 +330,7 @@ const LogAktifitasPage = () => {
                     )}
                     {/* Desktop Pagination */}
                     {meta.total > 0 && (
-                        <div className="hidden lg:flex mt-4 px-4 lg:px-8 py-5 lg:py-4 border-t lg:border-slate-100 flex-row justify-between items-center bg-white">
+                        <div className="hidden lg:flex px-8 py-4 border-t border-slate-100 flex-row justify-between items-center bg-white">
                             <p className="text-xs text-slate-400">
                                 Menampilkan <span className="font-bold text-slate-950">{meta.from}–{meta.to}</span> dari <span className="font-bold text-slate-950">{meta.total}</span> aktivitas
                             </p>

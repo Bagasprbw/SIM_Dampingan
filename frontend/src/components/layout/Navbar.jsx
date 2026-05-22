@@ -18,14 +18,14 @@ const Navbar = ({ title = 'Dashboard', onMenuClick }) => {
     return (
         <header className="h-16 bg-white border-b border-black/5 flex items-center justify-between px-4 lg:px-8 fixed top-0 left-0 lg:left-64 right-0 z-30 font-['Poppins']">
             {/* Title Section */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
                 <button 
-                    className="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg"
+                    className="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg shrink-0"
                     onClick={onMenuClick}
                 >
                     <Menu size={24} />
                 </button>
-                <h1 className="text-[#0A0F1E] text-lg lg:text-xl font-bold tracking-tight">
+                <h1 className="text-[#0A0F1E] text-[16px] md:text-lg lg:text-xl font-bold tracking-tight truncate">
                     {title}
                 </h1>
             </div>

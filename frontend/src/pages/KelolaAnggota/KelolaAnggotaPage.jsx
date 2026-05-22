@@ -68,7 +68,7 @@ const KelolaAnggotaPage = () => {
 
     return (
         <AdminLayout title="Kelola Anggota">
-            <div className="p-8 font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
+            <div className="font-['Poppins'] bg-[#F0F2F8] min-h-screen text-left">
                 
                 {/* Unified Card Container */}
                 <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-200">

@@ -399,7 +399,7 @@ const AddGrupModal = ({ isOpen, onClose }) => {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                 <div className="space-y-1.5 text-left">
                                     <label className="text-slate-950 text-xs font-semibold leading-5">Jenis Grup Dampingan <span className="text-red-500">*</span></label>
                                     <div className="relative group">
@@ -428,7 +428,7 @@ const AddGrupModal = ({ isOpen, onClose }) => {
 
                             <hr className="border-slate-100" />
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                 <div className="space-y-1.5 text-left">
                                     <label className="text-slate-950 text-xs font-semibold leading-5">Provinsi <span className="text-red-500">*</span></label>
                                     <div className="relative group">
@@ -530,7 +530,7 @@ const AddGrupModal = ({ isOpen, onClose }) => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                 <div className="space-y-1.5 text-left">
                                     <label className="text-slate-950 text-xs font-semibold leading-5">Nama Lengkap</label>
                                     <input 
@@ -555,7 +555,7 @@ const AddGrupModal = ({ isOpen, onClose }) => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                 <div className="space-y-1.5 text-left">
                                     <label className="text-slate-950 text-xs font-semibold leading-5">Username</label>
                                     <input 

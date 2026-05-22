@@ -59,7 +59,7 @@ const DashboardPage = () => {
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
                     
                     {/* Status Pengajuan */}
-                    <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-sm h-[320px] md:h-[340px]">
+                    <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-[340px]">
                         <div className="flex flex-col">
                             <h3 className="text-[#0A0F1E] text-sm font-bold tracking-tight">Status Pengajuan</h3>
                             <p className="text-[#9298B0] text-[11px] md:text-xs font-normal tracking-tight">Ringkasan & update terbaru</p>
@@ -109,7 +109,7 @@ const DashboardPage = () => {
                     </div>
 
                     {/* Jumlah Kegiatan Grup Dampingan */}
-                    <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-sm h-[320px] md:h-[340px]">
+                    <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-[340px]">
                         <h3 className="text-[#0A0F1E] text-sm font-bold tracking-tight">Jumlah Kegiatan Grup Dampingan</h3>
                         <div className="flex gap-2">
                             <div className="flex-1 flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 border border-gray-200 rounded-lg text-[10px] md:text-[11px] font-semibold cursor-pointer">April <ChevronDown size={14} /></div>
@@ -134,7 +134,7 @@ const DashboardPage = () => {
                 </div>
 
                 <div className="grid grid-cols-1 gap-5">
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                    <div className="bg-white rounded-[16px] md:rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 flex flex-col">
                         <div className="px-4 md:px-5 py-3 md:py-4 border-b border-slate-100 flex items-center justify-between">
                             <div className="flex items-center gap-2 md:gap-2.5">
                                 <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-[#0080C5]" />
@@ -185,7 +185,7 @@ const DashboardPage = () => {
             <div className="flex flex-col gap-6 font-['Poppins'] min-h-screen">
                 {/* Top Stats Cards */}
                 <div className="grid grid-cols-2 gap-4 md:gap-5">
-                    <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 shadow-sm">
+                    <div className="bg-white p-4 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
                         <div className="w-10 h-10 md:w-14 md:h-14 bg-[#FFF7ED] rounded-xl md:rounded-2xl flex items-center justify-center shrink-0">
                             <UsersRound size={20} className="text-[#F59E0B] md:w-[24px] md:h-[24px]" />
                         </div>
@@ -194,7 +194,7 @@ const DashboardPage = () => {
                             <span className="text-[#0A0F1E] text-xl md:text-[32px] font-extrabold tracking-tight leading-none mt-1">118</span>
                         </div>
                     </div>
-                    <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 shadow-sm">
+                    <div className="bg-white p-4 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
                         <div className="w-10 h-10 md:w-14 md:h-14 bg-[#ECFDF5] rounded-xl md:rounded-2xl flex items-center justify-center shrink-0">
                             <LayoutGrid size={20} className="text-[#10B981] md:w-[24px] md:h-[24px]" />
                         </div>
@@ -208,7 +208,7 @@ const DashboardPage = () => {
                 {/* Charts Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                     {/* Statistik Dampingan - Donut */}
-                    <div className="bg-white p-5 md:p-6 rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-sm h-[320px] md:h-[340px]">
+                    <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-[340px]">
                         <div>
                             <h3 className="text-[#0A0F1E] text-sm font-bold tracking-tight">Statistik Dampingan</h3>
                             <p className="text-[#9298B0] text-[11px] md:text-xs font-normal">Total Anggota Aktif</p>
@@ -233,7 +233,7 @@ const DashboardPage = () => {
                     </div>
 
                     {/* Jumlah Kegiatan */}
-                    <div className="bg-white p-5 md:p-6 rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-sm h-[320px] md:h-[340px]">
+                    <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-[340px]">
                         <h3 className="text-[#0A0F1E] text-sm font-bold tracking-tight">Jumlah Kegiatan Grup Dampingan</h3>
                         <div className="flex gap-2">
                             <div className="flex-1 flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 border border-gray-200 rounded-lg text-[10px] md:text-[11px] font-semibold cursor-pointer">April <ChevronDown size={14} /></div>
@@ -251,7 +251,7 @@ const DashboardPage = () => {
                     </div>
 
                     {/* Data Kegiatan Dampingan - Line Chart */}
-                    <div className="bg-white p-5 md:p-6 rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-sm h-[320px] md:h-[340px] md:col-span-2 xl:col-span-1">
+                    <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-[340px] md:col-span-2 xl:col-span-1">
                         <div>
                             <div className="flex items-center gap-1.5">
                                 <TrendingUp size={14} className="text-[#0080C5]" />
@@ -284,7 +284,7 @@ const DashboardPage = () => {
                     <span className="bg-[#0080C5]/10 text-[#0080C5] text-[9px] md:text-[10px] font-semibold px-2 py-0.5 rounded-md ml-auto md:ml-0">Semua Aktifitas</span>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                <div className="bg-white rounded-[16px] md:rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 flex flex-col">
                     <div className="px-4 md:px-5 py-3 md:py-4 border-b border-slate-100 flex items-center justify-between">
                         <div className="flex items-center gap-2 md:gap-2.5">
                             <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-[#0080C5]" />
