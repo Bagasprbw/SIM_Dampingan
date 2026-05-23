@@ -9,14 +9,18 @@ import {
     ChevronLeft, 
     ChevronRight,
     FileText,
-    Eye
+    Eye,
+    UserCheck,
+    UserX
 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 import EditPjModal from '../../components/modals/EditPjModal';
 import DeletePjModal from '../../components/modals/DeletePjModal';
 import ResetPjPasswordModal from '../../components/modals/ResetPjPasswordModal';
 import PjDetailModal from '../../components/modals/PjDetailModal';
 import { usePjGrups } from '../../hooks/queries/usePjGrupQuery';
+import { usePjGrupMutations } from '../../hooks/mutations/usePjGrupMutation';
 import { Loader2 } from 'lucide-react';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
@@ -51,6 +55,8 @@ const DataPjPage = () => {
         kode_kec: kecamatanFilter
     });
 
+    const { toggleStatusPjGrup } = usePjGrupMutations();
+
     const handleSearch = (e) => {
         setSearchQuery(e.target.value);
         setPage(1);
@@ -62,6 +68,47 @@ const DataPjPage = () => {
         } else {
             setExpandedCardId(id);
         }
+    };
+
+    const handleToggleStatus = (item) => {
+        const isActive = item.status === 'active';
+        Swal.fire({
+            title: isActive ? 'Nonaktifkan PJ Dampingan?' : 'Aktifkan PJ Dampingan?',
+            text: `Apakah Anda yakin ingin ${isActive ? 'menonaktifkan' : 'mengaktifkan'} ${item.name}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: isActive ? '#EF4444' : '#22C55E',
+            cancelButtonColor: '#94A3B8',
+            confirmButtonText: isActive ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const pjId = item.id_user || item.id;
+                toggleStatusPjGrup.mutate(pjId, {
+                    onSuccess: (res) => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: res?.message || `PJ Dampingan berhasil ${isActive ? 'dinonaktifkan' : 'diaktifkan'}.`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                        });
+                    },
+                    onError: () => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: `Terjadi kesalahan saat ${isActive ? 'menonaktifkan' : 'mengaktifkan'} PJ Dampingan.`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                        });
+                    }
+                });
+            }
+        });
     };
 
     const dataPj = pjData?.data || [];
@@ -221,7 +268,7 @@ const DataPjPage = () => {
                                         const isExpanded = expandedCardId === (item.id_user || item.id || index);
                                         
                                         return (
-                                            <div key={item.id_user || item.id || index} className="bg-white border border-[#F0F2F8] rounded-[16px] p-2.5 flex flex-col w-full shadow-sm relative overflow-hidden transition-all duration-200">
+                                            <div key={item.id_user || item.id || index} className={`bg-white border border-[#F0F2F8] rounded-[16px] p-2.5 flex flex-col w-full shadow-sm relative overflow-hidden transition-all duration-200 ${item.status === 'inactive' ? 'opacity-60' : ''}`}>
                                                 <div className="flex items-center w-full cursor-pointer" onClick={() => toggleCard(item.id_user || item.id || index)}>
                                                     <div className="w-[38px] h-[38px] bg-[#0080C5] rounded-[14px] flex justify-center items-center shrink-0">
                                                         <span className="text-white text-[11px] font-semibold">{meta.from ? meta.from + index : index + 1}</span>
@@ -231,6 +278,16 @@ const DataPjPage = () => {
                                                         <span className="text-[13px] font-semibold text-[#0080C5] truncate">{item.name}</span>
                                                         <span className="text-[11px] font-normal text-[#9298B0] truncate">{item.username}</span>
                                                     </div>
+                                                    
+                                                    {item.status === 'active' ? (
+                                                        <div className="px-2 py-1 rounded-[10px] bg-green-100 shrink-0 mx-1">
+                                                            <span className="text-[9px] font-bold text-green-700">Aktif</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="px-2 py-1 rounded-[10px] bg-red-100 shrink-0 mx-1">
+                                                            <span className="text-[9px] font-bold text-red-600">Nonaktif</span>
+                                                        </div>
+                                                    )}
                                                     
                                                     <button 
                                                         onClick={(e) => { e.stopPropagation(); setSelectedPj(item); setIsDetailModalOpen(true); }}
@@ -254,26 +311,41 @@ const DataPjPage = () => {
                                                                 </span>
                                                             </div>
                                                         </div>
-                                                        <div className="flex flex-wrap items-center justify-end gap-2 mt-2 w-full">
+                                                        <div className="flex flex-row flex-wrap items-center gap-2 mt-2 w-full">
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); handleToggleStatus(item); }}
+                                                                className={`flex-1 min-w-[100px] py-1.5 rounded-lg transition-all text-[11px] font-semibold flex items-center justify-center gap-1.5 ${
+                                                                    item.status === 'active'
+                                                                        ? 'bg-[#FEF3C7] text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white'
+                                                                        : 'bg-[#DCFCE7] text-[#22C55E] hover:bg-[#22C55E] hover:text-white'
+                                                                }`}
+                                                            >
+                                                                {item.status === 'active' ? <UserX size={12} /> : <UserCheck size={12} />} 
+                                                                {item.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
+                                                            </button>
+
                                                             <button 
                                                                 onClick={(e) => { e.stopPropagation(); setSelectedPj(item); setIsEditModalOpen(true); }}
-                                                                className="px-3 py-1.5 rounded-lg bg-[#FB923C]/10 text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all text-[11px] font-semibold flex items-center gap-1.5"
+                                                                className="flex-1 min-w-[70px] py-1.5 rounded-lg bg-[#FB923C]/10 text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all text-[11px] font-semibold flex items-center justify-center gap-1.5"
                                                             >
                                                                 <Edit size={12} /> Edit
                                                             </button>
-                                                            <button 
-                                                                onClick={(e) => { e.stopPropagation(); setSelectedPj(item); setIsDeleteModalOpen(true); }}
-                                                                className="px-3 py-1.5 rounded-lg bg-[#EF4444]/10 text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all text-[11px] font-semibold flex items-center gap-1.5"
-                                                            >
-                                                                <Trash2 size={12} /> Hapus
-                                                            </button>
+
                                                             {isSuperAdmin() && (
-                                                                <button 
-                                                                    onClick={(e) => { e.stopPropagation(); setSelectedPj(item); setIsResetModalOpen(true); }}
-                                                                    className="px-3 py-1.5 rounded-lg bg-[#FBBF24]/10 text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all text-[11px] font-semibold flex items-center gap-1.5"
-                                                                >
-                                                                    <Lock size={12} /> Reset
-                                                                </button>
+                                                                <>
+                                                                    <button 
+                                                                        onClick={(e) => { e.stopPropagation(); setSelectedPj(item); setIsDeleteModalOpen(true); }}
+                                                                        className="flex-1 min-w-[70px] py-1.5 rounded-lg bg-[#EF4444]/10 text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all text-[11px] font-semibold flex items-center justify-center gap-1.5"
+                                                                    >
+                                                                        <Trash2 size={12} /> Hapus
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={(e) => { e.stopPropagation(); setSelectedPj(item); setIsResetModalOpen(true); }}
+                                                                        className="flex-1 min-w-[70px] py-1.5 rounded-lg bg-[#FBBF24]/10 text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all text-[11px] font-semibold flex items-center justify-center gap-1.5"
+                                                                    >
+                                                                        <Lock size={12} /> Reset
+                                                                    </button>
+                                                                </>
                                                             )}
                                                         </div>
                                                     </div>
@@ -321,13 +393,14 @@ const DataPjPage = () => {
                                             <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Nama</th>
                                             <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Username</th>
                                             <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-left">Grup Dampingan</th>
+                                            <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center">Status</th>
                                             <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center w-32">Aksi</th>
                                             <th className="py-3 px-4 text-[11px] font-semibold text-[#0A0F1E] uppercase tracking-wider text-center rounded-tr-xl w-24">Detail</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 text-left">
                                         {dataPj.map((item, index) => (
-                                            <tr key={item.id_user || item.id || index} className="group hover:bg-slate-50/50 transition-colors">
+                                            <tr key={item.id_user || item.id || index} className={`group hover:bg-slate-50/50 transition-colors ${item.status === 'inactive' ? 'opacity-60' : ''}`}>
                                                 <td className="py-2.5 px-4 text-center border-b border-[#F1F5F9] text-[#9298B0] text-xs font-medium">
                                                     {meta.from ? meta.from + index : index + 1}
                                                 </td>
@@ -336,36 +409,63 @@ const DataPjPage = () => {
                                                 <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-[#0A0F1E] text-xs font-normal text-left">
                                                     {item.grup_dampingans_pengurus?.map(g => g.name).join(', ') || '-'}
                                                 </td>
+                                                <td className="py-2.5 px-4 border-b border-[#F1F5F9] text-center">
+                                                    {item.status === 'active' ? (
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-green-100 text-green-700">
+                                                            Aktif
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-red-100 text-red-600">
+                                                            Nonaktif
+                                                        </span>
+                                                    )}
+                                                </td>
                                                 <td className="py-2.5 px-4 border-b border-[#F1F5F9]">
                                                     <div className="flex items-center justify-center gap-2">
+                                                        <button 
+                                                            onClick={() => handleToggleStatus(item)}
+                                                            title={item.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
+                                                            className={`w-7 h-7 rounded-md flex items-center justify-center transition-all ${
+                                                                item.status === 'active'
+                                                                    ? 'bg-[#F59E0B]/10 text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white'
+                                                                    : 'bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E] hover:text-white'
+                                                            }`}
+                                                        >
+                                                            {item.status === 'active' ? <UserX size={14} /> : <UserCheck size={14} />}
+                                                        </button>
                                                         <button 
                                                             onClick={() => {
                                                                 setSelectedPj(item);
                                                                 setIsEditModalOpen(true);
                                                             }}
                                                             className="w-7 h-7 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
+                                                            title="Edit"
                                                         >
                                                             <Edit size={14} />
                                                         </button>
-                                                        <button 
-                                                            onClick={() => {
-                                                                setSelectedPj(item);
-                                                                setIsDeleteModalOpen(true);
-                                                            }}
-                                                            className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </button>
                                                         {isSuperAdmin() && (
-                                                            <button 
-                                                                onClick={() => {
-                                                                    setSelectedPj(item);
-                                                                    setIsResetModalOpen(true);
-                                                                }}
-                                                                className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
-                                                            >
-                                                                <Lock size={14} />
-                                                            </button>
+                                                            <>
+                                                                <button 
+                                                                    onClick={() => {
+                                                                        setSelectedPj(item);
+                                                                        setIsDeleteModalOpen(true);
+                                                                    }}
+                                                                    className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
+                                                                    title="Hapus"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                                <button 
+                                                                    onClick={() => {
+                                                                        setSelectedPj(item);
+                                                                        setIsResetModalOpen(true);
+                                                                    }}
+                                                                    className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
+                                                                    title="Reset Password"
+                                                                >
+                                                                    <Lock size={14} />
+                                                                </button>
+                                                            </>
                                                         )}
                                                     </div>
                                                 </td>

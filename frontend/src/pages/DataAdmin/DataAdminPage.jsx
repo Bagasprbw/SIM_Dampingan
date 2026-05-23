@@ -10,13 +10,17 @@ import {
     Lock,
     FileText,
     ChevronDown,
-    Loader2
+    Loader2,
+    UserCheck,
+    UserX
 } from 'lucide-react';
+import Swal from 'sweetalert2';
 import AddAdminModal from '../../components/modals/AddAdminModal';
 import EditAdminModal from '../../components/modals/EditAdminModal';
 import DeleteAdminModal from '../../components/modals/DeleteAdminModal';
 import ResetPasswordModal from '../../components/modals/ResetPasswordModal';
 import { useAdmins } from '../../hooks/queries/useAdminQuery';
+import { useAdminMutations } from '../../hooks/mutations/useAdminMutation';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 import { isSuperAdmin } from '../../utils/permissionUtils';
@@ -51,6 +55,8 @@ const DataAdminPage = () => {
         ...(kecamatanFilter && { kode_kec: kecamatanFilter }),
     });
 
+    const { toggleStatusAdmin } = useAdminMutations();
+
     const handleSearch = (e) => {
         setSearchQuery(e.target.value);
         setPage(1); // Reset to first page on search
@@ -62,6 +68,47 @@ const DataAdminPage = () => {
         } else {
             setExpandedCardId(id);
         }
+    };
+
+    const handleToggleStatus = (item) => {
+        const isActive = item.status === 'active';
+        Swal.fire({
+            title: isActive ? 'Nonaktifkan Admin?' : 'Aktifkan Admin?',
+            text: `Apakah Anda yakin ingin ${isActive ? 'menonaktifkan' : 'mengaktifkan'} ${item.name}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: isActive ? '#EF4444' : '#22C55E',
+            cancelButtonColor: '#94A3B8',
+            confirmButtonText: isActive ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const adminId = item.id_user || item.id;
+                toggleStatusAdmin.mutate(adminId, {
+                    onSuccess: (res) => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: res?.message || `Admin berhasil ${isActive ? 'dinonaktifkan' : 'diaktifkan'}.`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                        });
+                    },
+                    onError: () => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: `Terjadi kesalahan saat ${isActive ? 'menonaktifkan' : 'mengaktifkan'} admin.`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                        });
+                    }
+                });
+            }
+        });
     };
 
     const admins = adminData?.data || [];
@@ -172,12 +219,13 @@ const DataAdminPage = () => {
                                             <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Provinsi</th>
                                             <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kabupaten</th>
                                             <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold">Kecamatan</th>
+                                            <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">Status</th>
                                             <th className="py-3 px-4 text-[#0A0F1E] text-[11px] font-semibold rounded-tr-xl text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
                                         {admins.map((item, index) => (
-                                            <tr key={item.id_user || item.id || index} className="hover:bg-slate-50/50 transition-colors group text-left">
+                                            <tr key={item.id_user || item.id || index} className={`hover:bg-slate-50/50 transition-colors group text-left ${item.status === 'inactive' ? 'opacity-60' : ''}`}>
                                                 <td className="py-2.5 px-4 text-[#0A0F1E] text-[11px] font-semibold text-center">
                                                     {meta.from ? meta.from + index : index + 1}
                                                 </td>
@@ -187,27 +235,54 @@ const DataAdminPage = () => {
                                                 <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.provinsi?.name || '-'}</td>
                                                 <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kabupaten?.name || '-'}</td>
                                                 <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal">{item.kecamatan?.name || '-'}</td>
+                                                <td className="py-2.5 px-4 text-center">
+                                                    {item.status === 'active' ? (
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-green-100 text-green-700">
+                                                            Aktif
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-red-100 text-red-600">
+                                                            Nonaktif
+                                                        </span>
+                                                    )}
+                                                </td>
                                                 <td className="py-2.5 px-4 ">
                                                     <div className="flex items-center justify-center gap-1.5">
                                                         <button 
+                                                            onClick={() => handleToggleStatus(item)}
+                                                            title={item.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
+                                                            className={`w-7 h-7 rounded-md flex items-center justify-center transition-all ${
+                                                                item.status === 'active'
+                                                                    ? 'bg-[#F59E0B]/12 text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white'
+                                                                    : 'bg-[#22C55E]/12 text-[#22C55E] hover:bg-[#22C55E] hover:text-white'
+                                                            }`}
+                                                        >
+                                                            {item.status === 'active' ? <UserX size={14} /> : <UserCheck size={14} />}
+                                                        </button>
+                                                        <button 
                                                             onClick={() => { setSelectedAdmin(item); setIsEditModalOpen(true); }}
                                                             className="w-7 h-7 rounded-md bg-[#FB923C]/12 flex items-center justify-center text-[#FB923C] hover:bg-[#FB923C] hover:text-white transition-all"
+                                                            title="Edit"
                                                         >
                                                             <Edit size={14} />
                                                         </button>
-                                                        <button 
-                                                            onClick={() => { setSelectedAdmin(item); setIsDeleteModalOpen(true); }}
-                                                            className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </button>
                                                         {isSuperAdmin() && (
-                                                            <button 
-                                                                onClick={() => { setSelectedAdmin(item); setIsResetModalOpen(true); }}
-                                                                className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
-                                                            >
-                                                                <Lock size={12} />
-                                                            </button>
+                                                            <>
+                                                                <button 
+                                                                    onClick={() => { setSelectedAdmin(item); setIsDeleteModalOpen(true); }}
+                                                                    className="w-7 h-7 rounded-md bg-[#EF4444]/10 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all"
+                                                                    title="Hapus"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                                <button 
+                                                                    onClick={() => { setSelectedAdmin(item); setIsResetModalOpen(true); }}
+                                                                    className="w-6 h-6 rounded-md bg-[#FBBF24]/12 flex items-center justify-center text-[#FBBF24] hover:bg-[#FBBF24] hover:text-white transition-all"
+                                                                    title="Reset Password"
+                                                                >
+                                                                    <Lock size={12} />
+                                                                </button>
+                                                            </>
                                                         )}
                                                     </div>
                                                 </td>
@@ -339,7 +414,7 @@ const DataAdminPage = () => {
                                         const isExpanded = expandedCardId === (item.id_user || item.id || index);
                                         
                                         return (
-                                            <div key={item.id_user || item.id || index} className="bg-white border-[0.8px] border-[#F0F2F8] rounded-[16px] p-3 flex flex-col w-full shadow-[0_2px_10px_rgba(0,0,0,0.02)] relative overflow-hidden transition-all duration-200">
+                                            <div key={item.id_user || item.id || index} className={`bg-white border-[0.8px] border-[#F0F2F8] rounded-[16px] p-3 flex flex-col w-full shadow-[0_2px_10px_rgba(0,0,0,0.02)] relative overflow-hidden transition-all duration-200 ${item.status === 'inactive' ? 'opacity-60' : ''}`}>
                                                 <div className="flex items-center w-full cursor-pointer" onClick={() => toggleCard(item.id_user || item.id || index)}>
                                                     <div className="w-[38px] h-[38px] bg-[#0080C5] rounded-[14px] flex justify-center items-center shrink-0">
                                                         <span className="text-white text-[11px] font-semibold">{meta.from ? meta.from + index : index + 1}</span>
@@ -350,13 +425,23 @@ const DataAdminPage = () => {
                                                         <span className="text-[11px] font-medium text-[#9298B0] truncate">{item.username}</span>
                                                     </div>
                                                     
-                                                    <div className={`px-2 py-1 rounded-[10px] ${roleBg} shrink-0 mx-2`}>
+                                                    <div className={`px-2 py-1 rounded-[10px] ${roleBg} shrink-0 mx-1`}>
                                                         <span className={`text-[9px] font-bold ${roleColor}`}>
                                                             {adminRole.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                                                         </span>
                                                     </div>
                                                     
-                                                    <div className="w-5 h-5 flex items-center justify-center shrink-0 rounded-full bg-[#F0F2F8]">
+                                                    {item.status === 'active' ? (
+                                                        <div className="px-2 py-1 rounded-[10px] bg-green-100 shrink-0 mx-1">
+                                                            <span className="text-[9px] font-bold text-green-700">Aktif</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="px-2 py-1 rounded-[10px] bg-red-100 shrink-0 mx-1">
+                                                            <span className="text-[9px] font-bold text-red-600">Nonaktif</span>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    <div className="w-5 h-5 flex items-center justify-center shrink-0 rounded-full bg-[#F0F2F8] ml-1">
                                                         <ChevronDown size={14} className={`text-[#9298B0] transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                                                     </div>
                                                 </div>
@@ -381,27 +466,42 @@ const DataAdminPage = () => {
                                                                 <span className="text-[#0A0F1E] text-[11px] font-bold">{item.kecamatan?.name || '-'}</span>
                                                             </div>
                                                         </div>
-                                                        <div className="flex flex-row items-center gap-2 mt-1 w-full pt-3 border-t-[0.8px] border-[#F0F2F8]">
-                                                            {isSuperAdmin() && (
-                                                                <button 
-                                                                    onClick={(e) => { e.stopPropagation(); setSelectedAdmin(item); setIsResetModalOpen(true); }}
-                                                                    className="flex-1 h-[34px] rounded-[10px] bg-[#FEF3C7] text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white transition-all text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95"
-                                                                >
-                                                                    <Lock size={14} /> Reset
-                                                                </button>
-                                                            )}
+                                                        <div className="flex flex-row flex-wrap items-center gap-2 mt-1 w-full pt-3 border-t-[0.8px] border-[#F0F2F8]">
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); handleToggleStatus(item); }}
+                                                                className={`flex-1 min-w-[100px] h-[34px] rounded-[10px] transition-all text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 ${
+                                                                    item.status === 'active'
+                                                                        ? 'bg-[#FEF3C7] text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white'
+                                                                        : 'bg-[#DCFCE7] text-[#22C55E] hover:bg-[#22C55E] hover:text-white'
+                                                                }`}
+                                                            >
+                                                                {item.status === 'active' ? <UserX size={14} /> : <UserCheck size={14} />} 
+                                                                {item.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
+                                                            </button>
+
                                                             <button 
                                                                 onClick={(e) => { e.stopPropagation(); setSelectedAdmin(item); setIsEditModalOpen(true); }}
-                                                                className="flex-1 h-[34px] rounded-[10px] bg-[#F0F2F8] text-[#0A0F1E] hover:bg-slate-200 transition-all text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95"
+                                                                className="flex-1 min-w-[80px] h-[34px] rounded-[10px] bg-[#F0F2F8] text-[#0A0F1E] hover:bg-slate-200 transition-all text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95"
                                                             >
                                                                 <Edit size={14} /> Edit
                                                             </button>
-                                                            <button 
-                                                                onClick={(e) => { e.stopPropagation(); setSelectedAdmin(item); setIsDeleteModalOpen(true); }}
-                                                                className="flex-1 h-[34px] rounded-[10px] bg-[#FEE2E2] text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95"
-                                                            >
-                                                                <Trash2 size={14} /> Hapus
-                                                            </button>
+
+                                                            {isSuperAdmin() && (
+                                                                <>
+                                                                    <button 
+                                                                        onClick={(e) => { e.stopPropagation(); setSelectedAdmin(item); setIsDeleteModalOpen(true); }}
+                                                                        className="flex-1 min-w-[80px] h-[34px] rounded-[10px] bg-[#FEE2E2] text-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95"
+                                                                    >
+                                                                        <Trash2 size={14} /> Hapus
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={(e) => { e.stopPropagation(); setSelectedAdmin(item); setIsResetModalOpen(true); }}
+                                                                        className="flex-1 min-w-[80px] h-[34px] rounded-[10px] bg-[#FEF3C7] text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white transition-all text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95"
+                                                                    >
+                                                                        <Lock size={14} /> Reset
+                                                                    </button>
+                                                                </>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 )}
