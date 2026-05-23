@@ -40,116 +40,108 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="h-screen w-full bg-[#f8f9fa] lg:bg-white flex flex-col lg:flex-row overflow-hidden font-['Poppins']">
+        <div className="h-screen w-full bg-white flex overflow-hidden font-['Poppins']">
 
-            {/* ── HERO IMAGE SECTION ── */}
-            <div className="relative w-full h-[40vh] min-h-[300px] lg:h-screen lg:w-[450px] xl:w-[665px] lg:order-2 shrink-0 overflow-hidden">
-                <img
-                    src="/images/mentora-hero.png"
-                    alt="Mentora"
-                    className="w-full h-full object-cover"
-                />
-            </div>
-
-            {/* ── FORM SECTION ── */}
-            <div className="flex-1 flex flex-col items-center justify-start lg:justify-center relative z-10 bg-white lg:order-1 px-6 
-                rounded-t-[30px] lg:rounded-none -mt-8 lg:mt-0 pt-6 lg:pt-0 pb-10 overflow-y-auto w-full shadow-[0_-4px_20px_rgba(0,0,0,0.05)] lg:shadow-none">
-                
-                <div className="w-full max-w-[420px] flex flex-col min-h-full">
-                    
-                    {/* Mobile drag indicator */}
-                    <div className="w-full flex justify-center mb-8 lg:hidden">
-                        <div className="w-[40px] h-[5px] bg-gray-300 rounded-full"></div>
-                    </div>
+            {/* ── SISI KIRI: FORM LOGIN ── */}
+            <div className="flex-1 flex flex-col items-center justify-center relative z-10 bg-white lg:bg-slate-50 px-6 overflow-hidden">
+                <div className="w-full max-w-[420px] lg:max-w-[460px] flex flex-col lg:bg-white lg:p-10 lg:rounded-[32px] lg:shadow-xl lg:shadow-slate-200/50 lg:border lg:border-slate-100 transition-all duration-300">
 
                     {/* Header Section */}
-                    <div className="flex flex-col items-center gap-3 mb-8">
-                        <h1 className="text-[#1E1E1E] text-[24px] md:text-[30px] font-bold leading-normal tracking-wide">LOGIN</h1>
-                        <p className="text-[#636364] text-[13px] md:text-[14px] font-normal text-center tracking-[0.42px] leading-relaxed max-w-[300px] md:max-w-none">
-                            Selamat Datang di Website Resmi MPM - Mentora<br className="hidden md:block" />
-                            <span className="md:hidden"> </span>Masukkan Username dan Password Anda !
+                    <div className="flex flex-col items-center gap-3 mb-8 lg:mb-10">
+                        <img
+                            src="/images/logo-mpm.png"
+                            alt="Logo MPM"
+                            className="w-[48px] lg:w-[56px] h-auto object-contain lg:mb-2"
+                        />
+                        <h1 className="text-[#1E1E1E] text-[30px] lg:text-[32px] font-semibold lg:font-bold leading-normal tracking-wide">LOGIN</h1>
+                        <p className="text-[#636364] text-[14px] font-normal text-center tracking-[0.42px] leading-relaxed">
+                            Selamat Datang di Website Resmi MPM - Mentora<br/>
+                            Masukkan Username dan Password Anda !
                         </p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-5 flex-1">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
                         {/* Username */}
                         <div className="flex flex-col gap-2">
-                            <label className="text-[#1E1E1E] text-[14px] md:text-[15px] font-semibold md:font-medium tracking-[0.45px]">Username</label>
-                            <div className="relative h-[50px] md:h-[54px]">
+                            <label className="text-[#1E1E1E] text-[15px] lg:text-[14px] font-medium lg:font-bold tracking-[0.45px] lg:tracking-normal">Username</label>
+                            <div className="relative h-[54px] lg:h-[50px]">
                                 <input
                                     type="text"
                                     placeholder="Username"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="w-full h-full border border-black/25 rounded-[10px] px-[18px] text-[15px] md:text-[16px] font-medium tracking-[0.48px] outline-none focus:border-[#0080C5] placeholder:text-[#C5C6C7] transition-all bg-white"
+                                    className="w-full h-full border border-black/25 lg:border-slate-200 lg:hover:border-slate-300 rounded-[10px] lg:rounded-[12px] px-[18px] lg:px-4 text-[16px] lg:text-[14px] font-medium tracking-[0.48px] lg:tracking-normal outline-none focus:border-[#0080C5] lg:focus:ring-4 lg:focus:ring-[#0080C5]/10 placeholder:text-[#C5C6C7] lg:placeholder:text-slate-400 transition-all lg:bg-slate-50 lg:focus:bg-white"
                                     required
                                 />
-                                <div className="absolute right-[17px] top-1/2 -translate-y-1/2 text-[#C5C6C7]">
-                                    <Mail size={20} />
+                                <div className="absolute right-[17px] lg:right-4 top-1/2 -translate-y-1/2 text-[#C5C6C7] lg:text-slate-400">
+                                    <Mail size={20} className="lg:w-[18px] lg:h-[18px]" />
                                 </div>
                             </div>
                         </div>
 
                         {/* Password */}
                         <div className="flex flex-col gap-2">
-                            <label className="text-[#1E1E1E] text-[14px] md:text-[15px] font-semibold md:font-medium tracking-[0.45px]">Password</label>
-                            <div className="relative h-[50px] md:h-[54px]">
+                            <label className="text-[#1E1E1E] text-[15px] lg:text-[14px] font-medium lg:font-bold tracking-[0.45px] lg:tracking-normal">Password</label>
+                            <div className="relative h-[54px] lg:h-[50px]">
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     placeholder="Password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full h-full border border-black/25 rounded-[10px] px-[18px] text-[15px] md:text-[16px] font-medium tracking-[0.48px] outline-none focus:border-[#0080C5] placeholder:text-[#C5C6C7] transition-all bg-white"
+                                    className="w-full h-full border border-black/25 lg:border-slate-200 lg:hover:border-slate-300 rounded-[10px] lg:rounded-[12px] px-[18px] lg:px-4 text-[16px] lg:text-[14px] font-medium tracking-[0.48px] lg:tracking-normal outline-none focus:border-[#0080C5] lg:focus:ring-4 lg:focus:ring-[#0080C5]/10 placeholder:text-[#C5C6C7] lg:placeholder:text-slate-400 transition-all lg:bg-slate-50 lg:focus:bg-white"
                                     required
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-[17px] top-1/2 -translate-y-1/2 text-[#C5C6C7] hover:text-[#0080C5] transition-colors"
+                                    className="absolute right-[17px] lg:right-4 top-1/2 -translate-y-1/2 text-[#C5C6C7] lg:text-slate-400 hover:text-[#0080C5] transition-colors"
                                 >
-                                    {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                                    {showPassword ? <Eye size={20} className="lg:w-[18px] lg:h-[18px]" /> : <EyeOff size={20} className="lg:w-[18px] lg:h-[18px]" />}
                                 </button>
                             </div>
                         </div>
 
                         {/* Remember Me & Lupa Password */}
-                        <div className="flex items-center justify-between mt-1">
-                            <label className="flex items-center gap-[7px] cursor-pointer group">
-                                <div className="w-[18px] h-[18px] md:w-[19px] md:h-[21px] border-2 border-[#CFCFCF] rounded-sm md:rounded-none flex items-center justify-center relative transition-all group-hover:border-[#0080C5]">
+                        <div className="flex items-center justify-between lg:mt-2">
+                            <label className="flex items-center gap-[7px] lg:gap-2 cursor-pointer group">
+                                <div className="w-[19px] h-[21px] lg:w-[18px] lg:h-[18px] border-2 border-[#CFCFCF] lg:border-slate-300 lg:rounded-md flex items-center justify-center relative transition-all group-hover:border-[#0080C5]">
                                     <input
                                         type="checkbox"
                                         className="hidden peer"
                                         checked={rememberMe}
                                         onChange={(e) => setRememberMe(e.target.checked)}
                                     />
-                                    <div className="w-full h-full bg-[#0080C5] opacity-0 peer-checked:opacity-100 transition-all flex items-center justify-center rounded-sm md:rounded-none">
-                                        <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+                                    <div className="w-full h-full bg-[#0080C5] opacity-0 peer-checked:opacity-100 transition-all flex items-center justify-center lg:rounded-md">
+                                        <svg width="12" height="10" viewBox="0 0 12 10" fill="none" className="lg:w-[10px] lg:h-[8px]">
                                             <path d="M1 5L4.33333 8.5L11 1.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>
                                     </div>
                                 </div>
-                                <span className="text-[#1E1E1E] md:text-black text-[13px] md:text-[15px] font-semibold md:font-medium tracking-[0.45px]">Ingat Saya</span>
+                                <span className="text-black lg:text-slate-600 text-[14px] md:text-[15px] lg:text-[13px] font-medium lg:font-semibold tracking-[0.45px] lg:tracking-normal">Ingat Saya</span>
                             </label>
-                            <a href="#" className="text-[#0080C5] text-[13px] md:text-[15px] font-semibold md:font-medium tracking-[0.45px]">Lupa Password</a>
+                            <a href="#" className="text-[#0080C5] text-[14px] md:text-[15px] lg:text-[13px] font-medium lg:font-semibold tracking-[0.45px] lg:tracking-normal hover:text-sky-700 transition-colors">Lupa Password</a>
                         </div>
 
                         {/* Login Button */}
                         <button
                             type="submit"
                             disabled={loading}
-                            className="h-[46px] md:h-[48px] w-full mt-4 bg-[#0080C5] text-white rounded-xl md:rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[15px] font-semibold tracking-wide"
+                            className="h-9 lg:h-[48px] lg:mt-4 px-4 bg-[#0080C5] text-white rounded-lg lg:rounded-xl flex items-center justify-center gap-2 hover:bg-sky-700 lg:hover:bg-sky-600 lg:hover:shadow-lg lg:hover:shadow-[#0080C5]/30 lg:hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-sm text-[13px] lg:text-[14px] font-semibold lg:font-bold lg:tracking-wider disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
                         >
                             {loading ? 'MOHON TUNGGU...' : 'LOGIN'}
                         </button>
-
-                        <div className="mt-auto pt-8 flex justify-center pb-4">
-                            <span className="text-[#C5C6C7] text-[11px] md:text-[12px] font-medium text-center">
-                                © 2025 Majelis Pemberdayaan Masyarakat
-                            </span>
-                        </div>
                     </form>
                 </div>
+            </div>
+
+            {/* ── SISI KANAN: HERO IMAGE ── */}
+            <div className="hidden lg:block relative w-[450px] xl:w-[665px] h-screen overflow-hidden">
+                <img
+                    src="/images/mentora-hero.png"
+                    alt="Mentora"
+                    className="w-full h-full object-cover"
+                />
             </div>
 
             {/* ── AUTH MODAL ── */}
