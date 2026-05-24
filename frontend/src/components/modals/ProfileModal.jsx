@@ -9,8 +9,18 @@ const ProfileModal = ({ isOpen, onClose }) => {
     const [showPass, setShowPass] = useState(false);
     const [showConfirmPass, setShowConfirmPass] = useState(false);
     const user = getUser();
+    const [noTelp, setNoTelp] = useState(user?.no_telp || '');
 
     const handleSave = () => {
+        // Mock save to local storage
+        if (user) {
+            const updatedUser = { ...user, no_telp: noTelp };
+            localStorage.setItem('AUTH_USER', JSON.stringify(updatedUser)); // update auth user
+            if (user.role === 'superadmin' || user.username === 'superadmin') {
+                localStorage.setItem('superadmin_wa', noTelp);
+            }
+        }
+
         Swal.fire({
             icon: 'success',
             title: 'Berhasil!',
@@ -89,7 +99,9 @@ const ProfileModal = ({ isOpen, onClose }) => {
                         <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">No. WhatsApp</label>
                         <input 
                             type="text" 
-                            defaultValue={user?.no_telp || ''}
+                            value={noTelp}
+                            onChange={(e) => setNoTelp(e.target.value)}
+                            placeholder="Contoh: 6281234567890"
                             className="px-4 py-2.5 bg-white rounded-[10px] border border-[#E5E7EB] text-[#0A0F1E] text-sm font-normal focus:outline-none focus:border-[#0080C5] transition-colors"
                         />
                     </div>

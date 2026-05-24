@@ -19,6 +19,7 @@ import { Loader2 } from 'lucide-react';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
+import { exportToExcel } from '../../utils/exportToExcel';
 
 const DataGrupPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -93,6 +94,31 @@ const DataGrupPage = () => {
     const dataGrup = grupData?.data || [];
     const meta = grupData?.meta || {};
 
+    const handleExport = () => {
+        if (!dataGrup || dataGrup.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Kosong',
+                text: 'Tidak ada data untuk diekspor.',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+            });
+            return;
+        }
+
+        const exportData = dataGrup.map((item, index) => ({
+            'No': index + 1,
+            'Grup Dampingan': item.name || '-',
+            'Bidang': item.bidang?.name || '-',
+            'Jenis': item.level_dampingan || 'Provinsi',
+            'Provinsi': item.provinsi?.name || '-',
+            'Kabupaten': item.kabupaten?.name || '-',
+            'Kecamatan': item.kecamatan?.name || '-',
+            'Fasilitator': item.grup_fasilitators?.map(gf => gf.fasilitator?.name).join(', ') || '-'
+        }));
+
+        exportToExcel(exportData, 'Data_Grup_Dampingan');
+    };
+
     return (
         <AdminLayout title="Data Grup Dampingan">
             <div className="font-['Poppins']">
@@ -107,10 +133,12 @@ const DataGrupPage = () => {
                         <Plus size={18} />
                         <span>Tambah</span>
                     </button>
-                    <button className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold">
+                    <button 
+                        onClick={handleExport}
+                        className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold"
+                    >
                         <FileText size={18} />
                         <span>Cetak Data</span>
-                        <ChevronDown size={18} />
                     </button>
                 </div>
 
@@ -190,10 +218,12 @@ const DataGrupPage = () => {
                                     <Plus size={14} strokeWidth={3} />
                                     <span className="text-[12px] font-semibold">Tambah</span>
                                 </button>
-                                <button className="h-[34px] px-3 bg-[#22C55E] text-white rounded-[14px] flex items-center justify-center gap-1.5 shadow-sm">
+                                <button 
+                                    onClick={handleExport}
+                                    className="h-[34px] px-3 bg-[#22C55E] text-white rounded-[14px] flex items-center justify-center gap-1.5 shadow-sm"
+                                >
                                     <FileText size={14} />
                                     <span className="text-[12px] font-semibold">Cetak Data</span>
-                                    <ChevronDown size={13} />
                                 </button>
                             </div>
 
@@ -214,9 +244,10 @@ const DataGrupPage = () => {
                                 <div className="col-span-2">
                                     <FilterDropdown
                                         placeholder="Pilih Provinsi"
-                                        options={provinsiOptions}
+                                        options={filteredProvinsiOptions}
                                         value={provinsiFilter}
                                         isLoading={loadingProv}
+                                        disabled={!isSuper || filteredProvinsiOptions.length <= 1}
                                         valueKey="kode"
                                         labelKey="name"
                                         onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
@@ -228,7 +259,7 @@ const DataGrupPage = () => {
                                     options={kabupatenOptions}
                                     value={kabupatenFilter}
                                     isLoading={loadingKab}
-                                    disabled={!provinsiFilter}
+                                    disabled={!provinsiFilter || isAdminKabupaten || isAdminKecamatan}
                                     valueKey="kode"
                                     labelKey="name"
                                     onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
@@ -239,7 +270,7 @@ const DataGrupPage = () => {
                                     options={kecamatanOptions}
                                     value={kecamatanFilter}
                                     isLoading={loadingKec}
-                                    disabled={!kabupatenFilter}
+                                    disabled={!kabupatenFilter || isAdminKecamatan}
                                     valueKey="kode"
                                     labelKey="name"
                                     onChange={(v) => { setKecamatanFilter(v); setPage(1); }}

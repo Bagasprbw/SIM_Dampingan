@@ -16,10 +16,10 @@ const KartuDampinganModal = ({ isOpen, onClose, anggota, grup }) => {
 
     const fotoUrl = getImageUrl(anggota.foto);
     const qrUrl   = getImageUrl(anggota.qr_code);
-    const bidangName = anggota.bidang?.name || grup?.bidang?.name || '-';
-    const grupName   = grup?.name || '-';
+    const bidangName = anggota.bidang?.name || anggota.grup_dampingan?.bidang?.name || grup?.bidang?.name || '-';
+    const grupName   = anggota.grup_dampingan?.name || anggota.grupDampingan?.name || grup?.name || '-';
     const noAnggota  = anggota.no_anggota || '-';
-    const namaAnggota = (anggota.name || '-').toUpperCase();
+    const namaAnggota = (anggota.name || anggota.nama || '-').toUpperCase();
 
     // Format: "3404 0603 0002"
     const formatNoAnggota = (no) => {
@@ -32,285 +32,62 @@ const KartuDampinganModal = ({ isOpen, onClose, anggota, grup }) => {
         if (!printContents) return;
 
         const win = window.open('', '_blank', 'width=900,height=700');
+        const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+            .map(s => s.outerHTML)
+            .join('\n');
+
         win.document.write(`
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="UTF-8" />
                 <title>Kartu Dampingan - ${anggota.name}</title>
+                ${styles}
+                <script src="https://cdn.tailwindcss.com"></script>
                 <style>
-                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    * { 
+                        -webkit-print-color-adjust: exact !important; 
+                        print-color-adjust: exact !important; 
+                    }
                     body {
                         background: white;
                         display: flex;
                         flex-direction: column;
                         align-items: center;
-                        justify-content: center;
                         min-height: 100vh;
                         padding: 32px;
-                        font-family: 'Arial', sans-serif;
-                        gap: 32px;
+                        font-family: 'Poppins', 'Inter', sans-serif;
                     }
                     .card-wrapper {
                         display: flex;
                         flex-direction: column;
-                        gap: 24px;
+                        gap: 32px;
                         align-items: center;
-                    }
-                    .section-label {
-                        font-size: 11px;
-                        font-weight: 700;
-                        color: #94a3b8;
-                        letter-spacing: 3px;
-                        text-transform: uppercase;
-                        margin-bottom: 8px;
-                        padding-left: 2px;
-                        text-align: left;
-                    }
-                    /* CARD FRONT */
-                    .card-front {
-                        width: 340px;
-                        height: 210px;
-                        border-radius: 16px;
-                        overflow: hidden;
-                        background: linear-gradient(135deg, #0080C5 0%, #004f8c 60%, #003566 100%);
-                        position: relative;
-                        color: white;
-                        box-shadow: 0 8px 24px rgba(0,128,197,0.4);
-                    }
-                    .card-front-deco1 {
-                        position: absolute;
-                        top: -40px; right: -30px;
-                        width: 160px; height: 160px;
-                        border-radius: 50%;
-                        background: rgba(255,255,255,0.07);
-                    }
-                    .card-front-deco2 {
-                        position: absolute;
-                        bottom: -50px; left: -30px;
-                        width: 160px; height: 160px;
-                        border-radius: 50%;
-                        background: rgba(255,255,255,0.05);
-                    }
-                    .card-front-body {
-                        position: relative;
-                        z-index: 2;
-                        display: flex;
-                        height: calc(100% - 50px);
-                        padding: 16px;
-                        gap: 14px;
-                    }
-                    .card-avatar {
-                        width: 72px; height: 72px;
-                        border-radius: 12px;
-                        border: 2px solid rgba(255,255,255,0.3);
-                        background: rgba(255,255,255,0.15);
-                        overflow: hidden;
-                        flex-shrink: 0;
-                    }
-                    .card-avatar img { width: 100%; height: 100%; object-fit: cover; }
-                    .card-avatar-placeholder {
-                        width: 100%; height: 100%;
-                        display: flex; align-items: center; justify-content: center;
-                        font-size: 28px; color: rgba(255,255,255,0.6);
-                    }
-                    .card-info { flex: 1; }
-                    .card-label {
-                        font-size: 8px; font-weight: 700;
-                        letter-spacing: 2px; text-transform: uppercase;
-                        color: rgba(255,255,255,0.6);
-                        margin-bottom: 2px;
-                    }
-                    .card-org-name {
-                        font-size: 18px; font-weight: 900;
-                        letter-spacing: -0.5px; line-height: 1;
-                        margin-bottom: 1px;
-                    }
-                    .card-org-sub {
-                        font-size: 7px; font-weight: 600;
-                        letter-spacing: 3px; text-transform: uppercase;
-                        color: rgba(255,255,255,0.65);
-                        margin-bottom: 10px;
-                    }
-                    .card-nia-label {
-                        font-size: 8px; font-weight: 700;
-                        letter-spacing: 2px; color: rgba(255,255,255,0.55);
-                        margin-bottom: 2px;
-                    }
-                    .card-nia-number {
-                        font-size: 15px; font-weight: 900;
-                        letter-spacing: 1px;
-                    }
-                    .card-bidang-badge {
-                        display: inline-flex; align-items: center; gap: 4px;
-                        background: rgba(255,255,255,0.15);
-                        border: 1px solid rgba(255,255,255,0.2);
-                        border-radius: 999px;
-                        padding: 2px 8px;
-                        font-size: 8px; font-weight: 700;
-                        margin-top: 6px;
-                        color: white;
-                    }
-                    .card-star {
-                        position: absolute;
-                        top: 16px; right: 16px;
-                        width: 24px; height: 24px;
-                        background: rgba(255,255,255,0.15);
-                        border-radius: 50%;
-                        display: flex; align-items: center; justify-content: center;
-                        font-size: 12px;
-                    }
-                    .card-front-footer {
-                        height: 50px;
-                        display: flex;
-                        position: relative; z-index: 2;
-                    }
-                    .card-front-footer-name {
-                        background: #F97316;
-                        flex: 1;
-                        display: flex; align-items: center;
-                        padding: 0 16px;
-                        font-size: 13px; font-weight: 800;
-                        letter-spacing: 0.5px;
-                        color: white;
-                    }
-                    .card-front-footer-role {
-                        background: rgba(255,255,255,0.15);
-                        padding: 0 14px;
-                        display: flex; align-items: center;
-                        font-size: 10px; font-weight: 700;
-                        color: white;
-                        white-space: nowrap;
-                    }
-                    .card-front-footer-flag {
-                        position: absolute;
-                        bottom: 0; left: 0;
-                        display: flex; align-items: center;
-                    }
-                    /* CARD BACK */
-                    .card-back {
-                        width: 340px;
-                        height: 210px;
-                        border-radius: 16px;
-                        overflow: hidden;
-                        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-                        position: relative;
-                        color: white;
-                        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-                        display: flex;
-                        flex-direction: column;
-                    }
-                    .card-back-deco1 {
-                        position: absolute;
-                        top: -40px; left: -40px;
-                        width: 140px; height: 140px;
-                        border-radius: 50%;
-                        background: rgba(255,255,255,0.03);
-                    }
-                    .card-back-deco2 {
-                        position: absolute;
-                        bottom: -30px; right: -30px;
-                        width: 120px; height: 120px;
-                        border-radius: 50%;
-                        background: rgba(0,128,197,0.1);
-                    }
-                    .card-back-header {
-                        position: relative; z-index: 2;
-                        display: flex;
-                        align-items: center; justify-content: space-between;
-                        padding: 12px 16px 0;
-                    }
-                    .card-back-number {
-                        font-size: 18px; font-weight: 900;
-                        letter-spacing: 2px;
-                        line-height: 1;
-                    }
-                    .card-back-bidang {
-                        background: #F97316;
-                        color: white;
-                        padding: 4px 10px;
-                        border-radius: 999px;
-                        font-size: 8px; font-weight: 700;
-                        letter-spacing: 0.5px;
-                    }
-                    .card-back-body {
-                        position: relative; z-index: 2;
-                        display: flex;
-                        flex: 1;
-                        padding: 8px 16px 10px;
-                        gap: 12px;
-                    }
-                    .card-back-text { flex: 1; }
-                    .card-back-terms {
-                        font-size: 7px; line-height: 1.5;
-                        color: rgba(255,255,255,0.45);
-                        margin-bottom: 8px;
-                    }
-                    .card-back-contact {
-                        display: flex; flex-direction: column; gap: 2px;
-                    }
-                    .card-back-contact-item {
-                        display: flex; align-items: center; gap: 4px;
-                        font-size: 7px;
-                        color: rgba(255,255,255,0.5);
-                    }
-                    .card-back-contact-label {
-                        font-size: 7px; font-weight: 700;
-                        color: rgba(255,255,255,0.7);
-                        margin-bottom: 3px;
-                    }
-                    .card-back-qr {
-                        width: 72px; height: 72px;
-                        background: white;
-                        border-radius: 8px;
-                        overflow: hidden;
-                        padding: 4px;
-                        flex-shrink: 0;
-                        display: flex; flex-direction: column;
-                        align-items: center; justify-content: center;
-                    }
-                    .card-back-qr img {
-                        width: 100%; height: 100%; object-fit: contain;
-                    }
-                    .card-back-qr-placeholder {
-                        font-size: 6px; color: #94a3b8; text-align: center;
-                        line-height: 1.3;
-                    }
-                    .card-back-qr-label {
-                        font-size: 6px; color: rgba(255,255,255,0.4);
-                        text-align: center; margin-top: 3px;
-                    }
-                    .card-back-footer {
-                        position: relative; z-index: 2;
-                        display: flex; align-items: center; justify-content: space-between;
-                        padding: 6px 16px;
-                        background: rgba(255,255,255,0.04);
-                        border-top: 1px solid rgba(255,255,255,0.06);
-                    }
-                    .card-back-footer-org {
-                        font-size: 8px; font-weight: 700;
-                        color: rgba(255,255,255,0.6);
-                    }
-                    .card-back-footer-tagline {
-                        font-size: 7px; color: rgba(255,255,255,0.35);
-                        font-style: italic;
+                        transform: scale(1.2);
+                        transform-origin: top center;
                     }
                     @media print {
-                        body { padding: 16px; }
+                        body { padding: 20px; }
+                        @page { margin: 10mm; }
                     }
                 </style>
             </head>
             <body>
-                ${printContents}
+                <div class="card-wrapper">
+                    ${printContents}
+                </div>
+                <script>
+                    // Wait for Tailwind CDN and fonts to load
+                    setTimeout(() => {
+                        window.focus();
+                        window.print();
+                        window.close();
+                    }, 1200);
+                </script>
             </body>
             </html>
         `);
         win.document.close();
-        setTimeout(() => {
-            win.focus();
-            win.print();
-            win.close();
-        }, 600);
     };
 
     return (

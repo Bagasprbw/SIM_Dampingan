@@ -334,7 +334,6 @@ const KelolaHakAksesPage = () => {
                             { id: 'view_kegiatan', label: 'Lihat Kegiatan', sub: 'Akses untuk melihat daftar laporan kegiatan dampingan.', code: 'view_kegiatan' },
                             { id: 'peta', label: 'Peta Sebaran', sub: 'Akses visualisasi sebaran dampingan di peta interaktif.', code: 'view_peta_sebaran' },
                             { id: 'panduan', label: 'Panduan Penggunaan', sub: 'Akses ke modul instruksi dan cara penggunaan sistem.', code: 'view_panduan' },
-                            { id: 'manage_panduan', label: 'Kelola Panduan', sub: 'Hak akses untuk mengedit atau menambah konten panduan.', code: 'kelola_panduan' },
                         ].map((item) => (
                             <div key={item.id} className="bg-white rounded-[16px] p-4 border-[0.8px] border-[#F0F2F8] shadow-sm flex flex-col gap-4">
                                 <div>
@@ -411,7 +410,6 @@ const KelolaHakAksesPage = () => {
                                     { id: 'view_kegiatan', label: 'Lihat Kegiatan', sub: 'Akses untuk melihat daftar laporan kegiatan dampingan.', code: 'view_kegiatan' },
                                     { id: 'peta', label: 'Peta Sebaran', sub: 'Akses visualisasi sebaran dampingan di peta interaktif.', code: 'view_peta_sebaran' },
                                     { id: 'panduan', label: 'Panduan Penggunaan', sub: 'Akses ke modul instruksi dan cara penggunaan sistem.', code: 'view_panduan' },
-                                    { id: 'manage_panduan', label: 'Kelola Panduan', sub: 'Hak akses untuk mengedit atau menambah konten panduan.', code: 'kelola_panduan' },
                                 ].map((item) => (
                                     <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="py-5 px-8">
