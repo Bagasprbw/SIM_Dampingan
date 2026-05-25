@@ -4,5 +4,10 @@ export const publicService = {
     getProfilAnggota: async (id) => {
         const response = await api.get(`/anggota-grup/profil/${id}`);
         return response.data;
+    },
+
+    getStatistics: async () => {
+        const response = await api.get('/public/statistics');
+        return response.data;
     }
 };

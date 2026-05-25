@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isAuthenticated } from '../../utils/storage';
 import PublicMap from '../../components/common/PublicMap';
+import { usePublicStatistics } from '../../hooks/queries/usePublicQuery';
 import {
     ArrowRight,
     Users,
@@ -24,6 +25,9 @@ const LandingPage = () => {
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    
+    // Fetch statistics dari API
+    const { data: statsData, isLoading: statsLoading } = usePublicStatistics();
 
     useEffect(() => {
         setIsLoggedIn(isAuthenticated());
@@ -202,39 +206,47 @@ const LandingPage = () => {
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 bg-white p-6 sm:p-8 rounded-[24px] shadow-xl border border-slate-200/60">
                         
-                        {/* Stat 1 */}
+                        {/* Stat 1: Wilayah (Provinsi & Kab/Kota) */}
                         <div className="flex flex-col items-center text-center p-4 border-r border-slate-100 last:border-0 max-lg:even:border-r-0 max-sm:border-r-0 max-sm:border-b max-sm:pb-6 last:border-b-0">
                             <div className="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center text-[#0080C5] mb-3">
                                 <MapPin size={24} />
                             </div>
-                            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">12+</span>
+                            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                                {statsLoading ? '...' : `${statsData?.data?.total_wilayah || 0}`}
+                            </span>
                             <span className="text-[11px] sm:text-xs text-slate-500 font-medium tracking-wider uppercase mt-1">Provinsi & Kab/Kota</span>
                         </div>
 
-                        {/* Stat 2 */}
+                        {/* Stat 2: Kelompok Dampingan */}
                         <div className="flex flex-col items-center text-center p-4 border-r border-slate-100 last:border-0 max-lg:border-r-0 max-sm:border-r-0 max-sm:border-b max-sm:py-6 last:border-b-0">
                             <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 mb-3">
                                 <Users size={24} />
                             </div>
-                            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">150+</span>
+                            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                                {statsLoading ? '...' : `${statsData?.data?.total_grup_dampingan || 0}`}
+                            </span>
                             <span className="text-[11px] sm:text-xs text-slate-500 font-medium tracking-wider uppercase mt-1">Kelompok Binaan</span>
                         </div>
 
-                        {/* Stat 3 */}
+                        {/* Stat 3: Masyarakat Dampingan (Anggota Aktif) */}
                         <div className="flex flex-col items-center text-center p-4 border-r border-slate-100 last:border-0 max-sm:border-r-0 max-sm:border-b max-sm:py-6 last:border-b-0">
                             <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500 mb-3">
                                 <HeartHandshake size={24} />
                             </div>
-                            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">2.4K+</span>
+                            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                                {statsLoading ? '...' : `${statsData?.data?.total_anggota || 0}`}
+                            </span>
                             <span className="text-[11px] sm:text-xs text-slate-500 font-medium tracking-wider uppercase mt-1">Penerima Manfaat</span>
                         </div>
 
-                        {/* Stat 4 */}
+                        {/* Stat 4: Kegiatan Pemberdayaan */}
                         <div className="flex flex-col items-center text-center p-4 last:border-0 max-sm:pt-6">
                             <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500 mb-3">
                                 <Calendar size={24} />
                             </div>
-                            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">85+</span>
+                            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                                {statsLoading ? '...' : `${statsData?.data?.total_kegiatan || 0}`}
+                            </span>
                             <span className="text-[11px] sm:text-xs text-slate-500 font-medium tracking-wider uppercase mt-1">Kegiatan Pemberdayaan</span>
                         </div>
 

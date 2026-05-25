@@ -23,12 +23,14 @@ use App\Http\Controllers\Api\Profil\ProfilController;
 use App\Http\Controllers\Api\Profil\AnggotaGrupController as ProfilAnggotaController;
 use App\Http\Controllers\Api\Sertifikat\SertifikatController;
 use App\Http\Controllers\Api\Wilayah\WilayahController;
+use App\Http\Controllers\Api\Public\PublicStatisticsController;
 use Illuminate\Support\Facades\Route;
 
 // publik
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/anggota-grup/profil/{id}', [ProfilAnggotaController::class, 'show']);
 Route::get('/anggota-grup/profil/{anggotaId}/sertifikat/{idSertifikat}', [SertifikatController::class, 'show']);
+Route::get('/public/statistics', [PublicStatisticsController::class, 'index']);
 
 // auth
 Route::middleware('auth:sanctum')->group(function () {

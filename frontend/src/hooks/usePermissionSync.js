@@ -8,12 +8,12 @@ import { authRepository } from '../api/repositories/authRepository';
  * Cara kerja:
  * 1. Saat komponen mount (app dibuka), langsung cek permissions dari /me
  * 2. Setiap kali user kembali fokus ke tab browser, cek ulang permissions
- * 3. Polling setiap INTERVAL_MS milidetik (default: 60 detik)
+ * 3. Polling setiap INTERVAL_MS milidetik (default: 30 detik)
  *
  * Jika permissions berubah (superadmin update), localStorage diperbarui
  * dan halaman di-reload agar Sidebar + RouteGuard langsung mencerminkan perubahan.
  */
-const SYNC_INTERVAL_MS = 60_000; // 60 detik
+const SYNC_INTERVAL_MS = 30_000; // 30 detik
 
 export const usePermissionSync = () => {
     const lastSyncRef = useRef(0);
