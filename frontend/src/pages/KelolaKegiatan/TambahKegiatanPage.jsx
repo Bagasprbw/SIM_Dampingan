@@ -431,6 +431,8 @@ const Step2 = ({
 // ─── Step 3: Ringkasan (Upload) ───────────────────────────────────────────────
 const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = false, multiple = false, files = [], onChange, existingFiles = [], existingFileUrl, onDeleteExisting, showImagePreview = false, onRemoveFile }) => {
     const normalizedFiles = Array.isArray(files) ? files : files ? [files] : [];
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    const baseUrl = apiUrl ? apiUrl.replace('/api', '') : '';
     const imagePreviews = useMemo(() => {
         if (!showImagePreview) return [];
         return normalizedFiles
@@ -469,8 +471,8 @@ const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = fals
                         <p className="text-[11px] font-semibold text-slate-700">File Tersimpan:</p>
                         {existingFiles.map((file) => (
                             <div key={file.id_foto || file.id_foto_absensi} className="flex items-center justify-between p-2.5 border border-slate-200 rounded-lg bg-slate-50">
-                                <a href={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${file.file}`} target="_blank" rel="noreferrer" className="text-[11px] text-[#0080C5] hover:underline truncate mr-2 font-medium">
-                                    {file.file.split('/').pop()}
+                                <a href={`${baseUrl}/storage/${file.file}`} target="_blank" rel="noreferrer" className="text-[11px] text-[#0080C5] hover:underline truncate mr-2 font-medium">
+                                    {file.file?.split('/').pop() || 'File'}
                                 </a>
                                 <button type="button" onClick={() => onDeleteExisting(file.id_foto || file.id_foto_absensi)} className="w-6 h-6 rounded-md bg-white border border-slate-200 text-red-400 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shrink-0">
                                     <X size={14} />
@@ -482,8 +484,8 @@ const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = fals
                 {existingFileUrl && (
                     <div className="mb-4">
                         <p className="text-[11px] font-semibold text-slate-700">File Laporan Saat Ini:</p>
-                        <a href={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${existingFileUrl}`} target="_blank" rel="noreferrer" className="inline-block mt-1 text-[11px] text-[#0080C5] hover:underline truncate font-medium p-2.5 border border-slate-200 rounded-lg bg-slate-50 w-full">
-                            {existingFileUrl.split('/').pop()}
+                        <a href={`${baseUrl}/storage/${existingFileUrl}`} target="_blank" rel="noreferrer" className="inline-block mt-1 text-[11px] text-[#0080C5] hover:underline truncate font-medium p-2.5 border border-slate-200 rounded-lg bg-slate-50 w-full">
+                            {existingFileUrl.split('/').pop() || 'File'}
                         </a>
                     </div>
                 )}
@@ -577,6 +579,9 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
     const { id } = useParams();
     const { createKegiatan, updateKegiatan } = useKegiatanMutations();
     const currentUser = getUser();
+    const roleName = typeof currentUser?.role === 'object' && currentUser?.role !== null ? currentUser.role.name : currentUser?.role;
+    const isSuperadmin = roleName === 'superadmin' || currentUser?.username === 'superadmin';
+    const showDraftButton = !(isEdit && isSuperadmin);
 
     const { data: bidangsData } = useBidangs();
     const bidangs = bidangsData?.data || [];
@@ -1055,9 +1060,11 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                         <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-full">Langkah {step} dari 3</span>
                         <div className="flex items-center gap-3">
                             <button onClick={() => navigate('/kelola-kegiatan')} className="h-10 px-5 border border-slate-200 rounded-[10px] text-xs font-semibold text-slate-500 hover:bg-slate-50 transition-all">Batal</button>
-                            <button onClick={handleSaveDraft} className="h-10 px-5 border border-slate-200 rounded-[10px] text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2">
-                                <Save size={14} /> Simpan Draf
-                            </button>
+                            {showDraftButton && (
+                                <button onClick={handleSaveDraft} className="h-10 px-5 border border-slate-200 rounded-[10px] text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2">
+                                    <Save size={14} /> Simpan Draf
+                                </button>
+                            )}
                             {step > 1 && (
                                 <button onClick={() => setStep(s => s - 1)} className="h-10 px-5 border border-slate-200 rounded-[10px] text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2">
                                     <ArrowLeft size={14} /> Kembali
@@ -1099,9 +1106,11 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                             <button onClick={() => navigate('/kelola-kegiatan')} className="flex-1 h-10 text-[11px] font-bold text-slate-400 hover:text-slate-600 transition-colors">
                                 Batal
                             </button>
-                            <button onClick={handleSaveDraft} className="flex-1 h-10 text-[11px] font-bold text-[#0080C5] hover:text-sky-700 transition-colors flex items-center justify-center gap-1.5">
-                                <Save size={12} /> Simpan Draf
-                            </button>
+                            {showDraftButton && (
+                                <button onClick={handleSaveDraft} className="flex-1 h-10 text-[11px] font-bold text-[#0080C5] hover:text-sky-700 transition-colors flex items-center justify-center gap-1.5">
+                                    <Save size={12} /> Simpan Draf
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
