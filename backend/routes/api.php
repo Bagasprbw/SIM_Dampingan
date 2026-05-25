@@ -182,6 +182,7 @@ Route::middleware('auth:sanctum')->group(function () {
         //peserta kegiatan [BAGAS]
         Route::get('/{kegiatanId}/peserta', [PesertaKegiatanController::class, 'index']);
         Route::post('/{kegiatanId}/peserta', [PesertaKegiatanController::class, 'store']);
+        Route::post('/{kegiatanId}/peserta/sync', [PesertaKegiatanController::class, 'sync']);
         Route::put('/peserta/{id_peserta}', [PesertaKegiatanController::class, 'update']);
         Route::delete('/peserta/{id_peserta}', [PesertaKegiatanController::class, 'destroy']);
 

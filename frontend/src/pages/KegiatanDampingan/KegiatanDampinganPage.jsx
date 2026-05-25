@@ -15,6 +15,9 @@ import { useBidangs } from '../../hooks/queries/useBidangQuery';
 import FilterDropdown from '../../components/common/FilterDropdown';
 
 const KegiatanDampinganPage = () => {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    const baseUrl = apiUrl.replace('/api', '');
+
     const [searchTerm, setSearchTerm] = useState('');
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
@@ -134,17 +137,17 @@ const KegiatanDampinganPage = () => {
                             <p className="text-slate-500">Tidak ada data kegiatan ditemukan.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 flex-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
                             {activities.map((item, index) => (
                                 <div 
                                     key={item.id || index} 
                                     onClick={() => handleDetail(item)}
-                                    className="flex flex-col bg-white rounded-2xl border border-slate-200 lg:border-[#F1F5F9] overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer group shadow-sm lg:shadow-none"
+                                    className="flex flex-col bg-white rounded-2xl border border-slate-200 lg:border-[#E5E7EB] overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer group shadow-sm max-w-[360px]"
                                 >
                                     {/* Image Placeholder */}
-                                    <div className="h-40 lg:h-44 w-full bg-slate-100 overflow-hidden relative">
+                                    <div className="h-44 lg:h-48 w-full bg-slate-100 overflow-hidden relative shrink-0">
                                         <img 
-                                            src={item.foto_kegiatan || 'https://placehold.co/330x180/0080C5/FFFFFF?text=Foto+Kegiatan'} 
+                                            src={item.foto_kegiatans?.[0]?.file ? `${baseUrl}/storage/${item.foto_kegiatans[0].file}` : 'https://placehold.co/330x180/0080C5/FFFFFF?text=Foto+Kegiatan'} 
                                             alt="Kegiatan" 
                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                         />
@@ -154,7 +157,7 @@ const KegiatanDampinganPage = () => {
                                     {/* Content */}
                                     <div className="p-4 lg:p-5 flex flex-col items-start gap-3">
                                          {/* Bidang Badge */}
-                                         <div className="px-3 py-1 bg-sky-50 lg:bg-[#0080C5]/10 rounded-full">
+                                         <div className="px-3 py-1 bg-sky-50 lg:bg-[#0080C5]/5 rounded-full border border-[#0080C5]/20">
                                              <span className="text-[#0080C5] text-[10px] font-bold tracking-tight">{item.bidang?.name || 'Bidang'}</span>
                                          </div>
  
@@ -165,14 +168,14 @@ const KegiatanDampinganPage = () => {
                                          </div>
  
                                          {/* Title */}
-                                         <h3 className="text-[#0A0F1E] text-[13px] lg:text-sm font-bold leading-relaxed line-clamp-2 min-h-[40px] group-hover:text-[#0080C5] transition-colors">
+                                         <h3 className="text-[#0A0F1E] text-[13px] lg:text-[14px] font-bold leading-snug line-clamp-2 min-h-[42px] group-hover:text-[#0080C5] transition-colors">
                                              {item.judul}
                                          </h3>
 
                                         {/* Button */}
-                                        <div className="w-full h-10 lg:h-9 px-4 bg-[#0080C5] text-white rounded-xl lg:rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold mt-1">
-                                            <FileText size={16} />
-                                            <span className="text-[12px] lg:text-[11px] font-semibold tracking-tight">Lihat Laporan</span>
+                                        <div className="w-fit h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm mt-1">
+                                            <FileText size={14} />
+                                            <span className="text-[11px] font-bold tracking-tight">Lihat Laporan</span>
                                         </div>
                                     </div>
                                 </div>
@@ -182,7 +185,7 @@ const KegiatanDampinganPage = () => {
 
                     {/* 4. Pagination (Bottom) */}
                     {meta && meta.total > 0 && (
-                        <div className="mt-6 lg:mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-between border-t-0 lg:border-t lg:border-slate-50 pt-0 lg:pt-6 gap-4">
+                        <div className="mt-auto flex flex-col sm:flex-row items-center justify-center lg:justify-between border-t-0 lg:border-t lg:border-slate-50 pt-6 gap-4">
                             <span className="text-[#9298B0] text-[11px] font-medium text-center sm:text-left">
                                 Menampilkan {meta.from}-{meta.to} dari {meta.total} data
                             </span>

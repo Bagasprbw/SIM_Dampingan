@@ -68,4 +68,19 @@ export const kegiatanService = {
         const response = await api.post(`/kelola-kegiatan/${kegiatanId}/peserta`, data);
         return response.data;
     },
+
+    syncPeserta: async (kegiatanId, data) => {
+        const response = await api.post(`/kelola-kegiatan/${kegiatanId}/peserta/sync`, { peserta: data });
+        return response.data;
+    },
+
+    deleteFotoKegiatan: async (kegiatanId, idFoto) => {
+        const response = await api.delete(`/kelola-kegiatan/${kegiatanId}/foto-kegiatan/${idFoto}`);
+        return response.data;
+    },
+
+    deleteFotoAbsensi: async (kegiatanId, idFotoAbsensi) => {
+        const response = await api.delete(`/kelola-kegiatan/${kegiatanId}/foto-absensi/${idFotoAbsensi}`);
+        return response.data;
+    },
 };
