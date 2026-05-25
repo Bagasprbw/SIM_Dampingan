@@ -71,12 +71,15 @@ class KegiatanController extends Controller
 
     public function showKelola($id)
     {
-        $user_id = auth()->user()->id_user;
+        $currentUser = auth()->user()->load('role');
 
-        $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans'])
-                        ->where('fasilitator_id', $user_id)
-                        ->where('id_kegiatan', $id)
-                        ->first();
+        $query = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans']);
+
+        if ($currentUser->role && $currentUser->role->name === 'fasilitator') {
+            $query->where('fasilitator_id', $currentUser->id_user);
+        }
+
+        $kegiatan = $query->where('id_kegiatan', $id)->first();
 
         if (!$kegiatan) {
             return response()->json(['message' => 'Kegiatan tidak ditemukan atau bukan milik Anda'], 404);
