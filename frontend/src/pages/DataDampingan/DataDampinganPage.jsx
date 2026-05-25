@@ -19,6 +19,9 @@ import {
 import { useAnggotas } from '../../hooks/queries/useAnggotaQuery';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
+import KartuDampinganModal from '../../components/modals/KartuDampinganModal';
+import { exportToExcel } from '../../utils/exportToExcel';
+import { getUser } from '../../utils/storage';
 
 const DataDampinganPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -26,6 +29,7 @@ const DataDampinganPage = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [isKartuModalOpen, setIsKartuModalOpen] = useState(false);
     const [selectedData, setSelectedData] = useState(null);
     const [expandedCardId, setExpandedCardId] = useState(null);
 
@@ -44,12 +48,26 @@ const DataDampinganPage = () => {
         setIsDetailModalOpen(true);
     };
 
+    const handlePrintKartu = (item) => {
+        setSelectedData(item);
+        setIsKartuModalOpen(true);
+    };
+
     const [page, setPage] = useState(1);
 
+    const currentUser = getUser();
+    const currentUserRoleName = currentUser?.role;
+
     // Filter State
-    const [provinsiFilter, setProvinsiFilter] = useState(null);
-    const [kabupatenFilter, setKabupatenFilter] = useState(null);
-    const [kecamatanFilter, setKecamatanFilter] = useState(null);
+    const [provinsiFilter, setProvinsiFilter] = useState(
+        ['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName) ? currentUser?.kode_prov : null
+    );
+    const [kabupatenFilter, setKabupatenFilter] = useState(
+        ['admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName) ? currentUser?.kode_kab : null
+    );
+    const [kecamatanFilter, setKecamatanFilter] = useState(
+        ['admin_kecamatan'].includes(currentUserRoleName) ? currentUser?.kode_kec : null
+    );
 
     // Wilayah Queries
     const { data: provinsiOptions = [], isLoading: loadingProv } = useProvinsi();
@@ -80,6 +98,26 @@ const DataDampinganPage = () => {
     const dataDampingan = anggotaData?.data || [];
     const meta = anggotaData?.meta || {};
 
+    const handleExport = () => {
+        if (dataDampingan.length === 0) return;
+        const exportData = dataDampingan.map((item, index) => ({
+            'No': index + 1,
+            'No. Anggota': item.no_anggota || '-',
+            'Nama Lengkap': item.name || '-',
+            'No. Telepon': item.no_telp || item.no_telepon || '-',
+            'Tempat Lahir': item.tempat_lahir || '-',
+            'Tanggal Lahir': item.tgl_lahir || item.tanggal_lahir || '-',
+            'Jenis Kelamin': item.jenis_kelamin === 'L' ? 'Laki-laki' : item.jenis_kelamin === 'P' ? 'Perempuan' : item.jenis_kelamin || '-',
+            'Agama': item.agama || '-',
+            'Pekerjaan': item.pekerjaan?.name || item.pekerjaan_id || '-',
+            'Status': item.status || '-',
+            'Alamat': item.alamat || '-',
+            'Bidang Dampingan': item.bidang?.name || '-',
+            'Grup Dampingan': item.grup_dampingan?.name || item.grupDampingan?.name || '-'
+        }));
+        exportToExcel(exportData, 'Data_Dampingan');
+    };
+
     return (
         <AdminLayout title="Data Dampingan">
             <div className="font-['Poppins']">
@@ -96,10 +134,12 @@ const DataDampinganPage = () => {
                             <Plus size={18} />
                             <span>Tambah</span>
                         </button>
-                        <button className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold">
+                        <button 
+                            onClick={handleExport}
+                            className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold"
+                        >
                             <FileDown size={18} />
                             <span>Cetak Data</span>
-                            <ChevronDown size={18} />
                         </button>
                     </div>
 
@@ -123,6 +163,7 @@ const DataDampinganPage = () => {
                                 options={provinsiOptions}
                                 value={provinsiFilter}
                                 isLoading={loadingProv}
+                                disabled={['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName)}
                                 valueKey="kode"
                                 labelKey="name"
                                 onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
@@ -134,7 +175,7 @@ const DataDampinganPage = () => {
                                 options={kabupatenOptions}
                                 value={kabupatenFilter}
                                 isLoading={loadingKab}
-                                disabled={!provinsiFilter}
+                                disabled={!provinsiFilter || ['admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName)}
                                 valueKey="kode"
                                 labelKey="name"
                                 onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
@@ -146,7 +187,7 @@ const DataDampinganPage = () => {
                                 options={kecamatanOptions}
                                 value={kecamatanFilter}
                                 isLoading={loadingKec}
-                                disabled={!kabupatenFilter}
+                                disabled={!kabupatenFilter || ['admin_kecamatan'].includes(currentUserRoleName)}
                                 valueKey="kode"
                                 labelKey="name"
                                 onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
@@ -208,6 +249,7 @@ const DataDampinganPage = () => {
                                             options={provinsiOptions}
                                             value={provinsiFilter}
                                             isLoading={loadingProv}
+                                            disabled={['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName)}
                                             valueKey="kode"
                                             labelKey="name"
                                             onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
@@ -219,7 +261,7 @@ const DataDampinganPage = () => {
                                         options={kabupatenOptions}
                                         value={kabupatenFilter}
                                         isLoading={loadingKab}
-                                        disabled={!provinsiFilter}
+                                        disabled={!provinsiFilter || ['admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName)}
                                         valueKey="kode"
                                         labelKey="name"
                                         onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
@@ -230,7 +272,7 @@ const DataDampinganPage = () => {
                                         options={kecamatanOptions}
                                         value={kecamatanFilter}
                                         isLoading={loadingKec}
-                                        disabled={!kabupatenFilter}
+                                        disabled={!kabupatenFilter || ['admin_kecamatan'].includes(currentUserRoleName)}
                                         valueKey="kode"
                                         labelKey="name"
                                         onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
@@ -252,7 +294,7 @@ const DataDampinganPage = () => {
                                                     </div>
                                                     
                                                     <div className="flex flex-col ml-3 flex-1 overflow-hidden">
-                                                        <span className="text-[13px] font-semibold text-[#0080C5] truncate">{item.nama}</span>
+                                                        <span className="text-[13px] font-semibold text-[#0080C5] truncate">{item.name}</span>
                                                         <span className="text-[11px] font-normal text-[#9298B0] truncate">{item.no_anggota || '-'}</span>
                                                     </div>
                                                     
@@ -279,13 +321,13 @@ const DataDampinganPage = () => {
                                                             <div>
                                                                 <span className="text-slate-400 block mb-0.5">Bidang Dampingan</span>
                                                                 <span className="text-slate-800 font-medium">
-                                                                    {item.grup_dampingan?.bidang?.nama_bidang || '-'}
+                                                                    {item.bidang?.name || '-'}
                                                                 </span>
                                                             </div>
                                                             <div>
                                                                 <span className="text-slate-400 block mb-0.5">Grup Dampingan</span>
                                                                 <span className="text-slate-800 font-medium">
-                                                                    {item.grup_dampingan?.nama_grup || '-'}
+                                                                    {item.grup_dampingan?.name || item.grupDampingan?.name || '-'}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -295,6 +337,12 @@ const DataDampinganPage = () => {
                                                                 className="px-3 py-1.5 rounded-lg bg-[#0080C5]/10 text-[#0080C5] hover:bg-[#0080C5] hover:text-white transition-all text-[11px] font-semibold flex items-center gap-1.5"
                                                             >
                                                                 Detail
+                                                            </button>
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); handlePrintKartu(item); }}
+                                                                className="px-3 py-1.5 rounded-lg bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E] hover:text-white transition-all text-[11px] font-semibold flex items-center gap-1.5"
+                                                            >
+                                                                <Printer size={12} /> Cetak
                                                             </button>
                                                             <button 
                                                                 onClick={(e) => { e.stopPropagation(); handleEdit(item); }}
@@ -365,14 +413,14 @@ const DataDampinganPage = () => {
                                             <tr key={item.id_anggota_grup || item.id || index} className="hover:bg-slate-50 transition-colors">
                                                 <td className="py-2.5 px-4 text-center text-[#9298B0] text-[12px] font-medium border-x-0">{item.no_anggota || '-'}</td>
                                                 <td className="py-2.5 px-4 text-left border-x-0">
-                                                    <span className="text-[#0080C5] text-[12px] font-bold hover:underline cursor-pointer">{item.nama}</span>
+                                                    <span className="text-[#0080C5] text-[12px] font-bold hover:underline cursor-pointer">{item.name}</span>
                                                 </td>
                                                 <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.jenis_kelamin}</td>
                                                 <td className="py-2.5 px-4 text-left text-[#0A0F1E] text-[12px] font-normal max-w-[220px] leading-relaxed border-x-0">
                                                     {item.alamat || '-'}
                                                 </td>
-                                                <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.grup_dampingan?.bidang?.nama_bidang || '-'}</td>
-                                                <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.grup_dampingan?.nama_grup || '-'}</td>
+                                                <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.bidang?.name || '-'}</td>
+                                                <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-[12px] font-normal border-x-0">{item.grup_dampingan?.name || item.grupDampingan?.name || '-'}</td>
                                                 <td className="py-2.5 px-4 border-x-0 text-center">
                                                     <div className="flex items-center justify-center gap-2.5">
                                                         <button onClick={() => handleEdit(item)} className="w-7 h-7 flex items-center justify-center bg-[#FB923C]/12 text-[#FB923C] rounded-md hover:bg-[#FB923C] hover:text-white transition-all shadow-sm">
@@ -381,7 +429,7 @@ const DataDampinganPage = () => {
                                                         <button onClick={() => handleDelete(item)} className="w-7 h-7 flex items-center justify-center bg-[#EF4444]/10 text-[#EF4444] rounded-md hover:bg-[#EF4444] hover:text-white transition-all shadow-sm">
                                                             <Trash2 size={14} />
                                                         </button>
-                                                        <button className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
+                                                        <button onClick={() => handlePrintKartu(item)} className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold">
                                                             <Printer size={14} />
                                                         </button>
                                                     </div>
@@ -436,7 +484,16 @@ const DataDampinganPage = () => {
             <AddDampinganModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
             <EditDampinganModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} data={selectedData} />
             <DeleteDampinganModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} data={selectedData} />
-            <DetailDampinganModal isOpen={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)} data={selectedData} />
+            <DetailDampinganModal 
+                isOpen={isDetailModalOpen} 
+                onClose={() => setIsDetailModalOpen(false)} 
+                data={selectedData} 
+            />
+            <KartuDampinganModal
+                isOpen={isKartuModalOpen}
+                onClose={() => setIsKartuModalOpen(false)}
+                anggota={selectedData}
+            />
         </AdminLayout>
     );
 };

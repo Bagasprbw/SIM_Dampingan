@@ -190,7 +190,7 @@ const DashboardPage = () => {
                             {[1,2,3].map((item, iIdx) => (
                                 <div key={iIdx} className={`p-3 md:p-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${iIdx !== 2 ? 'border-b border-slate-50' : 'rounded-b-2xl'}`}>
                                     <div className="flex items-center gap-2.5 md:gap-3">
-                                        <div className="h-8 md:h-9 px-3 md:px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[11px] md:text-[13px] font-semibold">PJ</div>
+                                        <div className="h-7 md:h-8 px-2.5 md:px-3 bg-[#0080C5] text-white rounded-lg flex items-center justify-center shadow-sm text-[10px] md:text-[11px] font-bold shrink-0 tracking-wide">PJ</div>
                                         <div className="flex flex-col">
                                             <span className="text-[#0A0F1E] text-[10px] md:text-[11px] font-semibold">PJ Dampingan Santoso</span>
                                             <span className="text-[#9298B0] text-[9px] md:text-[10px] font-normal line-clamp-1">Mengajukan Data Dampingan Baru</span>
@@ -389,7 +389,7 @@ const DashboardPage = () => {
                                 return (
                                     <div key={log.id_log || iIdx} className={`p-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${iIdx !== logItems.length - 1 ? 'border-b border-slate-50' : 'rounded-b-2xl'}`}>
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 bg-[#0080C5] text-white rounded-lg flex items-center justify-center text-[11px] font-bold">{initials}</div>
+                                            <div className="w-8 h-8 md:w-9 md:h-9 bg-[#0080C5] text-white rounded-lg flex items-center justify-center text-[10px] md:text-[11px] font-bold shrink-0">{initials}</div>
                                             <div className="flex flex-col">
                                                 <span className="text-[#0A0F1E] text-[11px] font-semibold">Fasilitator {name}</span>
                                                 <span className="text-[#9298B0] text-[10px] font-normal">{description}</span>
@@ -630,7 +630,7 @@ const DashboardPage = () => {
                                 {section.items.map((item, iIdx) => (
                                     <div key={iIdx} className={`p-3 md:p-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${iIdx !== section.items.length - 1 ? 'border-b border-slate-50' : 'rounded-b-[16px] xl:rounded-b-2xl'}`}>
                                         <div className="flex items-center gap-2.5 md:gap-3">
-                                            <div className="h-8 md:h-9 px-3 md:px-4 bg-[#0080C5] text-white rounded-full md:rounded-lg flex items-center justify-center gap-2 shadow-sm text-[10px] md:text-[13px] font-semibold shrink-0">{item.id}</div>
+                                            <div className="h-7 md:h-8 px-2.5 md:px-3 bg-[#0080C5] text-white rounded-lg flex items-center justify-center shadow-sm text-[9px] md:text-[11px] font-bold shrink-0 tracking-wide">{item.id}</div>
                                             <div className="flex flex-col">
                                                 <span className="text-[#0A0F1E] text-[10px] md:text-[11px] font-bold">{item.name}</span>
                                                 <span className="text-[#9298B0] text-[9px] md:text-[10px] font-normal line-clamp-1">{item.action}</span>

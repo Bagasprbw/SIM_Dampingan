@@ -29,6 +29,8 @@ import { useFasilitatorMutations } from '../../hooks/mutations/useFasilitatorMut
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 import { isSuperAdmin } from '../../utils/permissionUtils';
+import { exportToExcel } from '../../utils/exportToExcel';
+import { getUser } from '../../utils/storage';
 
 const DataFasilitatorPage = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -43,10 +45,19 @@ const DataFasilitatorPage = () => {
     const [page, setPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
 
+    const currentUser = getUser();
+    const currentUserRoleName = currentUser?.role;
+
     // Filter State
-    const [provinsiFilter, setProvinsiFilter] = useState(null);
-    const [kabupatenFilter, setKabupatenFilter] = useState(null);
-    const [kecamatanFilter, setKecamatanFilter] = useState(null);
+    const [provinsiFilter, setProvinsiFilter] = useState(
+        ['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName) ? currentUser?.kode_prov : null
+    );
+    const [kabupatenFilter, setKabupatenFilter] = useState(
+        ['admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName) ? currentUser?.kode_kab : null
+    );
+    const [kecamatanFilter, setKecamatanFilter] = useState(
+        ['admin_kecamatan'].includes(currentUserRoleName) ? currentUser?.kode_kec : null
+    );
 
     // Wilayah Queries
     const { data: provinsiOptions = [], isLoading: loadingProv } = useProvinsi();
@@ -120,6 +131,34 @@ const DataFasilitatorPage = () => {
     const dataFasilitator = fasilitatorData?.data || [];
     const meta = fasilitatorData?.meta || {};
 
+    const handleExport = () => {
+        if (!dataFasilitator || dataFasilitator.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Kosong',
+                text: 'Tidak ada data untuk diekspor.',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+            });
+            return;
+        }
+
+        const exportData = dataFasilitator.map((item, index) => ({
+            'No': index + 1,
+            'Nama Lengkap': item.name || '-',
+            'Username': item.username || '-',
+            'Email': item.email || '-',
+            'No. Telepon': item.no_hp || item.phone || '-',
+            'Status': item.status === 'active' ? 'Aktif' : 'Nonaktif',
+            'Provinsi': item.provinsi?.name || '-',
+            'Kabupaten': item.kabupaten?.name || '-',
+            'Kecamatan': item.kecamatan?.name || '-',
+            'Bidang Dampingan': item.fasilitator_bidangs?.map(fb => fb.bidang?.name).join(', ') || '-',
+            'Grup Dampingan': item.grup_fasilitators?.map(gf => gf.grup_dampingan?.name).join(', ') || '-'
+        }));
+
+        exportToExcel(exportData, 'Data_Fasilitator');
+    };
+
     return (
         <AdminLayout title="Data Fasilitator">
             <div className="font-['Poppins']">
@@ -136,10 +175,12 @@ const DataFasilitatorPage = () => {
                             <span>Tambah</span>
                         </button>
                         <div className="relative group">
-                            <button className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold">
+                            <button 
+                                onClick={handleExport}
+                                className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold"
+                            >
                                 <FileText size={18} />
                                 <span>Cetak Data</span>
-                                <ChevronDown size={18} />
                             </button>
                         </div>
                     </div>
@@ -168,6 +209,7 @@ const DataFasilitatorPage = () => {
                                     options={provinsiOptions}
                                     value={provinsiFilter}
                                     isLoading={loadingProv}
+                                    disabled={['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName)}
                                     valueKey="kode"
                                     labelKey="name"
                                     onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
@@ -179,7 +221,7 @@ const DataFasilitatorPage = () => {
                                     options={kabupatenOptions}
                                     value={kabupatenFilter}
                                     isLoading={loadingKab}
-                                    disabled={!provinsiFilter}
+                                    disabled={!provinsiFilter || ['admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName)}
                                     valueKey="kode"
                                     labelKey="name"
                                     onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
@@ -191,7 +233,7 @@ const DataFasilitatorPage = () => {
                                     options={kecamatanOptions}
                                     value={kecamatanFilter}
                                     isLoading={loadingKec}
-                                    disabled={!kabupatenFilter}
+                                    disabled={!kabupatenFilter || ['admin_kecamatan'].includes(currentUserRoleName)}
                                     valueKey="kode"
                                     labelKey="name"
                                     onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
@@ -239,10 +281,12 @@ const DataFasilitatorPage = () => {
                                         <Plus size={14} strokeWidth={3} />
                                         <span className="text-[12px] font-semibold">Tambah</span>
                                     </button>
-                                    <button className="h-[34px] px-3 bg-[#22C55E] text-white rounded-[14px] flex items-center justify-center gap-1.5 shadow-sm">
+                                    <button 
+                                        onClick={handleExport}
+                                        className="h-[34px] px-3 bg-[#22C55E] text-white rounded-[14px] flex items-center justify-center gap-1.5 shadow-sm"
+                                    >
                                         <FileText size={14} />
                                         <span className="text-[12px] font-semibold">Cetak Data</span>
-                                        <ChevronDown size={13} />
                                     </button>
                                 </div>
 
@@ -266,6 +310,7 @@ const DataFasilitatorPage = () => {
                                             options={provinsiOptions}
                                             value={provinsiFilter}
                                             isLoading={loadingProv}
+                                            disabled={['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName)}
                                             valueKey="kode"
                                             labelKey="name"
                                             onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}

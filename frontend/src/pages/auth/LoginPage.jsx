@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLogin } from '../../hooks/useLogin';
 import AuthModal from '../../components/modals/AuthModal';
+import Swal from 'sweetalert2';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
@@ -10,19 +11,82 @@ const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
     const [modal, setModal] = useState({ isOpen: false, type: 'success' });
+    const [showForgotModal, setShowForgotModal] = useState(false);
+    const [forgotInput, setForgotInput] = useState('');
+    const [isSubmittingForgot, setIsSubmittingForgot] = useState(false);
 
     const { login, commitLogin, loading } = useLogin();
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const savedUsername = localStorage.getItem('remembered_username');
+        const savedPassword = localStorage.getItem('remembered_password');
+        const savedRememberMe = localStorage.getItem('remember_me') === 'true';
+
+        if (savedRememberMe && savedUsername && savedPassword) {
+            setUsername(savedUsername);
+            setPassword(savedPassword);
+            setRememberMe(true);
+        }
+    }, []);
+
+    const handleForgotPassword = async (e) => {
+        e.preventDefault();
+        if (!forgotInput) return;
+        setIsSubmittingForgot(true);
+
+        const superAdminWa = import.meta.env.VITE_SUPERADMIN_WA || '081234567890'; // Use env variable or fallback
+        
+        setTimeout(() => {
+            setIsSubmittingForgot(false);
+            setShowForgotModal(false);
+            setForgotInput('');
+
+            if (superAdminWa) {
+                // Ensure WA number starts with country code (e.g., 62 instead of 0)
+                let formattedWa = superAdminWa;
+                if (formattedWa.startsWith('0')) {
+                    formattedWa = '62' + formattedWa.substring(1);
+                }
+                
+                const message = `Halo SuperAdmin, saya pengguna dengan username/WA "${forgotInput}" meminta bantuan untuk mereset password akun saya.`;
+                const waUrl = `https://wa.me/${formattedWa}?text=${encodeURIComponent(message)}`;
+                
+                window.open(waUrl, '_blank');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Nomor WhatsApp SuperAdmin belum diatur dalam sistem.',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        }, 1000);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const user = await login({ username, password });
+            const user = await login({ username, password, rememberMe });
             if (user) {
+                if (rememberMe) {
+                    localStorage.setItem('remembered_username', username);
+                    localStorage.setItem('remembered_password', password);
+                    localStorage.setItem('remember_me', 'true');
+                } else {
+                    localStorage.removeItem('remembered_username');
+                    localStorage.removeItem('remembered_password');
+                    localStorage.setItem('remember_me', 'false');
+                }
+
                 setModal({ isOpen: true, type: 'success' });
                 setTimeout(() => {
                     commitLogin();
-                    navigate('/dashboard');
+                    if (user.must_change_password) {
+                        navigate('/ganti-password');
+                    } else {
+                        navigate('/dashboard');
+                    }
                 }, 3000);
             }
         } catch (error) {
@@ -153,9 +217,13 @@ const LoginPage = () => {
                                     Ingat Saya
                                 </span>
                             </label>
-                            <a href="#" className="text-[#0080C5] text-[13px] lg:text-[15px] font-semibold lg:font-medium tracking-[0.45px]">
+                            <button
+                                type="button"
+                                onClick={() => setShowForgotModal(true)}
+                                className="text-[#0080C5] text-[13px] lg:text-[15px] font-semibold lg:font-medium tracking-[0.45px] hover:underline"
+                            >
                                 Lupa Password
-                            </a>
+                            </button>
                         </div>
 
                         {/* Login Button
@@ -191,6 +259,54 @@ const LoginPage = () => {
                 isOpen={modal.isOpen}
                 type={modal.type}
             />
+
+            {/* ── FORGOT PASSWORD MODAL ── */}
+            {showForgotModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl relative animate-in fade-in zoom-in duration-200">
+                        <button
+                            onClick={() => setShowForgotModal(false)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                        >
+                            ✕
+                        </button>
+                        <h2 className="text-xl font-bold text-gray-900 mb-2">Lupa Password?</h2>
+                        <p className="text-sm text-gray-500 mb-6">
+                            Masukkan nomor WhatsApp atau Username Anda. Sistem akan mengirimkan notifikasi ke SuperAdmin untuk mereset password Anda.
+                        </p>
+                        <form onSubmit={handleForgotPassword} className="flex flex-col gap-4">
+                            <div>
+                                <label className="text-sm font-medium text-gray-700 block mb-1">WhatsApp / Username</label>
+                                <input
+                                    type="text"
+                                    value={forgotInput}
+                                    onChange={(e) => setForgotInput(e.target.value)}
+                                    placeholder="Contoh: 08123456789 atau john_doe"
+                                    className="w-full h-11 border border-gray-300 rounded-lg px-4 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                                    required
+                                />
+                            </div>
+                            <div className="flex gap-3 justify-end mt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowForgotModal(false)}
+                                    className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                    disabled={isSubmittingForgot}
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSubmittingForgot || !forgotInput}
+                                    className="px-4 py-2 text-sm font-medium text-white bg-[#0080C5] hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+                                >
+                                    {isSubmittingForgot ? 'Mengirim...' : 'Kirim Permintaan'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

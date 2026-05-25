@@ -25,6 +25,8 @@ import { Loader2 } from 'lucide-react';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 import { isSuperAdmin } from '../../utils/permissionUtils';
+import { exportToExcel } from '../../utils/exportToExcel';
+import { getUser } from '../../utils/storage';
 
 const DataPjPage = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -37,10 +39,19 @@ const DataPjPage = () => {
     const [page, setPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
 
+    const currentUser = getUser();
+    const currentUserRoleName = currentUser?.role;
+
     // Filter State
-    const [provinsiFilter, setProvinsiFilter] = useState(null);
-    const [kabupatenFilter, setKabupatenFilter] = useState(null);
-    const [kecamatanFilter, setKecamatanFilter] = useState(null);
+    const [provinsiFilter, setProvinsiFilter] = useState(
+        ['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName) ? currentUser?.kode_prov : null
+    );
+    const [kabupatenFilter, setKabupatenFilter] = useState(
+        ['admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName) ? currentUser?.kode_kab : null
+    );
+    const [kecamatanFilter, setKecamatanFilter] = useState(
+        ['admin_kecamatan'].includes(currentUserRoleName) ? currentUser?.kode_kec : null
+    );
 
     // Wilayah Queries
     const { data: provinsiOptions = [], isLoading: loadingProv } = useProvinsi();
@@ -114,6 +125,30 @@ const DataPjPage = () => {
     const dataPj = pjData?.data || [];
     const meta = pjData?.meta || {};
 
+    const handleExport = () => {
+        if (!dataPj || dataPj.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Kosong',
+                text: 'Tidak ada data untuk diekspor.',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+            });
+            return;
+        }
+
+        const exportData = dataPj.map((item, index) => ({
+            'No': index + 1,
+            'Nama Lengkap': item.name || '-',
+            'Username': item.username || '-',
+            'Email': item.email || '-',
+            'No. Telepon': item.no_hp || item.phone || '-',
+            'Status': item.status === 'active' ? 'Aktif' : 'Nonaktif',
+            'Grup Dampingan': item.grup_dampingans_pengurus?.map(g => g.name).join(', ') || '-'
+        }));
+
+        exportToExcel(exportData, 'Data_PJ_Dampingan');
+    };
+
     return (
         <AdminLayout title="Data PJ Dampingan">
             <div className="font-['Poppins']">
@@ -122,10 +157,12 @@ const DataPjPage = () => {
                     
                     {/* Header Action Row - DESKTOP */}
                     <div className="hidden lg:flex justify-end items-center mb-6">
-                        <button className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold">
+                        <button 
+                            onClick={handleExport}
+                            className="h-9 px-4 bg-[#22C55E] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-sm text-[13px] font-semibold"
+                        >
                             <FileText size={18} />
                             <span>Cetak Data</span>
-                            <ChevronDown size={18} />
                         </button>
                     </div>
 
@@ -153,6 +190,7 @@ const DataPjPage = () => {
                                     options={provinsiOptions}
                                     value={provinsiFilter}
                                     isLoading={loadingProv}
+                                    disabled={['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName)}
                                     valueKey="kode"
                                     labelKey="name"
                                     onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
@@ -164,7 +202,7 @@ const DataPjPage = () => {
                                     options={kabupatenOptions}
                                     value={kabupatenFilter}
                                     isLoading={loadingKab}
-                                    disabled={!provinsiFilter}
+                                    disabled={!provinsiFilter || ['admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName)}
                                     valueKey="kode"
                                     labelKey="name"
                                     onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
@@ -176,7 +214,7 @@ const DataPjPage = () => {
                                     options={kecamatanOptions}
                                     value={kecamatanFilter}
                                     isLoading={loadingKec}
-                                    disabled={!kabupatenFilter}
+                                    disabled={!kabupatenFilter || ['admin_kecamatan'].includes(currentUserRoleName)}
                                     valueKey="kode"
                                     labelKey="name"
                                     onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
@@ -205,10 +243,12 @@ const DataPjPage = () => {
                             <div className="lg:hidden flex flex-col pb-24 bg-[#F0F2F8] min-h-screen gap-3">
                                 {/* Mobile Action Buttons */}
                                 <div className="flex flex-row justify-end items-center gap-2 w-full">
-                                    <button className="h-[34px] px-3 bg-[#22C55E] text-white rounded-[14px] flex items-center justify-center gap-1.5 shadow-sm">
+                                    <button 
+                                        onClick={handleExport}
+                                        className="h-[34px] px-3 bg-[#22C55E] text-white rounded-[14px] flex items-center justify-center gap-1.5 shadow-sm"
+                                    >
                                         <FileText size={14} />
                                         <span className="text-[12px] font-semibold">Cetak Data</span>
-                                        <ChevronDown size={13} />
                                     </button>
                                 </div>
 
@@ -232,6 +272,7 @@ const DataPjPage = () => {
                                             options={provinsiOptions}
                                             value={provinsiFilter}
                                             isLoading={loadingProv}
+                                            disabled={['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName)}
                                             valueKey="kode"
                                             labelKey="name"
                                             onChange={(v) => { setProvinsiFilter(v); setKabupatenFilter(null); setKecamatanFilter(null); setPage(1); }}
@@ -243,7 +284,7 @@ const DataPjPage = () => {
                                         options={kabupatenOptions}
                                         value={kabupatenFilter}
                                         isLoading={loadingKab}
-                                        disabled={!provinsiFilter}
+                                        disabled={!provinsiFilter || ['admin_kabupaten', 'admin_kecamatan'].includes(currentUserRoleName)}
                                         valueKey="kode"
                                         labelKey="name"
                                         onChange={(v) => { setKabupatenFilter(v); setKecamatanFilter(null); setPage(1); }}
@@ -254,7 +295,7 @@ const DataPjPage = () => {
                                         options={kecamatanOptions}
                                         value={kecamatanFilter}
                                         isLoading={loadingKec}
-                                        disabled={!kabupatenFilter}
+                                        disabled={!kabupatenFilter || ['admin_kecamatan'].includes(currentUserRoleName)}
                                         valueKey="kode"
                                         labelKey="name"
                                         onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
