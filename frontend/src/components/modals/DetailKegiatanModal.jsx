@@ -14,6 +14,9 @@ import {
 const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
     if (!isOpen) return null;
 
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    const baseUrl = apiUrl.replace('/api', '');
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 font-['Poppins']">
             {/* Backdrop */}
@@ -112,7 +115,7 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
                                 data.foto_kegiatans.map((foto, idx) => (
                                     <div key={idx} className="h-56 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
                                         <img 
-                                            src={foto.file ? `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${foto.file}` : 'https://placehold.co/600x400/F0F2F8/9298B0?text=Dokumentasi'} 
+                                            src={foto.file ? `${baseUrl}/storage/${foto.file}` : 'https://placehold.co/600x400/F0F2F8/9298B0?text=Dokumentasi'} 
                                             className="w-full h-full object-cover" 
                                             alt={`Dokumentasi ${idx + 1}`}
                                         />
@@ -133,7 +136,7 @@ const DetailKegiatanModal = ({ isOpen, onClose, data }) => {
                     <div className="flex items-center gap-3 w-full md:w-auto">
                         {data?.laporan && (
                             <a 
-                                href={`${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/storage/${data.laporan}`}
+                                href={`${baseUrl}/storage/${data.laporan}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex-1 md:flex-none h-11 px-6 bg-white border border-gray-200 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2"

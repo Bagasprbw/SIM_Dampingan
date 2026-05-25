@@ -154,7 +154,7 @@ const KelolaKegiatanPage = () => {
                                                 <td className="px-6 py-4 align-top text-center">
                                                     <div className="inline-flex flex-wrap justify-center gap-1">
                                                         {item.kegiatan_grups?.length > 0 ? item.kegiatan_grups.map(g => (
-                                                            <span key={g.id_grup} className="px-2.5 py-1 bg-[#16A34A]/10 text-[#16A34A] rounded-full text-[10px] font-bold whitespace-nowrap">
+                                                            <span key={g.id_kegiatan_grup || g.grup_dampingan_id} className="px-2.5 py-1 bg-[#16A34A]/10 text-[#16A34A] rounded-full text-[10px] font-bold whitespace-nowrap">
                                                                 {g.grup_dampingan?.name || 'Grup'}
                                                             </span>
                                                         )) : (

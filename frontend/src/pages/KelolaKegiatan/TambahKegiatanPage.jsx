@@ -429,7 +429,7 @@ const Step2 = ({
 };
 
 // ─── Step 3: Ringkasan (Upload) ───────────────────────────────────────────────
-const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = false, multiple = false, files = [], onChange }) => {
+const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = false, multiple = false, files = [], onChange, existingFiles = [], existingFileUrl, onDeleteExisting }) => {
     const normalizedFiles = Array.isArray(files) ? files : files ? [files] : [];
     return (
         <div className="border border-slate-200 rounded-xl overflow-hidden">
@@ -448,12 +448,37 @@ const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = fals
             <div className="p-4">
                 {label && <p className="text-xs font-semibold text-slate-700 mb-1">{label}</p>}
                 {hint && <p className="text-[10px] text-slate-400 mb-3">{hint}</p>}
+                
+                {existingFiles && existingFiles.length > 0 && (
+                    <div className="mb-4 space-y-2">
+                        <p className="text-[11px] font-semibold text-slate-700">File Tersimpan:</p>
+                        {existingFiles.map((file) => (
+                            <div key={file.id_foto || file.id_foto_absensi} className="flex items-center justify-between p-2.5 border border-slate-200 rounded-lg bg-slate-50">
+                                <a href={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${file.file}`} target="_blank" rel="noreferrer" className="text-[11px] text-[#0080C5] hover:underline truncate mr-2 font-medium">
+                                    {file.file.split('/').pop()}
+                                </a>
+                                <button type="button" onClick={() => onDeleteExisting(file.id_foto || file.id_foto_absensi)} className="w-6 h-6 rounded-md bg-white border border-slate-200 text-red-400 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shrink-0">
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+                {existingFileUrl && (
+                    <div className="mb-4">
+                        <p className="text-[11px] font-semibold text-slate-700">File Laporan Saat Ini:</p>
+                        <a href={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${existingFileUrl}`} target="_blank" rel="noreferrer" className="inline-block mt-1 text-[11px] text-[#0080C5] hover:underline truncate font-medium p-2.5 border border-slate-200 rounded-lg bg-slate-50 w-full">
+                            {existingFileUrl.split('/').pop()}
+                        </a>
+                    </div>
+                )}
+
                 <label className="block border-2 border-dashed border-slate-200 rounded-xl py-10 text-center cursor-pointer hover:border-[#0080C5] transition-all group">
                     <input type="file" accept={accept} multiple={multiple} onChange={onChange} className="hidden" />
                     <Upload size={24} className="mx-auto text-slate-300 group-hover:text-[#0080C5] transition-colors mb-2" />
-                    <p className="text-xs text-slate-400">Seret & lepas {icon === 'image' ? 'foto' : 'file PDF'} di sini</p>
+                    <p className="text-xs text-slate-400">Seret & lepas {icon === 'image' ? 'foto' : 'file'} di sini</p>
                     <p className="text-xs text-slate-400">atau <span className="text-[#0080C5] underline">klik untuk memilih {icon === 'image' ? 'foto' : 'file'}</span></p>
-                    <p className="text-[10px] text-slate-300 mt-1">{icon === 'image' ? 'JPG, PNG, WEBP · Dapat memilih lebih dari 1 foto' : 'Hanya file PDF · Maks. 10 MB'}</p>
+                    <p className="text-[10px] text-slate-300 mt-1">{icon === 'image' ? 'JPG, PNG, WEBP · Dapat memilih lebih dari 1 foto' : accept.includes('image/*') ? 'JPG, PNG, WEBP, PDF · Maks. 5 MB' : 'Hanya file PDF · Maks. 10 MB'}</p>
                 </label>
                 {normalizedFiles.length > 0 && (
                     <div className="mt-3 text-[10px] text-slate-500 space-y-1">
@@ -467,7 +492,7 @@ const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = fals
     );
 };
 
-const Step3 = ({ uploads, onUploadChange }) => (
+const Step3 = ({ uploads, onUploadChange, existingData, onDeleteExisting }) => (
     <div className="space-y-5">
         <UploadBox
             icon="image"
@@ -477,6 +502,8 @@ const Step3 = ({ uploads, onUploadChange }) => (
             multiple
             files={uploads.fotoKegiatan}
             onChange={(e) => onUploadChange('fotoKegiatan', Array.from(e.target.files || []))}
+            existingFiles={existingData?.fotoKegiatans}
+            onDeleteExisting={(id) => onDeleteExisting('fotoKegiatan', id)}
         />
         <UploadBox
             icon="pdf"
@@ -487,16 +514,20 @@ const Step3 = ({ uploads, onUploadChange }) => (
             accept=".pdf"
             files={uploads.laporan}
             onChange={(e) => onUploadChange('laporan', e.target.files?.[0] || null)}
+            existingFileUrl={existingData?.laporanUrl}
         />
         <UploadBox
             icon="pdf"
             title="Absen Kegiatan"
-            subtitle="Unggah absen kegiatan dalam format PDF (opsional)"
-            label="Upload Absen (PDF)"
-            accept=".pdf"
+            subtitle="Unggah absen kegiatan dalam format gambar atau PDF (opsional, dapat lebih dari 1 file)"
+            label="Upload Absen"
+            accept=".pdf,image/*"
             optional
+            multiple
             files={uploads.absensi}
-            onChange={(e) => onUploadChange('absensi', e.target.files?.[0] ? [e.target.files[0]] : [])}
+            onChange={(e) => onUploadChange('absensi', Array.from(e.target.files || []))}
+            existingFiles={existingData?.fotoAbsensis}
+            onDeleteExisting={(id) => onDeleteExisting('fotoAbsensi', id)}
         />
     </div>
 );
@@ -546,6 +577,11 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
         fotoKegiatan: [],
         laporan: null,
         absensi: [],
+    });
+    const [existingData, setExistingData] = useState({
+        fotoKegiatans: [],
+        fotoAbsensis: [],
+        laporanUrl: null
     });
 
     const resolvedLevelName = useMemo(() => {
@@ -601,6 +637,31 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                         kode_kab: data?.kode_kab || '',
                         kode_kec: data?.kode_kec || '',
                     });
+                    setExistingData({
+                        fotoKegiatans: data?.foto_kegiatans || [],
+                        fotoAbsensis: data?.foto_absensis || [],
+                        laporanUrl: data?.laporan || null
+                    });
+                    
+                    if (data?.peserta_kegiatans) {
+                        const manual = [];
+                        const att = {};
+                        data.peserta_kegiatans.forEach(p => {
+                            if (p.jenis_peserta === 'eksternal') {
+                                const match = p.nama_peserta.match(/^(.*?) \((.*?)\)$/);
+                                if (match) {
+                                    manual.push({ nama: match[1], ket: match[2] });
+                                } else {
+                                    manual.push({ nama: p.nama_peserta, ket: '' });
+                                }
+                            } else if (p.jenis_peserta === 'anggota') {
+                                att[p.anggota_id] = p.status_hadir === 'hadir';
+                            }
+                        });
+                        setPesertaManual(manual);
+                        setAttendance(prev => ({ ...prev, ...att }));
+                    }
+
                     const grupIds = data?.kegiatan_grups?.map((g) => g.grup_dampingan_id) || [];
                     setSelectedGrupIds(grupIds);
                     setActiveGrupId(grupIds[0] || null);
@@ -639,6 +700,41 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
             fetchGrupDetail();
         });
     }, [selectedGrupIds, grupDetails, loadingGrupIds]);
+
+    const handleDeleteExisting = async (type, idFile) => {
+        const result = await Swal.fire({
+            title: 'Hapus file ini?',
+            text: 'File akan dihapus secara permanen.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#94A3B8',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+        });
+
+        if (result.isConfirmed) {
+            try {
+                if (type === 'fotoKegiatan') {
+                    await kegiatanService.deleteFotoKegiatan(id, idFile);
+                    setExistingData(prev => ({
+                        ...prev,
+                        fotoKegiatans: prev.fotoKegiatans.filter(f => f.id_foto !== idFile)
+                    }));
+                } else if (type === 'fotoAbsensi') {
+                    await kegiatanService.deleteFotoAbsensi(id, idFile);
+                    setExistingData(prev => ({
+                        ...prev,
+                        fotoAbsensis: prev.fotoAbsensis.filter(f => f.id_foto_absensi !== idFile)
+                    }));
+                }
+                Swal.fire({ title: 'Terhapus!', icon: 'success', timer: 1000, showConfirmButton: false, customClass: { popup: 'rounded-2xl font-["Poppins"]' }});
+            } catch (error) {
+                Swal.fire({ title: 'Gagal', text: 'Terjadi kesalahan saat menghapus file', icon: 'error', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' }});
+            }
+        }
+    };
 
     const handleChange = (field, value) => setFormData((prev) => ({ ...prev, [field]: value }));
 
@@ -803,7 +899,7 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                 }
             }
 
-            if (!isEdit && kegiatanId) {
+            if (kegiatanId) {
                 const { memberIds } = computeAttendanceSummary();
                 const internalPeserta = memberIds.map((anggotaId) => ({
                     jenis_peserta: 'anggota',
@@ -817,7 +913,7 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                 }));
                 const allPeserta = [...internalPeserta, ...eksternalPeserta];
                 if (allPeserta.length > 0) {
-                    await Promise.all(allPeserta.map((payload) => kegiatanService.addPeserta(kegiatanId, payload)));
+                    await kegiatanService.syncPeserta(kegiatanId, allPeserta);
                 }
             }
 
@@ -890,7 +986,7 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                                 setPesertaManual={setPesertaManual}
                             />
                         )}
-                        {step === 3 && <Step3 uploads={uploads} onUploadChange={handleUploadChange} />}
+                        {step === 3 && <Step3 uploads={uploads} onUploadChange={handleUploadChange} existingData={existingData} onDeleteExisting={handleDeleteExisting} />}
                     </div>
 
                     {/* Footer Actions Desktop */}

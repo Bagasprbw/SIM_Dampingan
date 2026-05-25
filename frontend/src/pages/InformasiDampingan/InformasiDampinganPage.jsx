@@ -26,7 +26,7 @@ const InformasiDampinganPage = () => {
     const { data: pjGrupData, isLoading, isError, refetch } = usePjGrup();
 
     const grup = pjGrupData?.data; // { id_grup_dampingan, name, ..., anggota_grup_dampingans: [...] }
-    const anggotaList = grup?.anggota_grup_dampingans || [];
+    const anggotaList = (grup?.anggota_grup_dampingans || []).filter(a => a.status === 'aktif');
 
     const filtered = anggotaList.filter(a =>
         String(a.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||

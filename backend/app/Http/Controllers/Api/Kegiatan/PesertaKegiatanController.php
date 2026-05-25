@@ -83,6 +83,48 @@ class PesertaKegiatanController extends Controller
         ], 201);
     }
 
+    // SYNC peserta kegiatan (bulk update/replace)
+    public function sync(Request $request, $kegiatanId)
+    {
+        $kegiatan = Kegiatan::find($kegiatanId);
+        if (!$kegiatan) {
+            return response()->json(['message' => 'Kegiatan tidak ditemukan'], 404);
+        }
+
+        $request->validate([
+            'peserta' => 'array',
+            'peserta.*.jenis_peserta' => 'required|in:anggota,eksternal',
+            'peserta.*.anggota_id' => 'required_if:peserta.*.jenis_peserta,anggota|nullable|exists:anggota_grup_dampingans,id_anggota_grup',
+            'peserta.*.nama_peserta' => 'required_if:peserta.*.jenis_peserta,eksternal|nullable|string|max:150',
+            'peserta.*.status_hadir' => 'nullable|in:hadir,tidak'
+        ]);
+
+        // Hapus semua peserta lama
+        PesertaKegiatan::where('kegiatan_id', $kegiatanId)->delete();
+
+        $pesertaData = $request->input('peserta', []);
+        $createdPeserta = [];
+
+        foreach ($pesertaData as $p) {
+            $id = (string) Str::uuid();
+            $peserta = PesertaKegiatan::create([
+                'id_peserta_kegiatan' => $id,
+                'kegiatan_id' => $kegiatanId,
+                'jenis_peserta' => $p['jenis_peserta'],
+                'anggota_id' => $p['jenis_peserta'] === 'anggota' ? $p['anggota_id'] : null,
+                'nama_peserta' => $p['jenis_peserta'] === 'eksternal' ? $p['nama_peserta'] : null,
+                'status_hadir' => $p['status_hadir'] ?? 'tidak',
+                'created_at' => now()
+            ]);
+            $createdPeserta[] = $peserta;
+        }
+
+        return response()->json([
+            'message' => 'Peserta kegiatan berhasil disinkronisasi',
+            'data' => $createdPeserta
+        ]);
+    }
+
     // UPDATE peserta (biasanya untuk upadate status kehadiran)
     public function update(Request $request, $id)
     {

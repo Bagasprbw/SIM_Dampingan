@@ -24,7 +24,7 @@ export const ROUTE_ACCESS = {
     '/data-fasilitator': [...SUPERADMIN_AND_ADMINS],
     '/data-pj':          [...SUPERADMIN_AND_ADMINS],
     '/data-grup':        [...SUPERADMIN_AND_ADMINS],
-    '/kegiatan-dampingan': [...SUPERADMIN_AND_ADMINS],
+    '/kegiatan-dampingan': [...SUPERADMIN_AND_ADMINS, ROLES.FASILITATOR, ROLES.PJ_DAMPINGAN],
     '/kelola-kegiatan':    [...SUPERADMIN_AND_ADMINS, ROLES.FASILITATOR],
     '/kelola-kegiatan/tambah': [ROLES.FASILITATOR],
     '/kelola-kegiatan/edit':   [...SUPERADMIN_AND_ADMINS, ROLES.FASILITATOR],
