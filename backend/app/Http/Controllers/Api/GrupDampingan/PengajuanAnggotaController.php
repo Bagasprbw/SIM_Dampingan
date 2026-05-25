@@ -18,15 +18,20 @@ class PengajuanAnggotaController extends Controller
      */
     public function indexAjukanSaya(Request $request)
     {
-        // asumsikan saat ini yang login adalah pj_grup
         $user = auth()->user();
 
         // ambil grup di mana user adalah pj_grup (pengurus_id)
         $grupIds = \App\Models\GrupDampingan::where('pengurus_id', $user->id_user)->pluck('id_grup_dampingan');
 
-        $pengajuan = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan'])
+        $query = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan'])
             ->whereIn('grup_id', $grupIds) // Hanya di grup yang dia pegang
-            ->paginate($request->per_page ?? 10);
+            ->whereIn('status', ['pending', 'ditolak']);
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $pengajuan = $query->latest('created_at')->paginate($request->per_page ?? 10);
 
         return response()->json([
             'status' => 'success',

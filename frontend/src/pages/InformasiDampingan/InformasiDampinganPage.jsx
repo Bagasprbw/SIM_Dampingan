@@ -23,10 +23,20 @@ const InformasiDampinganPage = () => {
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 9;
 
+    const getStatusColor = (status) => {
+        switch(status) {
+            case 'aktif': return { statusColor: 'bg-[#ECFDF5] text-[#10B981]', dotColor: 'bg-[#10B981]' };
+            case 'non-aktif': return { statusColor: 'bg-slate-100 text-slate-500', dotColor: 'bg-slate-400' };
+            case 'pending': return { statusColor: 'bg-[#FFF7ED] text-[#F59E0B]', dotColor: 'bg-[#F59E0B]' };
+            case 'ditolak': return { statusColor: 'bg-[#FEF2F2] text-[#EF4444]', dotColor: 'bg-[#EF4444]' };
+            default: return { statusColor: 'bg-slate-100 text-slate-500', dotColor: 'bg-slate-400' };
+        }
+    };
+
     const { data: pjGrupData, isLoading, isError, refetch } = usePjGrup();
 
     const grup = pjGrupData?.data; // { id_grup_dampingan, name, ..., anggota_grup_dampingans: [...] }
-    const anggotaList = (grup?.anggota_grup_dampingans || []).filter(a => a.status === 'aktif');
+    const anggotaList = (grup?.anggota_grup_dampingans || []).filter(a => a.status === 'aktif' || a.status === 'non-aktif');
 
     const filtered = anggotaList.filter(a =>
         String(a.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -167,6 +177,10 @@ const InformasiDampinganPage = () => {
                                     <div className="flex-1 flex flex-col">
                                         <span className="text-[#0A0F1E] text-[11px] font-bold">{item.name}</span>
                                         <span className="text-[#9298B0] text-[9px] truncate max-w-[120px]">{item.alamat || '-'}</span>
+                                        <div className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full w-max ${getStatusColor(item.status).statusColor}`}>
+                                            <div className={`w-1 h-1 rounded-full ${getStatusColor(item.status).dotColor}`} />
+                                            <span className="text-[8px] font-bold capitalize">{item.status}</span>
+                                        </div>
                                     </div>
                                     <div className="w-[40px] flex justify-center">
                                         <div className={`w-5 h-5 flex items-center justify-center rounded-full text-[9px] font-semibold ${item.jenis_kelamin === 'L' ? 'bg-blue-50 text-blue-500' : 'bg-pink-50 text-pink-500'}`}>
@@ -286,6 +300,7 @@ const InformasiDampinganPage = () => {
                                     <th className="py-4 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">NAMA</th>
                                     <th className="py-4 px-4 text-center text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">JENIS KELAMIN</th>
                                     <th className="py-4 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">ALAMAT</th>
+                                    <th className="py-4 px-4 text-left text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">STATUS</th>
                                     <th className="py-4 px-4 text-center text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">AKSI</th>
                                     <th className="py-4 px-4 text-center text-[#6B7280] text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">DETAIL</th>
                                 </tr>
@@ -293,7 +308,7 @@ const InformasiDampinganPage = () => {
                             <tbody className="divide-y divide-[#F0F2F8]">
                                 {paged.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" className="py-10 text-center text-slate-500 text-xs">Tidak ada data anggota.</td>
+                                        <td colSpan="7" className="py-10 text-center text-slate-500 text-xs">Tidak ada data anggota.</td>
                                     </tr>
                                 ) : paged.map((item, index) => (
                                     <tr key={item.id_anggota_grup || index} className="hover:bg-slate-50 transition-colors">
@@ -307,6 +322,12 @@ const InformasiDampinganPage = () => {
                                             </div>
                                         </td>
                                         <td className="py-4 px-4 text-left text-[#6B7280] text-[11px] font-medium max-w-[180px] truncate">{item.alamat || '-'}</td>
+                                        <td className="py-4 px-4 text-left whitespace-nowrap">
+                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${getStatusColor(item.status).statusColor}`}>
+                                                <div className={`w-1.5 h-1.5 rounded-full ${getStatusColor(item.status).dotColor}`} />
+                                                <span className="text-[10px] font-bold capitalize">{item.status}</span>
+                                            </div>
+                                        </td>
                                         <td className="py-4 px-4 text-center">
                                             <button 
                                                 onClick={() => handleCetak(item)}

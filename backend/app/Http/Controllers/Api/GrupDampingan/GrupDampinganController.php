@@ -183,7 +183,9 @@ class GrupDampinganController extends Controller
             'kabupaten',
             'kecamatan',
             'grupFasilitators.fasilitator'
-        ]);
+        ])->withCount(['anggotaGrupDampingans as anggota_count' => function ($q) {
+            $q->whereIn('status', ['aktif', 'non-aktif']);
+        }]);
 
         // Apply cascade downward filter (authority)
         $query = $this->applyCascadeFilter($query, $currentUser);

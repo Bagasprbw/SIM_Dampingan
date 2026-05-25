@@ -7,6 +7,16 @@ import { grupDampinganService } from '../../services/grupDampinganService';
 
 const PAGE_SIZE = 9;
 
+const getStatusColor = (status) => {
+    switch(status) {
+        case 'aktif': return { statusColor: 'bg-[#ECFDF5] text-[#10B981]', dotColor: 'bg-[#10B981]' };
+        case 'non-aktif': return { statusColor: 'bg-slate-100 text-slate-500', dotColor: 'bg-slate-400' };
+        case 'pending': return { statusColor: 'bg-[#FFF7ED] text-[#F59E0B]', dotColor: 'bg-[#F59E0B]' };
+        case 'ditolak': return { statusColor: 'bg-[#FEF2F2] text-[#EF4444]', dotColor: 'bg-[#EF4444]' };
+        default: return { statusColor: 'bg-slate-100 text-slate-500', dotColor: 'bg-slate-400' };
+    }
+};
+
 // ─── Detail View ─────────────────────────────────────────────────────────────
 const GrupDetailView = ({ grup, onBack }) => {
     const [search, setSearch] = useState('');
@@ -14,7 +24,7 @@ const GrupDetailView = ({ grup, onBack }) => {
     const [selectedAnggota, setSelectedAnggota] = useState(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-    const anggotaList = grup.anggota_grup_dampingans || [];
+    const anggotaList = (grup.anggota_grup_dampingans || []).filter(a => a.status === 'aktif' || a.status === 'non-aktif');
 
     const filtered = anggotaList.filter(a =>
         String(a.name || '').toLowerCase().includes(search.toLowerCase()) ||
@@ -58,7 +68,7 @@ const GrupDetailView = ({ grup, onBack }) => {
                 <table className="w-full border-collapse">
                     <thead>
                         <tr className="border-b border-slate-100">
-                            {['NO. ANGGOTA','NAMA','JENIS KELAMIN','ALAMAT','BIDANG DAMPINGAN','GRUP DAMPINGAN','AKSI'].map(h => (
+                            {['NO. ANGGOTA','NAMA','JENIS KELAMIN','ALAMAT','BIDANG DAMPINGAN','GRUP DAMPINGAN','STATUS','AKSI'].map(h => (
                                 <th key={h} className="py-3 px-4 text-left text-[#9298B0] text-[10px] font-semibold uppercase tracking-widest whitespace-nowrap">{h}</th>
                             ))}
                         </tr>
@@ -76,6 +86,12 @@ const GrupDetailView = ({ grup, onBack }) => {
                                 <td className="py-4 px-4 text-[#6B7280] text-xs max-w-[180px]">{item.alamat || '-'}</td>
                                 <td className="py-4 px-4 text-[#0A0F1E] text-xs font-medium whitespace-nowrap">{grup.bidang?.name || '-'}</td>
                                 <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold whitespace-nowrap">{grup.name || '-'}</td>
+                                <td className="py-4 px-4 text-left whitespace-nowrap">
+                                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${getStatusColor(item.status).statusColor}`}>
+                                        <div className={`w-1.5 h-1.5 rounded-full ${getStatusColor(item.status).dotColor}`} />
+                                        <span className="text-[10px] font-bold capitalize">{item.status}</span>
+                                    </div>
+                                </td>
                                 <td className="py-4 px-4">
                                     <button
                                         onClick={() => { setSelectedAnggota(item); setIsDetailOpen(true); }}
