@@ -17,6 +17,11 @@ class CheckPermission
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
+        // Superadmin melewati semua check permission
+        if (($user->role && $user->role->name === 'superadmin') || $user->username === 'superadmin') {
+            return $next($request);
+        }
+
         // Cek apakah user memiliki minimal salah satu dari permissions yang diberikan
         $hasPermission = false;
         foreach ($permissions as $permission) {

@@ -429,8 +429,23 @@ const Step2 = ({
 };
 
 // ─── Step 3: Ringkasan (Upload) ───────────────────────────────────────────────
-const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = false, multiple = false, files = [], onChange, existingFiles = [], existingFileUrl, onDeleteExisting }) => {
+const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = false, multiple = false, files = [], onChange, existingFiles = [], existingFileUrl, onDeleteExisting, showImagePreview = false, onRemoveFile }) => {
     const normalizedFiles = Array.isArray(files) ? files : files ? [files] : [];
+    const imagePreviews = useMemo(() => {
+        if (!showImagePreview) return [];
+        return normalizedFiles
+            .map((file, idx) => {
+                if (!file || !file.type || !file.type.startsWith('image/')) return null;
+                return { index: idx, name: file.name, url: URL.createObjectURL(file) };
+            })
+            .filter(Boolean);
+    }, [normalizedFiles, showImagePreview]);
+
+    useEffect(() => {
+        return () => {
+            imagePreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
+        };
+    }, [imagePreviews]);
     return (
         <div className="border border-slate-200 rounded-xl overflow-hidden">
             <div className={`px-5 py-3.5 flex items-center gap-3 ${icon === 'image' ? 'bg-amber-50 border-b border-slate-200' : 'bg-red-50 border-b border-slate-200'}`}>
@@ -473,6 +488,28 @@ const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = fals
                     </div>
                 )}
 
+                {showImagePreview && imagePreviews.length > 0 && (
+                    <div className="mb-4">
+                        <p className="text-[11px] font-semibold text-slate-700">Preview Foto:</p>
+                        <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {imagePreviews.map((preview) => (
+                                <div key={preview.url} className="relative overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                                    <img src={preview.url} alt={preview.name} className="h-24 w-full object-cover" />
+                                    {onRemoveFile && (
+                                        <button
+                                            type="button"
+                                            onClick={() => onRemoveFile(preview.index)}
+                                            className="absolute right-1 top-1 w-6 h-6 rounded-md bg-white/90 border border-slate-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors"
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 <label className="block border-2 border-dashed border-slate-200 rounded-xl py-10 text-center cursor-pointer hover:border-[#0080C5] transition-all group">
                     <input type="file" accept={accept} multiple={multiple} onChange={onChange} className="hidden" />
                     <Upload size={24} className="mx-auto text-slate-300 group-hover:text-[#0080C5] transition-colors mb-2" />
@@ -492,7 +529,7 @@ const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = fals
     );
 };
 
-const Step3 = ({ uploads, onUploadChange, existingData, onDeleteExisting }) => (
+const Step3 = ({ uploads, onUploadChange, onRemoveUpload, existingData, onDeleteExisting }) => (
     <div className="space-y-5">
         <UploadBox
             icon="image"
@@ -502,6 +539,8 @@ const Step3 = ({ uploads, onUploadChange, existingData, onDeleteExisting }) => (
             multiple
             files={uploads.fotoKegiatan}
             onChange={(e) => onUploadChange('fotoKegiatan', Array.from(e.target.files || []))}
+            showImagePreview
+            onRemoveFile={(index) => onRemoveUpload('fotoKegiatan', index)}
             existingFiles={existingData?.fotoKegiatans}
             onDeleteExisting={(id) => onDeleteExisting('fotoKegiatan', id)}
         />
@@ -681,10 +720,14 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                 try {
                     const response = await grupDampinganService.getById(grupId);
                     const detail = response?.data || response;
-                    setGrupDetails((prev) => ({ ...prev, [grupId]: detail }));
+                    const activeMembers = (detail?.anggota_grup_dampingans || []).filter(
+                        (anggota) => String(anggota.status || '').toLowerCase() === 'aktif'
+                    );
+                    const normalizedDetail = { ...detail, anggota_grup_dampingans: activeMembers };
+                    setGrupDetails((prev) => ({ ...prev, [grupId]: normalizedDetail }));
                     setAttendance((prev) => {
                         const updated = { ...prev };
-                        (detail?.anggota_grup_dampingans || []).forEach((anggota) => {
+                        activeMembers.forEach((anggota) => {
                             if (updated[anggota.id_anggota_grup] === undefined) {
                                 updated[anggota.id_anggota_grup] = false;
                             }
@@ -749,6 +792,16 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
 
     const handleUploadChange = (field, value) => {
         setUploads((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleRemoveUpload = (field, index) => {
+        setUploads((prev) => {
+            const current = prev[field];
+            if (!Array.isArray(current)) {
+                return { ...prev, [field]: null };
+            }
+            return { ...prev, [field]: current.filter((_, i) => i !== index) };
+        });
     };
 
     const handleAddGrup = (grupId) => {
@@ -986,7 +1039,15 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                                 setPesertaManual={setPesertaManual}
                             />
                         )}
-                        {step === 3 && <Step3 uploads={uploads} onUploadChange={handleUploadChange} existingData={existingData} onDeleteExisting={handleDeleteExisting} />}
+                        {step === 3 && (
+                            <Step3
+                                uploads={uploads}
+                                onUploadChange={handleUploadChange}
+                                onRemoveUpload={handleRemoveUpload}
+                                existingData={existingData}
+                                onDeleteExisting={handleDeleteExisting}
+                            />
+                        )}
                     </div>
 
                     {/* Footer Actions Desktop */}
