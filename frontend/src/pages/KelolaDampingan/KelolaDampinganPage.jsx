@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import DetailDampinganModal from '../../components/modals/DetailDampinganModal';
-import { LayoutGrid, ChevronLeft, Search, ChevronRight, Loader2 } from 'lucide-react';
+import { LayoutGrid, ChevronLeft, Search, ChevronRight, Loader2, UserCheck, UserX } from 'lucide-react';
 import { useFasilitatorGrups } from '../../hooks/queries/useGrupDampinganQuery';
 import { grupDampinganService } from '../../services/grupDampinganService';
+import { useAnggotaMutations } from '../../hooks/mutations/useAnggotaMutation';
+import Swal from 'sweetalert2';
 
 const PAGE_SIZE = 9;
 
@@ -18,11 +20,54 @@ const getStatusColor = (status) => {
 };
 
 // ─── Detail View ─────────────────────────────────────────────────────────────
-const GrupDetailView = ({ grup, onBack }) => {
+const GrupDetailView = ({ grup, onBack, onRefresh }) => {
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
     const [selectedAnggota, setSelectedAnggota] = useState(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+    const { toggleStatusAnggota } = useAnggotaMutations();
+
+    const handleToggleStatus = (item) => {
+        const isActive = item.status === 'aktif';
+        Swal.fire({
+            title: isActive ? 'Nonaktifkan Anggota?' : 'Aktifkan Anggota?',
+            text: `Apakah Anda yakin ingin ${isActive ? 'menonaktifkan' : 'mengaktifkan'} ${item.name}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: isActive ? '#F59E0B' : '#22C55E',
+            cancelButtonColor: '#94A3B8',
+            confirmButtonText: isActive ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                toggleStatusAnggota.mutate({ id: item.id_anggota_grup, status: isActive ? 'non-aktif' : 'aktif' }, {
+                    onSuccess: () => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: `Anggota berhasil ${isActive ? 'dinonaktifkan' : 'diaktifkan'}.`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                        });
+                        onRefresh(grup);
+                    },
+                    onError: () => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: `Terjadi kesalahan saat ${isActive ? 'menonaktifkan' : 'mengaktifkan'} anggota.`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                        });
+                    }
+                });
+            }
+        });
+    };
 
     const anggotaList = (grup.anggota_grup_dampingans || []).filter(a => a.status === 'aktif' || a.status === 'non-aktif');
 
@@ -68,7 +113,7 @@ const GrupDetailView = ({ grup, onBack }) => {
                 <table className="w-full border-collapse">
                     <thead>
                         <tr className="border-b border-slate-100">
-                            {['NO. ANGGOTA','NAMA','JENIS KELAMIN','ALAMAT','BIDANG DAMPINGAN','GRUP DAMPINGAN','STATUS','AKSI'].map(h => (
+                            {['NO. ANGGOTA','NAMA','JENIS KELAMIN','ALAMAT','BIDANG DAMPINGAN','STATUS','AKSI'].map(h => (
                                 <th key={h} className="py-3 px-4 text-left text-[#9298B0] text-[10px] font-semibold uppercase tracking-widest whitespace-nowrap">{h}</th>
                             ))}
                         </tr>
@@ -85,7 +130,6 @@ const GrupDetailView = ({ grup, onBack }) => {
                                 </td>
                                 <td className="py-4 px-4 text-[#6B7280] text-xs max-w-[180px]">{item.alamat || '-'}</td>
                                 <td className="py-4 px-4 text-[#0A0F1E] text-xs font-medium whitespace-nowrap">{grup.bidang?.name || '-'}</td>
-                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold whitespace-nowrap">{grup.name || '-'}</td>
                                 <td className="py-4 px-4 text-left whitespace-nowrap">
                                     <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${getStatusColor(item.status).statusColor}`}>
                                         <div className={`w-1.5 h-1.5 rounded-full ${getStatusColor(item.status).dotColor}`} />
@@ -93,12 +137,25 @@ const GrupDetailView = ({ grup, onBack }) => {
                                     </div>
                                 </td>
                                 <td className="py-4 px-4">
-                                    <button
-                                        onClick={() => { setSelectedAnggota(item); setIsDetailOpen(true); }}
-                                        className="h-8 px-4 bg-[#0080C5] text-white rounded-lg text-[11px] font-semibold hover:bg-sky-700 transition-all"
-                                    >
-                                        Detail
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            onClick={() => handleToggleStatus(item)}
+                                            title={item.status === 'aktif' ? 'Non-aktifkan Anggota' : 'Aktifkan Anggota'}
+                                            className={`w-7 h-7 rounded-md flex items-center justify-center transition-all ${
+                                                item.status === 'aktif'
+                                                    ? 'bg-[#F59E0B]/10 text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white'
+                                                    : 'bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E] hover:text-white'
+                                            }`}
+                                        >
+                                            {item.status === 'aktif' ? <UserX size={14} /> : <UserCheck size={14} />}
+                                        </button>
+                                        <button
+                                            onClick={() => { setSelectedAnggota(item); setIsDetailOpen(true); }}
+                                            className="h-8 px-4 bg-[#0080C5] text-white rounded-lg text-[11px] font-semibold hover:bg-sky-700 transition-all"
+                                        >
+                                            Detail
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -152,7 +209,7 @@ const KelolaDampinganPage = () => {
                 <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-200">
 
                     {selectedGrup ? (
-                        <GrupDetailView grup={selectedGrup} onBack={() => setSelectedGrup(null)} />
+                        <GrupDetailView grup={selectedGrup} onBack={() => setSelectedGrup(null)} onRefresh={handleOpenDetail} />
                     ) : (
                         <>
                             {/* Header */}

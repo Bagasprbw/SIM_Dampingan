@@ -25,5 +25,10 @@ export const anggotaService = {
     delete: async (id) => {
         const response = await api.delete(`/anggota-grup/${id}`);
         return response.data;
+    },
+
+    toggleStatus: async (id, status) => {
+        const response = await api.patch(`/anggota-grup/${id}/toggle-status`, { status });
+        return response.data;
     }
 };

@@ -41,6 +41,16 @@ class AnggotaGrupController extends Controller
             return $grup->kode_kec === $currentUser->kode_kec;
         }
 
+        if ($currentUser->role->name === 'fasilitator') {
+            return \App\Models\GrupFasilitator::where('fasilitator_id', $currentUser->id_user)
+                ->where('grup_dampingan_id', $grup->id_grup_dampingan)
+                ->exists();
+        }
+
+        if ($currentUser->role->name === 'pj_grup') {
+            return $grup->pengurus_id === $currentUser->id_user;
+        }
+
         return false;
     }
 
@@ -356,6 +366,47 @@ class AnggotaGrupController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Anggota grup berhasil dihapus',
+        ]);
+    }
+
+    public function toggleStatus(Request $request, $id)
+    {
+        $anggota = AnggotaGrupDampingan::find($id);
+
+        if (!$anggota) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anggota grup tidak ditemukan',
+            ], 404);
+        }
+
+        $currentUser = $request->user()->load('role');
+        
+        if (!$this->canAccessAnggota($currentUser, $anggota)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anda tidak memiliki hak akses untuk mengupdate status anggota ini'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:aktif,non-aktif',
+        ]);
+
+        $dataLama = $anggota->toArray();
+        $anggota->status = $validated['status'];
+        $anggota->save();
+
+        if ($anggota->status === 'aktif') {
+            app(\App\Services\QrCodeService::class)->generateForAnggota($anggota);
+        }
+
+        $this->logUpdate($request, 'AnggotaGrupStatus', $anggota->id_anggota_grup, $dataLama, $anggota->toArray());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Status anggota berhasil diperbarui',
+            'data' => $anggota
         ]);
     }
 }

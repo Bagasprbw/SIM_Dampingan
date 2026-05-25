@@ -9,11 +9,15 @@ import {
     User,
     ChevronRight,
     ChevronLeft,
-    Loader2
+    Loader2,
+    UserCheck,
+    UserX
 } from 'lucide-react';
 import DetailDampinganModal from '../../components/modals/DetailDampinganModal';
 import KartuDampinganModal from '../../components/modals/KartuDampinganModal';
 import { usePjGrup } from '../../hooks/queries/useGrupDampinganQuery';
+import { useAnggotaMutations } from '../../hooks/mutations/useAnggotaMutation';
+import Swal from 'sweetalert2';
 
 const InformasiDampinganPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -55,6 +59,49 @@ const InformasiDampinganPage = () => {
     const handleCetak = (item) => {
         setSelectedData(item);
         setIsKartuOpen(true);
+    };
+
+    const { toggleStatusAnggota } = useAnggotaMutations();
+
+    const handleToggleStatus = (item) => {
+        const isActive = item.status === 'aktif';
+        Swal.fire({
+            title: isActive ? 'Nonaktifkan Anggota?' : 'Aktifkan Anggota?',
+            text: `Apakah Anda yakin ingin ${isActive ? 'menonaktifkan' : 'mengaktifkan'} ${item.name}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: isActive ? '#F59E0B' : '#22C55E',
+            cancelButtonColor: '#94A3B8',
+            confirmButtonText: isActive ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                toggleStatusAnggota.mutate({ id: item.id_anggota_grup, status: isActive ? 'non-aktif' : 'aktif' }, {
+                    onSuccess: () => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: `Anggota berhasil ${isActive ? 'dinonaktifkan' : 'diaktifkan'}.`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                        });
+                        refetch();
+                    },
+                    onError: () => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: `Terjadi kesalahan saat ${isActive ? 'menonaktifkan' : 'mengaktifkan'} anggota.`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: { popup: 'rounded-2xl font-["Poppins"]' }
+                        });
+                    }
+                });
+            }
+        });
     };
 
     if (isLoading) {
@@ -165,7 +212,7 @@ const InformasiDampinganPage = () => {
                             <span className="text-[#9298B0] text-[8px] font-bold tracking-widest w-[80px]">NO. ANGGOTA</span>
                             <span className="text-[#9298B0] text-[8px] font-bold tracking-widest flex-1">NAMA</span>
                             <span className="text-[#9298B0] text-[8px] font-bold tracking-widest w-[40px] text-center">J.KEL</span>
-                            <span className="text-[#9298B0] text-[8px] font-bold tracking-widest w-[50px] text-center">AKSI</span>
+                            <span className="text-[#9298B0] text-[8px] font-bold tracking-widest w-[60px] text-center">AKSI</span>
                         </div>
 
                         <div className="flex flex-col divide-y divide-[#F0F2F8]">
@@ -187,7 +234,18 @@ const InformasiDampinganPage = () => {
                                             {item.jenis_kelamin === 'L' ? 'L' : 'P'}
                                         </div>
                                     </div>
-                                    <div className="w-[50px] flex items-center justify-center">
+                                    <div className="w-[60px] flex items-center justify-center gap-1">
+                                        <button 
+                                            onClick={() => handleToggleStatus(item)}
+                                            title={item.status === 'aktif' ? 'Non-aktifkan Anggota' : 'Aktifkan Anggota'}
+                                            className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${
+                                                item.status === 'aktif'
+                                                    ? 'bg-[#F59E0B]/10 text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white'
+                                                    : 'bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E] hover:text-white'
+                                            }`}
+                                        >
+                                            {item.status === 'aktif' ? <UserX size={12} /> : <UserCheck size={12} />}
+                                        </button>
                                         <button onClick={() => handleDetail(item)} className="px-2 py-1 bg-[#0080C5]/10 text-[#0080C5] rounded-md text-[9px] font-bold hover:bg-[#0080C5] hover:text-white transition-colors">
                                             Detail
                                         </button>
@@ -329,13 +387,26 @@ const InformasiDampinganPage = () => {
                                             </div>
                                         </td>
                                         <td className="py-4 px-4 text-center">
-                                            <button 
-                                                onClick={() => handleCetak(item)}
-                                                title="Cetak Kartu Dampingan"
-                                                className="text-[#0080C5] hover:text-[#006da8] transition-colors"
-                                            >
-                                                <Printer size={18} />
-                                            </button>
+                                            <div className="flex items-center justify-center gap-3">
+                                                <button 
+                                                    onClick={() => handleToggleStatus(item)}
+                                                    title={item.status === 'aktif' ? 'Non-aktifkan Anggota' : 'Aktifkan Anggota'}
+                                                    className={`w-7 h-7 rounded-md flex items-center justify-center transition-all ${
+                                                        item.status === 'aktif'
+                                                            ? 'bg-[#F59E0B]/10 text-[#F59E0B] hover:bg-[#F59E0B] hover:text-white'
+                                                            : 'bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E] hover:text-white'
+                                                    }`}
+                                                >
+                                                    {item.status === 'aktif' ? <UserX size={14} /> : <UserCheck size={14} />}
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleCetak(item)}
+                                                    title="Cetak Kartu Dampingan"
+                                                    className="text-[#0080C5] hover:text-[#006da8] transition-colors"
+                                                >
+                                                    <Printer size={18} />
+                                                </button>
+                                            </div>
                                         </td>
                                         <td className="py-4 px-4 text-center">
                                             <button 

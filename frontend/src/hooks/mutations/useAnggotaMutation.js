@@ -30,9 +30,17 @@ export const useAnggotaMutations = () => {
         },
     });
 
+    const toggleStatusAnggota = useMutation({
+        mutationFn: ({ id, status }) => anggotaService.toggleStatus(id, status),
+        onSuccess: () => {
+            invalidateAnggotas();
+        },
+    });
+
     return {
         createAnggota,
         updateAnggota,
         deleteAnggota,
+        toggleStatusAnggota,
     };
 };

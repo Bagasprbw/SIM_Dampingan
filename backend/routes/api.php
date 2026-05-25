@@ -136,6 +136,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/{id}/verifikasi', [PengajuanAnggotaController::class, 'verifikasi']);
     });
 
+    // ----------- permission: kelola_masyarakat, ajukan_anggota, verifikasi_anggota -----------------
+    // Toggle Status Anggota (digunakan oleh fasilitator, pj grup, admin)
+    Route::patch('/anggota-grup/{id}/toggle-status', [AnggotaGrupController::class, 'toggleStatus'])
+        ->middleware('permission:kelola_masyarakat,ajukan_anggota,verifikasi_anggota');
+
     // ----------- permission: kelola_masyarakat -----------------
     // Anggota Grup Dampingan - CRUD langsung dengan status: aktif
     Route::prefix('anggota-grup')->middleware('permission:kelola_masyarakat')->group(function () {
