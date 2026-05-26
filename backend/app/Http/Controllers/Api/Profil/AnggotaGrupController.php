@@ -14,6 +14,12 @@ class AnggotaGrupController extends Controller
             'bidang',
             'pekerjaan',
             'grupDampingan',
+            'pesertaKegiatans' => function ($query) {
+                $query->where('status_hadir', 'hadir')
+                    ->whereHas('kegiatan', function ($kegiatanQuery) {
+                        $kegiatanQuery->whereIn('status', ['published', 'selesai']);
+                    });
+            },
             'pesertaKegiatans.kegiatan.level',
             'pesertaKegiatans.kegiatan.bidang',
             'pesertaKegiatans.kegiatan.fasilitator',

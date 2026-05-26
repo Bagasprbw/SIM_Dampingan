@@ -844,6 +844,29 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
         return { totalMembers, totalHadir, totalTidak, memberIds };
     };
 
+    const resolveAttendanceMemberIds = () => {
+        const { memberIds } = computeAttendanceSummary();
+        return memberIds.length > 0 ? memberIds : Object.keys(attendance);
+    };
+
+    const buildPesertaPayload = () => {
+        const memberIds = resolveAttendanceMemberIds();
+        const internalPeserta = memberIds.map((anggotaId) => ({
+            jenis_peserta: 'anggota',
+            anggota_id: anggotaId,
+            status_hadir: attendance[anggotaId] ? 'hadir' : 'tidak',
+        }));
+        const eksternalPeserta = pesertaManual.map((p) => ({
+            jenis_peserta: 'eksternal',
+            nama_peserta: p.ket ? `${p.nama} (${p.ket})` : p.nama,
+            status_hadir: 'hadir',
+        }));
+        return [...internalPeserta, ...eksternalPeserta];
+    };
+
+    const shouldSyncPeserta = (allPeserta) =>
+        allPeserta.length > 0 || (selectedGrupIds.length === 0 && pesertaManual.length === 0);
+
     const buildFormDataPayload = (payload) => {
         const formDataPayload = new FormData();
         Object.entries(payload).forEach(([key, value]) => {
@@ -920,7 +943,14 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
         if (!validateRequiredFields()) return;
         setIsLoading(true);
         try {
-            await submitKegiatan('draft');
+            const response = await submitKegiatan('draft');
+            const kegiatanId = isEdit ? id : response?.data?.id_kegiatan;
+            if (kegiatanId) {
+                const allPeserta = buildPesertaPayload();
+                if (shouldSyncPeserta(allPeserta)) {
+                    await kegiatanService.syncPeserta(kegiatanId, allPeserta);
+                }
+            }
             Swal.fire({ title: 'Tersimpan sebagai Draft', icon: 'info', confirmButtonColor: '#0080C5', timer: 1500, showConfirmButton: false, customClass: { popup: 'rounded-2xl font-["Poppins"]' } })
                 .then(() => navigate('/kelola-kegiatan'));
         } catch (error) {
@@ -958,19 +988,8 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
             }
 
             if (kegiatanId) {
-                const { memberIds } = computeAttendanceSummary();
-                const internalPeserta = memberIds.map((anggotaId) => ({
-                    jenis_peserta: 'anggota',
-                    anggota_id: anggotaId,
-                    status_hadir: attendance[anggotaId] ? 'hadir' : 'tidak',
-                }));
-                const eksternalPeserta = pesertaManual.map((p) => ({
-                    jenis_peserta: 'eksternal',
-                    nama_peserta: p.ket ? `${p.nama} (${p.ket})` : p.nama,
-                    status_hadir: 'hadir',
-                }));
-                const allPeserta = [...internalPeserta, ...eksternalPeserta];
-                if (allPeserta.length > 0) {
+                const allPeserta = buildPesertaPayload();
+                if (shouldSyncPeserta(allPeserta)) {
                     await kegiatanService.syncPeserta(kegiatanId, allPeserta);
                 }
             }
