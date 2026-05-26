@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { getUser } from '../../utils/storage';
 import { ROLES, ADMIN_ROLES } from '../../constants/roles';
-import { useDashboardFasilitator, useDashboardAdmin } from '../../hooks/queries/useDashboardQuery';
+import { useDashboardFasilitator, useDashboardAdmin, useDashboardPjDampingan } from '../../hooks/queries/useDashboardQuery';
 import { 
     ChevronDown,
     Info,
@@ -36,8 +36,13 @@ const DashboardPage = () => {
         enabled: isAdminUser,
     });
 
+    const { data: dashboardPjRes, isLoading: isDashboardPjLoading, isError: isDashboardPjError, refetch: refetchDashboardPj } = useDashboardPjDampingan({
+        enabled: isPjGrup,
+    });
+
     const dashboardFasilitatorData = dashboardFasilitatorRes?.data || {};
     const dashboardAdminData = dashboardAdminRes?.data || {};
+    const dashboardPjData = dashboardPjRes?.data || {};
 
     const toWibDate = (dateString) => {
         if (!dateString) return null;
@@ -71,21 +76,51 @@ const DashboardPage = () => {
 
     const [activeTab, setActiveTab] = useState('Admin Daerah');
 
-    const pieData = [
-        { name: 'Jawa Tengah', value: 35, color: '#2332DB' },
-        { name: 'Kalimantan Tengah', value: 25, color: '#D52BCA' },
-        { name: 'Aceh Utara', value: 20, color: '#8B5CF6' },
-        { name: 'Papua Barat', value: 20, color: '#F59E0B' },
-    ];
-
-    const lineData = [
-        { name: 'Pusat', grup: 25 },
-        { name: 'Provinsi', grup: 18 },
-        { name: 'Kecamatan', grup: 75 },
-        { name: 'Kabupaten', grup: 40 },
-    ];
-
     const renderPJDashboard = () => {
+        if (isDashboardPjLoading) {
+            return (
+                <div className="flex items-center justify-center py-20">
+                    <Loader2 className="animate-spin text-[#0080C5]" size={36} />
+                </div>
+            );
+        }
+
+        if (isDashboardPjError) {
+            return (
+                <div className="flex flex-col items-center justify-center py-20">
+                    <p className="text-red-500 mb-4">Gagal memuat dashboard PJ dampingan.</p>
+                    <button onClick={() => refetchDashboardPj()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
+                </div>
+            );
+        }
+
+        const totals = dashboardPjData?.totals || {};
+        const pengajuan = dashboardPjData?.pengajuan || {};
+        const pengajuanTerbaru = dashboardPjData?.pengajuan_terbaru || [];
+        const logItems = dashboardPjData?.log_aktivitas_login || [];
+        const period = dashboardPjData?.period || {};
+
+        const totalMasyarakat = totals.total_masyarakat ?? 0;
+        const pendingCount = pengajuan.pending ?? 0;
+        const approvedCount = pengajuan.aktif ?? 0;
+        const rejectedCount = pengajuan.ditolak ?? 0;
+        const totalKegiatanBulanIni = totals.total_kegiatan_bulan_ini ?? 0;
+        const currentMonthLabel = period.current_month_label || new Date().toLocaleDateString('id-ID', { month: 'long' });
+        const currentYear = period.current_year || new Date().getFullYear();
+
+        const getPengajuanStatusInfo = (status) => {
+            switch (status) {
+                case 'pending':
+                    return { text: 'Menunggu Aksi', dot: 'bg-[#F59E0B]' };
+                case 'aktif':
+                    return { text: 'Disetujui', dot: 'bg-[#10B981]' };
+                case 'ditolak':
+                    return { text: 'Ditolak', dot: 'bg-[#EF4444]' };
+                default:
+                    return { text: 'Status diperbarui', dot: 'bg-slate-300' };
+            }
+        };
+
         return (
             <div className="flex flex-col gap-6 md:gap-8 font-['Poppins']">
                 {/* Total Masyarakat Card */}
@@ -95,7 +130,7 @@ const DashboardPage = () => {
                     </div>
                     <div className="flex flex-col">
                         <span className="text-[#9298B0] text-[11px] md:text-xs font-normal tracking-tight">Total Masyarakat</span>
-                        <span className="text-[#0A0F1E] text-2xl md:text-[32px] font-extrabold tracking-tight leading-none mt-1">118</span>
+                        <span className="text-[#0A0F1E] text-2xl md:text-[32px] font-extrabold tracking-tight leading-none mt-1">{totalMasyarakat}</span>
                     </div>
                 </div>
 
@@ -112,43 +147,38 @@ const DashboardPage = () => {
                         <div className="grid grid-cols-3 gap-2 md:gap-3">
                             <div className="bg-[#FFF7ED] p-2 md:p-3 rounded-xl border-t-2 border-[#F59E0B] flex flex-col gap-1 items-center justify-center">
                                 <Clock size={14} className="text-[#F59E0B]" />
-                                <span className="text-[#F59E0B] text-base md:text-lg font-bold">4</span>
+                                <span className="text-[#F59E0B] text-base md:text-lg font-bold">{pendingCount}</span>
                                 <span className="text-[#F59E0B] text-[9px] md:text-[10px] font-medium">Menunggu</span>
                             </div>
                             <div className="bg-[#ECFDF5] p-2 md:p-3 rounded-xl border-t-2 border-[#10B981] flex flex-col gap-1 items-center justify-center">
                                 <CheckCircle2 size={14} className="text-[#10B981]" />
-                                <span className="text-[#10B981] text-base md:text-lg font-bold">12</span>
+                                <span className="text-[#10B981] text-base md:text-lg font-bold">{approvedCount}</span>
                                 <span className="text-[#10B981] text-[9px] md:text-[10px] font-medium">Disetujui</span>
                             </div>
                             <div className="bg-[#FEF2F2] p-2 md:p-3 rounded-xl border-t-2 border-[#EF4444] flex flex-col gap-1 items-center justify-center">
                                 <XCircle size={14} className="text-[#EF4444]" />
-                                <span className="text-[#EF4444] text-base md:text-lg font-bold">2</span>
+                                <span className="text-[#EF4444] text-base md:text-lg font-bold">{rejectedCount}</span>
                                 <span className="text-[#EF4444] text-[9px] md:text-[10px] font-medium">Ditolak</span>
                             </div>
                         </div>
 
                         <div className="flex-1 overflow-y-auto pr-2 mt-2 space-y-3">
-                            <div className="flex items-start gap-3">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444] mt-1.5 shrink-0" />
-                                <div className="flex flex-col">
-                                    <span className="text-[#0A0F1E] text-[11px] md:text-xs font-semibold">Data Dampingan Budi Ditolak</span>
-                                    <span className="text-[#9298B0] text-[9px] md:text-[10px]">2j lalu</span>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] mt-1.5 shrink-0" />
-                                <div className="flex flex-col">
-                                    <span className="text-[#0A0F1E] text-[11px] md:text-xs font-semibold">Data Dampingan Siti Menunggu Aksi</span>
-                                    <span className="text-[#9298B0] text-[9px] md:text-[10px]">3j lalu</span>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#10B981] mt-1.5 shrink-0" />
-                                <div className="flex flex-col">
-                                    <span className="text-[#0A0F1E] text-[11px] md:text-xs font-semibold">Data Dampingan Rudi disetujui</span>
-                                    <span className="text-[#9298B0] text-[9px] md:text-[10px]">5j lalu</span>
-                                </div>
-                            </div>
+                            {pengajuanTerbaru.length === 0 ? (
+                                <div className="text-center text-slate-400 text-[11px] md:text-xs py-6">Belum ada pengajuan terbaru.</div>
+                            ) : (
+                                pengajuanTerbaru.map((item) => {
+                                    const statusInfo = getPengajuanStatusInfo(item.status);
+                                    return (
+                                        <div key={item.id_anggota_grup} className="flex items-start gap-3">
+                                            <div className={`w-1.5 h-1.5 rounded-full ${statusInfo.dot} mt-1.5 shrink-0`} />
+                                            <div className="flex flex-col">
+                                                <span className="text-[#0A0F1E] text-[11px] md:text-xs font-semibold">Data Dampingan {item.name} {statusInfo.text}</span>
+                                                <span className="text-[#9298B0] text-[9px] md:text-[10px]">{formatRelativeTime(item.created_at)}</span>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
                         </div>
                     </div>
 
@@ -156,18 +186,26 @@ const DashboardPage = () => {
                     <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-[340px]">
                         <h3 className="text-[#0A0F1E] text-sm font-bold tracking-tight">Jumlah Kegiatan Grup Dampingan</h3>
                         <div className="flex gap-2">
-                            <div className="flex-1 flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 border border-gray-200 rounded-lg text-[10px] md:text-[11px] font-semibold cursor-pointer">April <ChevronDown size={14} /></div>
-                            <div className="flex-1 flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 border border-gray-200 rounded-lg text-[10px] md:text-[11px] font-semibold cursor-pointer">2026 <ChevronDown size={14} /></div>
+                            <div className="flex-1 flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 border border-gray-200 rounded-lg text-[10px] md:text-[11px] font-semibold cursor-default">{currentMonthLabel} <ChevronDown size={14} /></div>
+                            <div className="flex-1 flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 border border-gray-200 rounded-lg text-[10px] md:text-[11px] font-semibold cursor-default">{currentYear} <ChevronDown size={14} /></div>
                             <div className="flex items-center gap-1 ml-auto">
                                 <span className="text-[#9298B0] text-[9px] md:text-[10px] font-normal hidden sm:inline">Total Kegiatan Bulan ini: </span>
-                                <span className="text-[#0A0F1E] text-[10px] md:text-[11px] font-semibold">Total: 0</span>
+                                <span className="text-[#0A0F1E] text-[10px] md:text-[11px] font-semibold">Total: {totalKegiatanBulanIni}</span>
                             </div>
                         </div>
-                        <div className="flex-1 flex flex-col items-center justify-center gap-3 md:gap-4 text-center">
-                            <div className="w-8 h-8 md:w-10 md:h-10 bg-slate-50 rounded-lg flex items-center justify-center"><Info size={18} className="text-slate-300 md:w-[20px] md:h-[20px]" /></div>
-                            <h4 className="text-slate-400 text-[11px] md:text-xs font-bold">Tidak ada kegiatan</h4>
-                            <p className="text-[#9298B0] text-[9px] md:text-[10px] font-medium px-4 md:px-8 leading-relaxed">Kegiatan tidak ditemukan pada bulan ini.</p>
-                        </div>
+                        {totalKegiatanBulanIni === 0 ? (
+                            <div className="flex-1 flex flex-col items-center justify-center gap-3 md:gap-4 text-center">
+                                <div className="w-8 h-8 md:w-10 md:h-10 bg-slate-50 rounded-lg flex items-center justify-center"><Info size={18} className="text-slate-300 md:w-[20px] md:h-[20px]" /></div>
+                                <h4 className="text-slate-400 text-[11px] md:text-xs font-bold">Tidak ada kegiatan</h4>
+                                <p className="text-[#9298B0] text-[9px] md:text-[10px] font-medium px-4 md:px-8 leading-relaxed">Kegiatan tidak ditemukan pada bulan ini.</p>
+                            </div>
+                        ) : (
+                            <div className="flex-1 flex flex-col items-center justify-center gap-3 md:gap-4 text-center">
+                                <div className="w-8 h-8 md:w-10 md:h-10 bg-[#ECFDF5] rounded-lg flex items-center justify-center"><TrendingUp size={18} className="text-[#10B981] md:w-[20px] md:h-[20px]" /></div>
+                                <h4 className="text-[#0A0F1E] text-[11px] md:text-xs font-bold">{totalKegiatanBulanIni} kegiatan</h4>
+                                <p className="text-[#9298B0] text-[9px] md:text-[10px] font-medium px-4 md:px-8 leading-relaxed">Total kegiatan pada bulan ini.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -187,21 +225,30 @@ const DashboardPage = () => {
                             <span className="text-[#0080C5] text-[9px] md:text-[10px] font-semibold">aktifitas</span>
                         </div>
                         <div className="flex flex-col">
-                            {[1,2,3].map((item, iIdx) => (
-                                <div key={iIdx} className={`p-3 md:p-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${iIdx !== 2 ? 'border-b border-slate-50' : 'rounded-b-2xl'}`}>
-                                    <div className="flex items-center gap-2.5 md:gap-3">
-                                        <div className="h-7 md:h-8 px-2.5 md:px-3 bg-[#0080C5] text-white rounded-lg flex items-center justify-center shadow-sm text-[10px] md:text-[11px] font-bold shrink-0 tracking-wide">PJ</div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[#0A0F1E] text-[10px] md:text-[11px] font-semibold">PJ Dampingan Santoso</span>
-                                            <span className="text-[#9298B0] text-[9px] md:text-[10px] font-normal line-clamp-1">Mengajukan Data Dampingan Baru</span>
+                            {logItems.length === 0 ? (
+                                <div className="p-4 text-center text-slate-400 text-xs">Belum ada log login.</div>
+                            ) : (
+                                logItems.map((log, iIdx) => {
+                                    const name = log.user?.name || user?.name || 'PJ Dampingan';
+                                    const description = log.deskripsi || 'Login berhasil';
+                                    const timeLabel = formatRelativeTime(log.created_at);
+                                    return (
+                                        <div key={log.id_log || iIdx} className={`p-3 md:p-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${iIdx !== logItems.length - 1 ? 'border-b border-slate-50' : 'rounded-b-2xl'}`}>
+                                            <div className="flex items-center gap-2.5 md:gap-3">
+                                                <div className="h-7 md:h-8 px-2.5 md:px-3 bg-[#0080C5] text-white rounded-lg flex items-center justify-center shadow-sm text-[10px] md:text-[11px] font-bold shrink-0 tracking-wide">PJ</div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[#0A0F1E] text-[10px] md:text-[11px] font-semibold">{name}</span>
+                                                    <span className="text-[#9298B0] text-[9px] md:text-[10px] font-normal line-clamp-1">{description}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col items-end gap-1 md:gap-1.5">
+                                                <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-[#43DE20]" />
+                                                <span className="text-[#C4C8D8] text-[9px] md:text-[10px] font-normal whitespace-nowrap">{timeLabel}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="flex flex-col items-end gap-1 md:gap-1.5">
-                                        <div className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-[#43DE20]`} />
-                                        <span className="text-[#C4C8D8] text-[9px] md:text-[10px] font-normal whitespace-nowrap">1 jam lalu</span>
-                                    </div>
-                                </div>
-                            ))}
+                                    );
+                                })
+                            )}
                         </div>
                     </div>
                 </div>

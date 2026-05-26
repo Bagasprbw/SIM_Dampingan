@@ -9,4 +9,8 @@ export const dashboardService = {
         const response = await api.get('/dashboard/admin');
         return response.data;
     },
+    getPjDampingan: async () => {
+        const response = await api.get('/dashboard/pj-dampingan');
+        return response.data;
+    },
 };

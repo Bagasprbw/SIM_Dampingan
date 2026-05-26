@@ -17,3 +17,11 @@ export const useDashboardAdmin = ({ enabled = true } = {}) => {
         enabled,
     });
 };
+
+export const useDashboardPjDampingan = ({ enabled = true } = {}) => {
+    return useQuery({
+        queryKey: [queryKeys.DASHBOARD_PJ_DAMPINGAN],
+        queryFn: () => dashboardService.getPjDampingan(),
+        enabled,
+    });
+};

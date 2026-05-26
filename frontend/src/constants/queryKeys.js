@@ -13,5 +13,6 @@ export const queryKeys = {
     RBAC: 'rbac',
     DASHBOARD_FASILITATOR: 'dashboard_fasilitator',
     DASHBOARD_ADMIN: 'dashboard_admin',
+    DASHBOARD_PJ_DAMPINGAN: 'dashboard_pj_dampingan',
     PUBLIC_STATISTICS: 'public_statistics',
 };
