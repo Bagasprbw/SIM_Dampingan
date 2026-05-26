@@ -3,39 +3,110 @@ import { X, Lock, Eye, EyeOff, Search } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { getUser } from '../../utils/storage';
 import { ROLE_LABELS } from '../../constants/roles';
+import { profilService } from '../../services/profilService';
 
 const ProfileModal = ({ isOpen, onClose }) => {
     const [showPasswordFields, setShowPasswordFields] = useState(false);
+    const [showCurrentPass, setShowCurrentPass] = useState(false);
     const [showPass, setShowPass] = useState(false);
     const [showConfirmPass, setShowConfirmPass] = useState(false);
     const user = getUser();
     const [noTelp, setNoTelp] = useState(user?.no_telp || '');
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
-    const handleSave = () => {
-        // Mock save to local storage
-        if (user) {
-            const updatedUser = { ...user, no_telp: noTelp };
-            localStorage.setItem('AUTH_USER', JSON.stringify(updatedUser)); // update auth user
-            if (user.role === 'superadmin' || user.username === 'superadmin') {
-                localStorage.setItem('superadmin_wa', noTelp);
+    const handleSave = async () => {
+        if (!user) return;
+
+        const hasNoTelpChange = noTelp !== (user?.no_telp || '');
+        const wantsPasswordChange = showPasswordFields && (currentPassword || newPassword || confirmPassword);
+
+        if (!hasNoTelpChange && !wantsPasswordChange) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Tidak ada perubahan',
+                text: 'Tidak ada data yang diperbarui.',
+                confirmButtonColor: '#0080C5',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' },
+            });
+            return;
+        }
+
+        if (showPasswordFields) {
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Lengkapi password',
+                    text: 'Password lama, baru, dan konfirmasi wajib diisi.',
+                    confirmButtonColor: '#0080C5',
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' },
+                });
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Konfirmasi tidak cocok',
+                    text: 'Password baru dan konfirmasi harus sama.',
+                    confirmButtonColor: '#0080C5',
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' },
+                });
+                return;
             }
         }
 
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Informasi profil telah diperbarui.',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            customClass: {
-                popup: 'rounded-2xl font-["Poppins"]',
-                title: 'text-[#0A0F1E] font-bold',
+        setIsSaving(true);
+        try {
+            if (hasNoTelpChange) {
+                const response = await profilService.updateNoTelp(noTelp);
+                const updatedUser = response?.data ? { ...user, ...response.data } : { ...user, no_telp: noTelp };
+                localStorage.setItem('AUTH_USER', JSON.stringify(updatedUser));
+                if (user.role === 'superadmin' || user.username === 'superadmin') {
+                    localStorage.setItem('superadmin_wa', noTelp);
+                }
             }
-        });
-        
-        // Tutup modal setelah sedikit delay agar notif terlihat
-        onClose();
+
+            if (wantsPasswordChange) {
+                await profilService.updatePassword({
+                    current_password: currentPassword,
+                    new_password: newPassword,
+                    new_password_confirmation: confirmPassword,
+                });
+            }
+
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+            setShowPasswordFields(false);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Informasi profil telah diperbarui.',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'rounded-2xl font-["Poppins"]',
+                    title: 'text-[#0A0F1E] font-bold',
+                }
+            });
+            
+            onClose();
+        } catch (error) {
+            const message = error?.response?.data?.message || 'Terjadi kesalahan saat memperbarui profil.';
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: message,
+                confirmButtonColor: '#EF4444',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' },
+            });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     if (!isOpen) return null;
@@ -119,6 +190,30 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     {/* Hidden Password Fields */}
                     {showPasswordFields && (
                         <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                            {/* Password Lama */}
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Password Lama</label>
+                                <div className="relative group">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#F59E0B]">
+                                        <Lock size={16} />
+                                    </div>
+                                    <input 
+                                        type={showCurrentPass ? "text" : "password"} 
+                                        placeholder="Masukkan password lama"
+                                        value={currentPassword}
+                                        onChange={(e) => setCurrentPassword(e.target.value)}
+                                        className="w-full pl-11 pr-11 py-2.5 bg-white rounded-[10px] border border-[#E5E7EB] text-[#0A0F1E] text-sm font-normal focus:outline-none focus:border-[#0080C5] transition-colors placeholder:text-slate-300"
+                                    />
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShowCurrentPass(!showCurrentPass)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                    >
+                                        {showCurrentPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    </button>
+                                </div>
+                            </div>
+
                             {/* Password Baru */}
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Password Baru</label>
@@ -129,6 +224,8 @@ const ProfileModal = ({ isOpen, onClose }) => {
                                     <input 
                                         type={showPass ? "text" : "password"} 
                                         placeholder="Masukkan password baru"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
                                         className="w-full pl-11 pr-11 py-2.5 bg-white rounded-[10px] border border-[#E5E7EB] text-[#0A0F1E] text-sm font-normal focus:outline-none focus:border-[#0080C5] transition-colors placeholder:text-slate-300"
                                     />
                                     <button 
@@ -151,6 +248,8 @@ const ProfileModal = ({ isOpen, onClose }) => {
                                     <input 
                                         type={showConfirmPass ? "text" : "password"} 
                                         placeholder="Ulangi password baru"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
                                         className="w-full pl-11 pr-11 py-2.5 bg-white rounded-[10px] border border-[#E5E7EB] text-[#0A0F1E] text-sm font-normal focus:outline-none focus:border-[#0080C5] transition-colors placeholder:text-slate-300"
                                     />
                                     <button 
@@ -171,14 +270,16 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     <button 
                         onClick={onClose}
                         className="px-6 py-2 rounded-[10px] border border-[#E5E7EB] text-[#6B7280] text-xs font-semibold hover:bg-gray-50 transition-colors h-10"
+                        disabled={isSaving}
                     >
                         Batal
                     </button>
                     <button 
                         onClick={handleSave}
-                        className="px-6 py-2 rounded-[10px] bg-[#0080C5] text-white text-xs font-semibold hover:bg-[#006da8] transition-colors shadow-lg shadow-blue-100 h-10"
+                        className="px-6 py-2 rounded-[10px] bg-[#0080C5] text-white text-xs font-semibold hover:bg-[#006da8] transition-colors shadow-lg shadow-blue-100 h-10 disabled:opacity-70 disabled:cursor-not-allowed"
+                        disabled={isSaving}
                     >
-                        Simpan
+                        {isSaving ? 'Menyimpan...' : 'Simpan'}
                     </button>
                 </div>
             </div>
