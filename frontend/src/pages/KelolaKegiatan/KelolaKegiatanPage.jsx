@@ -37,9 +37,9 @@ const KelolaKegiatanPage = () => {
     const getStatusInfo = (status) => {
         switch(status?.toLowerCase()) {
             case 'selesai': return { text: 'Selesai', color: 'bg-[#ECFDF5] text-[#10B981]', dot: 'bg-[#10B981]' };
-            case 'published': return { text: 'Selesai', color: 'bg-[#ECFDF5] text-[#10B981]', dot: 'bg-[#10B981]' };
+            case 'published': return { text: 'Published', color: 'bg-[#ECFDF5] text-[#10B981]', dot: 'bg-[#10B981]' };
             case 'draft': return { text: 'Draft', color: 'bg-amber-50 text-amber-500', dot: 'bg-amber-500' };
-            default: return { text: status || 'Selesai', color: 'bg-[#ECFDF5] text-[#10B981]', dot: 'bg-[#10B981]' };
+            default: return { text: status || '-', color: 'bg-slate-50 text-slate-400', dot: 'bg-slate-400' };
         }
     };
 
@@ -116,15 +116,18 @@ const KelolaKegiatanPage = () => {
                                 <table className="w-full border-collapse">
                                     <thead>
                                         <tr className="bg-slate-50/50 h-[58px] border-b border-slate-100">
-                                            <th className="px-6 text-left w-[25%]"><span className="text-[11px] font-bold text-slate-400 tracking-widest uppercase">JUDUL KEGIATAN</span></th>
-                                            <th className="px-6 text-left w-[25%]"><span className="text-[11px] font-bold text-slate-400 tracking-widest uppercase">DESKRIPSI</span></th>
+                                            <th className="px-6 text-left w-[22%]"><span className="text-[11px] font-bold text-slate-400 tracking-widest uppercase">JUDUL KEGIATAN</span></th>
+                                            <th className="px-6 text-left w-[23%]"><span className="text-[11px] font-bold text-slate-400 tracking-widest uppercase">DESKRIPSI</span></th>
                                             <th className="px-6 text-left w-[20%]"><span className="text-[11px] font-bold text-slate-400 tracking-widest uppercase">WAKTU & LOKASI</span></th>
-                                            <th className="px-6 text-center w-[15%]"><span className="text-[11px] font-bold text-slate-400 tracking-widest uppercase">GRUP</span></th>
-                                            <th className="px-6 text-center w-[15%]"><span className="text-[11px] font-bold text-slate-400 tracking-widest uppercase">AKSI</span></th>
+                                            <th className="px-6 text-center w-[10%]"><span className="text-[11px] font-bold text-slate-400 tracking-widest uppercase">STATUS</span></th>
+                                            <th className="px-6 text-center w-[13%]"><span className="text-[11px] font-bold text-slate-400 tracking-widest uppercase">GRUP</span></th>
+                                            <th className="px-6 text-center w-[12%]"><span className="text-[11px] font-bold text-slate-400 tracking-widest uppercase">AKSI</span></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
-                                        {reports.map((item, i) => (
+                                        {reports.map((item, i) => {
+                                            const statusInfo = getStatusInfo(item.status);
+                                            return (
                                             <tr key={item.id_kegiatan || i} className="bg-white hover:bg-slate-50/50 transition-colors group">
                                                 <td className="px-6 py-4 align-top">
                                                     <div className="flex flex-col gap-1.5">
@@ -152,6 +155,12 @@ const KelolaKegiatanPage = () => {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 align-top text-center">
+                                                    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${statusInfo.color}`}>
+                                                        <div className={`w-1.5 h-1.5 rounded-full ${statusInfo.dot}`} />
+                                                        {statusInfo.text}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 align-top text-center">
                                                     <div className="inline-flex flex-wrap justify-center gap-1">
                                                         {item.kegiatan_grups?.length > 0 ? item.kegiatan_grups.map(g => (
                                                             <span key={g.id_kegiatan_grup || g.grup_dampingan_id} className="px-2.5 py-1 bg-[#16A34A]/10 text-[#16A34A] rounded-full text-[10px] font-bold whitespace-nowrap">
@@ -169,7 +178,8 @@ const KelolaKegiatanPage = () => {
                                                     </div>
                                                 </td>
                                             </tr>
-                                        ))}
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
