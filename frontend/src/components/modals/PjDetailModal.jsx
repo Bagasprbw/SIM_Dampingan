@@ -5,7 +5,25 @@ import { getUser } from '../../utils/storage';
 const PjDetailModal = ({ isOpen, onClose, data, onToggleStatus }) => {
     if (!isOpen) return null;
 
-    const initials = (data?.name || data?.nama || 'AS').split(' ').map(n => n[0]).join('').toUpperCase() || 'AS';
+    const getImageUrl = (path) => {
+        if (!path) return null;
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+        const baseUrl = apiUrl.replace('/api', '');
+        return `${baseUrl}/storage/${path}`;
+    };
+
+    const getInitials = (name) => {
+        if (!name) return 'AS';
+        return name
+            .split(' ')
+            .filter(Boolean)
+            .map(n => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+    };
+
+    const initials = getInitials(data?.name || data?.nama);
 
     const currentUser = getUser();
     const roleName = typeof currentUser?.role === 'object' ? currentUser?.role?.name : currentUser?.role;
@@ -22,8 +40,12 @@ const PjDetailModal = ({ isOpen, onClose, data, onToggleStatus }) => {
                 {/* Profile Header */}
                 <div className="p-5 border-b-[0.80px] border-slate-100 flex items-start gap-4 text-left">
                     <div className="relative flex-shrink-0">
-                        <div className="w-10 h-10 bg-gradient-to-br from-sky-700 to-sky-500 rounded-full flex justify-center items-center text-white text-base font-bold">
-                            {initials}
+                        <div className="w-10 h-10 bg-gradient-to-br from-sky-700 to-sky-500 rounded-full flex justify-center items-center text-white text-base font-bold overflow-hidden">
+                            {data?.foto ? (
+                                <img src={getImageUrl(data.foto)} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                                initials
+                            )}
                         </div>
                         <div className={`w-3.5 h-3.5 absolute bottom-0 right-0 rounded-full border-[2.40px] border-white ${isActive ? 'bg-green-500' : 'bg-red-500'}`} title={isActive ? 'Status: Aktif' : 'Status: Nonaktif'} />
                     </div>

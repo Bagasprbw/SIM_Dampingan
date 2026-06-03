@@ -45,7 +45,9 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
                 kode_kec: data.kode_kec || ''
             });
             if (data.foto) {
-                setSelectedImage(`${import.meta.env.VITE_API_URL}/storage/${data.foto}`);
+                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+                const baseUrl = apiUrl.replace('/api', '');
+                setSelectedImage(`${baseUrl}/storage/${data.foto}`);
             } else {
                 setSelectedImage(null);
             }

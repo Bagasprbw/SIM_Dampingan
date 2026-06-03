@@ -5,7 +5,25 @@ import { getUser } from '../../utils/storage';
 const FacilitatorDetailModal = ({ isOpen, onClose, data, onToggleStatus }) => {
     if (!isOpen) return null;
 
-    const initials = data?.nama?.split(' ').map(n => n[0]).join('').toUpperCase() || 'AS';
+    const getImageUrl = (path) => {
+        if (!path) return null;
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+        const baseUrl = apiUrl.replace('/api', '');
+        return `${baseUrl}/storage/${path}`;
+    };
+
+    const getInitials = (name) => {
+        if (!name) return 'AS';
+        return name
+            .split(' ')
+            .filter(Boolean)
+            .map(n => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+    };
+
+    const initials = getInitials(data?.name || data?.nama);
 
     const currentUser = getUser();
     const roleName = typeof currentUser?.role === 'object' ? currentUser?.role?.name : currentUser?.role;
@@ -23,7 +41,7 @@ const FacilitatorDetailModal = ({ isOpen, onClose, data, onToggleStatus }) => {
                     <div className="relative">
                         <div className="w-10 h-10 bg-gradient-to-br from-[#0080C5] to-[#006da8] rounded-full flex items-center justify-center text-white text-base font-bold border-4 border-white shadow-md overflow-hidden">
                             {data?.foto ? (
-                                <img src={`${import.meta.env.VITE_API_URL}/storage/${data.foto}`} alt="" className="w-full h-full object-cover" />
+                                <img src={getImageUrl(data.foto)} alt="" className="w-full h-full object-cover" />
                             ) : (
                                 initials
                             )}
