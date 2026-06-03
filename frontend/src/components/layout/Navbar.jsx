@@ -4,6 +4,21 @@ import ProfileModal from '../modals/ProfileModal';
 import { getUser } from '../../utils/storage';
 import { ROLE_LABELS } from '../../constants/roles';
 
+const getInitials = (name) => {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    return parts.length >= 2
+        ? (parts[0][0] + parts[1][0]).toUpperCase()
+        : name.substring(0, 2).toUpperCase();
+};
+
+const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+    return `${baseUrl}/storage/${path}`;
+};
+
 const Navbar = ({ title = 'Dashboard', onMenuClick }) => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const user = getUser();
@@ -40,11 +55,17 @@ const Navbar = ({ title = 'Dashboard', onMenuClick }) => {
                     <span className="text-[#9298B0] text-[10px] font-normal uppercase tracking-wider">{ROLE_LABELS[userRole] || userRole || 'Guest'}</span>
                 </div>
                 <div className="relative">
-                    <img 
-                        src={user?.foto || "/images/superadmin.png"} 
-                        alt="Profile" 
-                        className="w-10 h-10 rounded-xl border border-[#0080C5] object-cover bg-gray-50"
-                    />
+                    {user?.foto ? (
+                        <img
+                            src={getImageUrl(user.foto)}
+                            alt="Profile"
+                            className="w-10 h-10 rounded-xl border border-[#0080C5] object-cover bg-gray-50"
+                        />
+                    ) : (
+                        <div className="w-10 h-10 rounded-xl border border-[#0080C5] bg-[#EFF6FF] flex items-center justify-center">
+                            <span className="text-[#0080C5] text-sm font-bold leading-none">{getInitials(user?.name)}</span>
+                        </div>
+                    )}
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm">
                         <ChevronDown size={10} className="text-[#9298B0]" />
                     </div>

@@ -76,6 +76,15 @@ const DashboardPage = () => {
 
     const [activeTab, setActiveTab] = useState('Admin Daerah');
 
+    const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+    const [pjFilterMonth, setPjFilterMonth] = useState(null);
+    const [pjFilterYear, setPjFilterYear] = useState(null);
+    const [fasFilterMonth, setFasFilterMonth] = useState(null);
+    const [fasFilterYear, setFasFilterYear] = useState(null);
+    const [adminFilterMonth, setAdminFilterMonth] = useState(null);
+    const [adminFilterYear, setAdminFilterYear] = useState(null);
+
     const renderPJDashboard = () => {
         if (isDashboardPjLoading) {
             return (
@@ -183,30 +192,49 @@ const DashboardPage = () => {
                     </div>
 
                     {/* Jumlah Kegiatan Grup Dampingan */}
-                    <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-[340px]">
-                        <h3 className="text-[#0A0F1E] text-sm font-bold tracking-tight">Jumlah Kegiatan Grup Dampingan</h3>
-                        <div className="flex gap-2">
-                            <div className="flex-1 flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 border border-gray-200 rounded-lg text-[10px] md:text-[11px] font-semibold cursor-default">{currentMonthLabel} <ChevronDown size={14} /></div>
-                            <div className="flex-1 flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 border border-gray-200 rounded-lg text-[10px] md:text-[11px] font-semibold cursor-default">{currentYear} <ChevronDown size={14} /></div>
-                            <div className="flex items-center gap-1 ml-auto">
-                                <span className="text-[#9298B0] text-[9px] md:text-[10px] font-normal hidden sm:inline">Total Kegiatan Bulan ini: </span>
-                                <span className="text-[#0A0F1E] text-[10px] md:text-[11px] font-semibold">Total: {totalKegiatanBulanIni}</span>
+                    {(() => {
+                        const kegData = dashboardPjData?.kegiatan_per_bulan || [];
+                        const availYears = [...new Set(kegData.map(d => d.year))].sort();
+                        const activeM = pjFilterMonth ?? period.current_month ?? (new Date().getMonth() + 1);
+                        const activeY = pjFilterYear ?? period.current_year ?? new Date().getFullYear();
+                        const found = kegData.find(d => d.month === activeM && d.year === activeY);
+                        const filteredCount = found ? found.kegiatan : 0;
+                        return (
+                            <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-[340px]">
+                                <h3 className="text-[#0A0F1E] text-sm font-bold tracking-tight">Jumlah Kegiatan Grup Dampingan</h3>
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                        <select value={activeM} onChange={e => setPjFilterMonth(Number(e.target.value))} className="w-full h-9 pl-3 pr-7 border border-gray-200 rounded-lg text-[11px] font-semibold appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer bg-white">
+                                            {MONTH_NAMES.map((m, i) => <option key={i} value={i+1}>{m}</option>)}
+                                        </select>
+                                        <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+                                    </div>
+                                    <div className="relative flex-1">
+                                        <select value={activeY} onChange={e => setPjFilterYear(Number(e.target.value))} className="w-full h-9 pl-3 pr-7 border border-gray-200 rounded-lg text-[11px] font-semibold appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer bg-white">
+                                            {(availYears.length > 0 ? availYears : [activeY]).map(y => <option key={y} value={y}>{y}</option>)}
+                                        </select>
+                                        <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+                                    </div>
+                                    <div className="flex items-center gap-1 ml-auto shrink-0">
+                                        <span className="text-[#0A0F1E] text-[10px] md:text-[11px] font-semibold">Total: {filteredCount}</span>
+                                    </div>
+                                </div>
+                                {filteredCount === 0 ? (
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-3 md:gap-4 text-center">
+                                        <div className="w-8 h-8 md:w-10 md:h-10 bg-slate-50 rounded-lg flex items-center justify-center"><Info size={18} className="text-slate-300 md:w-[20px] md:h-[20px]" /></div>
+                                        <h4 className="text-slate-400 text-[11px] md:text-xs font-bold">Tidak ada kegiatan</h4>
+                                        <p className="text-[#9298B0] text-[9px] md:text-[10px] font-medium px-4 md:px-8 leading-relaxed">Kegiatan tidak ditemukan pada bulan yang dipilih.</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-3 md:gap-4 text-center">
+                                        <div className="w-8 h-8 md:w-10 md:h-10 bg-[#ECFDF5] rounded-lg flex items-center justify-center"><TrendingUp size={18} className="text-[#10B981] md:w-[20px] md:h-[20px]" /></div>
+                                        <h4 className="text-[#0A0F1E] text-[11px] md:text-xs font-bold">{filteredCount} kegiatan</h4>
+                                        <p className="text-[#9298B0] text-[9px] md:text-[10px] font-medium px-4 md:px-8 leading-relaxed">Total kegiatan pada bulan yang dipilih.</p>
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                        {totalKegiatanBulanIni === 0 ? (
-                            <div className="flex-1 flex flex-col items-center justify-center gap-3 md:gap-4 text-center">
-                                <div className="w-8 h-8 md:w-10 md:h-10 bg-slate-50 rounded-lg flex items-center justify-center"><Info size={18} className="text-slate-300 md:w-[20px] md:h-[20px]" /></div>
-                                <h4 className="text-slate-400 text-[11px] md:text-xs font-bold">Tidak ada kegiatan</h4>
-                                <p className="text-[#9298B0] text-[9px] md:text-[10px] font-medium px-4 md:px-8 leading-relaxed">Kegiatan tidak ditemukan pada bulan ini.</p>
-                            </div>
-                        ) : (
-                            <div className="flex-1 flex flex-col items-center justify-center gap-3 md:gap-4 text-center">
-                                <div className="w-8 h-8 md:w-10 md:h-10 bg-[#ECFDF5] rounded-lg flex items-center justify-center"><TrendingUp size={18} className="text-[#10B981] md:w-[20px] md:h-[20px]" /></div>
-                                <h4 className="text-[#0A0F1E] text-[11px] md:text-xs font-bold">{totalKegiatanBulanIni} kegiatan</h4>
-                                <p className="text-[#9298B0] text-[9px] md:text-[10px] font-medium px-4 md:px-8 leading-relaxed">Total kegiatan pada bulan ini.</p>
-                            </div>
-                        )}
-                    </div>
+                        );
+                    })()}
                 </div>
 
                 <div className="flex items-center gap-2 md:gap-3">
@@ -355,32 +383,50 @@ const DashboardPage = () => {
                     </div>
 
                     {/* Jumlah Kegiatan */}
-                    <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-[340px]">
-                        <h3 className="text-[#0A0F1E] text-sm font-bold tracking-tight">Jumlah Kegiatan Grup Dampingan</h3>
-                        <div className="flex gap-2">
-                            <div className="flex-1 flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg text-[11px] font-semibold cursor-default">{currentMonthLabel} <ChevronDown size={14} /></div>
-                            <div className="flex-1 flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg text-[11px] font-semibold cursor-default">{currentYear} <ChevronDown size={14} /></div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                            <span className="text-[#9298B0] text-[10px] font-normal">Total Kegiatan Bulan ini: </span>
-                            <span className="text-[#0A0F1E] text-[11px] font-semibold">{totalKegiatanBulanIni}</span>
-                        </div>
-                        {totalKegiatanBulanIni === 0 ? (
-                            <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">
-                                <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center"><Info size={20} className="text-slate-300" /></div>
-                                <h4 className="text-slate-400 text-xs font-bold">Tidak ada kegiatan</h4>
-                                <p className="text-[#9298B0] text-[10px] font-medium leading-relaxed">Kegiatan tidak ditemukan pada bulan ini.</p>
-                            </div>
-                        ) : (
-                            <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center">
-                                <div className="w-10 h-10 bg-[#ECFDF5] rounded-lg flex items-center justify-center">
-                                    <TrendingUp size={18} className="text-[#10B981]" />
+                    {(() => {
+                        const kegData = dashboardFasilitatorData?.kegiatan_per_bulan || [];
+                        const availYears = [...new Set(kegData.map(d => d.year))].sort();
+                        const activeM = fasFilterMonth ?? period.current_month ?? (new Date().getMonth() + 1);
+                        const activeY = fasFilterYear ?? period.current_year ?? new Date().getFullYear();
+                        const found = kegData.find(d => d.month === activeM && d.year === activeY);
+                        const filteredCount = found ? found.kegiatan : 0;
+                        return (
+                            <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-[340px]">
+                                <h3 className="text-[#0A0F1E] text-sm font-bold tracking-tight">Jumlah Kegiatan Grup Dampingan</h3>
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                        <select value={activeM} onChange={e => setFasFilterMonth(Number(e.target.value))} className="w-full h-9 pl-3 pr-7 border border-gray-200 rounded-lg text-[11px] font-semibold appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer bg-white">
+                                            {MONTH_NAMES.map((m, i) => <option key={i} value={i+1}>{m}</option>)}
+                                        </select>
+                                        <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+                                    </div>
+                                    <div className="relative flex-1">
+                                        <select value={activeY} onChange={e => setFasFilterYear(Number(e.target.value))} className="w-full h-9 pl-3 pr-7 border border-gray-200 rounded-lg text-[11px] font-semibold appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer bg-white">
+                                            {(availYears.length > 0 ? availYears : [activeY]).map(y => <option key={y} value={y}>{y}</option>)}
+                                        </select>
+                                        <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+                                    </div>
                                 </div>
-                                <h4 className="text-[#0A0F1E] text-xs font-bold">{totalKegiatanBulanIni} kegiatan</h4>
-                                <p className="text-[#9298B0] text-[10px] font-medium leading-relaxed">Total kegiatan pada bulan ini.</p>
+                                <div className="flex items-center gap-1">
+                                    <span className="text-[#9298B0] text-[10px] font-normal">Total Kegiatan: </span>
+                                    <span className="text-[#0A0F1E] text-[11px] font-semibold">{filteredCount}</span>
+                                </div>
+                                {filteredCount === 0 ? (
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">
+                                        <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center"><Info size={20} className="text-slate-300" /></div>
+                                        <h4 className="text-slate-400 text-xs font-bold">Tidak ada kegiatan</h4>
+                                        <p className="text-[#9298B0] text-[10px] font-medium leading-relaxed">Kegiatan tidak ditemukan pada bulan yang dipilih.</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center">
+                                        <div className="w-10 h-10 bg-[#ECFDF5] rounded-lg flex items-center justify-center"><TrendingUp size={18} className="text-[#10B981]" /></div>
+                                        <h4 className="text-[#0A0F1E] text-xs font-bold">{filteredCount} kegiatan</h4>
+                                        <p className="text-[#9298B0] text-[10px] font-medium leading-relaxed">Total kegiatan pada bulan yang dipilih.</p>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
+                        );
+                    })()}
 
                     {/* Data Kegiatan Dampingan - Line Chart */}
                     <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-[340px] md:col-span-2 xl:col-span-1">
@@ -575,29 +621,50 @@ const DashboardPage = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-80">
-                        <h3 className="text-[#0A0F1E] text-[13px] md:text-sm font-bold tracking-tight">Jumlah Kegiatan Per Grup</h3>
-                        <div className="flex gap-2">
-                            <div className="flex-1 flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 border border-gray-200 rounded-lg text-[10px] md:text-[11px] font-semibold cursor-pointer">April <ChevronDown size={14} /></div>
-                            <div className="flex-1 flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 border border-gray-200 rounded-lg text-[10px] md:text-[11px] font-semibold cursor-pointer">2026 <ChevronDown size={14} /></div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                            <span className="text-[#9298B0] text-xs font-normal">Total Kegiatan Bulan ini: </span>
-                            <span className="text-[#0A0F1E] text-[11px] font-semibold">{totalKegiatanBulanIni}</span>
-                        </div>
-                        {totalKegiatanBulanIni === 0 ? (
-                            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
-                                <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center"><Info size={20} className="text-slate-300" /></div>
-                                <p className="text-[#9298B0] text-xs font-medium px-8 leading-relaxed">Kegiatan tidak ditemukan pada bulan ini.</p>
+                    {(() => {
+                        const kegData = dashboardAdminData?.kegiatan_per_bulan || [];
+                        const availYears = [...new Set(kegData.map(d => d.year))].sort();
+                        const curPeriod = dashboardAdminData?.period || {};
+                        const activeM = adminFilterMonth ?? curPeriod.current_month ?? (new Date().getMonth() + 1);
+                        const activeY = adminFilterYear ?? curPeriod.current_year ?? new Date().getFullYear();
+                        const found = kegData.find(d => d.month === activeM && d.year === activeY);
+                        const filteredCount = found ? found.kegiatan : 0;
+                        return (
+                            <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-80">
+                                <h3 className="text-[#0A0F1E] text-[13px] md:text-sm font-bold tracking-tight">Jumlah Kegiatan Per Grup</h3>
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                        <select value={activeM} onChange={e => setAdminFilterMonth(Number(e.target.value))} className="w-full h-9 pl-3 pr-7 border border-gray-200 rounded-lg text-[10px] md:text-[11px] font-semibold appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer bg-white">
+                                            {MONTH_NAMES.map((m, i) => <option key={i} value={i+1}>{m}</option>)}
+                                        </select>
+                                        <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+                                    </div>
+                                    <div className="relative flex-1">
+                                        <select value={activeY} onChange={e => setAdminFilterYear(Number(e.target.value))} className="w-full h-9 pl-3 pr-7 border border-gray-200 rounded-lg text-[10px] md:text-[11px] font-semibold appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer bg-white">
+                                            {(availYears.length > 0 ? availYears : [activeY]).map(y => <option key={y} value={y}>{y}</option>)}
+                                        </select>
+                                        <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <span className="text-[#9298B0] text-xs font-normal">Total Kegiatan: </span>
+                                    <span className="text-[#0A0F1E] text-[11px] font-semibold">{filteredCount}</span>
+                                </div>
+                                {filteredCount === 0 ? (
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
+                                        <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center"><Info size={20} className="text-slate-300" /></div>
+                                        <p className="text-[#9298B0] text-xs font-medium px-8 leading-relaxed">Kegiatan tidak ditemukan pada bulan yang dipilih.</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
+                                        <div className="w-10 h-10 bg-[#ECFDF5] rounded-lg flex items-center justify-center"><TrendingUp size={18} className="text-[#10B981]" /></div>
+                                        <p className="text-[#0A0F1E] text-xs font-bold">{filteredCount} kegiatan</p>
+                                        <p className="text-[#9298B0] text-[10px] font-medium leading-relaxed">Total kegiatan pada bulan yang dipilih.</p>
+                                    </div>
+                                )}
                             </div>
-                        ) : (
-                            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
-                                <div className="w-10 h-10 bg-[#ECFDF5] rounded-lg flex items-center justify-center"><TrendingUp size={18} className="text-[#10B981]" /></div>
-                                <p className="text-[#0A0F1E] text-xs font-bold">{totalKegiatanBulanIni} kegiatan</p>
-                                <p className="text-[#9298B0] text-[10px] font-medium leading-relaxed">Total kegiatan pada bulan ini.</p>
-                            </div>
-                        )}
-                    </div>
+                        );
+                    })()}
 
                     <div className="bg-white p-5 md:p-6 rounded-[16px] md:rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[320px] md:h-80 md:col-span-2 xl:col-span-1">
                         <div className="flex flex-col">

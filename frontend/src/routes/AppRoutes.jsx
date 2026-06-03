@@ -20,6 +20,7 @@ import LogAktifitasPage from '../pages/LogAktivitas/LogAktifitasPage';
 import PanduanPenggunaanPage from '../pages/Panduan/PanduanPenggunaanPage';
 
 import KelolaAnggotaPage from '../pages/KelolaAnggota/KelolaAnggotaPage';
+import TambahAnggotaPage from '../pages/KelolaAnggota/TambahAnggotaPage';
 import InformasiDampinganPage from '../pages/InformasiDampingan/InformasiDampinganPage';
 import KonfirmasiAnggotaPage from '../pages/KonfirmasiAnggota/KonfirmasiAnggotaPage';
 import KelolaDampinganPage from '../pages/KelolaDampingan/KelolaDampinganPage';
@@ -49,6 +50,7 @@ const AppRoutes = () => {
                 <Route path="/data-grup" element={<DataGrupPage />} />
                 <Route path="/data-dampingan" element={<DataDampinganPage />} />
                 <Route path="/kelola-anggota" element={<KelolaAnggotaPage />} />
+                <Route path="/kelola-anggota/tambah" element={<TambahAnggotaPage />} />
                 <Route path="/informasi-dampingan" element={<InformasiDampinganPage />} />
                 <Route path="/konfirmasi-anggota" element={<KonfirmasiAnggotaPage />} />
                 <Route path="/kelola-dampingan" element={<KelolaDampinganPage />} />

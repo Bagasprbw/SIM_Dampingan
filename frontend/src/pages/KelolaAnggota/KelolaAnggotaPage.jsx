@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { 
@@ -25,6 +26,7 @@ import EditDampinganModal from '../../components/modals/EditDampinganModal';
 import DeleteDampinganModal from '../../components/modals/DeleteDampinganModal';
 
 const KelolaAnggotaPage = () => {
+    const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -85,7 +87,7 @@ const KelolaAnggotaPage = () => {
             });
             return;
         }
-        setIsAddOpen(true);
+        navigate('/kelola-anggota/tambah');
     };
 
     return (
