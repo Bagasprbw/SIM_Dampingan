@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/layout/AdminLayout';
-import AddDampinganModal from '../../components/modals/AddDampinganModal';
 import EditDampinganModal from '../../components/modals/EditDampinganModal';
 import DeleteDampinganModal from '../../components/modals/DeleteDampinganModal';
 import DetailDampinganModal from '../../components/modals/DetailDampinganModal';
@@ -24,8 +24,8 @@ import { exportToExcel } from '../../utils/exportToExcel';
 import { getUser } from '../../utils/storage';
 
 const DataDampinganPage = () => {
+    const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -128,7 +128,7 @@ const DataDampinganPage = () => {
                     {/* Row 1: Action Buttons (Top Right) - DESKTOP */}
                     <div className="hidden lg:flex justify-end items-center gap-3 mb-6">
                         <button 
-                            onClick={() => setIsAddModalOpen(true)}
+                            onClick={() => navigate('/data-dampingan/tambah')}
                             className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
                         >
                             <Plus size={18} />
@@ -216,7 +216,7 @@ const DataDampinganPage = () => {
                                 {/* Mobile Action Buttons */}
                                 <div className="flex flex-row justify-end items-center gap-2 w-full">
                                     <button 
-                                        onClick={() => setIsAddModalOpen(true)}
+                                        onClick={() => navigate('/data-dampingan/tambah')}
                                         className="h-[34px] px-3 bg-[#0080C5] text-white rounded-[14px] flex items-center justify-center gap-1.5 shadow-sm"
                                     >
                                         <Plus size={14} strokeWidth={3} />
@@ -481,7 +481,6 @@ const DataDampinganPage = () => {
             </div>
 
             {/* Modals */}
-            <AddDampinganModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
             <EditDampinganModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} data={selectedData} />
             <DeleteDampinganModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} data={selectedData} />
             <DetailDampinganModal 

@@ -4,6 +4,7 @@ import RouteGuard from '../guards/RouteGuard';
 
 // Pages
 import LoginPage from '../pages/auth/LoginPage';
+import GantiPasswordPage from '../pages/auth/GantiPasswordPage';
 import DashboardPage from '../pages/Dashboard/DashboardPage';
 import DataAdminPage from '../pages/DataAdmin/DataAdminPage';
 import DataFasilitatorPage from '../pages/DataFasilitator/DataFasilitatorPage';
@@ -20,6 +21,7 @@ import LogAktifitasPage from '../pages/LogAktivitas/LogAktifitasPage';
 import PanduanPenggunaanPage from '../pages/Panduan/PanduanPenggunaanPage';
 
 import KelolaAnggotaPage from '../pages/KelolaAnggota/KelolaAnggotaPage';
+import TambahAnggotaPage from '../pages/KelolaAnggota/TambahAnggotaPage';
 import InformasiDampinganPage from '../pages/InformasiDampingan/InformasiDampinganPage';
 import KonfirmasiAnggotaPage from '../pages/KonfirmasiAnggota/KonfirmasiAnggotaPage';
 import KelolaDampinganPage from '../pages/KelolaDampingan/KelolaDampinganPage';
@@ -48,7 +50,9 @@ const AppRoutes = () => {
                 <Route path="/data-pj" element={<DataPjPage />} />
                 <Route path="/data-grup" element={<DataGrupPage />} />
                 <Route path="/data-dampingan" element={<DataDampinganPage />} />
+                <Route path="/data-dampingan/tambah" element={<TambahAnggotaPage />} />
                 <Route path="/kelola-anggota" element={<KelolaAnggotaPage />} />
+                <Route path="/kelola-anggota/tambah" element={<TambahAnggotaPage />} />
                 <Route path="/informasi-dampingan" element={<InformasiDampinganPage />} />
                 <Route path="/konfirmasi-anggota" element={<KonfirmasiAnggotaPage />} />
                 <Route path="/kelola-dampingan" element={<KelolaDampinganPage />} />
@@ -60,6 +64,7 @@ const AppRoutes = () => {
                 <Route path="/peta" element={<PetaSebaranPage />} />
                 <Route path="/log" element={<LogAktifitasPage />} />
                 <Route path="/panduan" element={<PanduanPenggunaanPage />} />
+                <Route path="/ganti-password" element={<GantiPasswordPage />} />
             </Route>
 
             {/* 404 fallback */}

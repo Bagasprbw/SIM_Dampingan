@@ -53,8 +53,52 @@ class DashboardPjDampinganController extends Controller
             ]);
 
         $now = Carbon::now();
+        $start = $now->copy()->startOfMonth()->subMonths(5);
+        $end = $now->copy()->endOfMonth();
         $monthStart = $now->copy()->startOfMonth()->toDateString();
         $monthEnd = $now->copy()->endOfMonth()->toDateString();
+
+        $monthLabels = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
+
+        $monthlyTotals = Kegiatan::query()
+            ->selectRaw("DATE_FORMAT(COALESCE(tanggal, created_at), '%Y-%m-01') as month_key")
+            ->selectRaw('COUNT(DISTINCT id_kegiatan) as total')
+            ->whereHas('kegiatanGrups', function ($query) use ($grupIds) {
+                $query->whereIn('grup_dampingan_id', $grupIds);
+            })
+            ->whereBetween(DB::raw('COALESCE(tanggal, created_at)'), [$start->toDateString(), $end->toDateString()])
+            ->groupBy('month_key')
+            ->orderBy('month_key')
+            ->get()
+            ->keyBy('month_key');
+
+        $kegiatanPerBulan = [];
+        $cursor = $start->copy();
+        while ($cursor <= $end) {
+            $key = $cursor->format('Y-m-01');
+            $total = (int) ($monthlyTotals[$key]->total ?? 0);
+            $monthNumber = (int) $cursor->format('n');
+            $kegiatanPerBulan[] = [
+                'name'     => $monthLabels[$monthNumber] ?? $cursor->format('M'),
+                'kegiatan' => $total,
+                'month'    => $monthNumber,
+                'year'     => (int) $cursor->format('Y'),
+            ];
+            $cursor->addMonth();
+        }
 
         $totalKegiatanBulanIni = Kegiatan::query()
             ->whereHas('kegiatanGrups', function ($query) use ($grupIds) {
@@ -74,21 +118,6 @@ class DashboardPjDampinganController extends Controller
             ->limit(3)
             ->get();
 
-        $monthLabels = [
-            1 => 'Januari',
-            2 => 'Februari',
-            3 => 'Maret',
-            4 => 'April',
-            5 => 'Mei',
-            6 => 'Juni',
-            7 => 'Juli',
-            8 => 'Agustus',
-            9 => 'September',
-            10 => 'Oktober',
-            11 => 'November',
-            12 => 'Desember',
-        ];
-
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -102,6 +131,7 @@ class DashboardPjDampinganController extends Controller
                     'ditolak' => (int) ($statusCounts->ditolak ?? 0),
                 ],
                 'pengajuan_terbaru' => $pengajuanTerbaru,
+                'kegiatan_per_bulan' => $kegiatanPerBulan,
                 'log_aktivitas_login' => $logAktivitas,
                 'period' => [
                     'current_month' => (int) $now->format('n'),

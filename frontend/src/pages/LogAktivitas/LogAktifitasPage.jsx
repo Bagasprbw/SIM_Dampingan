@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { Clock, ChevronDown, Calendar, CheckSquare, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Clock, ChevronDown, Calendar, CheckSquare, ChevronLeft, ChevronRight, Loader2, Eye } from 'lucide-react';
 import { useLogs } from '../../hooks/queries/useLogQuery';
+import LogDetailModal from '../../components/modals/LogDetailModal';
 
 const AKSI_OPTIONS = [
     { value: '', label: 'Semua Aksi' },
@@ -18,6 +19,8 @@ const LogAktifitasPage = () => {
     const [tanggalAkhir, setTanggalAkhir] = useState('');
     const [showAksiDropdown, setShowAksiDropdown] = useState(false);
     const [page, setPage] = useState(1);
+    const [selectedLog, setSelectedLog] = useState(null);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
     const { data: logData, isLoading, isError, refetch } = useLogs({
         page,
@@ -38,10 +41,12 @@ const LogAktifitasPage = () => {
 
     const formatTime = (dateString) => {
         if (!dateString) return '-';
-        return new Date(dateString).toLocaleDateString('id-ID', {
+        const d = new Date(dateString);
+        return d.toLocaleDateString('id-ID', {
             day: '2-digit', month: 'short', year: 'numeric',
-            hour: '2-digit', minute: '2-digit'
-        });
+            hour: '2-digit', minute: '2-digit',
+            timeZone: 'Asia/Jakarta'
+        }).replace(/\./g, ':') + ' WIB';
     };
 
     const getAksiStyles = (aksi) => {
@@ -199,7 +204,7 @@ const LogAktifitasPage = () => {
                                         <div className="w-[52px] shrink-0 text-[9px] font-semibold text-[#9298B0]">ROLE</div>
                                         <div className="w-[72px] shrink-0 text-[9px] font-semibold text-[#9298B0]">NAMA</div>
                                         <div className="flex-1 text-[9px] font-semibold text-[#9298B0]">AKTIFITAS</div>
-                                        <div className="w-[32px] shrink-0 text-right text-[9px] font-semibold text-[#9298B0]">WAKTU</div>
+                                        <div className="w-[50px] shrink-0 text-right text-[9px] font-semibold text-[#9298B0] pr-1">INFO</div>
                                     </div>
                                     <div className="flex flex-col w-full">
                                         {logs.map((log, index) => {
@@ -212,11 +217,15 @@ const LogAktifitasPage = () => {
                                             let timeAgo = '00:00';
                                             if (log.created_at) {
                                                 const d = new Date(log.created_at);
-                                                timeAgo = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+                                                timeAgo = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }).replace(/\./g, ':');
                                             }
                                             
                                             return (
-                                                <div key={log.id_log || index} className="flex flex-row items-start px-3 py-3 border-b-[0.8px] border-[#F0F2F8] gap-1 last:border-b-0 bg-white last:rounded-b-[16px]">
+                                                <div 
+                                                    key={log.id_log || index} 
+                                                    className="flex flex-row items-start px-3 py-3 border-b-[0.8px] border-[#F0F2F8] gap-1 last:border-b-0 bg-white last:rounded-b-[16px] cursor-pointer active:bg-slate-50 transition-colors"
+                                                    onClick={() => { setSelectedLog(log); setIsDetailModalOpen(true); }}
+                                                >
                                                     {/* Role */}
                                                     <div className="w-[52px] shrink-0 pt-1">
                                                         <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 ${style.bg} ${style.text} rounded-full w-fit max-w-[50px]`}>
@@ -239,9 +248,16 @@ const LogAktifitasPage = () => {
                                                         <span className="text-[9px] text-[#0A0F1E] leading-[14px] line-clamp-3">{log.deskripsi || '-'}</span>
                                                     </div>
                                                     
-                                                    {/* Waktu */}
-                                                    <div className="w-[32px] shrink-0 text-right">
-                                                        <span className="text-[8px] font-medium text-[#9298B0] mt-1 block">{timeAgo}</span>
+                                                    {/* Waktu & Detail */}
+                                                    <div className="w-[50px] shrink-0 flex flex-col items-end gap-1.5 pt-0.5">
+                                                        <span className="text-[8px] font-medium text-[#9298B0]">{timeAgo}</span>
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); setSelectedLog(log); setIsDetailModalOpen(true); }}
+                                                            className="w-6 h-6 flex items-center justify-center bg-slate-50 text-slate-400 rounded hover:bg-sky-50 hover:text-sky-500 transition-colors mt-0.5"
+                                                            title="Lihat Detail"
+                                                        >
+                                                            <Eye size={12} strokeWidth={2} />
+                                                        </button>
                                                     </div>
                                                 </div>
                                             );
@@ -260,6 +276,7 @@ const LogAktifitasPage = () => {
                                             <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">NAMA</th>
                                             <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">DESKRIPSI</th>
                                             <th className="py-4 px-6 text-left text-slate-400 text-[10px] font-bold uppercase tracking-widest">WAKTU</th>
+                                            <th className="py-4 px-6 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest">AKSI</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
@@ -268,7 +285,11 @@ const LogAktifitasPage = () => {
                                             const style = getAksiStyles(aksi);
                                             const initial = log.user?.name ? log.user.name.substring(0, 2).toUpperCase() : '??';
                                             return (
-                                                <tr key={log.id_log || index} className="hover:bg-slate-50/50 transition-colors">
+                                                <tr 
+                                                    key={log.id_log || index} 
+                                                    className="hover:bg-slate-50/50 transition-colors cursor-pointer"
+                                                    onClick={() => { setSelectedLog(log); setIsDetailModalOpen(true); }}
+                                                >
                                                     <td className="py-3.5 px-6">
                                                         <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 ${style.bg} ${style.text} rounded-full`}>
                                                             <div className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
@@ -292,6 +313,15 @@ const LogAktifitasPage = () => {
                                                         </div>
                                                     </td>
                                                     <td className="py-3.5 px-6 text-[11px] text-slate-400 font-medium whitespace-nowrap">{formatTime(log.created_at)}</td>
+                                                    <td className="py-3.5 px-6 text-center">
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); setSelectedLog(log); setIsDetailModalOpen(true); }}
+                                                            className="w-8 h-8 inline-flex items-center justify-center bg-slate-50 text-slate-400 rounded-lg hover:bg-sky-50 hover:text-sky-500 transition-colors"
+                                                            title="Lihat Detail"
+                                                        >
+                                                            <Eye size={16} strokeWidth={2} />
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             );
                                         })}
@@ -346,6 +376,15 @@ const LogAktifitasPage = () => {
                         </div>
                     )}
                 </div>
+                
+                <LogDetailModal 
+                    isOpen={isDetailModalOpen} 
+                    onClose={() => {
+                        setIsDetailModalOpen(false);
+                        setTimeout(() => setSelectedLog(null), 200);
+                    }} 
+                    log={selectedLog} 
+                />
             </div>
         </AdminLayout>
     );

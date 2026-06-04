@@ -1,27 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Lock, Eye, EyeOff, Search } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { getUser } from '../../utils/storage';
+import { AUTH_USER_KEY } from '../../constants/storageKeys';
 import { ROLE_LABELS } from '../../constants/roles';
 import { profilService } from '../../services/profilService';
 
-const ProfileModal = ({ isOpen, onClose }) => {
-    const [showPasswordFields, setShowPasswordFields] = useState(false);
+const getInitials = (name) => {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    return parts.length >= 2
+        ? (parts[0][0] + parts[1][0]).toUpperCase()
+        : name.substring(0, 2).toUpperCase();
+};
+
+const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+    return `${baseUrl}/storage/${path}`;
+};
+
+const ProfileModal = ({ isOpen, onClose, isForced = false }) => {
+    const [showPasswordFields, setShowPasswordFields] = useState(isForced || false);
     const [showCurrentPass, setShowCurrentPass] = useState(false);
     const [showPass, setShowPass] = useState(false);
     const [showConfirmPass, setShowConfirmPass] = useState(false);
     const user = getUser();
-    const [noTelp, setNoTelp] = useState(user?.no_telp || '');
+    // Normalize role — bisa berupa object { name: '...' } atau string langsung
+    const userRole = typeof user?.role === 'object' && user?.role !== null ? user.role.name : user?.role;
+    const [noTelp, setNoTelp] = useState('');
+    const [originalNoTelp, setOriginalNoTelp] = useState('');
+    const [profileFoto, setProfileFoto] = useState(null);
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
+    // Force show password fields if isForced is true
+    useEffect(() => {
+        if (isForced) {
+            setShowPasswordFields(true);
+        }
+    }, [isForced]);
+
+    // Fetch profil terbaru dari API setiap kali modal dibuka
+    useEffect(() => {
+        if (!isOpen) return;
+        profilService.getProfile()
+            .then(res => {
+                const data = res?.data || {};
+                setNoTelp(data.no_telp || '');
+                setOriginalNoTelp(data.no_telp || '');
+                setProfileFoto(data.foto || null);
+            })
+            .catch(() => {
+                // Fallback ke localStorage jika API gagal
+                setNoTelp(user?.no_telp || '');
+                setOriginalNoTelp(user?.no_telp || '');
+                setProfileFoto(user?.foto || null);
+            });
+    }, [isOpen]);
+
+
     const handleSave = async () => {
         if (!user) return;
 
-        const hasNoTelpChange = noTelp !== (user?.no_telp || '');
+        const hasNoTelpChange = noTelp !== originalNoTelp;
         const wantsPasswordChange = showPasswordFields && (currentPassword || newPassword || confirmPassword);
+
+        if (isForced && !wantsPasswordChange) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Wajib Ganti Password',
+                text: 'Anda harus mengganti password default demi keamanan akun.',
+                confirmButtonColor: '#0080C5',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' },
+            });
+            return;
+        }
 
         if (!hasNoTelpChange && !wantsPasswordChange) {
             Swal.fire({
@@ -61,11 +118,9 @@ const ProfileModal = ({ isOpen, onClose }) => {
         try {
             if (hasNoTelpChange) {
                 const response = await profilService.updateNoTelp(noTelp);
+                // Simpan user terbaru ke localStorage dengan key yang benar
                 const updatedUser = response?.data ? { ...user, ...response.data } : { ...user, no_telp: noTelp };
-                localStorage.setItem('AUTH_USER', JSON.stringify(updatedUser));
-                if (user.role === 'superadmin' || user.username === 'superadmin') {
-                    localStorage.setItem('superadmin_wa', noTelp);
-                }
+                localStorage.setItem(AUTH_USER_KEY, JSON.stringify(updatedUser));
             }
 
             if (wantsPasswordChange) {
@@ -74,12 +129,20 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     new_password: newPassword,
                     new_password_confirmation: confirmPassword,
                 });
+                
+                // Hapus flag must_change_password di localStorage
+                const latestUser = getUser() || user;
+                const updatedUser = { ...latestUser, must_change_password: false };
+                localStorage.setItem(AUTH_USER_KEY, JSON.stringify(updatedUser));
             }
 
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
-            setShowPasswordFields(false);
+            
+            if (!isForced) {
+                setShowPasswordFields(false);
+            }
 
             Swal.fire({
                 icon: 'success',
@@ -116,7 +179,9 @@ const ProfileModal = ({ isOpen, onClose }) => {
             {/* Backdrop */}
             <div 
                 className="absolute inset-0 bg-black/20 backdrop-blur-sm"
-                onClick={onClose}
+                onClick={() => {
+                    if (!isForced) onClose();
+                }}
             ></div>
 
             {/* Modal Content */}
@@ -126,11 +191,17 @@ const ProfileModal = ({ isOpen, onClose }) => {
                 <div className="px-6 py-5 border-b border-[#F1F5F9] flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <div className="relative">
-                            <img 
-                                src={user?.foto || "/images/superadmin.png"} 
-                                alt="Profile" 
-                                className="w-10 h-10 rounded-full border-[1.6px] border-[#0080C5] object-cover"
-                            />
+                            {profileFoto ? (
+                                <img
+                                    src={getImageUrl(profileFoto)}
+                                    alt="Profile"
+                                    className="w-10 h-10 rounded-full border-[1.6px] border-[#0080C5] object-cover"
+                                />
+                            ) : (
+                                <div className="w-10 h-10 rounded-full border-[1.6px] border-[#0080C5] bg-[#EFF6FF] flex items-center justify-center">
+                                    <span className="text-[#0080C5] text-sm font-bold leading-none">{getInitials(user?.name)}</span>
+                                </div>
+                            )}
                             <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#10B981] rounded-full border-[1.6px] border-white" />
                         </div>
                         <div className="flex flex-col">
@@ -138,16 +209,25 @@ const ProfileModal = ({ isOpen, onClose }) => {
                             <p className="text-[#9298B0] text-[10px] font-normal leading-tight mt-0.5">Kelola informasi dan keamanan akun Anda</p>
                         </div>
                     </div>
-                    <button 
-                        onClick={onClose}
-                        className="w-7 h-7 bg-[#F1F5F9] rounded-full flex items-center justify-center text-[#64748B] hover:bg-gray-200 transition-colors"
-                    >
-                        <X size={14} strokeWidth={3} />
-                    </button>
+                    {!isForced && (
+                        <button 
+                            onClick={onClose}
+                            className="w-7 h-7 bg-[#F1F5F9] rounded-full flex items-center justify-center text-[#64748B] hover:bg-gray-200 transition-colors"
+                        >
+                            <X size={14} strokeWidth={3} />
+                        </button>
+                    )}
                 </div>
 
                 {/* Form Section */}
                 <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                    {/* Warning Banner for Forced Password Change */}
+                    {isForced && (
+                        <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-[11px] rounded-xl font-medium leading-relaxed">
+                            ⚠️ Akun Anda menggunakan password default / telah di-reset. Anda wajib memperbarui password Anda sebelum melanjutkan ke Dashboard.
+                        </div>
+                    )}
+
                     {/* Input Nama */}
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Username</label>
@@ -161,7 +241,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
                         <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Role</label>
                         <div className="px-4 py-2.5 bg-[#F9FAFB] rounded-[10px] border border-[#E5E7EB] flex items-center gap-2">
                             <div className="w-2 h-2 bg-[#0080C5] rounded-full" />
-                            <span className="text-[#0A0F1E] text-sm font-normal">{ROLE_LABELS[user?.role] || user?.role || 'Guest'}</span>
+                            <span className="text-[#0A0F1E] text-sm font-normal">{ROLE_LABELS[userRole] || userRole || 'Guest'}</span>
                         </div>
                     </div>
 
@@ -178,14 +258,16 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     </div>
 
                     {/* Toggle Password Fields */}
-                    <div className="flex justify-end">
-                        <button 
-                            onClick={() => setShowPasswordFields(!showPasswordFields)}
-                            className="text-[#0080C5] text-[11px] font-semibold hover:underline"
-                        >
-                            {showPasswordFields ? 'Sembunyikan Password' : 'Ubah Password'}
-                        </button>
-                    </div>
+                    {!isForced && (
+                        <div className="flex justify-end">
+                            <button 
+                                onClick={() => setShowPasswordFields(!showPasswordFields)}
+                                className="text-[#0080C5] text-[11px] font-semibold hover:underline"
+                            >
+                                {showPasswordFields ? 'Sembunyikan Password' : 'Ubah Password'}
+                            </button>
+                        </div>
+                    )}
 
                     {/* Hidden Password Fields */}
                     {showPasswordFields && (
@@ -267,16 +349,18 @@ const ProfileModal = ({ isOpen, onClose }) => {
 
                 {/* Footer Section */}
                 <div className="px-6 py-5 flex items-center justify-end gap-3 bg-white">
-                    <button 
-                        onClick={onClose}
-                        className="px-6 py-2 rounded-[10px] border border-[#E5E7EB] text-[#6B7280] text-xs font-semibold hover:bg-gray-50 transition-colors h-10"
-                        disabled={isSaving}
-                    >
-                        Batal
-                    </button>
+                    {!isForced && (
+                        <button 
+                            onClick={onClose}
+                            className="px-6 py-2 rounded-[10px] border border-[#E5E7EB] text-[#6B7280] text-xs font-semibold hover:bg-gray-50 transition-colors h-10"
+                            disabled={isSaving}
+                        >
+                            Batal
+                        </button>
+                    )}
                     <button 
                         onClick={handleSave}
-                        className="px-6 py-2 rounded-[10px] bg-[#0080C5] text-white text-xs font-semibold hover:bg-[#006da8] transition-colors shadow-lg shadow-blue-100 h-10 disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="px-6 py-2 rounded-[10px] bg-[#0080C5] text-white text-xs font-semibold hover:bg-[#006da8] transition-colors shadow-lg shadow-blue-100 h-10 disabled:opacity-70 disabled:cursor-not-allowed w-full sm:w-auto"
                         disabled={isSaving}
                     >
                         {isSaving ? 'Menyimpan...' : 'Simpan'}

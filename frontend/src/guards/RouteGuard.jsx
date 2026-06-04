@@ -14,6 +14,17 @@ const RouteGuard = () => {
         return <Navigate to="/login" replace state={{ from: location }} />;
     }
 
+    // Cek paksa ganti password
+    if (user?.must_change_password) {
+        if (currentPath !== '/ganti-password') {
+            return <Navigate to="/ganti-password" replace />;
+        }
+    } else {
+        if (currentPath === '/ganti-password') {
+            return <Navigate to="/dashboard" replace />;
+        }
+    }
+
     // Ambil role user
     let userRole = typeof user?.role === 'object' && user?.role !== null ? user.role.name : user?.role;
     if (!userRole && user?.username === 'superadmin') {

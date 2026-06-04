@@ -44,6 +44,8 @@ class AuthController extends Controller
             user: $user
         );
 
+        $isDefaultPassword = $request->password === '12345678';
+
         return response()->json([
             'message'      => 'Login berhasil',
             'access_token' => $token,
@@ -64,6 +66,7 @@ class AuthController extends Controller
                 'updated_at' => $user->updated_at,
                 'role'        => $user->role ? $user->role->name : null,
                 'permissions' => $user->role ? $user->role->permissions->pluck('code') : [],
+                'must_change_password' => $isDefaultPassword,
             ],
         ]);
     }
@@ -92,9 +95,14 @@ class AuthController extends Controller
     {
         $user = clone $request->user();
         $user->load('role.permissions');
+        
+        $isDefaultPassword = Hash::check('12345678', $user->password);
+        
+        $userArray = $user->toArray();
+        $userArray['must_change_password'] = $isDefaultPassword;
 
         return response()->json([
-            'user' => $user,
+            'user' => $userArray,
         ]);
     }
 }
