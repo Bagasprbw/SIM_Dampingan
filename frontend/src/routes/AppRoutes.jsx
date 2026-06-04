@@ -49,6 +49,7 @@ const AppRoutes = () => {
                 <Route path="/data-pj" element={<DataPjPage />} />
                 <Route path="/data-grup" element={<DataGrupPage />} />
                 <Route path="/data-dampingan" element={<DataDampinganPage />} />
+                <Route path="/data-dampingan/tambah" element={<TambahAnggotaPage />} />
                 <Route path="/kelola-anggota" element={<KelolaAnggotaPage />} />
                 <Route path="/kelola-anggota/tambah" element={<TambahAnggotaPage />} />
                 <Route path="/informasi-dampingan" element={<InformasiDampinganPage />} />

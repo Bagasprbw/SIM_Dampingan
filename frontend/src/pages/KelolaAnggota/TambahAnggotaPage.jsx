@@ -203,8 +203,7 @@ const TambahAnggotaPage = () => {
                 showConfirmButton: false,
                 customClass: { popup: 'rounded-2xl font-["Poppins"]' }
             });
-            
-            navigate('/kelola-anggota');
+            navigate(-1);
         } catch (error) {
             const errorMsg = error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data anggota.';
             Swal.fire({
@@ -228,7 +227,7 @@ const TambahAnggotaPage = () => {
                     <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
                             <button 
-                                onClick={() => navigate('/kelola-anggota')} 
+                                onClick={() => navigate(-1)} 
                                 className="p-2 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
                             >
                                 <ArrowLeft size={16} className="text-slate-600" />
@@ -240,10 +239,10 @@ const TambahAnggotaPage = () => {
                         </div>
                         
                         <button 
-                            onClick={() => navigate('/kelola-anggota')}
+                            onClick={() => navigate(-1)}
                             className="text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors flex items-center gap-1.5 self-start sm:self-center"
                         >
-                            Kembali ke Kelola Anggota
+                            Kembali
                         </button>
                     </div>
 
@@ -535,7 +534,7 @@ const TambahAnggotaPage = () => {
                     <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-sm border border-slate-100 flex items-center justify-end gap-3">
                         <button 
                             type="button"
-                            onClick={() => navigate('/kelola-anggota')}
+                            onClick={() => navigate(-1)}
                             className="px-6 h-11 bg-white border border-gray-200 rounded-[10px] text-slate-500 text-xs font-semibold hover:bg-slate-50 transition-all"
                         >
                             Batal
