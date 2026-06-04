@@ -18,6 +18,7 @@ export const authRepository = {
             kode_prov: user.kode_prov,
             kode_kab: user.kode_kab,
             kode_kec: user.kode_kec,
+            must_change_password: user.must_change_password,
         };
 
         // Permissions dari backend (array of code strings)
@@ -53,6 +54,7 @@ export const authRepository = {
             kode_prov: user.kode_prov,
             kode_kab: user.kode_kab,
             kode_kec: user.kode_kec,
+            must_change_password: user.must_change_password,
         };
     },
 };

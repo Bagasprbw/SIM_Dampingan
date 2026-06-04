@@ -21,8 +21,8 @@ const getImageUrl = (path) => {
     return `${baseUrl}/storage/${path}`;
 };
 
-const ProfileModal = ({ isOpen, onClose }) => {
-    const [showPasswordFields, setShowPasswordFields] = useState(false);
+const ProfileModal = ({ isOpen, onClose, isForced = false }) => {
+    const [showPasswordFields, setShowPasswordFields] = useState(isForced || false);
     const [showCurrentPass, setShowCurrentPass] = useState(false);
     const [showPass, setShowPass] = useState(false);
     const [showConfirmPass, setShowConfirmPass] = useState(false);
@@ -36,6 +36,13 @@ const ProfileModal = ({ isOpen, onClose }) => {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+
+    // Force show password fields if isForced is true
+    useEffect(() => {
+        if (isForced) {
+            setShowPasswordFields(true);
+        }
+    }, [isForced]);
 
     // Fetch profil terbaru dari API setiap kali modal dibuka
     useEffect(() => {
@@ -61,6 +68,17 @@ const ProfileModal = ({ isOpen, onClose }) => {
 
         const hasNoTelpChange = noTelp !== originalNoTelp;
         const wantsPasswordChange = showPasswordFields && (currentPassword || newPassword || confirmPassword);
+
+        if (isForced && !wantsPasswordChange) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Wajib Ganti Password',
+                text: 'Anda harus mengganti password default demi keamanan akun.',
+                confirmButtonColor: '#0080C5',
+                customClass: { popup: 'rounded-2xl font-["Poppins"]' },
+            });
+            return;
+        }
 
         if (!hasNoTelpChange && !wantsPasswordChange) {
             Swal.fire({
@@ -111,12 +129,20 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     new_password: newPassword,
                     new_password_confirmation: confirmPassword,
                 });
+                
+                // Hapus flag must_change_password di localStorage
+                const latestUser = getUser() || user;
+                const updatedUser = { ...latestUser, must_change_password: false };
+                localStorage.setItem(AUTH_USER_KEY, JSON.stringify(updatedUser));
             }
 
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
-            setShowPasswordFields(false);
+            
+            if (!isForced) {
+                setShowPasswordFields(false);
+            }
 
             Swal.fire({
                 icon: 'success',
@@ -153,7 +179,9 @@ const ProfileModal = ({ isOpen, onClose }) => {
             {/* Backdrop */}
             <div 
                 className="absolute inset-0 bg-black/20 backdrop-blur-sm"
-                onClick={onClose}
+                onClick={() => {
+                    if (!isForced) onClose();
+                }}
             ></div>
 
             {/* Modal Content */}
@@ -181,16 +209,25 @@ const ProfileModal = ({ isOpen, onClose }) => {
                             <p className="text-[#9298B0] text-[10px] font-normal leading-tight mt-0.5">Kelola informasi dan keamanan akun Anda</p>
                         </div>
                     </div>
-                    <button 
-                        onClick={onClose}
-                        className="w-7 h-7 bg-[#F1F5F9] rounded-full flex items-center justify-center text-[#64748B] hover:bg-gray-200 transition-colors"
-                    >
-                        <X size={14} strokeWidth={3} />
-                    </button>
+                    {!isForced && (
+                        <button 
+                            onClick={onClose}
+                            className="w-7 h-7 bg-[#F1F5F9] rounded-full flex items-center justify-center text-[#64748B] hover:bg-gray-200 transition-colors"
+                        >
+                            <X size={14} strokeWidth={3} />
+                        </button>
+                    )}
                 </div>
 
                 {/* Form Section */}
                 <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                    {/* Warning Banner for Forced Password Change */}
+                    {isForced && (
+                        <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-[11px] rounded-xl font-medium leading-relaxed">
+                            ⚠️ Akun Anda menggunakan password default / telah di-reset. Anda wajib memperbarui password Anda sebelum melanjutkan ke Dashboard.
+                        </div>
+                    )}
+
                     {/* Input Nama */}
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Username</label>
@@ -221,14 +258,16 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     </div>
 
                     {/* Toggle Password Fields */}
-                    <div className="flex justify-end">
-                        <button 
-                            onClick={() => setShowPasswordFields(!showPasswordFields)}
-                            className="text-[#0080C5] text-[11px] font-semibold hover:underline"
-                        >
-                            {showPasswordFields ? 'Sembunyikan Password' : 'Ubah Password'}
-                        </button>
-                    </div>
+                    {!isForced && (
+                        <div className="flex justify-end">
+                            <button 
+                                onClick={() => setShowPasswordFields(!showPasswordFields)}
+                                className="text-[#0080C5] text-[11px] font-semibold hover:underline"
+                            >
+                                {showPasswordFields ? 'Sembunyikan Password' : 'Ubah Password'}
+                            </button>
+                        </div>
+                    )}
 
                     {/* Hidden Password Fields */}
                     {showPasswordFields && (
@@ -310,16 +349,18 @@ const ProfileModal = ({ isOpen, onClose }) => {
 
                 {/* Footer Section */}
                 <div className="px-6 py-5 flex items-center justify-end gap-3 bg-white">
-                    <button 
-                        onClick={onClose}
-                        className="px-6 py-2 rounded-[10px] border border-[#E5E7EB] text-[#6B7280] text-xs font-semibold hover:bg-gray-50 transition-colors h-10"
-                        disabled={isSaving}
-                    >
-                        Batal
-                    </button>
+                    {!isForced && (
+                        <button 
+                            onClick={onClose}
+                            className="px-6 py-2 rounded-[10px] border border-[#E5E7EB] text-[#6B7280] text-xs font-semibold hover:bg-gray-50 transition-colors h-10"
+                            disabled={isSaving}
+                        >
+                            Batal
+                        </button>
+                    )}
                     <button 
                         onClick={handleSave}
-                        className="px-6 py-2 rounded-[10px] bg-[#0080C5] text-white text-xs font-semibold hover:bg-[#006da8] transition-colors shadow-lg shadow-blue-100 h-10 disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="px-6 py-2 rounded-[10px] bg-[#0080C5] text-white text-xs font-semibold hover:bg-[#006da8] transition-colors shadow-lg shadow-blue-100 h-10 disabled:opacity-70 disabled:cursor-not-allowed w-full sm:w-auto"
                         disabled={isSaving}
                     >
                         {isSaving ? 'Menyimpan...' : 'Simpan'}

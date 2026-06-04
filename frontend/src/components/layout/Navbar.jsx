@@ -29,6 +29,8 @@ const Navbar = ({ title = 'Dashboard', onMenuClick }) => {
     if (!userRole && user?.username === 'superadmin') {
         userRole = 'superadmin';
     }
+    
+
 
     return (
         <header className="h-16 bg-white border-b border-black/5 flex items-center justify-between px-4 lg:px-8 fixed top-0 left-0 lg:left-64 right-0 z-30 font-['Poppins']">

@@ -4,6 +4,7 @@ import RouteGuard from '../guards/RouteGuard';
 
 // Pages
 import LoginPage from '../pages/auth/LoginPage';
+import GantiPasswordPage from '../pages/auth/GantiPasswordPage';
 import DashboardPage from '../pages/Dashboard/DashboardPage';
 import DataAdminPage from '../pages/DataAdmin/DataAdminPage';
 import DataFasilitatorPage from '../pages/DataFasilitator/DataFasilitatorPage';
@@ -63,6 +64,7 @@ const AppRoutes = () => {
                 <Route path="/peta" element={<PetaSebaranPage />} />
                 <Route path="/log" element={<LogAktifitasPage />} />
                 <Route path="/panduan" element={<PanduanPenggunaanPage />} />
+                <Route path="/ganti-password" element={<GantiPasswordPage />} />
             </Route>
 
             {/* 404 fallback */}
