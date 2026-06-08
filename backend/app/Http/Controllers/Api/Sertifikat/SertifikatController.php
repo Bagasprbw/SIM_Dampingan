@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Kegiatan;
 use App\Models\PesertaKegiatan;
 use App\Models\Sertifikat;
+use App\Models\SertifikatTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -15,14 +16,10 @@ class SertifikatController extends Controller
     /**
      * POST /kelola-kegiatan/{id}/sertifikat
      * Fasilitator menerbitkan sertifikat untuk kegiatan yang sudah selesai.
-     * Upload template PDF fillable → generate record sertifikat untuk semua peserta anggota yang hadir.
+     * Template PDF fillable diambil dari tabel sertifikat_templates (global, dikelola superadmin).
      */
     public function terbitkan(Request $request, $id)
     {
-        $request->validate([
-            'template_sertifikat' => 'required|file|mimes:pdf|max:5120', // max 5MB
-        ]);
-
         $kegiatan = Kegiatan::findOrFail($id);
 
         // Kegiatan harus berstatus selesai
@@ -45,16 +42,14 @@ class SertifikatController extends Controller
             ], 422);
         }
 
-        // Simpan file PDF template ke storage
-        $file = $request->file('template_sertifikat');
-        $path = $file->storeAs(
-            'template-sertifikat',
-            $id . '.pdf',
-            'public'
-        );
-
-        // Simpan path template ke tabel kegiatans
-        $kegiatan->update(['template_sertifikat' => $path]);
+        // Pastikan template global sudah tersedia
+        $template = SertifikatTemplate::latest('created_at')->first();
+        if (!$template) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Template sertifikat belum tersedia. Minta superadmin untuk mengupload template terlebih dahulu',
+            ], 422);
+        }
 
         // Ambil peserta yang berhak: harus anggota (bukan eksternal) dan hadir
         $pesertaList = PesertaKegiatan::where('kegiatan_id', $id)
@@ -77,8 +72,8 @@ class SertifikatController extends Controller
                                ->count();
         $counter = $baseCount + 1;
 
-        $waktuTerbit    = now();
-        $jumlahDibuat   = 0;
+        $waktuTerbit  = now();
+        $jumlahDibuat = 0;
 
         foreach ($pesertaList as $peserta) {
             Sertifikat::create([
@@ -101,6 +96,7 @@ class SertifikatController extends Controller
     /**
      * GET /anggota-grup/profil/{anggotaId}/sertifikat/{idSertifikat}
      * Public endpoint — anggota ambil data sertifikat untuk dicetak di frontend (pdf-lib).
+     * Template URL diambil dari tabel sertifikat_templates (template global terbaru).
      */
     public function show($anggotaId, $idSertifikat)
     {
@@ -128,6 +124,10 @@ class SertifikatController extends Controller
         $anggota     = $sertifikat->pesertaKegiatan->anggota;
         $fasilitator = $kegiatan->fasilitator;
 
+        // Ambil template global terbaru
+        $template    = SertifikatTemplate::latest('created_at')->first();
+        $templateUrl = $template ? Storage::url($template->file) : null;
+
         return response()->json([
             'status' => 'success',
             'data'   => [
@@ -139,8 +139,8 @@ class SertifikatController extends Controller
                     : '-',
                 'lokasi_kegiatan'  => $kegiatan->lokasi,
                 'nama_fasilitator' => $fasilitator->name,
-                // URL lengkap ke file PDF template (dipakai pdf-lib di frontend)
-                'template_url'     => Storage::url($kegiatan->template_sertifikat),
+                // URL template global (dipakai pdf-lib di frontend)
+                'template_url'     => $templateUrl,
                 'diterbitkan_at'   => $sertifikat->diterbitkan_at,
             ],
         ]);

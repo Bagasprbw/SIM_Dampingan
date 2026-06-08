@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\RolePermission\RolePermissionController;
 use App\Http\Controllers\Api\Profil\ProfilController;
 use App\Http\Controllers\Api\Profil\AnggotaGrupController as ProfilAnggotaController;
 use App\Http\Controllers\Api\Sertifikat\SertifikatController;
+use App\Http\Controllers\Api\Sertifikat\SertifikatTemplateController;
 use App\Http\Controllers\Api\Wilayah\WilayahController;
 use App\Http\Controllers\Api\Public\PublicStatisticsController;
 use Illuminate\Support\Facades\Route;
@@ -197,6 +198,16 @@ Route::middleware('auth:sanctum')->group(function () {
         // sertifikat kegiatan
         Route::post('/{id}/sertifikat', [SertifikatController::class, 'terbitkan']);
 
+    });
+
+    // ----------- sertifikat template (superadmin only) -----------------
+    Route::prefix('sertifikat-template')->group(function () {
+        // Lihat template aktif (semua user yang sudah login)
+        Route::get('/', [SertifikatTemplateController::class, 'show']);
+        // Upload / ganti template global (validasi superadmin di controller)
+        Route::post('/', [SertifikatTemplateController::class, 'upload']);
+        // Riwayat semua versi template (validasi superadmin di controller)
+        Route::get('/riwayat', [SertifikatTemplateController::class, 'riwayat']);
     });
 
     // ----------- permission: view_kegiatan [Bagas] -----------------

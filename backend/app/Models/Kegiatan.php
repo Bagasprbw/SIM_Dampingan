@@ -13,7 +13,7 @@ class Kegiatan extends Model
     protected $keyType = 'string';
     public $timestamps = false;
 
-    protected $fillable = ['id_kegiatan', 'judul', 'deskripsi', 'masalah', 'solusi', 'tanggal', 'waktu', 'lokasi', 'fasilitator_id', 'level_id', 'bidang_id', 'kode_prov', 'kode_kab', 'kode_kec', 'status', 'jumlah_hadir', 'jumlah_tdk_hadir', 'laporan', 'template_sertifikat', 'created_at'];
+    protected $fillable = ['id_kegiatan', 'judul', 'deskripsi', 'masalah', 'solusi', 'tanggal', 'waktu', 'lokasi', 'fasilitator_id', 'level_id', 'bidang_id', 'kode_prov', 'kode_kab', 'kode_kec', 'status', 'jumlah_hadir', 'jumlah_tdk_hadir', 'laporan', 'created_at'];
 
     protected $casts = [
         'tanggal' => 'date',
