@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\Panduan\PanduanController;
 use App\Http\Controllers\Api\Pekerjaan\PekerjaanController;
 use App\Http\Controllers\Api\Profil\AnggotaGrupController as ProfilAnggotaController;
 use App\Http\Controllers\Api\Profil\ProfilController;
+use App\Http\Controllers\Api\Public\PublicPetaSebaranController;
 use App\Http\Controllers\Api\Public\PublicStatisticsController;
 use App\Http\Controllers\Api\RolePermission\RolePermissionController;
 use App\Http\Controllers\Api\Sertifikat\SertifikatController;
@@ -33,6 +34,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/anggota-grup/profil/{id}', [ProfilAnggotaController::class, 'show']);
 Route::get('/anggota-grup/profil/{anggotaId}/sertifikat/{idSertifikat}', [SertifikatController::class, 'show']);
 Route::get('/public/statistics', [PublicStatisticsController::class, 'index']);
+Route::get('/public/peta-sebaran', [PublicPetaSebaranController::class, 'index']);
 
 // auth
 Route::middleware('auth:sanctum')->group(function () {

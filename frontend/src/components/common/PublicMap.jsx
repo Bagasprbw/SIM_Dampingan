@@ -5,48 +5,17 @@ import { Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
-// Instance Axios khusus untuk Public Map
-// Kita tidak pakai api.js agar tidak memicu redirect ke /login jika pengunjung belum login (401)
 const mapApi = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
     headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-    withCredentials: true // Wajib untuk Laravel Sanctum
 });
 
-// Sisipkan token jika ada
-mapApi.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
-
-// Hook fetch data grup
-const useGrupData = () =>
+const usePetaData = () =>
     useQuery({
-        queryKey: ['public_peta', 'grup'],
+        queryKey: ['public_peta'],
         queryFn: async () => {
-            try {
-                const res = await mapApi.get('/grup-dampingan');
-                return res.data;
-            } catch (err) {
-                return { data: [] }; // Kembalikan array kosong jika gagal (misal 401 belum login)
-            }
-        },
-    });
-
-// Hook fetch data anggota
-const useAnggotaData = () =>
-    useQuery({
-        queryKey: ['public_peta', 'anggota'],
-        queryFn: async () => {
-            try {
-                const res = await mapApi.get('/anggota-grup', { params: { per_page: 1000, status: 'aktif' } });
-                return res.data;
-            } catch (err) {
-                return { data: [] };
-            }
+            const res = await mapApi.get('/public/peta-sebaran');
+            return res.data;
         },
     });
 
@@ -55,8 +24,7 @@ const PublicMap = () => {
     const [geoLoading, setGeoLoading] = useState(true);
     const [hoveredKabupaten, setHoveredKabupaten] = useState(null);
 
-    const { data: grupData, isLoading: loadingGrup } = useGrupData();
-    const { data: anggotaData, isLoading: loadingAnggota } = useAnggotaData();
+    const { data: petaData, isLoading: loadingPeta } = usePetaData();
 
     useEffect(() => {
         fetch('https://raw.githubusercontent.com/rifani/geojson-political-indonesia/master/IDN_adm_2_kabkota.json')
@@ -65,43 +33,18 @@ const PublicMap = () => {
             .catch(() => setGeoLoading(false));
     }, []);
 
-    // Ambil array dari response
-    const grupList = useMemo(() => {
-        const d = grupData?.data;
-        if (!d) return [];
-        if (Array.isArray(d)) return d;
-        if (Array.isArray(d?.data)) return d.data;
-        return [];
-    }, [grupData]);
-
-    const anggotaList = useMemo(() => {
-        const d = anggotaData?.data;
-        if (!d) return [];
-        if (Array.isArray(d)) return d;
-        if (Array.isArray(d?.data)) return d.data;
-        return [];
-    }, [anggotaData]);
-
-    // Agregasi data per kabupaten sama seperti PetaSebaranPage
     const statsMap = useMemo(() => {
         const map = {};
+        const list = petaData?.data;
+        if (!Array.isArray(list)) return map;
 
-        grupList.forEach(g => {
-            const kab = g.kabupaten?.name;
-            if (!kab) return;
-            if (!map[kab]) map[kab] = { grup: 0, anggota: 0 };
-            map[kab].grup += 1;
-        });
-
-        anggotaList.forEach(a => {
-            const kab = a.grupDampingan?.kabupaten?.name;
-            if (!kab) return;
-            if (!map[kab]) map[kab] = { grup: 0, anggota: 0 };
-            map[kab].anggota += 1;
+        list.forEach(({ name, grup, anggota }) => {
+            if (!name) return;
+            map[name] = { grup: grup ?? 0, anggota: anggota ?? 0 };
         });
 
         return map;
-    }, [grupList, anggotaList]);
+    }, [petaData]);
 
     const getStatsForFeature = (feature) => {
         const kabName = (feature.properties.NAME_2 || feature.properties.KABKOT || '').toLowerCase();
@@ -134,7 +77,7 @@ const PublicMap = () => {
                     fillOpacity: 0.9
                 });
                 layer.bringToFront();
-                
+
                 const stats = getStatsForFeature(feature);
                 setHoveredKabupaten({
                     name: feature.properties.NAME_2 || feature.properties.KABKOT,
@@ -149,7 +92,7 @@ const PublicMap = () => {
         });
     };
 
-    const isLoading = geoLoading || loadingGrup || loadingAnggota;
+    const isLoading = geoLoading || loadingPeta;
 
     if (isLoading) {
         return (
@@ -181,10 +124,10 @@ const PublicMap = () => {
                     </div>
                 </div>
             )}
-            
-            <MapContainer 
-                center={[-2.5489, 118.0149]} // Center of Indonesia
-                zoom={5} 
+
+            <MapContainer
+                center={[-2.5489, 118.0149]}
+                zoom={5}
                 className="w-full h-full z-0"
                 scrollWheelZoom={false}
             >
@@ -193,8 +136,8 @@ const PublicMap = () => {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                 />
                 {geoData && (
-                    <GeoJSON 
-                        data={geoData} 
+                    <GeoJSON
+                        data={geoData}
                         style={styleFeature}
                         onEachFeature={onEachFeature}
                     />

@@ -31,10 +31,11 @@ export const usePermissionSync = () => {
 
             // Auto-heal data user di localStorage (misal: penambahan kode_prov/kode_kab dari backend)
             if (cachedUser) {
-                const freshUser = { 
-                    ...cachedUser, 
-                    ...me, 
-                    role: me.role // me.role is a string here from getMe
+                const freshUser = {
+                    ...cachedUser,
+                    ...me,
+                    // Jangan timpa role valid dengan null saat parsing /me gagal
+                    role: me.role ?? cachedUser.role,
                 };
                 delete freshUser.permissions;
                 saveAuthData(getToken(), freshUser);
