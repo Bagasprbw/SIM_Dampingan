@@ -126,7 +126,7 @@ class SertifikatController extends Controller
 
         // Ambil template global terbaru
         $template    = SertifikatTemplate::latest('created_at')->first();
-        $templateUrl = $template ? Storage::url($template->file) : null;
+        $templateUrl = $template ? url(Storage::url($template->file)) : null;
 
         return response()->json([
             'status' => 'success',

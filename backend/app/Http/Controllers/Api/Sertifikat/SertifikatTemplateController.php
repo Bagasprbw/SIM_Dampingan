@@ -29,7 +29,7 @@ class SertifikatTemplateController extends Controller
             'status' => 'success',
             'data'   => [
                 'id_template'  => $template->id_template,
-                'template_url' => Storage::url($template->file),
+                'template_url' => url(Storage::url($template->file)),
                 'created_by'   => $template->created_by,
                 'created_at'   => $template->created_at,
                 'updated_at'   => $template->updated_at,
@@ -80,7 +80,7 @@ class SertifikatTemplateController extends Controller
             'message' => 'Template sertifikat berhasil diupload',
             'data'    => [
                 'id_template'  => $template->id_template,
-                'template_url' => Storage::url($template->file),
+                'template_url' => url(Storage::url($template->file)),
                 'created_at'   => $template->created_at,
             ],
         ], 201);
@@ -105,7 +105,7 @@ class SertifikatTemplateController extends Controller
             ->get()
             ->map(fn($t) => [
                 'id_template'   => $t->id_template,
-                'template_url'  => Storage::url($t->file),
+                'template_url'  => url(Storage::url($t->file)),
                 'uploaded_by'   => $t->uploader?->name ?? '-',
                 'created_at'    => $t->created_at,
             ]);
