@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Traits\LogsActivity;
-use App\Models\User;
+use App\Models\FasilitatorBidang;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -80,6 +81,7 @@ class UserController extends Controller
             if ($request->filled('kode_prov') && $request->kode_prov !== $currentUser->kode_prov) {
                 return false;
             }
+
             // User harus di provinsi yang sama
             return $request->filled('kode_prov') && $request->kode_prov === $currentUser->kode_prov;
         }
@@ -89,6 +91,7 @@ class UserController extends Controller
             if ($request->filled('kode_kab') && $request->kode_kab !== $currentUser->kode_kab) {
                 return false;
             }
+
             return $request->filled('kode_kab') && $request->kode_kab === $currentUser->kode_kab;
         }
 
@@ -97,6 +100,7 @@ class UserController extends Controller
             if ($request->filled('kode_kec') && $request->kode_kec !== $currentUser->kode_kec) {
                 return false;
             }
+
             return $request->filled('kode_kec') && $request->kode_kec === $currentUser->kode_kec;
         }
 
@@ -110,11 +114,11 @@ class UserController extends Controller
     {
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%")
-                  ->orWhere('no_telp', 'like', "%{$search}%")
-                  ->orWhere('alamat', 'like', "%{$search}%");
+                    ->orWhere('username', 'like', "%{$search}%")
+                    ->orWhere('no_telp', 'like', "%{$search}%")
+                    ->orWhere('alamat', 'like', "%{$search}%");
             });
         }
 
@@ -179,12 +183,12 @@ class UserController extends Controller
      */
     private function saveFoto(Request $request): ?string
     {
-        if (!$request->hasFile('foto')) {
+        if (! $request->hasFile('foto')) {
             return null;
         }
 
         $file = $request->file('foto');
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
         $path = $file->storeAs('profil/user', $filename, 'public');
 
         // Pastikan return relative path, bukan absolute atau temp path
@@ -207,14 +211,14 @@ class UserController extends Controller
         $currentUser = $request->user();
 
         $query = User::with([
-            'role', 
-            'provinsi', 
-            'kabupaten', 
+            'role',
+            'provinsi',
+            'kabupaten',
             'kecamatan',
             'fasilitatorBidangs.bidang',
-            'grupFasilitators.grupDampingan'
+            'grupFasilitators.grupDampingan',
         ])
-            ->whereHas('role', fn($q) => $q->where('name', 'fasilitator'));
+            ->whereHas('role', fn ($q) => $q->where('name', 'fasilitator'));
 
         // Apply cascade downward filter (authority)
         $query = $this->applyCascadeFilter($query, $currentUser);
@@ -233,12 +237,10 @@ class UserController extends Controller
                 'per_page' => $users->perPage(),
                 'total' => $users->total(),
                 'from' => $users->firstItem(),
-                'to' => $users->lastItem()
-            ]
+                'to' => $users->lastItem(),
+            ],
         ]);
     }
-
-
 
     /**
      * GET /api/users/admin-bawahan
@@ -256,21 +258,18 @@ class UserController extends Controller
 
         // Filter berdasarkan role current user dengan multi-level support
         if ($currentUser->role->name === 'superadmin') {
-            $query->whereHas('role', fn($q) =>
-                $q->whereIn('name', ['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'])
+            $query->whereHas('role', fn ($q) => $q->whereIn('name', ['admin_provinsi', 'admin_kabupaten', 'admin_kecamatan'])
             );
         } elseif ($currentUser->role->name === 'admin_provinsi') {
             // Admin Provinsi bisa lihat admin_kabupaten DAN admin_kecamatan di provinsinya
             $query->where('kode_prov', $currentUser->kode_prov)
-                  ->whereHas('role', fn($q) =>
-                      $q->whereIn('name', ['admin_kabupaten', 'admin_kecamatan'])
-                  );
+                ->whereHas('role', fn ($q) => $q->whereIn('name', ['admin_kabupaten', 'admin_kecamatan'])
+                );
         } elseif ($currentUser->role->name === 'admin_kabupaten') {
             // Admin Kabupaten hanya bisa lihat admin_kecamatan di kabupatennya
             $query->where('kode_kab', $currentUser->kode_kab)
-                  ->whereHas('role', fn($q) =>
-                      $q->where('name', 'admin_kecamatan')
-                  );
+                ->whereHas('role', fn ($q) => $q->where('name', 'admin_kecamatan')
+                );
         } else {
             // Role lain tidak ada permission
             $query->whereRaw('1 = 0');
@@ -290,8 +289,8 @@ class UserController extends Controller
                 'per_page' => $users->perPage(),
                 'total' => $users->total(),
                 'from' => $users->firstItem(),
-                'to' => $users->lastItem()
-            ]
+                'to' => $users->lastItem(),
+            ],
         ]);
     }
 
@@ -304,13 +303,13 @@ class UserController extends Controller
         $currentUser = $request->user();
 
         $query = User::with([
-            'role', 
-            'provinsi', 
-            'kabupaten', 
+            'role',
+            'provinsi',
+            'kabupaten',
             'kecamatan',
-            'grupDampingansPengurus'
+            'grupDampingansPengurus',
         ])
-            ->whereHas('role', fn($q) => $q->where('name', 'pj_grup'));
+            ->whereHas('role', fn ($q) => $q->where('name', 'pj_grup'));
 
         // Apply cascade downward filter
         $query = $this->applyCascadeFilter($query, $currentUser);
@@ -329,8 +328,8 @@ class UserController extends Controller
                 'per_page' => $users->perPage(),
                 'total' => $users->total(),
                 'from' => $users->firstItem(),
-                'to' => $users->lastItem()
-            ]
+                'to' => $users->lastItem(),
+            ],
         ]);
     }
 
@@ -350,9 +349,9 @@ class UserController extends Controller
         $role = Role::where('name', 'fasilitator')->first();
 
         // Validasi: apakah user ini boleh membuat fasilitator
-        if (!in_array('fasilitator', $this->getAllowedRolesToCreate($currentUser))) {
+        if (! in_array('fasilitator', $this->getAllowedRolesToCreate($currentUser))) {
             return response()->json([
-                'message' => 'Anda tidak memiliki izin membuat fasilitator'
+                'message' => 'Anda tidak memiliki izin membuat fasilitator',
             ], 403);
         }
 
@@ -360,16 +359,16 @@ class UserController extends Controller
         $validated = $request->validate(array_merge(
             $this->validateCommonFields(),
             ['kode_prov' => 'nullable|string|exists:provinsis,kode',
-             'kode_kab' => 'nullable|string|exists:kabupatens,kode',
-             'kode_kec' => 'nullable|string|exists:kecamatans,kode',
-             'bidang_ids' => 'required|array',
-             'bidang_ids.*' => 'exists:bidangs,id_bidang']
+                'kode_kab' => 'nullable|string|exists:kabupatens,kode',
+                'kode_kec' => 'nullable|string|exists:kecamatans,kode',
+                'bidang_ids' => 'required|array',
+                'bidang_ids.*' => 'exists:bidangs,id_bidang']
         ));
 
         // Validasi Wilayah
-        if (!$this->validateWilayah($currentUser, $request)) {
+        if (! $this->validateWilayah($currentUser, $request)) {
             return response()->json([
-                'message' => 'Wilayah fasilitator tidak sesuai dengan kewenangan Anda'
+                'message' => 'Wilayah fasilitator tidak sesuai dengan kewenangan Anda',
             ], 403);
         }
 
@@ -395,7 +394,7 @@ class UserController extends Controller
         // Simpan relasi bidang ke FasilitatorBidang (Multiple)
         if (isset($validated['bidang_ids']) && is_array($validated['bidang_ids'])) {
             foreach ($validated['bidang_ids'] as $bidang_id) {
-                \App\Models\FasilitatorBidang::create([
+                FasilitatorBidang::create([
                     'id_fasilitator_bidang' => (string) Str::uuid(),
                     'user_id' => $user->id_user,
                     'bidang_id' => $bidang_id,
@@ -411,11 +410,9 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Fasilitator berhasil dibuat',
-            'data' => $user
+            'data' => $user,
         ], 201);
     }
-
-
 
     /**
      * POST /api/users/admin-bawahan
@@ -439,29 +436,29 @@ class UserController extends Controller
 
         if (empty($allowedRoles)) {
             return response()->json([
-                'message' => 'Anda tidak memiliki izin membuat admin bawahan'
+                'message' => 'Anda tidak memiliki izin membuat admin bawahan',
             ], 403);
         }
 
         // Ambil role_id dari request dan cek apakah valid
-        if (!$request->filled('role_id')) {
+        if (! $request->filled('role_id')) {
             return response()->json([
-                'message' => 'role_id harus diisi'
+                'message' => 'role_id harus diisi',
             ], 422);
         }
 
         $role = Role::find($request->role_id);
 
-        if (!$role) {
+        if (! $role) {
             return response()->json([
-                'message' => 'Role tidak ditemukan'
+                'message' => 'Role tidak ditemukan',
             ], 404);
         }
 
         // Validasi: pastikan role target ada di daftar yang diizinkan
-        if (!in_array($role->name, $allowedRoles)) {
+        if (! in_array($role->name, $allowedRoles)) {
             return response()->json([
-                'message' => 'Anda tidak memiliki izin membuat admin dengan role ' . $role->name
+                'message' => 'Anda tidak memiliki izin membuat admin dengan role '.$role->name,
             ], 403);
         }
 
@@ -489,9 +486,9 @@ class UserController extends Controller
         $validated = $request->validate($validationRules);
 
         // Validasi Wilayah: pastikan kode wilayah sesuai dengan kewenangan user
-        if (!$this->validateWilayah($currentUser, $request)) {
+        if (! $this->validateWilayah($currentUser, $request)) {
             return response()->json([
-                'message' => 'Wilayah admin yang akan dibuat tidak sesuai dengan kewenangan Anda'
+                'message' => 'Wilayah admin yang akan dibuat tidak sesuai dengan kewenangan Anda',
             ], 403);
         }
 
@@ -502,9 +499,9 @@ class UserController extends Controller
                 ->where('kode_prov', $request->kode_prov)
                 ->exists();
 
-            if (!$kabupaten) {
+            if (! $kabupaten) {
                 return response()->json([
-                    'message' => 'Kabupaten tidak ditemukan di provinsi tersebut'
+                    'message' => 'Kabupaten tidak ditemukan di provinsi tersebut',
                 ], 422);
             }
         }
@@ -516,9 +513,9 @@ class UserController extends Controller
                 ->where('kode_kab', $request->kode_kab)
                 ->exists();
 
-            if (!$kecamatan) {
+            if (! $kecamatan) {
                 return response()->json([
-                    'message' => 'Kecamatan tidak ditemukan di kabupaten tersebut'
+                    'message' => 'Kecamatan tidak ditemukan di kabupaten tersebut',
                 ], 422);
             }
         }
@@ -549,7 +546,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Admin bawahan berhasil dibuat',
-            'data' => $user
+            'data' => $user,
         ], 201);
     }
 
@@ -563,9 +560,9 @@ class UserController extends Controller
         $role = Role::where('name', 'pj_grup')->first();
 
         // Validasi: apakah user ini boleh membuat pj_grup
-        if (!in_array('pj_grup', $this->getAllowedRolesToCreate($currentUser))) {
+        if (! in_array('pj_grup', $this->getAllowedRolesToCreate($currentUser))) {
             return response()->json([
-                'message' => 'Anda tidak memiliki izin membuat PJ Grup'
+                'message' => 'Anda tidak memiliki izin membuat PJ Grup',
             ], 403);
         }
 
@@ -573,14 +570,14 @@ class UserController extends Controller
         $validated = $request->validate(array_merge(
             $this->validateCommonFields(),
             ['kode_prov' => 'nullable|string|exists:provinsis,kode',
-             'kode_kab' => 'nullable|string|exists:kabupatens,kode',
-             'kode_kec' => 'nullable|string|exists:kecamatans,kode']
+                'kode_kab' => 'nullable|string|exists:kabupatens,kode',
+                'kode_kec' => 'nullable|string|exists:kecamatans,kode']
         ));
 
         // Validasi Wilayah
-        if (!$this->validateWilayah($currentUser, $request)) {
+        if (! $this->validateWilayah($currentUser, $request)) {
             return response()->json([
-                'message' => 'Wilayah PJ Grup tidak sesuai dengan kewenangan Anda'
+                'message' => 'Wilayah PJ Grup tidak sesuai dengan kewenangan Anda',
             ], 403);
         }
 
@@ -610,7 +607,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'PJ Grup berhasil dibuat',
-            'data' => $user
+            'data' => $user,
         ], 201);
     }
 
@@ -629,22 +626,22 @@ class UserController extends Controller
         $currentUser = $request->user();
         $targetUser = User::with(['role', 'provinsi', 'kabupaten', 'kecamatan'])->find($id);
 
-        if (!$targetUser) {
+        if (! $targetUser) {
             return response()->json([
-                'message' => 'User tidak ditemukan'
+                'message' => 'User tidak ditemukan',
             ], 404);
         }
 
         // Check apakah current user punya akses ke target user
-        if (!$this->canAccessUser($currentUser, $targetUser)) {
+        if (! $this->canAccessUser($currentUser, $targetUser)) {
             return response()->json([
-                'message' => 'Anda tidak memiliki akses ke user ini'
+                'message' => 'Anda tidak memiliki akses ke user ini',
             ], 403);
         }
 
         return response()->json([
             'message' => 'Data user berhasil diambil',
-            'data' => $targetUser
+            'data' => $targetUser,
         ]);
     }
 
@@ -657,23 +654,23 @@ class UserController extends Controller
         $currentUser = $request->user();
         $targetUser = User::find($id);
 
-        if (!$targetUser) {
+        if (! $targetUser) {
             return response()->json([
-                'message' => 'User tidak ditemukan'
+                'message' => 'User tidak ditemukan',
             ], 404);
         }
 
         // Check akses
-        if (!$this->canAccessUser($currentUser, $targetUser)) {
+        if (! $this->canAccessUser($currentUser, $targetUser)) {
             return response()->json([
-                'message' => 'Anda tidak memiliki akses untuk mengupdate user ini'
+                'message' => 'Anda tidak memiliki akses untuk mengupdate user ini',
             ], 403);
         }
 
         // Validasi Request
         $validated = $request->validate([
             'name' => 'sometimes|string|max:150',
-            'username' => 'sometimes|string|max:100|unique:users,username,' . $id . ',id_user',
+            'username' => 'sometimes|string|max:100|unique:users,username,'.$id.',id_user',
             'password' => 'sometimes|string|min:6',
             'role_id' => 'sometimes|string|exists:roles,id_role',
             'no_telp' => 'nullable|string|max:20',
@@ -683,14 +680,14 @@ class UserController extends Controller
             'kode_kec' => 'nullable|string|exists:kecamatans,kode',
             'status' => 'sometimes|enum:active,inactive',
             'bidang_ids' => 'sometimes|array',
-            'bidang_ids.*' => 'exists:bidangs,id_bidang'
+            'bidang_ids.*' => 'exists:bidangs,id_bidang',
         ]);
 
         // Jika update wilayah, validasi bahwa wilayah baru sesuai kewenangan
         if ($request->filled('kode_prov') || $request->filled('kode_kab') || $request->filled('kode_kec')) {
-            if (!$this->validateWilayah($currentUser, $request)) {
+            if (! $this->validateWilayah($currentUser, $request)) {
                 return response()->json([
-                    'message' => 'Wilayah baru tidak sesuai dengan kewenangan Anda'
+                    'message' => 'Wilayah baru tidak sesuai dengan kewenangan Anda',
                 ], 403);
             }
         }
@@ -698,7 +695,7 @@ class UserController extends Controller
         // Handle foto update
         if ($request->hasFile('foto')) {
             // Hapus foto lama jika ada dan bukan temp file
-            if ($targetUser->foto && !str_contains($targetUser->foto, 'Temp')) {
+            if ($targetUser->foto && ! str_contains($targetUser->foto, 'Temp')) {
                 try {
                     Storage::disk('public')->delete($targetUser->foto);
                 } catch (\Exception $e) {
@@ -719,10 +716,10 @@ class UserController extends Controller
         // Update FasilitatorBidang if provided
         if ($request->has('bidang_ids') && is_array($request->bidang_ids)) {
             // Delete old ones
-            \App\Models\FasilitatorBidang::where('user_id', $targetUser->id_user)->delete();
+            FasilitatorBidang::where('user_id', $targetUser->id_user)->delete();
             // Insert new ones
             foreach ($request->bidang_ids as $bidang_id) {
-                \App\Models\FasilitatorBidang::create([
+                FasilitatorBidang::create([
                     'id_fasilitator_bidang' => (string) Str::uuid(),
                     'user_id' => $targetUser->id_user,
                     'bidang_id' => $bidang_id,
@@ -738,7 +735,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User berhasil diperbarui',
-            'data' => $targetUser
+            'data' => $targetUser,
         ]);
     }
 
@@ -753,27 +750,27 @@ class UserController extends Controller
         // Hanya superadmin yang boleh menghapus user
         if ($currentUser->role->name !== 'superadmin') {
             return response()->json([
-                'message' => 'Hanya Superadmin yang dapat menghapus user'
+                'message' => 'Hanya Superadmin yang dapat menghapus user',
             ], 403);
         }
 
         $targetUser = User::find($id);
 
-        if (!$targetUser) {
+        if (! $targetUser) {
             return response()->json([
-                'message' => 'User tidak ditemukan'
+                'message' => 'User tidak ditemukan',
             ], 404);
         }
 
         // Check akses
-        if (!$this->canAccessUser($currentUser, $targetUser)) {
+        if (! $this->canAccessUser($currentUser, $targetUser)) {
             return response()->json([
-                'message' => 'Anda tidak memiliki akses untuk menghapus user ini'
+                'message' => 'Anda tidak memiliki akses untuk menghapus user ini',
             ], 403);
         }
 
         // Delete foto if exists dan bukan temp file
-        if ($targetUser->foto && !str_contains($targetUser->foto, 'Temp')) {
+        if ($targetUser->foto && ! str_contains($targetUser->foto, 'Temp')) {
             try {
                 Storage::disk('public')->delete($targetUser->foto);
             } catch (\Exception $e) {
@@ -789,7 +786,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User berhasil dihapus',
-            'data' => null
+            'data' => null,
         ]);
     }
 
@@ -802,16 +799,16 @@ class UserController extends Controller
         $currentUser = $request->user()->load('role');
         $targetUser = User::find($id);
 
-        if (!$targetUser) {
+        if (! $targetUser) {
             return response()->json([
-                'message' => 'User tidak ditemukan'
+                'message' => 'User tidak ditemukan',
             ], 404);
         }
 
         // Check akses
-        if (!$this->canAccessUser($currentUser, $targetUser)) {
+        if (! $this->canAccessUser($currentUser, $targetUser)) {
             return response()->json([
-                'message' => 'Anda tidak memiliki akses untuk mengubah status user ini'
+                'message' => 'Anda tidak memiliki akses untuk mengubah status user ini',
             ], 403);
         }
 
@@ -828,7 +825,24 @@ class UserController extends Controller
 
         return response()->json([
             'message' => "User berhasil {$statusLabel}",
-            'data' => $targetUser
+            'data' => $targetUser,
+        ]);
+    }
+
+    public function checkUsername(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|max:100',
+            'exclude_id' => 'nullable|string|exists:users,id_user',
+        ]);
+
+        $exists = User::where('username', $request->username)
+            ->when($request->filled('exclude_id'), fn ($q) => $q->where('id_user', '!=', $request->exclude_id))
+            ->exists();
+
+        return response()->json([
+            'available' => ! $exists,
+            'message' => $exists ? 'Username sudah digunakan' : 'Username tersedia',
         ]);
     }
 
@@ -840,9 +854,10 @@ class UserController extends Controller
         }
 
         $targetUser = User::findOrFail($id);
-        
+
         $dataLama = $targetUser->toArray();
-        $targetUser->password = Hash::make('12345678');
+        $targetUser->password = '12345678';
+        $targetUser->must_change_password = true;
         $targetUser->save();
 
         // Catat log UPDATE password
@@ -851,7 +866,7 @@ class UserController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Password berhasil direset ke 12345678',
-            'data' => null
+            'data' => null,
         ]);
     }
 }

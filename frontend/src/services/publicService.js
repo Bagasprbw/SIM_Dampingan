@@ -9,5 +9,10 @@ export const publicService = {
     getStatistics: async () => {
         const response = await api.get('/public/statistics');
         return response.data;
-    }
+    },
+
+    getPetaSebaran: async () => {
+        const response = await api.get('/public/peta-sebaran');
+        return response.data;
+    },
 };

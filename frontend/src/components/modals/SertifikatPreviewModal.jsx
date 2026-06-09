@@ -5,6 +5,7 @@ import {
     X, Award, FileText, Printer, AlertTriangle,
     Loader2, CheckCircle2, Calendar, MapPin, User
 } from 'lucide-react';
+import { resolveStorageUrl } from '../../utils/resolveStorageUrl';
 
 /**
  * Modal preview sertifikat & cetak.
@@ -30,11 +31,12 @@ const SertifikatPreviewModal = ({ isOpen, onClose, anggotaId, sertifikatId }) =>
     if (!isOpen) return null;
 
     const sertifikat = res?.data;
-    const hasTemplate = !!sertifikat?.template_url;
+    const templateUrl = resolveStorageUrl(sertifikat?.template_url);
+    const hasTemplate = !!templateUrl;
 
     const handleCetak = () => {
-        if (!sertifikat?.template_url) return;
-        window.open(sertifikat.template_url, '_blank');
+        if (!templateUrl) return;
+        window.open(templateUrl, '_blank');
     };
 
     return (
@@ -169,7 +171,7 @@ const SertifikatPreviewModal = ({ isOpen, onClose, anggotaId, sertifikatId }) =>
                                         </span>
                                     </div>
                                     <iframe
-                                        src={sertifikat.template_url}
+                                        src={templateUrl}
                                         className="w-full h-64"
                                         title="Preview Sertifikat"
                                         onError={() => setPdfError(true)}

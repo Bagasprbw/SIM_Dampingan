@@ -23,6 +23,7 @@ use Laravel\Sanctum\HasApiTokens;
         'kode_kab',
         'kode_kec',
         'status',
+        'must_change_password',
     ]),
 ]
 #[Hidden(['password', 'remember_token'])]
@@ -40,6 +41,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
         ];
     }
 

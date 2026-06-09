@@ -283,7 +283,7 @@ const ProfilAnggotaPublicPage = () => {
                                                         <button
                                                             onClick={() => setSertifikatModal({
                                                                 isOpen: true,
-                                                                anggotaId: anggota.id_user,
+                                                                anggotaId: id,
                                                                 sertifikatId: item.sertifikat.id_sertifikat,
                                                             })}
                                                             className="w-full py-2 bg-blue-50 text-[#0080C5] rounded-xl text-[10px] font-bold flex items-center justify-center gap-2 hover:bg-[#0080C5] hover:text-white transition-all"

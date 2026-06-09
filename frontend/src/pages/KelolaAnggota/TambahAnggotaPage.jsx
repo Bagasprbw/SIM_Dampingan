@@ -175,9 +175,6 @@ const TambahAnggotaPage = () => {
                     form.append('foto', member.foto);
                 }
 
-                // Generates a temp no_anggota to comply with validation if necessary
-                form.append('no_anggota', 'TEMP-' + Date.now() + '-' + i);
-
                 if (isPjGrup) {
                     await pengajuanAnggotaService.create(form);
                 } else {

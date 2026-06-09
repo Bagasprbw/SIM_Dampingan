@@ -7,12 +7,14 @@ import {
     CheckCircle2, AlertTriangle, Loader2, Download, X
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { resolveStorageUrl } from '../../utils/resolveStorageUrl';
 
 /* ─────────────────────────────────────────────────────────
    Modal Preview PDF
 ───────────────────────────────────────────────────────── */
 const PdfPreviewModal = ({ url, onClose }) => {
-    if (!url) return null;
+    const resolvedUrl = resolveStorageUrl(url);
+    if (!resolvedUrl) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden">
@@ -23,7 +25,7 @@ const PdfPreviewModal = ({ url, onClose }) => {
                     </div>
                     <div className="flex items-center gap-2">
                         <a
-                            href={url}
+                            href={resolvedUrl}
                             download
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-200 transition-all"
                         >
@@ -36,7 +38,7 @@ const PdfPreviewModal = ({ url, onClose }) => {
                 </div>
                 <div className="flex-1 bg-slate-100">
                     <iframe
-                        src={url}
+                        src={resolvedUrl}
                         className="w-full h-full"
                         title="Template Sertifikat"
                     />

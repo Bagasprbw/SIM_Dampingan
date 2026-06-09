@@ -185,6 +185,7 @@ const Step2 = ({
     setAttendance,
     pesertaManual,
     setPesertaManual,
+    isGrupLocked = false,
 }) => {
     const [showGrupDropdown, setShowGrupDropdown] = useState(false);
     const [searchGrup, setSearchGrup] = useState('');
@@ -243,6 +244,11 @@ const Step2 = ({
                     <label className="text-xs font-semibold text-slate-800">Pilih Grup Dampingan <span className="text-red-500">*</span></label>
                     <span className="text-[10px] text-slate-400">{selectedGrups.length} grup dipilih</span>
                 </div>
+                {isGrupLocked && (
+                    <p className="text-[10px] text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-2">
+                        Mode koreksi absensi — grup dampingan tidak dapat diubah. Hanya kehadiran peserta yang boleh disesuaikan.
+                    </p>
+                )}
                 <div className="flex flex-wrap gap-2 relative">
                     {selectedGrups.map((gr) => (
                         <div key={gr.id_grup_dampingan} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0080C5]/10 text-[#0080C5] rounded-full text-xs font-semibold">
@@ -250,9 +256,12 @@ const Step2 = ({
                             <span className="bg-[#0080C5] text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px]">
                                 {getGroupTotal(gr.id_grup_dampingan) || '-'}
                             </span>
-                            <X size={12} className="cursor-pointer hover:text-red-500" onClick={() => onRemoveGrup(gr.id_grup_dampingan)} />
+                            {!isGrupLocked && (
+                                <X size={12} className="cursor-pointer hover:text-red-500" onClick={() => onRemoveGrup(gr.id_grup_dampingan)} />
+                            )}
                         </div>
                     ))}
+                    {!isGrupLocked && (
                     <div className="relative">
                         <button onClick={() => setShowGrupDropdown(!showGrupDropdown)} className="flex items-center gap-1 px-3 py-1.5 border border-dashed border-slate-300 text-slate-400 rounded-full text-xs hover:border-[#0080C5] hover:text-[#0080C5] transition-all bg-white">
                             <Plus size={14} /> Tambah Grup
@@ -288,6 +297,7 @@ const Step2 = ({
                             </div>
                         )}
                     </div>
+                    )}
                 </div>
             </div>
 
@@ -899,7 +909,7 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
             status,
         };
 
-        if (!isEdit || selectedGrupIds.length > 0) {
+        if ((!isEdit || selectedGrupIds.length > 0) && !(isEdit && isSuperadmin)) {
             payload.grup_dampingan_ids = selectedGrupIds;
         }
 
@@ -1061,6 +1071,7 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                                 setAttendance={setAttendance}
                                 pesertaManual={pesertaManual}
                                 setPesertaManual={setPesertaManual}
+                                isGrupLocked={isEdit && isSuperadmin}
                             />
                         )}
                         {step === 3 && (

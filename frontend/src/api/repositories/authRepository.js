@@ -45,12 +45,22 @@ export const authRepository = {
     getMe: async () => {
         const res = await getMeRequest();
         const { user } = res.data;
+
+        // Backend /me mengembalikan role sebagai string + permissions di top-level user
+        const role = typeof user.role === 'string'
+            ? user.role
+            : (user.role?.name ?? null);
+
+        const permissions = Array.isArray(user.permissions)
+            ? user.permissions
+            : (user.role?.permissions?.map((p) => p.code) ?? []);
+
         return {
             id: user.id_user,
             name: user.name,
             username: user.username,
-            role: user.role?.name ?? null,
-            permissions: user.role?.permissions?.map((p) => p.code) ?? [],
+            role,
+            permissions,
             kode_prov: user.kode_prov,
             kode_kab: user.kode_kab,
             kode_kec: user.kode_kec,

@@ -5,6 +5,8 @@ import { useFasilitatorMutations } from '../../hooks/mutations/useFasilitatorMut
 import { useBidangs } from '../../hooks/queries/useBidangQuery';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 import { getUser } from '../../utils/storage';
+import UsernameHint from '../common/UsernameHint';
+import { useUsernameCheck } from '../../hooks/useUsernameCheck';
 
 const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
     const { data: bidangsData, isLoading: isLoadingBidangs } = useBidangs();
@@ -95,6 +97,8 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
         });
     };
 
+    const usernameStatus = useUsernameCheck(formData.username, data?.id_user || data?.id, isOpen);
+
     if (!isOpen) return null;
 
     const handleImageChange = (e) => {
@@ -113,6 +117,11 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
 
     const handleSave = (e) => {
         e.preventDefault();
+
+        if (usernameStatus === 'taken') {
+            Swal.fire({ icon: 'error', title: 'Username sudah digunakan', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } });
+            return;
+        }
         
         if (formData.bidang_ids.length === 0) {
             Swal.fire({
@@ -331,6 +340,7 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
                     <div className="flex flex-col gap-1.5 pb-2">
                         <label className="text-[#0A0F1E] text-xs font-semibold">Username <span className="text-red-500">*</span></label>
                         <input name="username" value={formData.username} onChange={handleChange} type="text" className="w-full px-4 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" required />
+                        <UsernameHint username={formData.username} excludeId={data?.id_user || data?.id} />
                     </div>
                 </div>
 

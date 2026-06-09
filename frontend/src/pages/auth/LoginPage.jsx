@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, Mail } from 'lucide-react';
+import { Eye, EyeOff, Mail, User, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLogin } from '../../hooks/useLogin';
 import AuthModal from '../../components/modals/AuthModal';
+import { verifyForgotPasswordRequest } from '../../api/endpoints/authEndpoints';
 import Swal from 'sweetalert2';
 
 const LoginPage = () => {
@@ -12,7 +13,9 @@ const LoginPage = () => {
     const [rememberMe, setRememberMe] = useState(false);
     const [modal, setModal] = useState({ isOpen: false, type: 'success' });
     const [showForgotModal, setShowForgotModal] = useState(false);
-    const [forgotInput, setForgotInput] = useState('');
+    const [verifyName, setVerifyName] = useState('');
+    const [verifyUsername, setVerifyUsername] = useState('');
+    const [verifyRole, setVerifyRole] = useState('');
     const [isSubmittingForgot, setIsSubmittingForgot] = useState(false);
 
     const { login, commitLogin, loading } = useLogin();
@@ -30,38 +33,57 @@ const LoginPage = () => {
         }
     }, []);
 
+    const resetForgotForm = () => {
+        setVerifyName('');
+        setVerifyUsername('');
+        setVerifyRole('');
+    };
+
     const handleForgotPassword = async (e) => {
         e.preventDefault();
-        if (!forgotInput) return;
+        if (!verifyName || !verifyUsername || !verifyRole) return;
+
         setIsSubmittingForgot(true);
+        try {
+            await verifyForgotPasswordRequest({
+                verify_name: verifyName,
+                verify_username: verifyUsername,
+                verify_role: verifyRole,
+            });
 
-        const superAdminWa = import.meta.env.VITE_SUPERADMIN_WA || '081234567890'; // Use env variable or fallback
-        
-        setTimeout(() => {
-            setIsSubmittingForgot(false);
-            setShowForgotModal(false);
-            setForgotInput('');
-
-            if (superAdminWa) {
-                // Ensure WA number starts with country code (e.g., 62 instead of 0)
-                let formattedWa = superAdminWa;
-                if (formattedWa.startsWith('0')) {
-                    formattedWa = '62' + formattedWa.substring(1);
-                }
-                
-                const message = `Halo SuperAdmin, saya pengguna dengan username/WA "${forgotInput}" meminta bantuan untuk mereset password akun saya.`;
-                const waUrl = `https://wa.me/${formattedWa}?text=${encodeURIComponent(message)}`;
-                
-                window.open(waUrl, '_blank');
-            } else {
+            const superAdminWa = import.meta.env.VITE_SUPERADMIN_WA || '081234567890';
+            if (!superAdminWa) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
                     text: 'Nomor WhatsApp SuperAdmin belum diatur dalam sistem.',
-                    confirmButtonColor: '#d33'
+                    confirmButtonColor: '#d33',
                 });
+                return;
             }
-        }, 1000);
+
+            let formattedWa = superAdminWa;
+            if (formattedWa.startsWith('0')) {
+                formattedWa = '62' + formattedWa.substring(1);
+            }
+
+            const message = `Halo SuperAdmin, saya meminta bantuan reset password akun saya.\n\nNama: ${verifyName}\nUsername: ${verifyUsername}\nRole: ${verifyRole}\n\nMohon bantu reset password akun saya. Terima kasih.`;
+            const waUrl = `https://wa.me/${formattedWa}?text=${encodeURIComponent(message)}`;
+
+            setShowForgotModal(false);
+            resetForgotForm();
+            window.open(waUrl, '_blank');
+        } catch (error) {
+            const message = error?.response?.data?.message || 'Data identitas tidak ditemukan atau tidak sesuai.';
+            Swal.fire({
+                icon: 'error',
+                title: 'Verifikasi Gagal',
+                text: message,
+                confirmButtonColor: '#EF4444',
+            });
+        } finally {
+            setIsSubmittingForgot(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -265,31 +287,66 @@ const LoginPage = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl relative animate-in fade-in zoom-in duration-200">
                         <button
-                            onClick={() => setShowForgotModal(false)}
+                            onClick={() => { setShowForgotModal(false); resetForgotForm(); }}
                             className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
                         >
                             ✕
                         </button>
                         <h2 className="text-xl font-bold text-gray-900 mb-2">Lupa Password?</h2>
                         <p className="text-sm text-gray-500 mb-6">
-                            Masukkan nomor WhatsApp atau Username Anda. Sistem akan mengirimkan notifikasi ke SuperAdmin untuk mereset password Anda.
+                            Verifikasi identitas Anda terlebih dahulu. Jika sesuai, sistem akan membuka WhatsApp ke SuperAdmin untuk permintaan reset password.
                         </p>
                         <form onSubmit={handleForgotPassword} className="flex flex-col gap-4">
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-1">WhatsApp / Username</label>
-                                <input
-                                    type="text"
-                                    value={forgotInput}
-                                    onChange={(e) => setForgotInput(e.target.value)}
-                                    placeholder="Contoh: 08123456789 atau john_doe"
-                                    className="w-full h-11 border border-gray-300 rounded-lg px-4 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                                    required
-                                />
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Verifikasi Identitas</p>
+                                <div>
+                                    <label className="text-xs font-medium text-gray-700 block mb-1">Nama Lengkap</label>
+                                    <div className="relative">
+                                        <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0080C5]" />
+                                        <input
+                                            type="text"
+                                            value={verifyName}
+                                            onChange={(e) => setVerifyName(e.target.value)}
+                                            placeholder="Ketik nama Anda sesuai akun"
+                                            className="w-full h-10 border border-gray-300 rounded-lg pl-9 pr-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-xs font-medium text-gray-700 block mb-1">Username</label>
+                                    <div className="relative">
+                                        <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0080C5]" />
+                                        <input
+                                            type="text"
+                                            value={verifyUsername}
+                                            onChange={(e) => setVerifyUsername(e.target.value)}
+                                            placeholder="Ketik username Anda"
+                                            className="w-full h-10 border border-gray-300 rounded-lg pl-9 pr-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-xs font-medium text-gray-700 block mb-1">Role</label>
+                                    <div className="relative">
+                                        <Shield size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0080C5]" />
+                                        <input
+                                            type="text"
+                                            value={verifyRole}
+                                            onChange={(e) => setVerifyRole(e.target.value)}
+                                            placeholder="Contoh: fasilitator"
+                                            className="w-full h-10 border border-gray-300 rounded-lg pl-9 pr-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                                            required
+                                        />
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 mt-1">Ketik role persis seperti di sistem, contoh: fasilitator</p>
+                                </div>
                             </div>
                             <div className="flex gap-3 justify-end mt-2">
                                 <button
                                     type="button"
-                                    onClick={() => setShowForgotModal(false)}
+                                    onClick={() => { setShowForgotModal(false); resetForgotForm(); }}
                                     className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                                     disabled={isSubmittingForgot}
                                 >
@@ -297,10 +354,10 @@ const LoginPage = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={isSubmittingForgot || !forgotInput}
+                                    disabled={isSubmittingForgot || !verifyName || !verifyUsername || !verifyRole}
                                     className="px-4 py-2 text-sm font-medium text-white bg-[#0080C5] hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
                                 >
-                                    {isSubmittingForgot ? 'Mengirim...' : 'Kirim Permintaan'}
+                                    {isSubmittingForgot ? 'Memverifikasi...' : 'Kirim Permintaan'}
                                 </button>
                             </div>
                         </form>

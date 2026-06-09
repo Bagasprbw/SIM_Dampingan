@@ -95,8 +95,18 @@ const ProfileModal = ({ isOpen, onClose, isForced = false }) => {
             if (!currentPassword || !newPassword || !confirmPassword) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Lengkapi password',
-                    text: 'Password lama, baru, dan konfirmasi wajib diisi.',
+                    title: 'Lengkapi data',
+                    text: 'Semua field password wajib diisi.',
+                    confirmButtonColor: '#0080C5',
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' },
+                });
+                return;
+            }
+            if (newPassword === '12345678' || newPassword.length < 8 || !/(?=.*[a-zA-Z])(?=.*\d)/.test(newPassword)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Password lemah',
+                    text: 'Password minimal 8 karakter, huruf + angka, bukan password default.',
                     confirmButtonColor: '#0080C5',
                     customClass: { popup: 'rounded-2xl font-["Poppins"]' },
                 });

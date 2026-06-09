@@ -7,13 +7,14 @@ use App\Http\Traits\LogsActivity;
 use App\Models\Kegiatan;
 use App\Models\KegiatanGrup;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class KegiatanController extends Controller
 {
     use LogsActivity;
+
     /**
      * Tambahkan filter dari request (search, wilayah, bidang) ke query builder
      */
@@ -48,8 +49,8 @@ class KegiatanController extends Controller
         $user_id = auth()->user()->id_user; // Ambil ID user yang sedang login
 
         $query = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans'])
-                    ->where('fasilitator_id', $user_id);
-        
+            ->where('fasilitator_id', $user_id);
+
         // Apply request filters
         $query = $this->applyRequestFilters($query, $request);
 
@@ -64,8 +65,8 @@ class KegiatanController extends Controller
                 'per_page' => $kegiatans->perPage(),
                 'total' => $kegiatans->total(),
                 'from' => $kegiatans->firstItem(),
-                'to' => $kegiatans->lastItem()
-            ]
+                'to' => $kegiatans->lastItem(),
+            ],
         ]);
     }
 
@@ -81,20 +82,20 @@ class KegiatanController extends Controller
 
         $kegiatan = $query->where('id_kegiatan', $id)->first();
 
-        if (!$kegiatan) {
+        if (! $kegiatan) {
             return response()->json(['message' => 'Kegiatan tidak ditemukan atau bukan milik Anda'], 404);
         }
 
         return response()->json([
             'message' => 'Data detail kegiatan untuk form edit berhasil diambil',
-            'data' => $kegiatan
+            'data' => $kegiatan,
         ]);
     }
 
     public function index(Request $request)
     {
         $query = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans'])
-                    ->whereIn('status', ['published', 'selesai']);
+            ->whereIn('status', ['published', 'selesai']);
 
         // Apply request filters
         $query = $this->applyRequestFilters($query, $request);
@@ -110,23 +111,24 @@ class KegiatanController extends Controller
                 'per_page' => $kegiatans->perPage(),
                 'total' => $kegiatans->total(),
                 'from' => $kegiatans->firstItem(),
-                'to' => $kegiatans->lastItem()
-            ]
+                'to' => $kegiatans->lastItem(),
+            ],
         ]);
     }
 
     public function show($id)
     {
         $kegiatan = Kegiatan::with(['level', 'bidang', 'fasilitator', 'kegiatanGrups.grupDampingan', 'pesertaKegiatans.anggota', 'fotoAbsensis', 'fotoKegiatans'])
-                        ->whereIn('status', ['published', 'selesai'])
-                        ->where('id_kegiatan', $id)
-                        ->first();
-        if (!$kegiatan) {
+            ->whereIn('status', ['published', 'selesai'])
+            ->where('id_kegiatan', $id)
+            ->first();
+        if (! $kegiatan) {
             return response()->json(['message' => 'Kegiatan tidak ditemukan (atau mungkin belum di-publish)'], 404);
         }
+
         return response()->json([
             'message' => 'Data kegiatan berhasil diambil',
-            'data' => $kegiatan
+            'data' => $kegiatan,
         ]);
     }
 
@@ -150,7 +152,7 @@ class KegiatanController extends Controller
             'jumlah_tdk_hadir' => 'nullable|integer',
             'laporan' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
             'grup_dampingan_ids' => 'nullable|array',
-            'grup_dampingan_ids.*' => 'exists:grup_dampingans,id_grup_dampingan'
+            'grup_dampingan_ids.*' => 'exists:grup_dampingans,id_grup_dampingan',
         ]);
 
         DB::beginTransaction();
@@ -194,7 +196,7 @@ class KegiatanController extends Controller
                     KegiatanGrup::create([
                         'id_kegiatan_grup' => (string) Str::uuid(),
                         'kegiatan_id' => $id_kegiatan,
-                        'grup_dampingan_id' => $grupId
+                        'grup_dampingan_id' => $grupId,
                     ]);
                 }
             }
@@ -206,14 +208,15 @@ class KegiatanController extends Controller
 
             return response()->json([
                 'message' => 'Kegiatan berhasil dibuat',
-                'data' => $kegiatan->load('kegiatanGrups')
+                'data' => $kegiatan->load('kegiatanGrups'),
             ], 201);
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'message' => 'Gagal membuat kegiatan',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -222,7 +225,7 @@ class KegiatanController extends Controller
     {
         $kegiatan = Kegiatan::find($id);
 
-        if (!$kegiatan) {
+        if (! $kegiatan) {
             return response()->json(['message' => 'Kegiatan tidak ditemukan'], 404);
         }
 
@@ -244,7 +247,7 @@ class KegiatanController extends Controller
             'jumlah_tdk_hadir' => 'nullable|integer',
             'laporan' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
             'grup_dampingan_ids' => 'nullable|array',
-            'grup_dampingan_ids.*' => 'exists:grup_dampingans,id_grup_dampingan'
+            'grup_dampingan_ids.*' => 'exists:grup_dampingans,id_grup_dampingan',
         ]);
 
         DB::beginTransaction();
@@ -265,19 +268,42 @@ class KegiatanController extends Controller
                 $file = $request->file('laporan');
                 $dataToUpdate['laporan'] = $file->store('kegiatan/file_laporan', 'public');
             }
-            
+
             $kegiatan->update($dataToUpdate);
 
             if ($request->has('grup_dampingan_ids') && is_array($request->grup_dampingan_ids)) {
-                $kegiatan->kegiatanGrups()->delete(); // Hapus yang lama
-                
-                $grup_ids = array_unique($request->grup_dampingan_ids);
-                foreach ($grup_ids as $grupId) {
-                    KegiatanGrup::create([
-                        'id_kegiatan_grup' => (string) Str::uuid(),
-                        'kegiatan_id' => $kegiatan->id_kegiatan,
-                        'grup_dampingan_id' => $grupId
-                    ]);
+                $currentUser = $request->user()->load('role');
+                $isSuperadmin = $currentUser->role && $currentUser->role->name === 'superadmin';
+
+                if ($isSuperadmin) {
+                    $existingGrupIds = $kegiatan->kegiatanGrups()
+                        ->pluck('grup_dampingan_id')
+                        ->sort()
+                        ->values()
+                        ->toArray();
+                    $requestedGrupIds = collect(array_unique($request->grup_dampingan_ids))
+                        ->sort()
+                        ->values()
+                        ->toArray();
+
+                    if ($existingGrupIds !== $requestedGrupIds) {
+                        DB::rollBack();
+
+                        return response()->json([
+                            'message' => 'Superadmin tidak diperbolehkan mengubah grup dampingan pada kegiatan. Hanya absensi yang boleh dikoreksi.',
+                        ], 403);
+                    }
+                } else {
+                    $kegiatan->kegiatanGrups()->delete();
+
+                    $grup_ids = array_unique($request->grup_dampingan_ids);
+                    foreach ($grup_ids as $grupId) {
+                        KegiatanGrup::create([
+                            'id_kegiatan_grup' => (string) Str::uuid(),
+                            'kegiatan_id' => $kegiatan->id_kegiatan,
+                            'grup_dampingan_id' => $grupId,
+                        ]);
+                    }
                 }
             }
 
@@ -288,14 +314,15 @@ class KegiatanController extends Controller
 
             return response()->json([
                 'message' => 'Kegiatan berhasil diupdate',
-                'data' => $kegiatan->load('kegiatanGrups')
+                'data' => $kegiatan->load('kegiatanGrups'),
             ]);
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'message' => 'Gagal mengupdate kegiatan',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -304,7 +331,7 @@ class KegiatanController extends Controller
     {
         $kegiatan = Kegiatan::with(['fotoAbsensis', 'fotoKegiatans'])->find($id);
 
-        if (!$kegiatan) {
+        if (! $kegiatan) {
             return response()->json(['message' => 'Kegiatan tidak ditemukan'], 404);
         }
 
@@ -339,7 +366,7 @@ class KegiatanController extends Controller
         );
 
         return response()->json([
-            'message' => 'Kegiatan berhasil dihapus'
+            'message' => 'Kegiatan berhasil dihapus',
         ]);
     }
 }

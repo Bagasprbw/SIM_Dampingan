@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import DetailDampinganModal from '../../components/modals/DetailDampinganModal';
-import { LayoutGrid, ChevronLeft, Search, ChevronRight, Loader2, UserCheck, UserX } from 'lucide-react';
+import { LayoutGrid, ChevronLeft, Search, ChevronRight, Loader2, UserCheck, UserX, Printer } from 'lucide-react';
+import KartuDampinganModal from '../../components/modals/KartuDampinganModal';
 import { useFasilitatorGrups } from '../../hooks/queries/useGrupDampinganQuery';
 import { grupDampinganService } from '../../services/grupDampinganService';
 import { useAnggotaMutations } from '../../hooks/mutations/useAnggotaMutation';
@@ -25,6 +26,7 @@ const GrupDetailView = ({ grup, onBack, onRefresh }) => {
     const [page, setPage] = useState(1);
     const [selectedAnggota, setSelectedAnggota] = useState(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [isKartuOpen, setIsKartuOpen] = useState(false);
 
     const { toggleStatusAnggota } = useAnggotaMutations();
 
@@ -150,6 +152,13 @@ const GrupDetailView = ({ grup, onBack, onRefresh }) => {
                                             {item.status === 'aktif' ? <UserX size={14} /> : <UserCheck size={14} />}
                                         </button>
                                         <button
+                                            onClick={() => { setSelectedAnggota(item); setIsKartuOpen(true); }}
+                                            title="Cetak Kartu Dampingan"
+                                            className="text-[#0080C5] hover:text-[#006da8] transition-colors"
+                                        >
+                                            <Printer size={18} />
+                                        </button>
+                                        <button
                                             onClick={() => { setSelectedAnggota(item); setIsDetailOpen(true); }}
                                             className="h-8 px-4 bg-[#0080C5] text-white rounded-lg text-[11px] font-semibold hover:bg-sky-700 transition-all"
                                         >
@@ -178,6 +187,7 @@ const GrupDetailView = ({ grup, onBack, onRefresh }) => {
             </div>
 
             <DetailDampinganModal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} data={selectedAnggota} />
+            <KartuDampinganModal isOpen={isKartuOpen} onClose={() => setIsKartuOpen(false)} anggota={selectedAnggota} grup={grup} />
         </>
     );
 };
