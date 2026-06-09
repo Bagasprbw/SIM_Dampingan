@@ -70,6 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // ----------- sertifikat template (superadmin only) -----------------
     Route::prefix('sertifikat-template')->group(function () {
         Route::get('/', [SertifikatTemplateController::class, 'show']);
+        Route::get('/fields', [SertifikatTemplateController::class, 'fields']);
 
         Route::post('/', [SertifikatTemplateController::class, 'upload'])
             ->middleware('permission:manage_roles');
