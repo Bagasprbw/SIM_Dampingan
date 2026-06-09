@@ -34,6 +34,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password/verify', [AuthController::class, 'verifyForgotPassword']);
 Route::get('/anggota-grup/profil/{id}', [ProfilAnggotaController::class, 'show']);
 Route::get('/anggota-grup/profil/{anggotaId}/sertifikat/{idSertifikat}', [SertifikatController::class, 'show']);
+Route::get('/public/sertifikat-template/file', [SertifikatTemplateController::class, 'downloadActive']);
 Route::get('/public/statistics', [PublicStatisticsController::class, 'index']);
 Route::get('/public/peta-sebaran', [PublicPetaSebaranController::class, 'index']);
 
