@@ -1,0 +1,15 @@
+# Production — pakai image dari GHCR (setelah CI/CD build)
+# Jalankan: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build
+
+services:
+  nginx:
+    image: ${NGINX_IMAGE:?Set NGINX_IMAGE in .env}
+    pull_policy: always
+
+  backend:
+    image: ${BACKEND_IMAGE:?Set BACKEND_IMAGE in .env}
+    pull_policy: always
+
+  scheduler:
+    image: ${BACKEND_IMAGE:?Set BACKEND_IMAGE in .env}
+    pull_policy: always

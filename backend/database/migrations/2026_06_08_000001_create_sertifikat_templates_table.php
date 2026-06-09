@@ -11,7 +11,7 @@ return new class extends Migration
         // 1. Buat tabel global template sertifikat
         Schema::create('sertifikat_templates', function (Blueprint $table) {
             $table->string('id_template', 36)->primary();
-            $table->string('file', 255)->comment('Path/link file template sertifikat (PDF fillable)');
+            $table->string('file', 255)->comment('Path file template sertifikat PDF fillable (AcroForm)');
             $table->string('created_by', 36)->nullable()->comment('User yang upload (hanya superadmin)');
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();

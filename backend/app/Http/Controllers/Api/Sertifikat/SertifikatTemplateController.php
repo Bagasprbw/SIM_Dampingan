@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Sertifikat;
 
 use App\Http\Controllers\Controller;
 use App\Models\SertifikatTemplate;
+use App\Services\Sertifikat\SertifikatFillService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -84,6 +85,29 @@ class SertifikatTemplateController extends Controller
                 'created_at'   => $template->created_at,
             ],
         ], 201);
+    }
+
+    /**
+     * GET /sertifikat-template/fields
+     * Daftar nama field AcroForm yang didukung (untuk panduan desain template).
+     */
+    public function fields()
+    {
+        $primary = [
+            'nomor_sertifikat', 'nama_peserta', 'judul_kegiatan', 'tanggal_kegiatan',
+            'tempat_kegiatan', 'bidang_dampingan', 'level_kegiatan', 'provinsi',
+            'kabupaten_kota', 'kecamatan', 'tanggal_terbit',
+        ];
+
+        $aliases = array_values(array_diff(SertifikatFillService::FIELD_NAMES, $primary));
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => [
+                'fields'  => $primary,
+                'aliases' => $aliases,
+            ],
+        ]);
     }
 
     /**

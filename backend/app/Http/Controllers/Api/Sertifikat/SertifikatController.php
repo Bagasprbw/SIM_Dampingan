@@ -7,6 +7,7 @@ use App\Models\Kegiatan;
 use App\Models\PesertaKegiatan;
 use App\Models\Sertifikat;
 use App\Models\SertifikatTemplate;
+use App\Services\Sertifikat\SertifikatFillService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -103,6 +104,11 @@ class SertifikatController extends Controller
         $sertifikat = Sertifikat::with([
             'pesertaKegiatan.kegiatan.fasilitator',
             'pesertaKegiatan.anggota',
+            'pesertaKegiatan.kegiatan.bidang',
+            'pesertaKegiatan.kegiatan.level',
+            'pesertaKegiatan.kegiatan.provinsi',
+            'pesertaKegiatan.kegiatan.kabupaten',
+            'pesertaKegiatan.kegiatan.kecamatan',
         ])->find($idSertifikat);
 
         if (!$sertifikat) {
@@ -120,9 +126,7 @@ class SertifikatController extends Controller
             ], 404);
         }
 
-        $kegiatan    = $sertifikat->pesertaKegiatan->kegiatan;
-        $anggota     = $sertifikat->pesertaKegiatan->anggota;
-        $fasilitator = $kegiatan->fasilitator;
+        $fields = SertifikatFillService::buildFields($sertifikat);
 
         // Ambil template global terbaru
         $template    = SertifikatTemplate::latest('created_at')->first();
@@ -131,15 +135,15 @@ class SertifikatController extends Controller
         return response()->json([
             'status' => 'success',
             'data'   => [
-                'nomor_sertifikat' => $sertifikat->nomor_sertifikat,
-                'nama_peserta'     => $anggota->name,
-                'nama_kegiatan'    => $kegiatan->judul,
-                'tanggal_kegiatan' => $kegiatan->tanggal
-                    ? $kegiatan->tanggal->translatedFormat('d F Y')
-                    : '-',
-                'lokasi_kegiatan'  => $kegiatan->lokasi,
-                'nama_fasilitator' => $fasilitator->name,
-                // URL template global (dipakai pdf-lib di frontend)
+                // Nilai per field AcroForm (dipakai pdf-lib di frontend)
+                'fields'           => $fields,
+                // Field legacy untuk kompatibilitas UI
+                'nomor_sertifikat' => $fields['nomor_sertifikat'],
+                'nama_peserta'     => $fields['nama_peserta'],
+                'nama_kegiatan'    => $fields['judul_kegiatan'],
+                'tanggal_kegiatan' => $fields['tanggal_kegiatan'],
+                'lokasi_kegiatan'  => $fields['tempat_kegiatan'],
+                'nama_fasilitator' => $fields['nama_fasilitator'],
                 'template_url'     => $templateUrl,
                 'diterbitkan_at'   => $sertifikat->diterbitkan_at,
             ],

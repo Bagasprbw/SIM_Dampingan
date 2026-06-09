@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { resolveStorageUrl } from '../../utils/resolveStorageUrl';
+import { SERTIFIKAT_PDF_FIELDS, SERTIFIKAT_PDF_FIELD_ALIASES } from '../../constants/sertifikatFields';
 
 /* ─────────────────────────────────────────────────────────
    Modal Preview PDF
@@ -274,6 +275,37 @@ const ManageTemplateSertifikatPage = () => {
                             )}
                         </div>
                     </div>
+                </div>
+
+                {/* ── Panduan Field PDF Fillable ── */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="px-6 py-4 border-b border-slate-100">
+                        <h3 className="text-sm font-bold text-slate-800">Nama Field di PDF (AcroForm)</h3>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                            Saat membuat template di LibreOffice Writer atau Acrobat, gunakan <strong>Text Field</strong> dengan nama persis seperti di bawah (case-sensitive).
+                        </p>
+                    </div>
+                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {SERTIFIKAT_PDF_FIELDS.map((f) => (
+                            <div key={f.name} className="flex flex-col gap-0.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <code className="text-xs font-bold text-[#0080C5]">{f.name}</code>
+                                <span className="text-[11px] text-slate-600">{f.label}</span>
+                                <span className="text-[10px] text-slate-400">Sumber: {f.source}</span>
+                            </div>
+                        ))}
+                    </div>
+                    {SERTIFIKAT_PDF_FIELD_ALIASES.length > 0 && (
+                        <div className="px-6 pb-6">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Alias opsional</p>
+                            <div className="flex flex-wrap gap-2">
+                                {SERTIFIKAT_PDF_FIELD_ALIASES.map((a) => (
+                                    <span key={a.name} className="text-[10px] px-2.5 py-1 bg-amber-50 text-amber-700 rounded-lg border border-amber-100 font-mono">
+                                        {a.name}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* ── Riwayat Template ── */}

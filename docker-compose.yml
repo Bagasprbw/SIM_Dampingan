@@ -1,0 +1,90 @@
+# SIM Dampingan — production-ready stack (Opsi A)
+# Jalankan: docker compose up -d --build
+# PENTING: Jangan pakai `docker compose down -v` di server (hapus volume DB & upload).
+
+name: sim-dampingan
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080/api}
+        VITE_SUPERADMIN_WA: ${VITE_SUPERADMIN_WA:-}
+    image: ${NGINX_IMAGE:-sim-dampingan-nginx:local}
+    container_name: sim-dampingan-nginx
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - backend_storage:/var/www/storage:ro
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - sim-dampingan
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    image: ${BACKEND_IMAGE:-sim-dampingan-backend:local}
+    container_name: sim-dampingan-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - backend_storage:/var/www/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sim-dampingan
+
+  scheduler:
+    image: ${BACKEND_IMAGE:-sim-dampingan-backend:local}
+    container_name: sim-dampingan-scheduler
+    restart: unless-stopped
+    env_file:
+      - .env
+    command: php artisan schedule:work
+    volumes:
+      - backend_storage:/var/www/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    networks:
+      - sim-dampingan
+
+  db:
+    image: mariadb:11
+    container_name: sim-dampingan-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-SIM_Dampingan}
+      MYSQL_USER: ${DB_USERNAME:-sim_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in .env}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - sim-dampingan
+
+volumes:
+  db_data:
+    name: sim-dampingan-db-data
+  backend_storage:
+    name: sim-dampingan-backend-storage
+
+networks:
+  sim-dampingan:
+    name: sim-dampingan-network
