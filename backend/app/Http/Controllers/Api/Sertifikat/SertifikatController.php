@@ -129,8 +129,9 @@ class SertifikatController extends Controller
         $fields = SertifikatFillService::buildFields($sertifikat);
 
         // Ambil template global terbaru
-        $template    = SertifikatTemplate::latest('created_at')->first();
+        $template = SertifikatTemplate::latest('created_at')->first();
         $templateUrl = $template ? url(Storage::url($template->file)) : null;
+        $templateFetchUrl = $template ? SertifikatTemplateController::activeTemplateFetchUrl() : null;
 
         return response()->json([
             'status' => 'success',
@@ -145,6 +146,8 @@ class SertifikatController extends Controller
                 'lokasi_kegiatan'  => $fields['tempat_kegiatan'],
                 'nama_fasilitator' => $fields['nama_fasilitator'],
                 'template_url'     => $templateUrl,
+                // Fetch via API (hindari CORS pada /storage)
+                'template_fetch_url' => $templateFetchUrl,
                 'diterbitkan_at'   => $sertifikat->diterbitkan_at,
             ],
         ]);

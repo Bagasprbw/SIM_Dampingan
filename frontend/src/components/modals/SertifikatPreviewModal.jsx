@@ -27,8 +27,9 @@ const SertifikatPreviewModal = ({ isOpen, onClose, anggotaId, sertifikatId }) =>
     });
 
     const sertifikat = res?.data;
-    const templateUrl = resolveStorageUrl(sertifikat?.template_url);
-    const hasTemplate = !!templateUrl;
+    // Fetch template via API (/api/public/...) — hindari CORS pada /storage
+    const templateFetchUrl = resolveStorageUrl(sertifikat?.template_fetch_url);
+    const hasTemplate = !!templateFetchUrl;
     const fieldValues = sertifikat?.fields ?? null;
 
     useEffect(() => {
@@ -58,7 +59,7 @@ const SertifikatPreviewModal = ({ isOpen, onClose, anggotaId, sertifikatId }) =>
             setPdfError(null);
 
             try {
-                const { bytes, filledCount } = await fillSertifikatPdf(templateUrl, fieldValues);
+                const { bytes, filledCount } = await fillSertifikatPdf(templateFetchUrl, fieldValues);
 
                 if (cancelled) return;
 
@@ -91,7 +92,7 @@ const SertifikatPreviewModal = ({ isOpen, onClose, anggotaId, sertifikatId }) =>
         return () => {
             cancelled = true;
         };
-    }, [hasTemplate, fieldValues, templateUrl, isOpen]);
+    }, [hasTemplate, fieldValues, templateFetchUrl, isOpen]);
 
     useEffect(() => {
         return () => {
