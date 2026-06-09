@@ -67,13 +67,6 @@ const DashboardPage = () => {
         return `${diffDays} hari lalu`;
     };
 
-    const getInitials = (name) => {
-        if (!name) return '??';
-        const parts = name.trim().split(/\s+/).filter(Boolean);
-        const initials = parts.map((part) => part[0]).join('');
-        return initials.substring(0, 2).toUpperCase();
-    };
-
     const [activeTab, setActiveTab] = useState('Admin Daerah');
 
     const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -262,12 +255,9 @@ const DashboardPage = () => {
                                     const timeLabel = formatRelativeTime(log.created_at);
                                     return (
                                         <div key={log.id_log || iIdx} className={`p-3 md:p-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${iIdx !== logItems.length - 1 ? 'border-b border-slate-50' : 'rounded-b-2xl'}`}>
-                                            <div className="flex items-center gap-2.5 md:gap-3">
-                                                <div className="h-7 md:h-8 px-2.5 md:px-3 bg-[#0080C5] text-white rounded-lg flex items-center justify-center shadow-sm text-[10px] md:text-[11px] font-bold shrink-0 tracking-wide">PJ</div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[#0A0F1E] text-[10px] md:text-[11px] font-semibold">{name}</span>
-                                                    <span className="text-[#9298B0] text-[9px] md:text-[10px] font-normal line-clamp-1">{description}</span>
-                                                </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-[#0A0F1E] text-[10px] md:text-[11px] font-semibold">{name}</span>
+                                                <span className="text-[#9298B0] text-[9px] md:text-[10px] font-normal line-clamp-1">{description}</span>
                                             </div>
                                             <div className="flex flex-col items-end gap-1 md:gap-1.5">
                                                 <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-[#43DE20]" />
@@ -477,16 +467,12 @@ const DashboardPage = () => {
                             logItems.map((log, iIdx) => {
                                 const name = log.user?.name || user?.name || 'Fasilitator';
                                 const description = log.deskripsi || 'Login berhasil';
-                                const initials = getInitials(name);
                                 const timeLabel = formatRelativeTime(log.created_at);
                                 return (
                                     <div key={log.id_log || iIdx} className={`p-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${iIdx !== logItems.length - 1 ? 'border-b border-slate-50' : 'rounded-b-2xl'}`}>
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 md:w-9 md:h-9 bg-[#0080C5] text-white rounded-lg flex items-center justify-center text-[10px] md:text-[11px] font-bold shrink-0">{initials}</div>
-                                            <div className="flex flex-col">
-                                                <span className="text-[#0A0F1E] text-[11px] font-semibold">Fasilitator {name}</span>
-                                                <span className="text-[#9298B0] text-[10px] font-normal">{description}</span>
-                                            </div>
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="text-[#0A0F1E] text-[11px] font-semibold">{name}</span>
+                                            <span className="text-[#9298B0] text-[10px] font-normal line-clamp-1">{description}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <div className="w-5 h-5 bg-[#43DE20]/20 rounded-full flex items-center justify-center">
@@ -743,12 +729,9 @@ const DashboardPage = () => {
                             <div className="flex flex-col">
                                 {section.items.map((item, iIdx) => (
                                     <div key={iIdx} className={`p-3 md:p-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${iIdx !== section.items.length - 1 ? 'border-b border-slate-50' : 'rounded-b-[16px] xl:rounded-b-2xl'}`}>
-                                        <div className="flex items-center gap-2.5 md:gap-3">
-                                            <div className="h-7 md:h-8 px-2.5 md:px-3 bg-[#0080C5] text-white rounded-lg flex items-center justify-center shadow-sm text-[9px] md:text-[11px] font-bold shrink-0 tracking-wide">{item.id}</div>
-                                            <div className="flex flex-col">
-                                                <span className="text-[#0A0F1E] text-[10px] md:text-[11px] font-bold">{item.name}</span>
-                                                <span className="text-[#9298B0] text-[9px] md:text-[10px] font-normal line-clamp-1">{item.action}</span>
-                                            </div>
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="text-[#0A0F1E] text-[10px] md:text-[11px] font-bold">{item.name}</span>
+                                            <span className="text-[#9298B0] text-[9px] md:text-[10px] font-normal line-clamp-1">{item.action}</span>
                                         </div>
                                         <div className="flex flex-col items-end gap-1 md:gap-1.5 shrink-0">
                                             <div className="flex items-center justify-center w-4 h-4 rounded-full bg-green-100">
