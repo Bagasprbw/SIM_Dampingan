@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Eye, EyeOff, LogOut, User, Shield } from 'lucide-react';
+import { Lock, Eye, EyeOff, LogOut } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { getUser } from '../../utils/storage';
 import { AUTH_USER_KEY } from '../../constants/storageKeys';
-import { ROLE_LABELS } from '../../constants/roles';
 import { profilService } from '../../services/profilService';
 import { useLogout } from '../../hooks/useLogin';
 
@@ -16,25 +15,20 @@ const GantiPasswordPage = () => {
     const [currentPassword, setCurrentPassword] = useState('12345678');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [verifyName, setVerifyName] = useState('');
-    const [verifyUsername, setVerifyUsername] = useState('');
-    const [verifyRole, setVerifyRole] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
     const user = getUser();
-    const userRole = typeof user?.role === 'object' ? user?.role?.name : user?.role;
-    const roleLabel = ROLE_LABELS[userRole] || userRole || '';
     const navigate = useNavigate();
     const { logout } = useLogout();
 
     const handleSave = async (e) => {
         e.preventDefault();
 
-        if (!currentPassword || !newPassword || !confirmPassword || !verifyName || !verifyUsername || !verifyRole) {
+        if (!currentPassword || !newPassword || !confirmPassword) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Lengkapi semua field',
-                text: 'Verifikasi identitas dan password wajib diisi.',
+                text: 'Semua field password wajib diisi.',
                 confirmButtonColor: '#0080C5',
                 customClass: { popup: 'rounded-2xl font-["Poppins"]' },
             });
@@ -91,9 +85,6 @@ const GantiPasswordPage = () => {
                 current_password: currentPassword,
                 new_password: newPassword,
                 new_password_confirmation: confirmPassword,
-                verify_name: verifyName,
-                verify_username: verifyUsername,
-                verify_role: verifyRole,
             });
 
             const latestUser = getUser() || user;
@@ -132,58 +123,11 @@ const GantiPasswordPage = () => {
                     <img src="/images/logo-mpm.png" alt="Logo MPM" className="w-[48px] h-auto object-contain" />
                     <h1 className="text-[#1E1E1E] text-2xl font-bold tracking-wide">GANTI PASSWORD</h1>
                     <p className="text-[#636364] text-xs leading-relaxed max-w-[320px]">
-                        Verifikasi identitas Anda, lalu buat password baru yang aman.
+                        Buat password baru yang aman untuk akun Anda.
                     </p>
                 </div>
 
                 <form onSubmit={handleSave} className="space-y-4">
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Verifikasi Identitas</p>
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Nama Lengkap</label>
-                            <div className="relative">
-                                <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0080C5]" />
-                                <input
-                                    type="text"
-                                    placeholder="Ketik nama Anda sesuai akun"
-                                    value={verifyName}
-                                    onChange={(e) => setVerifyName(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2.5 bg-white rounded-[10px] border border-[#E5E7EB] text-sm focus:outline-none focus:border-[#0080C5]"
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Username</label>
-                            <div className="relative">
-                                <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0080C5]" />
-                                <input
-                                    type="text"
-                                    placeholder="Ketik username Anda"
-                                    value={verifyUsername}
-                                    onChange={(e) => setVerifyUsername(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2.5 bg-white rounded-[10px] border border-[#E5E7EB] text-sm focus:outline-none focus:border-[#0080C5]"
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Role</label>
-                            <div className="relative">
-                                <Shield size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0080C5]" />
-                                <input
-                                    type="text"
-                                    placeholder={`Contoh: ${roleLabel || 'fasilitator'}`}
-                                    value={verifyRole}
-                                    onChange={(e) => setVerifyRole(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2.5 bg-white rounded-[10px] border border-[#E5E7EB] text-sm focus:outline-none focus:border-[#0080C5]"
-                                    required
-                                />
-                            </div>
-                            <p className="text-[9px] text-slate-400">Ketik role persis seperti di sistem, contoh: {userRole || 'fasilitator'}</p>
-                        </div>
-                    </div>
-
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Password Lama</label>
                         <div className="relative">

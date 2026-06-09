@@ -91,6 +91,34 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Verifikasi identitas sebelum permintaan reset password via SuperAdmin.
+     */
+    public function verifyForgotPassword(Request $request)
+    {
+        $request->validate([
+            'verify_name' => 'required|string|max:150',
+            'verify_username' => 'required|string|max:100',
+            'verify_role' => 'required|string|max:50',
+        ]);
+
+        $user = User::where('username', $request->verify_username)
+            ->where('name', $request->verify_name)
+            ->where('status', 'active')
+            ->whereHas('role', fn ($q) => $q->where('name', $request->verify_role))
+            ->first();
+
+        if (! $user) {
+            return response()->json([
+                'message' => 'Data identitas tidak ditemukan atau tidak sesuai.',
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Identitas terverifikasi.',
+        ]);
+    }
+
     public function me(Request $request)
     {
         $user = clone $request->user();

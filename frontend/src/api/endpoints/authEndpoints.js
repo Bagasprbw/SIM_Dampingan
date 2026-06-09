@@ -17,3 +17,9 @@ export const logoutRequest = () =>
  */
 export const getMeRequest = () =>
     api.get('/me');
+
+/**
+ * POST /api/forgot-password/verify
+ */
+export const verifyForgotPasswordRequest = (data) =>
+    api.post('/forgot-password/verify', data);

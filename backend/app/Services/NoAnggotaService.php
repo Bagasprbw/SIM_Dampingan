@@ -8,8 +8,8 @@ use App\Models\GrupDampingan;
 class NoAnggotaService
 {
     /**
-     * Format: {kode_prov 2 digit}{4 digit acak}{DD}{MM}{YY}
-     * Contoh: 334521260525
+     * Format: {kode_prov 2 digit}{DD}{MM}{YY}{4 digit acak}
+     * Contoh: 332605254521
      */
     public function generate(string $grupId): string
     {
@@ -18,8 +18,8 @@ class NoAnggotaService
 
         do {
             $number = $kodeProv
-                .str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT)
-                .now()->format('dmy');
+                .now()->format('dmy')
+                .str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
         } while (AnggotaGrupDampingan::where('no_anggota', $number)->exists());
 
         return $number;

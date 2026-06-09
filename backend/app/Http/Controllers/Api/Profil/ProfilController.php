@@ -40,35 +40,13 @@ class ProfilController extends Controller
         $request->validate([
             'current_password' => 'required',
             'new_password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
-            'verify_name' => 'required|string|max:150',
-            'verify_username' => 'required|string|max:100',
-            'verify_role' => 'required|string|max:50',
         ]);
 
-        $user = $request->user()->load('role');
+        $user = $request->user();
 
         if (! Hash::check($request->current_password, $user->password)) {
             return response()->json([
                 'message' => 'Password lama tidak sesuai',
-            ], 422);
-        }
-
-        if ($request->verify_name !== $user->name) {
-            return response()->json([
-                'message' => 'Nama tidak sesuai dengan akun Anda',
-            ], 422);
-        }
-
-        if ($request->verify_username !== $user->username) {
-            return response()->json([
-                'message' => 'Username tidak sesuai dengan akun Anda',
-            ], 422);
-        }
-
-        $roleName = $user->role?->name ?? '';
-        if ($request->verify_role !== $roleName) {
-            return response()->json([
-                'message' => 'Role tidak sesuai dengan akun Anda',
             ], 422);
         }
 
