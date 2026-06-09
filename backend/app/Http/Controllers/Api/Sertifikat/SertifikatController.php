@@ -22,11 +22,11 @@ class SertifikatController extends Controller
     {
         $kegiatan = Kegiatan::findOrFail($id);
 
-        // Kegiatan harus berstatus selesai
-        if ($kegiatan->status !== 'selesai') {
+        // Kegiatan harus berstatus published
+        if ($kegiatan->status !== 'published') {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Sertifikat hanya bisa diterbitkan untuk kegiatan yang sudah selesai',
+                'message' => 'Sertifikat hanya bisa diterbitkan untuk kegiatan yang sudah published',
             ], 422);
         }
 

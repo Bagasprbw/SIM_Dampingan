@@ -17,7 +17,8 @@ export const ROUTE_ACCESS = {
     '/panduan':    [ROLES.SUPERADMIN, ...ADMIN_ROLES, ROLES.FASILITATOR, ROLES.PJ_DAMPINGAN],
 
     // ── SuperAdmin only ──────────────────────────────────────────────────────
-    '/hak-akses':  [ROLES.SUPERADMIN],
+    '/hak-akses':           [ROLES.SUPERADMIN],
+    '/template-sertifikat': [ROLES.SUPERADMIN],
 
     // ── SuperAdmin + Admin (10 halaman Admin) ────────────────────────────────
     '/data-admin':       [...SUPERADMIN_AND_ADMINS],
@@ -57,6 +58,7 @@ export const ROUTE_PERMISSIONS = {
     // Permission spesifik
     '/panduan':              'view_panduan',
     '/hak-akses':            'manage_roles',
+    '/template-sertifikat': 'manage_roles',
     '/data-admin':           'kelola_admin_bawahan',
     '/data-fasilitator':     'kelola_fasilitator',
     '/data-pj':              'kelola_pj_grup',

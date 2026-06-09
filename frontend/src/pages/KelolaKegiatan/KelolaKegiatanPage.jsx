@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import DetailKegiatanModal from '../../components/modals/DetailKegiatanModal';
 import DeleteKegiatanModal from '../../components/modals/DeleteKegiatanModal';
+import TerbitkanSertifikatModal from '../../components/modals/TerbitkanSertifikatModal';
 import { useNavigate } from 'react-router-dom';
 import { getUser } from '../../utils/storage';
 import { ROLES } from '../../constants/roles';
-import { Search, Edit, Trash2, Clock, Plus, Loader2, ChevronLeft, ChevronRight, Calendar, MapPin } from 'lucide-react';
+import { Search, Edit, Trash2, Clock, Plus, Loader2, ChevronLeft, ChevronRight, Calendar, MapPin, Award } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 import { useKegiatansAdmin, useKegiatansFasilitator } from '../../hooks/queries/useKegiatanQuery';
@@ -19,6 +20,7 @@ const KelolaKegiatanPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isTerbitkanModalOpen, setIsTerbitkanModalOpen] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
 
     const [page, setPage] = useState(1);
@@ -173,6 +175,15 @@ const KelolaKegiatanPage = () => {
                                                 </td>
                                                 <td className="px-6 py-4 align-top">
                                                     <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        {isFasilitator && ['selesai','published'].includes(item.status?.toLowerCase()) && (
+                                                            <button
+                                                                title="Terbitkan Sertifikat"
+                                                                onClick={() => { setSelectedActivity(item); setIsTerbitkanModalOpen(true); }}
+                                                                className="p-2 bg-emerald-500/10 text-emerald-600 rounded-lg hover:bg-emerald-500 hover:text-white transition-all"
+                                                            >
+                                                                <Award size={14} strokeWidth={2.5} />
+                                                            </button>
+                                                        )}
                                                         <button onClick={() => navigate(`/kelola-kegiatan/edit/${item.id_kegiatan}`)} className="p-2 bg-[#FB923C]/10 text-[#FB923C] rounded-lg hover:bg-[#FB923C] hover:text-white transition-all"><Edit size={14} strokeWidth={2.5} /></button>
                                                         <button onClick={() => { setSelectedActivity(item); setIsDeleteModalOpen(true); }} className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"><Trash2 size={14} strokeWidth={2.5} /></button>
                                                     </div>
@@ -299,19 +310,29 @@ const KelolaKegiatanPage = () => {
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-row gap-2 mt-1">
-                                            <button 
-                                                onClick={() => navigate(`/kelola-kegiatan/edit/${item.id_kegiatan}`)} 
-                                                className="flex-1 h-[32px] flex items-center justify-center gap-1.5 bg-[#F0F2F8] text-[#0A0F1E] rounded-[10px] hover:bg-slate-200 transition-all text-[11px] font-semibold active:scale-95 border border-[#E5E7EB]/50"
-                                            >
-                                                <Edit size={12} strokeWidth={2.5} /> Edit
-                                            </button>
-                                            <button 
-                                                onClick={() => { setSelectedActivity(item); setIsDeleteModalOpen(true); }} 
-                                                className="flex-1 h-[32px] flex items-center justify-center gap-1.5 bg-[#FEE2E2] text-[#EF4444] rounded-[10px] hover:bg-red-200 transition-all text-[11px] font-semibold active:scale-95 border border-[#EF4444]/20"
-                                            >
-                                                <Trash2 size={12} strokeWidth={2.5} /> Hapus
-                                            </button>
+                                        <div className="flex flex-col gap-2 mt-1">
+                                            {isFasilitator && ['selesai','published'].includes(item.status?.toLowerCase()) && (
+                                                <button
+                                                    onClick={() => { setSelectedActivity(item); setIsTerbitkanModalOpen(true); }}
+                                                    className="w-full h-[32px] flex items-center justify-center gap-1.5 bg-emerald-50 text-emerald-600 rounded-[10px] hover:bg-emerald-500 hover:text-white transition-all text-[11px] font-semibold active:scale-95 border border-emerald-100"
+                                                >
+                                                    <Award size={12} strokeWidth={2.5} /> Terbitkan Sertifikat
+                                                </button>
+                                            )}
+                                            <div className="flex flex-row gap-2">
+                                                <button 
+                                                    onClick={() => navigate(`/kelola-kegiatan/edit/${item.id_kegiatan}`)} 
+                                                    className="flex-1 h-[32px] flex items-center justify-center gap-1.5 bg-[#F0F2F8] text-[#0A0F1E] rounded-[10px] hover:bg-slate-200 transition-all text-[11px] font-semibold active:scale-95 border border-[#E5E7EB]/50"
+                                                >
+                                                    <Edit size={12} strokeWidth={2.5} /> Edit
+                                                </button>
+                                                <button 
+                                                    onClick={() => { setSelectedActivity(item); setIsDeleteModalOpen(true); }} 
+                                                    className="flex-1 h-[32px] flex items-center justify-center gap-1.5 bg-[#FEE2E2] text-[#EF4444] rounded-[10px] hover:bg-red-200 transition-all text-[11px] font-semibold active:scale-95 border border-[#EF4444]/20"
+                                                >
+                                                    <Trash2 size={12} strokeWidth={2.5} /> Hapus
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 );
@@ -348,6 +369,11 @@ const KelolaKegiatanPage = () => {
 
             <DetailKegiatanModal isOpen={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)} data={selectedActivity} />
             <DeleteKegiatanModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={confirmDelete} data={selectedActivity} />
+            <TerbitkanSertifikatModal
+                isOpen={isTerbitkanModalOpen}
+                onClose={() => setIsTerbitkanModalOpen(false)}
+                kegiatan={selectedActivity}
+            />
         </AdminLayout>
     );
 };

@@ -48,7 +48,8 @@ class SertifikatTemplateController extends Controller
     {
         // Pastikan hanya superadmin yang bisa mengakses
         $user = $request->user();
-        if (!$user || $user->role?->nama_role !== 'superadmin') {
+        $user->load('role'); // ← kunci perbaikan
+        if (!$user || $user->role?->name !== 'superadmin') {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Aksi ini hanya dapat dilakukan oleh superadmin',
@@ -92,7 +93,7 @@ class SertifikatTemplateController extends Controller
     public function riwayat(Request $request)
     {
         $user = $request->user();
-        if (!$user || $user->role?->nama_role !== 'superadmin') {
+        if (!$user || $user->role?->name !== 'superadmin') {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Aksi ini hanya dapat dilakukan oleh superadmin',

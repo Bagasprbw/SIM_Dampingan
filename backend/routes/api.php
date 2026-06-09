@@ -63,6 +63,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/roles/{idRole}/permissions', [RolePermissionController::class, 'updateRolePermissions'])->middleware('permission:manage_roles');
     });
 
+    // ----------- sertifikat template (superadmin only) -----------------
+    Route::prefix('sertifikat-template')->group(function () {
+        Route::get('/', [SertifikatTemplateController::class, 'show']);
+
+        Route::post('/', [SertifikatTemplateController::class, 'upload'])
+            ->middleware('permission:manage_roles');
+        Route::get('/riwayat', [SertifikatTemplateController::class, 'riwayat'])
+            ->middleware('permission:manage_roles');
+    });
+
     // ----------- permission: kelola_grup -----------------
     Route::get('/grup-dampingan', [GrupDampinganController::class, 'index'])
         ->middleware('permission:kelola_grup,ajukan_anggota,create_kegiatan,verifikasi_anggota');
@@ -198,16 +208,6 @@ Route::middleware('auth:sanctum')->group(function () {
         // sertifikat kegiatan
         Route::post('/{id}/sertifikat', [SertifikatController::class, 'terbitkan']);
 
-    });
-
-    // ----------- sertifikat template (superadmin only) -----------------
-    Route::prefix('sertifikat-template')->group(function () {
-        // Lihat template aktif (semua user yang sudah login)
-        Route::get('/', [SertifikatTemplateController::class, 'show']);
-        // Upload / ganti template global (validasi superadmin di controller)
-        Route::post('/', [SertifikatTemplateController::class, 'upload']);
-        // Riwayat semua versi template (validasi superadmin di controller)
-        Route::get('/riwayat', [SertifikatTemplateController::class, 'riwayat']);
     });
 
     // ----------- permission: view_kegiatan [Bagas] -----------------
