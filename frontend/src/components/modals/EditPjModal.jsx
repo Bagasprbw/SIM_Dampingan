@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { X, Edit3, Save, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { usePjGrupMutations } from '../../hooks/mutations/usePjGrupMutation';
+import UsernameHint from '../common/UsernameHint';
+import { useUsernameCheck } from '../../hooks/useUsernameCheck';
 
 const EditPjModal = ({ isOpen, onClose, data }) => {
     const { updatePjGrup } = usePjGrupMutations();
@@ -24,9 +26,15 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const usernameStatus = useUsernameCheck(formData.username, data?.id_user || data?.id, isOpen);
+
     if (!isOpen) return null;
 
     const handleSave = () => {
+        if (usernameStatus === 'taken') {
+            Swal.fire({ icon: 'error', title: 'Username sudah digunakan', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } });
+            return;
+        }
         setIsLoading(true);
         updatePjGrup.mutate({ id: data.id_user || data.id, data: formData }, {
             onSuccess: () => {
@@ -118,6 +126,7 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
                             onChange={handleChange}
                             className="w-full px-4 py-2.5 bg-white rounded-[10px] border-[1.60px] border-gray-200 focus:border-sky-600 focus:outline-none text-slate-950 text-xs transition-all font-medium"
                         />
+                        <UsernameHint username={formData.username} excludeId={data?.id_user || data?.id} />
                     </div>
                 </div>
 

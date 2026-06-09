@@ -35,6 +35,9 @@ const ProfileModal = ({ isOpen, onClose, isForced = false }) => {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [verifyName, setVerifyName] = useState('');
+    const [verifyUsername, setVerifyUsername] = useState('');
+    const [verifyRole, setVerifyRole] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
     // Force show password fields if isForced is true
@@ -92,11 +95,21 @@ const ProfileModal = ({ isOpen, onClose, isForced = false }) => {
         }
 
         if (showPasswordFields) {
-            if (!currentPassword || !newPassword || !confirmPassword) {
+            if (!currentPassword || !newPassword || !confirmPassword || !verifyName || !verifyUsername || !verifyRole) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Lengkapi password',
-                    text: 'Password lama, baru, dan konfirmasi wajib diisi.',
+                    title: 'Lengkapi data',
+                    text: 'Verifikasi identitas dan password wajib diisi.',
+                    confirmButtonColor: '#0080C5',
+                    customClass: { popup: 'rounded-2xl font-["Poppins"]' },
+                });
+                return;
+            }
+            if (newPassword === '12345678' || newPassword.length < 8 || !/(?=.*[a-zA-Z])(?=.*\d)/.test(newPassword)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Password lemah',
+                    text: 'Password minimal 8 karakter, huruf + angka, bukan password default.',
                     confirmButtonColor: '#0080C5',
                     customClass: { popup: 'rounded-2xl font-["Poppins"]' },
                 });
@@ -128,6 +141,9 @@ const ProfileModal = ({ isOpen, onClose, isForced = false }) => {
                     current_password: currentPassword,
                     new_password: newPassword,
                     new_password_confirmation: confirmPassword,
+                    verify_name: verifyName,
+                    verify_username: verifyUsername,
+                    verify_role: verifyRole,
                 });
                 
                 // Hapus flag must_change_password di localStorage
@@ -272,6 +288,12 @@ const ProfileModal = ({ isOpen, onClose, isForced = false }) => {
                     {/* Hidden Password Fields */}
                     {showPasswordFields && (
                         <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+                                <p className="text-[10px] font-bold text-slate-500 uppercase">Verifikasi Identitas</p>
+                                <input type="text" placeholder="Nama lengkap Anda" value={verifyName} onChange={(e) => setVerifyName(e.target.value)} className="w-full px-3 py-2 bg-white rounded-lg border border-slate-200 text-xs focus:border-[#0080C5] focus:outline-none" />
+                                <input type="text" placeholder="Username Anda" value={verifyUsername} onChange={(e) => setVerifyUsername(e.target.value)} className="w-full px-3 py-2 bg-white rounded-lg border border-slate-200 text-xs focus:border-[#0080C5] focus:outline-none" />
+                                <input type="text" placeholder={`Role (contoh: ${userRole || 'fasilitator'})`} value={verifyRole} onChange={(e) => setVerifyRole(e.target.value)} className="w-full px-3 py-2 bg-white rounded-lg border border-slate-200 text-xs focus:border-[#0080C5] focus:outline-none" />
+                            </div>
                             {/* Password Lama */}
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[#374151] text-[10px] font-semibold uppercase tracking-wider">Password Lama</label>

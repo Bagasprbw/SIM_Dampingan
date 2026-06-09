@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { X, Users, ChevronDown, Plus, Check, User, Upload, Eye, EyeOff, Save, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import Swal from 'sweetalert2';
+import UsernameHint from '../common/UsernameHint';
+import { useUsernameCheck } from '../../hooks/useUsernameCheck';
 import { useGrupDampinganMutations } from '../../hooks/mutations/useGrupDampinganMutation';
 import { useBidangs } from '../../hooks/queries/useBidangQuery';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
@@ -43,6 +45,8 @@ const AddGrupModal = ({ isOpen, onClose }) => {
         pj_password: '',
         pj_foto: null
     });
+
+    const pjUsernameStatus = useUsernameCheck(formData.pj_username, null, isOpen);
 
     const { data: provinsiList = [] } = useProvinsi();
     const { data: kabupatenList = [] } = useKabupaten(formData.kode_prov);
@@ -252,6 +256,11 @@ const AddGrupModal = ({ isOpen, onClose }) => {
             // Validation step 2
             if (!formData.pj_nama || !formData.pj_username || !formData.pj_password || !formData.pj_no_telp) {
                 Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Mohon lengkapi data PJ Dampingan.', confirmButtonColor: '#0080C5' });
+                return;
+            }
+
+            if (pjUsernameStatus === 'taken') {
+                Swal.fire({ icon: 'error', title: 'Username sudah digunakan', confirmButtonColor: '#0080C5' });
                 return;
             }
 
@@ -566,6 +575,7 @@ const AddGrupModal = ({ isOpen, onClose }) => {
                                         placeholder="Masukkan username"
                                         className="w-full h-11 px-4 bg-white rounded-[10px] border-2 border-gray-100 focus:border-[#0080C5] focus:outline-none text-xs text-slate-900 transition-all font-medium"
                                     />
+                                    <UsernameHint username={formData.pj_username} />
                                 </div>
                                 <div className="space-y-1.5 text-left">
                                     <label className="text-slate-950 text-xs font-semibold leading-5">Password</label>

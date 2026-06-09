@@ -141,12 +141,6 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
             form.append('foto', formData.foto);
         }
 
-        // Generate a temporary no_anggota if not provided (Backend usually handles this or requires it)
-        // Check backend validation: 'no_anggota' => 'required|unique:anggota_grup_dampingans,no_anggota'
-        // So we MUST provide it or the backend must generate it.
-        // For now let's assume we need to provide it.
-        form.append('no_anggota', 'TEMP-' + Date.now()); 
-
         const mutation = isPengajuan ? createPengajuanAnggota : createAnggota;
 
         mutation.mutate(form, {

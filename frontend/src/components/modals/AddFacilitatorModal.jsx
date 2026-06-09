@@ -5,6 +5,8 @@ import { useFasilitatorMutations } from '../../hooks/mutations/useFasilitatorMut
 import { useBidangs } from '../../hooks/queries/useBidangQuery';
 import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/useWilayahQuery';
 import { getUser } from '../../utils/storage';
+import UsernameHint from '../common/UsernameHint';
+import { useUsernameCheck } from '../../hooks/useUsernameCheck';
 
 const AddFacilitatorModal = ({ isOpen, onClose }) => {
     // Fetch Bidang Dampingan
@@ -94,6 +96,8 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
         });
     };
 
+    const usernameStatus = useUsernameCheck(formData.username, null, isOpen);
+
     if (!isOpen) return null;
 
     const handleImageChange = (e) => {
@@ -105,6 +109,11 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
 
     const handleSave = (e) => {
         e.preventDefault();
+
+        if (usernameStatus === 'taken') {
+            Swal.fire({ icon: 'error', title: 'Username sudah digunakan', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } });
+            return;
+        }
         
         if (formData.bidang_ids.length === 0) {
             Swal.fire({
@@ -308,6 +317,7 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Username <span className="text-red-500">*</span></label>
                             <input name="username" value={formData.username} onChange={handleChange} type="text" placeholder="Username" className="w-full px-4 py-2.5 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium" required />
+                            <UsernameHint username={formData.username} />
                         </div>
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[#0A0F1E] text-xs font-semibold">Password <span className="text-red-500">*</span></label>

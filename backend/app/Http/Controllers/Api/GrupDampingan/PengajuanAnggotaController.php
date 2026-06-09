@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Api\GrupDampingan;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\LogsActivity;
 use App\Models\AnggotaGrupDampingan;
+use App\Models\GrupDampingan;
+use App\Models\GrupFasilitator;
+use App\Services\NoAnggotaService;
+use App\Services\QrCodeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -12,6 +16,7 @@ use Illuminate\Support\Str;
 class PengajuanAnggotaController extends Controller
 {
     use LogsActivity;
+
     /**
      * [AJUKAN ANGGOTA]
      * PJ Grup melihat daftar pengajuan (anggota yang dia ajukan)
@@ -21,21 +26,21 @@ class PengajuanAnggotaController extends Controller
         $user = auth()->user();
 
         // ambil grup di mana user adalah pj_grup (pengurus_id)
-        $grupIds = \App\Models\GrupDampingan::where('pengurus_id', $user->id_user)->pluck('id_grup_dampingan');
+        $grupIds = GrupDampingan::where('pengurus_id', $user->id_user)->pluck('id_grup_dampingan');
 
         $query = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan'])
             ->whereIn('grup_id', $grupIds) // Hanya di grup yang dia pegang
             ->whereIn('status', ['pending', 'ditolak']);
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
         $pengajuan = $query->latest('created_at')->paginate($request->per_page ?? 10);
 
         return response()->json([
             'status' => 'success',
-            'data' => $pengajuan
+            'data' => $pengajuan,
         ]);
     }
 
@@ -61,16 +66,17 @@ class PengajuanAnggotaController extends Controller
         ], [
             'foto.max' => 'Ukuran file foto terlalu besar. Maksimal 2MB.',
             'foto.image' => 'File harus berupa gambar.',
-            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg.'
+            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg.',
         ]);
 
         $validated['id_anggota_grup'] = (string) Str::uuid();
         $validated['status'] = 'pending'; // PENGAJUAN otomatis PENDING
         $validated['created_at'] = now();
 
-        // Generate no_anggota jika tidak ada
-        if (empty($validated['no_anggota']) || str_starts_with($validated['no_anggota'], 'TEMP-')) {
-            $validated['no_anggota'] = $this->generateNoAnggota($validated['grup_id']);
+        // Generate no_anggota otomatis
+        $noAnggotaService = app(NoAnggotaService::class);
+        if ($noAnggotaService->shouldRegenerate($validated['no_anggota'] ?? null)) {
+            $validated['no_anggota'] = $noAnggotaService->generate($validated['grup_id']);
         }
 
         if ($request->hasFile('foto')) {
@@ -92,7 +98,7 @@ class PengajuanAnggotaController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Pengajuan anggota berhasil, menunggu verifikasi',
-            'data' => $anggota
+            'data' => $anggota,
         ], 201);
     }
 
@@ -104,7 +110,7 @@ class PengajuanAnggotaController extends Controller
     {
         $anggota = AnggotaGrupDampingan::find($id);
 
-        if (!$anggota || $anggota->status !== 'pending') {
+        if (! $anggota || $anggota->status !== 'pending') {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Pengajuan tidak ditemukan atau tidak bisa diedit (status bukan pending)',
@@ -113,7 +119,7 @@ class PengajuanAnggotaController extends Controller
 
         $validated = $request->validate([
             'bidang_id' => 'nullable|exists:bidangs,id_bidang',
-            'no_anggota' => 'nullable|unique:anggota_grup_dampingans,no_anggota,' . $id . ',id_anggota_grup',
+            'no_anggota' => 'nullable|unique:anggota_grup_dampingans,no_anggota,'.$id.',id_anggota_grup',
             'name' => 'nullable|string|max:150',
             'tempat_lahir' => 'nullable|string|max:100',
             'tgl_lahir' => 'nullable|date',
@@ -127,7 +133,7 @@ class PengajuanAnggotaController extends Controller
         ], [
             'foto.max' => 'Ukuran file foto terlalu besar. Maksimal 2MB.',
             'foto.image' => 'File harus berupa gambar.',
-            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg.'
+            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg.',
         ]);
 
         if ($request->hasFile('foto')) {
@@ -146,7 +152,7 @@ class PengajuanAnggotaController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Pengajuan anggota berhasil diperbarui',
-            'data' => $anggota
+            'data' => $anggota,
         ]);
     }
 
@@ -158,7 +164,7 @@ class PengajuanAnggotaController extends Controller
     {
         $anggota = AnggotaGrupDampingan::find($id);
 
-        if (!$anggota || $anggota->status !== 'pending') {
+        if (! $anggota || $anggota->status !== 'pending') {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Pengajuan tidak ditemukan atau tidak bisa dihapus (status bukan pending)',
@@ -198,14 +204,14 @@ class PengajuanAnggotaController extends Controller
 
         // Filter berdasarkan kewenangan Role (Cascade Downward)
         if ($user->role->name === 'fasilitator') {
-            $grupFasilitatorIds = \App\Models\GrupFasilitator::where('fasilitator_id', $user->id_user)
+            $grupFasilitatorIds = GrupFasilitator::where('fasilitator_id', $user->id_user)
                 ->pluck('grup_dampingan_id');
             $query->whereIn('grup_id', $grupFasilitatorIds);
         }
 
         // Filter Search (Nama)
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
         // Filter Grup Dampingan
@@ -217,7 +223,7 @@ class PengajuanAnggotaController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $pengajuan
+            'data' => $pengajuan,
         ]);
     }
 
@@ -229,7 +235,7 @@ class PengajuanAnggotaController extends Controller
     {
         $anggota = AnggotaGrupDampingan::find($id);
 
-        if (!$anggota || $anggota->status !== 'pending') {
+        if (! $anggota || $anggota->status !== 'pending') {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Data pengajuan tidak ditemukan atau tidak berstatus pending',
@@ -237,14 +243,14 @@ class PengajuanAnggotaController extends Controller
         }
 
         $validated = $request->validate([
-            'status' => 'required|in:aktif,ditolak'
+            'status' => 'required|in:aktif,ditolak',
         ]);
 
         $anggota->status = $validated['status'];
         $anggota->save();
 
         if ($anggota->status === 'aktif') {
-            app(\App\Services\QrCodeService::class)->generateForAnggota($anggota);
+            app(QrCodeService::class)->generateForAnggota($anggota);
         }
 
         // Catat log VERIFIKASI
@@ -259,23 +265,8 @@ class PengajuanAnggotaController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Pengajuan anggota berhasil diverifikasi menjadi: ' . $anggota->status,
-            'data' => $anggota
+            'message' => 'Pengajuan anggota berhasil diverifikasi menjadi: '.$anggota->status,
+            'data' => $anggota,
         ]);
-    }
-
-    private function generateNoAnggota($grupId)
-    {
-        $grup = \App\Models\GrupDampingan::find($grupId);
-        $prefix = $grup ? ($grup->kode_kec ?? $grup->kode_kab ?? $grup->kode_prov ?? '00') : '00';
-        
-        $number = $prefix . date('ymd') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-        
-        // Pastikan unik
-        while (AnggotaGrupDampingan::where('no_anggota', $number)->exists()) {
-            $number = $prefix . date('ymd') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-        }
-        
-        return $number;
     }
 }

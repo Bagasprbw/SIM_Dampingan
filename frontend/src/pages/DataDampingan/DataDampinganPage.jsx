@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/layout/AdminLayout';
 import EditDampinganModal from '../../components/modals/EditDampinganModal';
@@ -54,6 +54,9 @@ const DataDampinganPage = () => {
     };
 
     const [page, setPage] = useState(1);
+    const [sortBy, setSortBy] = useState('grup_name');
+    const [sortDir, setSortDir] = useState('asc');
+    const [nameSortDir, setNameSortDir] = useState('asc');
 
     const currentUser = getUser();
     const currentUserRoleName = currentUser?.role;
@@ -79,7 +82,11 @@ const DataDampinganPage = () => {
         search: searchTerm,
         kode_prov: provinsiFilter,
         kode_kab: kabupatenFilter,
-        kode_kec: kecamatanFilter
+        kode_kec: kecamatanFilter,
+        sort_by: sortBy,
+        sort_dir: sortDir,
+        name_sort_dir: nameSortDir,
+        per_page: 50,
     });
 
     const handleSearch = (e) => {
@@ -97,6 +104,20 @@ const DataDampinganPage = () => {
 
     const dataDampingan = anggotaData?.data || [];
     const meta = anggotaData?.meta || {};
+
+    const groupedData = useMemo(() => {
+        const groups = [];
+        let currentGrup = null;
+        dataDampingan.forEach((item) => {
+            const grupName = item.grup_dampingan?.name || item.grupDampingan?.name || 'Tanpa Grup';
+            if (grupName !== currentGrup) {
+                currentGrup = grupName;
+                groups.push({ type: 'header', grupName });
+            }
+            groups.push({ type: 'row', item });
+        });
+        return groups;
+    }, [dataDampingan]);
 
     const handleExport = () => {
         if (dataDampingan.length === 0) return;
@@ -192,6 +213,18 @@ const DataDampinganPage = () => {
                                 labelKey="name"
                                 onChange={(v) => { setKecamatanFilter(v); setPage(1); }}
                             />
+                        </div>
+                        <div className="flex items-center gap-2 ml-auto">
+                            <span className="text-[10px] text-slate-400 font-semibold">Urut Grup:</span>
+                            <select value={sortDir} onChange={(e) => { setSortDir(e.target.value); setPage(1); }} className="h-9 px-3 border border-slate-200 rounded-lg text-xs text-slate-600 focus:border-[#0080C5] focus:outline-none">
+                                <option value="asc">A → Z</option>
+                                <option value="desc">Z → A</option>
+                            </select>
+                            <span className="text-[10px] text-slate-400 font-semibold">Urut Nama:</span>
+                            <select value={nameSortDir} onChange={(e) => { setNameSortDir(e.target.value); setPage(1); }} className="h-9 px-3 border border-slate-200 rounded-lg text-xs text-slate-600 focus:border-[#0080C5] focus:outline-none">
+                                <option value="asc">A → Z</option>
+                                <option value="desc">Z → A</option>
+                            </select>
                         </div>
                     </div>
 
@@ -409,7 +442,13 @@ const DataDampinganPage = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-[#F0F2F8]">
-                                        {dataDampingan.map((item, index) => (
+                                        {groupedData.map((entry, index) => entry.type === 'header' ? (
+                                            <tr key={`header-${entry.grupName}-${index}`} className="bg-[#F0F7FF]">
+                                                <td colSpan={8} className="py-2.5 px-4 text-[#0080C5] text-[11px] font-bold uppercase tracking-wide border-y border-slate-100">
+                                                    📁 {entry.grupName}
+                                                </td>
+                                            </tr>
+                                        ) : (() => { const item = entry.item; return (
                                             <tr key={item.id_anggota_grup || item.id || index} className="hover:bg-slate-50 transition-colors">
                                                 <td className="py-2.5 px-4 text-center text-[#9298B0] text-[12px] font-medium border-x-0">{item.no_anggota || '-'}</td>
                                                 <td className="py-2.5 px-4 text-left border-x-0">
@@ -443,7 +482,7 @@ const DataDampinganPage = () => {
                                                     </button>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        ); })())}
                                     </tbody>
                                 </table>
                             </div>

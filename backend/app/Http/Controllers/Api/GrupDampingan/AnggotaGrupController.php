@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\LogsActivity;
 use App\Models\AnggotaGrupDampingan;
 use App\Models\GrupDampingan;
+use App\Models\GrupFasilitator;
 use App\Models\User;
+use App\Services\NoAnggotaService;
+use App\Services\QrCodeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -25,7 +28,7 @@ class AnggotaGrupController extends Controller
         }
 
         $grup = $anggota->grupDampingan;
-        if (!$grup) {
+        if (! $grup) {
             return false;
         }
 
@@ -42,7 +45,7 @@ class AnggotaGrupController extends Controller
         }
 
         if ($currentUser->role->name === 'fasilitator') {
-            return \App\Models\GrupFasilitator::where('fasilitator_id', $currentUser->id_user)
+            return GrupFasilitator::where('fasilitator_id', $currentUser->id_user)
                 ->where('grup_dampingan_id', $grup->id_grup_dampingan)
                 ->exists();
         }
@@ -58,11 +61,12 @@ class AnggotaGrupController extends Controller
     {
         $currentUser = $request->user()->load('role');
         $query = AnggotaGrupDampingan::with([
-            'bidang', 
-            'pekerjaan', 
-            'grupDampingan.provinsi', 
-            'grupDampingan.kabupaten', 
-            'grupDampingan.kecamatan'
+            'bidang',
+            'pekerjaan',
+            'grupDampingan.bidang',
+            'grupDampingan.provinsi',
+            'grupDampingan.kabupaten',
+            'grupDampingan.kecamatan',
         ]);
 
         // Default: filter by status 'aktif' unless specified otherwise
@@ -75,10 +79,10 @@ class AnggotaGrupController extends Controller
         // Search filter: nama, no_anggota, alamat
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('no_anggota', 'like', "%{$search}%")
-                  ->orWhere('alamat', 'like', "%{$search}%");
+                    ->orWhere('no_anggota', 'like', "%{$search}%")
+                    ->orWhere('alamat', 'like', "%{$search}%");
             });
         }
 
@@ -99,37 +103,50 @@ class AnggotaGrupController extends Controller
 
         // Regional Request Filters (Filter dropdown wilayah)
         if ($request->filled('kode_prov')) {
-            $query->whereHas('grupDampingan', function($q) use ($request) {
+            $query->whereHas('grupDampingan', function ($q) use ($request) {
                 $q->where('kode_prov', $request->kode_prov);
             });
         }
         if ($request->filled('kode_kab')) {
-            $query->whereHas('grupDampingan', function($q) use ($request) {
+            $query->whereHas('grupDampingan', function ($q) use ($request) {
                 $q->where('kode_kab', $request->kode_kab);
             });
         }
         if ($request->filled('kode_kec')) {
-            $query->whereHas('grupDampingan', function($q) use ($request) {
+            $query->whereHas('grupDampingan', function ($q) use ($request) {
                 $q->where('kode_kec', $request->kode_kec);
             });
         }
 
         // Enforce Regional Scoping (Cascade Downward)
         if ($currentUser->role->name === 'admin_provinsi') {
-            $query->whereHas('grupDampingan', function($q) use ($currentUser) {
+            $query->whereHas('grupDampingan', function ($q) use ($currentUser) {
                 $q->where('kode_prov', $currentUser->kode_prov);
             });
         } elseif ($currentUser->role->name === 'admin_kabupaten') {
-            $query->whereHas('grupDampingan', function($q) use ($currentUser) {
+            $query->whereHas('grupDampingan', function ($q) use ($currentUser) {
                 $q->where('kode_kab', $currentUser->kode_kab);
             });
         } elseif ($currentUser->role->name === 'admin_kecamatan') {
-            $query->whereHas('grupDampingan', function($q) use ($currentUser) {
+            $query->whereHas('grupDampingan', function ($q) use ($currentUser) {
                 $q->where('kode_kec', $currentUser->kode_kec);
             });
         }
 
-        $anggota = $query->orderBy('name', 'asc')->paginate($request->per_page ?? 10);
+        $sortBy = $request->get('sort_by', 'grup_name');
+        $sortDir = strtolower($request->get('sort_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $nameSortDir = strtolower($request->get('name_sort_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+        if ($sortBy === 'grup_name') {
+            $query->join('grup_dampingans as gd_sort', 'anggota_grup_dampingans.grup_id', '=', 'gd_sort.id_grup_dampingan')
+                ->select('anggota_grup_dampingans.*')
+                ->orderBy('gd_sort.name', $sortDir)
+                ->orderBy('anggota_grup_dampingans.name', $nameSortDir);
+        } else {
+            $query->orderBy('anggota_grup_dampingans.name', $sortDir);
+        }
+
+        $anggota = $query->paginate($request->per_page ?? 10);
 
         return response()->json([
             'status' => 'success',
@@ -140,8 +157,8 @@ class AnggotaGrupController extends Controller
                 'per_page' => $anggota->perPage(),
                 'total' => $anggota->total(),
                 'from' => $anggota->firstItem(),
-                'to' => $anggota->lastItem()
-            ]
+                'to' => $anggota->lastItem(),
+            ],
         ]);
     }
 
@@ -149,7 +166,7 @@ class AnggotaGrupController extends Controller
     {
         $validated = $request->validate([
             'bidang_id' => 'required|exists:bidangs,id_bidang',
-            'no_anggota' => 'required|unique:anggota_grup_dampingans,no_anggota',
+            'no_anggota' => 'nullable|unique:anggota_grup_dampingans,no_anggota',
             'name' => 'required|string|max:150',
             'tempat_lahir' => 'nullable|string|max:100',
             'tgl_lahir' => 'nullable|date',
@@ -163,11 +180,11 @@ class AnggotaGrupController extends Controller
         ], [
             'foto.max' => 'Ukuran file foto terlalu besar. Maksimal 2MB.',
             'foto.image' => 'File harus berupa gambar.',
-            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg.'
+            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg.',
         ]);
 
         $grup = GrupDampingan::find($request->grup_id);
-        if (!$grup) {
+        if (! $grup) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Grup dampingan tidak ditemukan',
@@ -179,25 +196,30 @@ class AnggotaGrupController extends Controller
         if ($currentUser->role->name === 'admin_provinsi' && $grup->kode_prov !== $currentUser->kode_prov) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda hanya boleh menambahkan anggota ke grup di provinsi Anda'
+                'message' => 'Anda hanya boleh menambahkan anggota ke grup di provinsi Anda',
             ], 403);
         }
         if ($currentUser->role->name === 'admin_kabupaten' && $grup->kode_kab !== $currentUser->kode_kab) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda hanya boleh menambahkan anggota ke grup di kabupaten Anda'
+                'message' => 'Anda hanya boleh menambahkan anggota ke grup di kabupaten Anda',
             ], 403);
         }
         if ($currentUser->role->name === 'admin_kecamatan' && $grup->kode_kec !== $currentUser->kode_kec) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda hanya boleh menambahkan anggota ke grup di kecamatan Anda'
+                'message' => 'Anda hanya boleh menambahkan anggota ke grup di kecamatan Anda',
             ], 403);
         }
 
         $validated['id_anggota_grup'] = (string) Str::uuid();
-        $validated['status'] = 'aktif'; // Langsung aktif otomatis
+        $validated['status'] = 'aktif';
         $validated['created_at'] = now();
+
+        $noAnggotaService = app(NoAnggotaService::class);
+        if ($noAnggotaService->shouldRegenerate($validated['no_anggota'] ?? null)) {
+            $validated['no_anggota'] = $noAnggotaService->generate($validated['grup_id']);
+        }
 
         if ($request->hasFile('foto')) {
             $validated['foto'] = $request->file('foto')->store('profil/anggota_grup', 'public');
@@ -206,7 +228,7 @@ class AnggotaGrupController extends Controller
         $anggota = AnggotaGrupDampingan::create($validated);
 
         // Generate QR code
-        app(\App\Services\QrCodeService::class)->generateForAnggota($anggota);
+        app(QrCodeService::class)->generateForAnggota($anggota);
 
         // Catat log CREATE
         $this->logCreate($request, 'AnggotaGrup', $anggota->id_anggota_grup, $anggota->toArray());
@@ -214,15 +236,15 @@ class AnggotaGrupController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Anggota grup berhasil ditambahkan',
-            'data' => $anggota
+            'data' => $anggota,
         ], 201);
     }
 
     public function show(Request $request, $id)
     {
-        $anggota = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan'])->find($id);
+        $anggota = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan.bidang'])->find($id);
 
-        if (!$anggota) {
+        if (! $anggota) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Anggota grup tidak ditemukan',
@@ -231,16 +253,16 @@ class AnggotaGrupController extends Controller
 
         // Validate access authority
         $currentUser = $request->user()->load('role');
-        if (!$this->canAccessAnggota($currentUser, $anggota)) {
+        if (! $this->canAccessAnggota($currentUser, $anggota)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda tidak memiliki hak akses untuk data anggota ini'
+                'message' => 'Anda tidak memiliki hak akses untuk data anggota ini',
             ], 403);
         }
 
         return response()->json([
             'status' => 'success',
-            'data' => $anggota
+            'data' => $anggota,
         ]);
     }
 
@@ -248,7 +270,7 @@ class AnggotaGrupController extends Controller
     {
         $anggota = AnggotaGrupDampingan::find($id);
 
-        if (!$anggota) {
+        if (! $anggota) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Anggota grup tidak ditemukan',
@@ -257,16 +279,16 @@ class AnggotaGrupController extends Controller
 
         // Validate access authority
         $currentUser = $request->user()->load('role');
-        if (!$this->canAccessAnggota($currentUser, $anggota)) {
+        if (! $this->canAccessAnggota($currentUser, $anggota)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda tidak memiliki hak akses untuk mengupdate data anggota ini'
+                'message' => 'Anda tidak memiliki hak akses untuk mengupdate data anggota ini',
             ], 403);
         }
 
         $validated = $request->validate([
             'bidang_id' => 'nullable|exists:bidangs,id_bidang',
-            'no_anggota' => 'nullable|unique:anggota_grup_dampingans,no_anggota,' . $id . ',id_anggota_grup',
+            'no_anggota' => 'nullable|unique:anggota_grup_dampingans,no_anggota,'.$id.',id_anggota_grup',
             'name' => 'nullable|string|max:150',
             'tempat_lahir' => 'nullable|string|max:100',
             'tgl_lahir' => 'nullable|date',
@@ -281,13 +303,13 @@ class AnggotaGrupController extends Controller
         ], [
             'foto.max' => 'Ukuran file foto terlalu besar. Maksimal 2MB.',
             'foto.image' => 'File harus berupa gambar.',
-            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg.'
+            'foto.mimes' => 'Format foto harus jpeg, png, atau jpg.',
         ]);
 
         // If target group is changed, validate the new group's region scope
         if ($request->filled('grup_id')) {
             $grup = GrupDampingan::find($request->grup_id);
-            if (!$grup) {
+            if (! $grup) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Grup dampingan baru tidak ditemukan',
@@ -316,7 +338,7 @@ class AnggotaGrupController extends Controller
         $anggota->update($validated);
 
         if ($anggota->status === 'aktif') {
-            app(\App\Services\QrCodeService::class)->generateForAnggota($anggota);
+            app(QrCodeService::class)->generateForAnggota($anggota);
         }
 
         // Catat log UPDATE
@@ -325,7 +347,7 @@ class AnggotaGrupController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Data anggota grup berhasil diperbarui',
-            'data' => $anggota
+            'data' => $anggota,
         ]);
     }
 
@@ -333,7 +355,7 @@ class AnggotaGrupController extends Controller
     {
         $anggota = AnggotaGrupDampingan::find($id);
 
-        if (!$anggota) {
+        if (! $anggota) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Anggota grup tidak ditemukan',
@@ -342,10 +364,10 @@ class AnggotaGrupController extends Controller
 
         // Validate access authority
         $currentUser = $request->user()->load('role');
-        if (!$this->canAccessAnggota($currentUser, $anggota)) {
+        if (! $this->canAccessAnggota($currentUser, $anggota)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda tidak memiliki hak akses untuk menghapus data anggota ini'
+                'message' => 'Anda tidak memiliki hak akses untuk menghapus data anggota ini',
             ], 403);
         }
 
@@ -373,7 +395,7 @@ class AnggotaGrupController extends Controller
     {
         $anggota = AnggotaGrupDampingan::find($id);
 
-        if (!$anggota) {
+        if (! $anggota) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Anggota grup tidak ditemukan',
@@ -381,11 +403,11 @@ class AnggotaGrupController extends Controller
         }
 
         $currentUser = $request->user()->load('role');
-        
-        if (!$this->canAccessAnggota($currentUser, $anggota)) {
+
+        if (! $this->canAccessAnggota($currentUser, $anggota)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda tidak memiliki hak akses untuk mengupdate status anggota ini'
+                'message' => 'Anda tidak memiliki hak akses untuk mengupdate status anggota ini',
             ], 403);
         }
 
@@ -398,7 +420,7 @@ class AnggotaGrupController extends Controller
         $anggota->save();
 
         if ($anggota->status === 'aktif') {
-            app(\App\Services\QrCodeService::class)->generateForAnggota($anggota);
+            app(QrCodeService::class)->generateForAnggota($anggota);
         }
 
         $this->logUpdate($request, 'AnggotaGrupStatus', $anggota->id_anggota_grup, $dataLama, $anggota->toArray());
@@ -406,7 +428,7 @@ class AnggotaGrupController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Status anggota berhasil diperbarui',
-            'data' => $anggota
+            'data' => $anggota,
         ]);
     }
 }

@@ -2,30 +2,30 @@
 
 use App\Http\Controllers\Api\Authentikasi\AuthController;
 use App\Http\Controllers\Api\Bidang\BidangController;
-use App\Http\Controllers\Api\Dashboard\DashboardFasilitatorController;
 use App\Http\Controllers\Api\Dashboard\DashboardAdminController;
+use App\Http\Controllers\Api\Dashboard\DashboardFasilitatorController;
 use App\Http\Controllers\Api\Dashboard\DashboardPjDampinganController;
-use App\Http\Controllers\Api\Pekerjaan\PekerjaanController;
-use App\Http\Controllers\Api\User\UserController;
 use App\Http\Controllers\Api\FasilitatorBidang\FasilitatorBidangController;
+use App\Http\Controllers\Api\GrupDampingan\AnggotaGrupController;
 use App\Http\Controllers\Api\GrupDampingan\GrupDampinganController;
 use App\Http\Controllers\Api\GrupDampingan\GrupFasilitatorController;
-use App\Http\Controllers\Api\GrupDampingan\AnggotaGrupController;
 use App\Http\Controllers\Api\GrupDampingan\PengajuanAnggotaController;
-use App\Http\Controllers\Api\Kegiatan\KegiatanController;
 use App\Http\Controllers\Api\Kegiatan\FotoAbsensiController;
 use App\Http\Controllers\Api\Kegiatan\FotoKegiatanController;
+use App\Http\Controllers\Api\Kegiatan\KegiatanController;
 use App\Http\Controllers\Api\Kegiatan\LevelKegiatanController;
 use App\Http\Controllers\Api\Kegiatan\PesertaKegiatanController;
 use App\Http\Controllers\Api\LogAktivitas\LogAktivitasController;
 use App\Http\Controllers\Api\Panduan\PanduanController;
-use App\Http\Controllers\Api\RolePermission\RolePermissionController;
-use App\Http\Controllers\Api\Profil\ProfilController;
+use App\Http\Controllers\Api\Pekerjaan\PekerjaanController;
 use App\Http\Controllers\Api\Profil\AnggotaGrupController as ProfilAnggotaController;
+use App\Http\Controllers\Api\Profil\ProfilController;
+use App\Http\Controllers\Api\Public\PublicStatisticsController;
+use App\Http\Controllers\Api\RolePermission\RolePermissionController;
 use App\Http\Controllers\Api\Sertifikat\SertifikatController;
 use App\Http\Controllers\Api\Sertifikat\SertifikatTemplateController;
+use App\Http\Controllers\Api\User\UserController;
 use App\Http\Controllers\Api\Wilayah\WilayahController;
-use App\Http\Controllers\Api\Public\PublicStatisticsController;
 use Illuminate\Support\Facades\Route;
 
 // publik
@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // =============== Route untuk semua user yang sudah login ===================
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::get('/users/check-username', [UserController::class, 'checkUsername']);
 
     // Profil
     Route::prefix('profil')->group(function () {
@@ -139,7 +140,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/ajukan-saya', [PengajuanAnggotaController::class, 'indexAjukanSaya']);
         Route::put('/ajukan/{id}', [PengajuanAnggotaController::class, 'updateAjukan']);
         Route::delete('/ajukan/{id}', [PengajuanAnggotaController::class, 'destroyAjukan']);
-        //melihat anggota yg sudah 'aktif' di grupnya
+        // melihat anggota yg sudah 'aktif' di grupnya
 
     });
 
@@ -182,14 +183,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ----------- permission: create_kegiatan, edit_kegiatan, delete_kegiatan -----------------
     Route::prefix('kelola-kegiatan')->middleware('permission:create_kegiatan,edit_kegiatan,delete_kegiatan')->group(function () {
-        //CRUD kegiatan [BAGAS]
+        // CRUD kegiatan [BAGAS]
         Route::get('/', [KegiatanController::class, 'indexKelola']);
         Route::get('/{id}', [KegiatanController::class, 'showKelola']);
         Route::post('/', [KegiatanController::class, 'store']);
         Route::put('/{id}', [KegiatanController::class, 'update']);
         Route::delete('/{id}', [KegiatanController::class, 'destroy']);
 
-        //CRUD foto_absensi, foto_kegiatan [RONAL]
+        // CRUD foto_absensi, foto_kegiatan [RONAL]
         Route::get('/{kegiatanId}/foto-kegiatan', [FotoKegiatanController::class, 'index']);
         Route::post('/{kegiatanId}/foto-kegiatan', [FotoKegiatanController::class, 'store']);
         Route::delete('/{kegiatanId}/foto-kegiatan/{idFoto}', [FotoKegiatanController::class, 'destroy']);
@@ -198,7 +199,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{kegiatanId}/foto-absensi', [FotoAbsensiController::class, 'store']);
         Route::delete('/{kegiatanId}/foto-absensi/{idFotoAbsensi}', [FotoAbsensiController::class, 'destroy']);
 
-        //peserta kegiatan [BAGAS]
+        // peserta kegiatan [BAGAS]
         Route::get('/{kegiatanId}/peserta', [PesertaKegiatanController::class, 'index']);
         Route::post('/{kegiatanId}/peserta', [PesertaKegiatanController::class, 'store']);
         Route::post('/{kegiatanId}/peserta/sync', [PesertaKegiatanController::class, 'sync']);
