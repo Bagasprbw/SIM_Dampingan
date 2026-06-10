@@ -17,15 +17,26 @@ if [[ ! -f .env ]]; then
     exit 1
 fi
 
+echo "→ Firewall ufw (port 80/443)..."
+sudo ufw allow 80/tcp 2>/dev/null || true
+sudo ufw allow 443/tcp 2>/dev/null || true
+
 echo "→ Build & start stack..."
-docker compose up -d --build
+sudo docker compose up -d --build
 
 echo "→ Tunggu backend healthy..."
 sleep 15
-docker compose ps
+sudo docker compose ps
+
+IP="$(grep -E '^VPS_PUBLIC_IP=' .env 2>/dev/null | cut -d= -f2 || echo 'IP_VPS')"
+PORT="$(grep -E '^APP_PORT=' .env 2>/dev/null | cut -d= -f2 || echo 80)"
 
 echo ""
 echo "Selesai. Langkah berikutnya (sekali saja):"
-echo "  docker compose exec backend php artisan db:seed"
+echo "  sudo docker compose exec backend php artisan db:seed"
 echo ""
-echo "Akses: http://$(grep -E '^VPS_PUBLIC_IP=' .env 2>/dev/null | cut -d= -f2 || echo 'IP_VPS'):$(grep -E '^APP_PORT=' .env | cut -d= -f2 || echo 8080)"
+if [[ "$PORT" == "80" ]]; then
+    echo "Akses: http://${IP}"
+else
+    echo "Akses: http://${IP}:${PORT}"
+fi

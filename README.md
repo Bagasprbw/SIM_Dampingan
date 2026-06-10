@@ -114,63 +114,48 @@ docker compose exec backend php artisan migrate --force
 
 ---
 
-## C. VPS pakai IP publik saja (tanpa domain)
+## C. VPS pakai IP publik (port 80 standar)
 
-Contoh IP: `101.32.253.13` → akses: **http://101.32.253.13:8080**
+Contoh IP: `101.32.253.13` → akses: **http://101.32.253.13** (tanpa `:8080`)
+
+Firewall cloud (Tencent) umumnya hanya buka **22, 80, 443** — tidak perlu buka 8080.
 
 ### Urutan di VPS
 
 ```bash
-# 1. Clone branch yang mau di-deploy (lihat bagian branch di bawah)
 git clone <url-repo> sim-dampingan
 cd sim-dampingan
-git checkout production   # atau main, sesuai strategi tim
+git checkout production
+git pull
 
-# 2. Environment khusus VPS
 cp .env.vps.example .env
 nano .env
-# WAJIB isi: APP_KEY, DB_PASSWORD, DB_ROOT_PASSWORD
+# WAJIB: APP_KEY, DB_PASSWORD, DB_ROOT_PASSWORD
 
-# Generate APP_KEY (bisa dari laptop):
-# cd backend && php artisan key:generate --show
-
-# 3. Deploy
 chmod +x docker/scripts/vps-first-deploy.sh
-./docker/scripts/vps-first-deploy.sh
+sudo ./docker/scripts/vps-first-deploy.sh
 
-# 4. Seed sekali
-docker compose exec backend php artisan db:seed
-
-# 5. Buka browser
-# http://101.32.253.13:8080
+sudo docker compose exec backend php artisan db:seed
 ```
 
-### Firewall VPS (wajib)
+Buka: **http://101.32.253.13**
 
-Port `8080` harus dibuka ke publik:
+### Sudah deploy pakai port 8080? Pindah ke 80:
 
 ```bash
-sudo ufw allow 8080/tcp
-sudo ufw allow OpenSSH
-sudo ufw enable
-sudo ufw status
+git pull
+chmod +x docker/scripts/vps-use-port80.sh
+sudo ./docker/scripts/vps-use-port80.sh
 ```
 
-Di panel Rumahweb/VPS provider, cek juga **security group / firewall** jika ada.
+### Firewall
 
-### Ganti IP nanti
+| Lapisan | Port yang perlu |
+|---------|-----------------|
+| Security Group Tencent | **80**, **443**, 22 |
+| ufw Ubuntu | `sudo ufw allow 80/tcp` |
 
-Edit di `.env` VPS:
-
-```env
-APP_URL=http://IP_BARU:8080
-FRONTEND_URL=http://IP_BARU:8080
-VPS_PUBLIC_IP=IP_BARU
-```
-
-Lalu: `docker compose exec backend php artisan config:cache`
-
-`VITE_API_URL=/api` → **tidak perlu** rebuild image nginx.
+`VITE_API_URL=/api` → tidak perlu rebuild saat ganti IP/domain.
 
 ---
 
