@@ -114,9 +114,54 @@ docker compose exec backend php artisan migrate --force
 
 ---
 
-## C. Domain + HTTPS (VPS belum ada → nanti)
+## C. VPS pakai IP publik / domain
 
-Urutan saat VPS sudah tersedia:
+Contoh IP: `101.32.253.13` → akses sementara: **http://101.32.253.13:8080**
+
+Firewall cloud (Tencent) tetap cukup buka **22, 80, 443** — port 8080 tidak perlu dibuka publik.
+
+### Urutan di VPS
+
+```bash
+git clone <url-repo> sim-dampingan
+cd sim-dampingan
+git checkout production
+git pull
+
+cp .env.vps.example .env
+nano .env
+# WAJIB: APP_KEY, DB_PASSWORD, DB_ROOT_PASSWORD
+
+chmod +x docker/scripts/vps-first-deploy.sh
+sudo ./docker/scripts/vps-first-deploy.sh
+
+sudo docker compose exec backend php artisan db:seed
+```
+
+Buka sementara: **http://101.32.253.13:8080**
+
+### Kalau mau pindah ke mode port 80 langsung:
+
+```bash
+git pull
+chmod +x docker/scripts/vps-use-port80.sh
+sudo ./docker/scripts/vps-use-port80.sh
+```
+
+### Firewall
+
+| Lapisan | Port yang perlu |
+|---------|-----------------|
+| Security Group Tencent | **80**, **443**, 22 |
+| ufw Ubuntu | `sudo ufw allow 80/tcp` |
+
+`VITE_API_URL=/api` → tidak perlu rebuild saat ganti IP/domain.
+
+---
+
+## D. Domain + HTTPS (opsional, nanti)
+
+Urutan saat pakai subdomain/domain:
 
 ```
 1. Beli / siapkan VPS (Ubuntu dst.)
@@ -128,11 +173,45 @@ Urutan saat VPS sudah tersedia:
 7. SSL terminate di nginx host → proxy_pass ke 127.0.0.1:8080
 ```
 
-Domain kamu sudah HTTPS di luar → cukup arahkan ke IP VPS, lalu nginx host yang handle sertifikat ke port `8080`.
+Domain kamu sudah HTTPS di luar → cukup arahkan ke IP VPS, lalu nginx host yang handle sertifikat dan proxy ke `8080`.
 
 ---
 
-## D. CI/CD GitHub — urutan setup
+## E. Strategi branch (main vs production)
+
+| Fase | Branch di laptop | Branch di VPS | CI/CD deploy |
+|------|------------------|---------------|--------------|
+| **Sekarang (manual)** | `feature/*` / `main` | `production` atau `main` | Matikan (`ENABLE_DEPLOY=false`) |
+| **Stabil** | merge ke `main` | `git pull` branch yang sama | Opsional |
+| **Otomatis** | merge ke `production` | auto via SSH | `ENABLE_DEPLOY=true` |
+
+**Rekomendasi untuk kamu sekarang:**
+
+1. **Coding** tetap di branch feature / `main` di laptop.
+2. **VPS pertama kali:** clone repo → `git checkout production` (atau `main` kalau belum ada branch production).
+3. **Jangan wajib tunggu branch production** — yang penting kode yang di-clone di VPS sudah siap + `.env` VPS benar.
+4. **Nanti CI/CD:** merge ke `production` → push → GitHub Actions deploy otomatis (workflow sudah support `main` dan `production`).
+
+```bash
+# Contoh: siapkan branch production di GitHub
+git checkout main
+git pull
+git checkout -b production
+git push -u origin production
+```
+
+VPS manual update nanti:
+
+```bash
+cd /opt/sim-dampingan
+git pull origin production
+docker compose up -d --build
+docker compose exec backend php artisan migrate --force
+```
+
+---
+
+## F. CI/CD GitHub — urutan setup
 
 ### Fase 1: Tanpa VPS (sekarang)
 

@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { clearAuthData } from '../utils/storage';
 
+// Default `/api` = same-origin (Docker nginx & production domain).
+// Dev Vite: proxy /api → localhost:8000 di vite.config.js
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+    baseURL: import.meta.env.VITE_API_URL || '/api',
     headers: {
         'Accept': 'application/json',
     },

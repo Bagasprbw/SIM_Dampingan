@@ -10,9 +10,10 @@ services:
       context: .
       dockerfile: docker/nginx/Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080/api}
+        VITE_API_URL: ${VITE_API_URL:-/api}
         VITE_SUPERADMIN_WA: ${VITE_SUPERADMIN_WA:-}
     image: ${NGINX_IMAGE:-sim-dampingan-nginx:local}
+    pull_policy: build
     container_name: sim-dampingan-nginx
     restart: unless-stopped
     ports:
@@ -21,7 +22,7 @@ services:
       - backend_storage:/var/www/storage:ro
     depends_on:
       backend:
-        condition: service_started
+        condition: service_healthy
     networks:
       - sim-dampingan
 
@@ -30,6 +31,7 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
     image: ${BACKEND_IMAGE:-sim-dampingan-backend:local}
+    pull_policy: build
     container_name: sim-dampingan-backend
     restart: unless-stopped
     env_file:
@@ -39,11 +41,21 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(0);"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     networks:
       - sim-dampingan
 
   scheduler:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
     image: ${BACKEND_IMAGE:-sim-dampingan-backend:local}
+    pull_policy: build
     container_name: sim-dampingan-scheduler
     restart: unless-stopped
     env_file:

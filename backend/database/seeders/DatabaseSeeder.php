@@ -23,23 +23,25 @@ class DatabaseSeeder extends Seeder
             MasterSeeder::class,             // Isi bidang, pekerjaan, dll (jika ada)
         ]);
 
-        // Ambil role superadmin
+        // Ambil role superadmin (skip jika sudah ada — aman dijalankan ulang)
         $superadminRole = Role::where('name', 'superadmin')->first();
         if ($superadminRole) {
-            User::create([
-                'id_user'    => (string) Str::uuid(),
-                'name'       => 'Superadmin',
-                'username'   => 'superadmin',
-                'password'   => Hash::make('password'),
-                'role_id'    => $superadminRole->id_role,
-                'created_by' => null,
-                'no_telp'    => '081234567890',
-                'foto'       => null,
-                'kode_prov'  => null,
-                'kode_kab'   => null,
-                'kode_kec'   => null,
-                'status'     => 'active',
-            ]);
+            User::firstOrCreate(
+                ['username' => 'superadmin'],
+                [
+                    'id_user'    => (string) Str::uuid(),
+                    'name'       => 'Superadmin',
+                    'password'   => Hash::make('password'),
+                    'role_id'    => $superadminRole->id_role,
+                    'created_by' => null,
+                    'no_telp'    => '081234567890',
+                    'foto'       => null,
+                    'kode_prov'  => null,
+                    'kode_kab'   => null,
+                    'kode_kec'   => null,
+                    'status'     => 'active',
+                ]
+            );
         }
 
         // Ambil data wilayah pertama (contoh, pastikan WilayahSeeder sudah dijalankan)
