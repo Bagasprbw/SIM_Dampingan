@@ -20,7 +20,6 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
     const bidangs = bidangsData?.data || [];
     
     const { data: fasilitatorData } = useFasilitators();
-    const fasilitatorOptions = fasilitatorData?.data || [];
 
     const { updateGrupDampingan } = useGrupDampinganMutations();
     const [isLoading, setIsLoading] = useState(false);
@@ -45,12 +44,13 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
         fasilitator_ids: []
     });
 
-    const { data: provinsiList = [], isLoading: loadingProv } = useProvinsi();
-    const { data: kabupatenList = [], isLoading: loadingKab } = useKabupaten(formData.kode_prov);
-    const { data: kecamatanList = [], isLoading: loadingKec } = useKecamatan(formData.kode_kab);
+    const { data: provinsiList = [] } = useProvinsi();
+    const { data: kabupatenList = [] } = useKabupaten(formData.kode_prov);
+    const { data: kecamatanList = [] } = useKecamatan(formData.kode_kab);
 
     useEffect(() => {
         if (data) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setFormData({
                 name: data.name || '',
                 level_dampingan: data.level_dampingan || '',
@@ -153,6 +153,7 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
 
     // Filter fasilitators by bidang & region hierarchy match
     const filteredFasilitators = useMemo(() => {
+        const fasilitatorOptions = fasilitatorData?.data || [];
         return fasilitatorOptions.filter(f => {
             // Must match selected Bidang
             const hasMatchingBidang = !formData.bidang_id || f.fasilitator_bidangs?.some(fb => 
@@ -177,7 +178,7 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
             
             return true;
         });
-    }, [fasilitatorOptions, formData.bidang_id, formData.kode_prov, formData.kode_kab, formData.kode_kec]);
+    }, [fasilitatorData, formData.bidang_id, formData.kode_prov, formData.kode_kab, formData.kode_kec]);
 
     // Handle multi fasilitator toggle
     const handleFasilitatorToggle = (id) => {
@@ -190,19 +191,6 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
             return { ...prev, fasilitator_ids: updated };
         });
     };
-
-    // Auto-prune invalid fasilitators when filter changes
-    useEffect(() => {
-        if (formData.fasilitator_ids && formData.fasilitator_ids.length > 0) {
-            const validIds = filteredFasilitators.map(f => f.id_user);
-            const pruned = formData.fasilitator_ids.filter(id => validIds.includes(id));
-            if (pruned.length !== formData.fasilitator_ids.length) {
-                setFormData(prev => ({ ...prev, fasilitator_ids: pruned }));
-            }
-        }
-    }, [filteredFasilitators]);
-
-    if (!isOpen) return null;
 
     const handleSave = () => {
         // Validation checks
@@ -231,8 +219,16 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
             return;
         }
 
+        // Prune any selected fasilitator IDs that are no longer valid under the current filters
+        const validIds = filteredFasilitators.map(f => f.id_user);
+        const prunedFasilitatorIds = (formData.fasilitator_ids || []).filter(id => validIds.includes(id));
+        const submissionData = {
+            ...formData,
+            fasilitator_ids: prunedFasilitatorIds
+        };
+
         setIsLoading(true);
-        updateGrupDampingan.mutate({ id: data.id_grup_dampingan || data.id, data: formData }, {
+        updateGrupDampingan.mutate({ id: data.id_grup_dampingan || data.id, data: submissionData }, {
             onSuccess: () => {
                 setIsLoading(false);
                 Swal.fire({
@@ -260,6 +256,8 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
             }
         });
     };
+
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center font-['Poppins'] p-4">
