@@ -114,11 +114,11 @@ docker compose exec backend php artisan migrate --force
 
 ---
 
-## C. VPS pakai IP publik (port 80 standar)
+## C. VPS pakai IP publik / domain
 
-Contoh IP: `101.32.253.13` → akses: **http://101.32.253.13** (tanpa `:8080`)
+Contoh IP: `101.32.253.13` → akses sementara: **http://101.32.253.13:8080**
 
-Firewall cloud (Tencent) umumnya hanya buka **22, 80, 443** — tidak perlu buka 8080.
+Firewall cloud (Tencent) tetap cukup buka **22, 80, 443** — port 8080 tidak perlu dibuka publik.
 
 ### Urutan di VPS
 
@@ -138,9 +138,9 @@ sudo ./docker/scripts/vps-first-deploy.sh
 sudo docker compose exec backend php artisan db:seed
 ```
 
-Buka: **http://101.32.253.13**
+Buka sementara: **http://101.32.253.13:8080**
 
-### Sudah deploy pakai port 8080? Pindah ke 80:
+### Kalau mau pindah ke mode port 80 langsung:
 
 ```bash
 git pull
@@ -173,7 +173,7 @@ Urutan saat pakai subdomain/domain:
 7. SSL terminate di nginx host → proxy_pass ke 127.0.0.1:8080
 ```
 
-Domain kamu sudah HTTPS di luar → cukup arahkan ke IP VPS, lalu nginx host yang handle sertifikat ke port `8080`.
+Domain kamu sudah HTTPS di luar → cukup arahkan ke IP VPS, lalu nginx host yang handle sertifikat dan proxy ke `8080`.
 
 ---
 

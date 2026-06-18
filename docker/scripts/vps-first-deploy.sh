@@ -29,7 +29,7 @@ sleep 15
 sudo docker compose ps
 
 IP="$(grep -E '^VPS_PUBLIC_IP=' .env 2>/dev/null | cut -d= -f2 || echo 'IP_VPS')"
-PORT="$(grep -E '^APP_PORT=' .env 2>/dev/null | cut -d= -f2 || echo 80)"
+PORT="$(grep -E '^APP_PORT=' .env 2>/dev/null | cut -d= -f2 || echo 8080)"
 
 echo ""
 echo "Selesai. Langkah berikutnya (sekali saja):"
