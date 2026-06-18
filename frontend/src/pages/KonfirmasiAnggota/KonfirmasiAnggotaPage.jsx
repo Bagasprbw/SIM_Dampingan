@@ -5,13 +5,13 @@ import Swal from 'sweetalert2';
 import { usePengajuanAnggotas } from '../../hooks/queries/usePengajuanAnggotaQuery';
 import { usePengajuanAnggotaMutations } from '../../hooks/mutations/usePengajuanAnggotaMutation';
 import { useGrupDampingans } from '../../hooks/queries/useGrupDampinganQuery';
-import { useCurrentUser } from '../../hooks/useCurrentUser';
+// import { useCurrentUser } from '../../hooks/useCurrentUser';
 
 const KonfirmasiAnggotaPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedGrup, setSelectedGrup] = useState('');
     const [page, setPage] = useState(1);
-    const { user } = useCurrentUser();
+    // const { user } = useCurrentUser();
     const { data: grupsData } = useGrupDampingans();
     const { data: ajuanData, isLoading, isError, refetch } = usePengajuanAnggotas({
         page: page,
