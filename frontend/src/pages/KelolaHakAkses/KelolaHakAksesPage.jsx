@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useRoles, usePermissions, useHakAksesMutations } from '../../hooks/queries/useHakAksesQuery';
-import { savePermissions, getUser } from '../../utils/storage';
+import { savePermissions } from '../../utils/storage';
 import { authRepository } from '../../api/repositories/authRepository';
 
 // ─── Sub-komponen Toggle ─────────────────────────────────────────────────────

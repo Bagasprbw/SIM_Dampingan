@@ -43,9 +43,13 @@ const KelolaAnggotaPage = () => {
     const fasilitatorList = grup?.grup_fasilitators?.map(f => f.fasilitator?.name).join(', ') || '-';
 
     // Hook yang digunakan tergantung role
-    const { data: anggotaData, isLoading, isError, refetch } = isPjGrup 
-        ? usePengajuanAnggotaSaya({ page, search: searchTerm })
-        : useAnggotas({ page, search: searchTerm });
+    const pengajuanRes = usePengajuanAnggotaSaya({ page, search: searchTerm, enabled: isPjGrup });
+    const anggotaRes = useAnggotas({ page, search: searchTerm, enabled: !isPjGrup });
+
+    const anggotaData = isPjGrup ? pengajuanRes.data : anggotaRes.data;
+    const isLoading = isPjGrup ? pengajuanRes.isLoading : anggotaRes.isLoading;
+    const isError = isPjGrup ? pengajuanRes.isError : anggotaRes.isError;
+    const refetch = isPjGrup ? pengajuanRes.refetch : anggotaRes.refetch;
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);

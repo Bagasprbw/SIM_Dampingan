@@ -788,7 +788,7 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                     }));
                 }
                 Swal.fire({ title: 'Terhapus!', icon: 'success', timer: 1000, showConfirmButton: false, customClass: { popup: 'rounded-2xl font-["Poppins"]' }});
-            } catch (error) {
+            } catch {
                 Swal.fire({ title: 'Gagal', text: 'Terjadi kesalahan saat menghapus file', icon: 'error', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' }});
             }
         }
@@ -963,7 +963,7 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
             }
             Swal.fire({ title: 'Tersimpan sebagai Draft', icon: 'info', confirmButtonColor: '#0080C5', timer: 1500, showConfirmButton: false, customClass: { popup: 'rounded-2xl font-["Poppins"]' } })
                 .then(() => navigate('/kelola-kegiatan'));
-        } catch (error) {
+        } catch {
             Swal.fire({ title: 'Gagal!', text: 'Terjadi kesalahan saat menyimpan draft.', icon: 'error', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } });
         } finally {
             setIsLoading(false);
@@ -1006,7 +1006,7 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
 
             Swal.fire({ title: 'Berhasil!', text: 'Laporan kegiatan berhasil disimpan.', icon: 'success', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } })
                 .then(() => navigate('/kelola-kegiatan'));
-        } catch (error) {
+        } catch {
             Swal.fire({ title: 'Gagal!', text: 'Terjadi kesalahan saat menyimpan laporan kegiatan.', icon: 'error', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } });
         } finally {
             setIsLoading(false);

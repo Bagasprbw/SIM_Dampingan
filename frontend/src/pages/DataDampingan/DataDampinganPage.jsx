@@ -54,7 +54,7 @@ const DataDampinganPage = () => {
     };
 
     const [page, setPage] = useState(1);
-    const [sortBy, setSortBy] = useState('grup_name');
+    const [sortBy] = useState('grup_name');
     const [sortDir, setSortDir] = useState('asc');
     const [nameSortDir, setNameSortDir] = useState('asc');
 
@@ -106,9 +106,10 @@ const DataDampinganPage = () => {
     const meta = anggotaData?.meta || {};
 
     const groupedData = useMemo(() => {
+        const list = anggotaData?.data || [];
         const groups = [];
         let currentGrup = null;
-        dataDampingan.forEach((item) => {
+        list.forEach((item) => {
             const grupName = item.grup_dampingan?.name || item.grupDampingan?.name || 'Tanpa Grup';
             if (grupName !== currentGrup) {
                 currentGrup = grupName;
@@ -117,7 +118,7 @@ const DataDampinganPage = () => {
             groups.push({ type: 'row', item });
         });
         return groups;
-    }, [dataDampingan]);
+    }, [anggotaData]);
 
     const handleExport = () => {
         if (dataDampingan.length === 0) return;

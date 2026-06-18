@@ -22,6 +22,29 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip 
 } from 'recharts';
 
+const toWibDate = (dateString) => {
+    if (!dateString) return null;
+    const hasTimezone = /[zZ]|[+-]\d{2}:?\d{2}$/.test(dateString);
+    if (hasTimezone) {
+        return new Date(dateString);
+    }
+    // Backend kirim tanpa timezone (anggap UTC), konversi ke WIB saat format
+    return new Date(dateString.replace(' ', 'T') + 'Z');
+};
+
+const formatRelativeTime = (dateString) => {
+    const date = toWibDate(dateString);
+    if (!date || Number.isNaN(date.getTime())) return '-';
+    const now = Date.now();
+    const diffMinutes = Math.floor((now - date.getTime()) / 60000);
+    if (diffMinutes < 1) return 'baru saja';
+    if (diffMinutes < 60) return `${diffMinutes} m lalu`;
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return `${diffHours} jam lalu`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} hari lalu`;
+};
+
 const DashboardPage = () => {
     const user = getUser();
     const isPjGrup = user?.role === ROLES.PJ_DAMPINGAN;
@@ -43,29 +66,6 @@ const DashboardPage = () => {
     const dashboardFasilitatorData = dashboardFasilitatorRes?.data || {};
     const dashboardAdminData = dashboardAdminRes?.data || {};
     const dashboardPjData = dashboardPjRes?.data || {};
-
-    const toWibDate = (dateString) => {
-        if (!dateString) return null;
-        const hasTimezone = /[zZ]|[+-]\d{2}:?\d{2}$/.test(dateString);
-        if (hasTimezone) {
-            return new Date(dateString);
-        }
-        // Backend kirim tanpa timezone (anggap UTC), konversi ke WIB saat format
-        return new Date(dateString.replace(' ', 'T') + 'Z');
-    };
-
-    const formatRelativeTime = (dateString) => {
-        const date = toWibDate(dateString);
-        if (!date || Number.isNaN(date.getTime())) return '-';
-        const now = Date.now();
-        const diffMinutes = Math.floor((now - date.getTime()) / 60000);
-        if (diffMinutes < 1) return 'baru saja';
-        if (diffMinutes < 60) return `${diffMinutes} m lalu`;
-        const diffHours = Math.floor(diffMinutes / 60);
-        if (diffHours < 24) return `${diffHours} jam lalu`;
-        const diffDays = Math.floor(diffHours / 24);
-        return `${diffDays} hari lalu`;
-    };
 
     const [activeTab, setActiveTab] = useState('Admin Daerah');
 
@@ -106,9 +106,6 @@ const DashboardPage = () => {
         const pendingCount = pengajuan.pending ?? 0;
         const approvedCount = pengajuan.aktif ?? 0;
         const rejectedCount = pengajuan.ditolak ?? 0;
-        const totalKegiatanBulanIni = totals.total_kegiatan_bulan_ini ?? 0;
-        const currentMonthLabel = period.current_month_label || new Date().toLocaleDateString('id-ID', { month: 'long' });
-        const currentYear = period.current_year || new Date().getFullYear();
 
         const getPengajuanStatusInfo = (status) => {
             switch (status) {
@@ -300,10 +297,6 @@ const DashboardPage = () => {
 
         const totalDampingan = totals.total_dampingan_aktif ?? 0;
         const totalGrup = totals.total_grup_dampingan ?? 0;
-        const totalKegiatanBulanIni = totals.total_kegiatan_bulan_ini ?? 0;
-
-        const currentMonthLabel = period.current_month_label || new Date().toLocaleDateString('id-ID', { month: 'long' });
-        const currentYear = period.current_year || new Date().getFullYear();
 
         const colors = ['#2332DB', '#D52BCA', '#10B981', '#F59E0B', '#0EA5E9', '#8B5CF6'];
         const pieData = statistik.map((item, index) => ({
@@ -510,7 +503,6 @@ const DashboardPage = () => {
 
         const totals = dashboardAdminData?.totals || {};
         const statistik = dashboardAdminData?.statistik_dampingan || [];
-        const kegiatanPerBulan = dashboardAdminData?.kegiatan_per_bulan || [];
         const grupDistribusi = dashboardAdminData?.grup_distribusi || [];
         const adminActivities = dashboardAdminData?.log_aktivitas || [];
 
@@ -553,15 +545,12 @@ const DashboardPage = () => {
             }))
             : [];
 
-        const lineData = kegiatanPerBulan.length > 0 ? kegiatanPerBulan : [];
         const groupData = grupDistribusi.length > 0 ? grupDistribusi : [
             { name: 'Pusat', grup: 0 },
             { name: 'Provinsi', grup: 0 },
             { name: 'Kabupaten', grup: 0 },
             { name: 'Kecamatan', grup: 0 },
         ];
-
-        const totalKegiatanBulanIni = totals.total_kegiatan_bulan_ini ?? 0;
 
         return (
             <div className="flex flex-col gap-5 md:gap-8 font-['Poppins']">

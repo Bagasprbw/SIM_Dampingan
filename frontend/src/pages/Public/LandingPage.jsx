@@ -23,15 +23,13 @@ import {
 
 const LandingPage = () => {
     const navigate = useNavigate();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLoggedIn] = useState(() => isAuthenticated());
     const [scrolled, setScrolled] = useState(false);
     
     // Fetch statistics dari API
     const { data: statsData, isLoading: statsLoading } = usePublicStatistics();
 
     useEffect(() => {
-        setIsLoggedIn(isAuthenticated());
-
         const handleScroll = () => {
             if (window.scrollY > 20) {
                 setScrolled(true);

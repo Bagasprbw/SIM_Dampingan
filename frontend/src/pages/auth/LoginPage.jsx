@@ -111,7 +111,7 @@ const LoginPage = () => {
                     }
                 }, 3000);
             }
-        } catch (error) {
+        } catch {
             setModal({ isOpen: true, type: 'error' });
             setTimeout(() => {
                 setModal({ isOpen: false, type: 'error' });
