@@ -1,0 +1,5 @@
+.env
+!.env.vps.example
+backups/
+*.sql
+*.sql.gz

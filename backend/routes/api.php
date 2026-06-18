@@ -34,6 +34,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password/verify', [AuthController::class, 'verifyForgotPassword']);
 Route::get('/anggota-grup/profil/{id}', [ProfilAnggotaController::class, 'show']);
 Route::get('/anggota-grup/profil/{anggotaId}/sertifikat/{idSertifikat}', [SertifikatController::class, 'show']);
+Route::get('/public/sertifikat-template/file', [SertifikatTemplateController::class, 'downloadActive']);
 Route::get('/public/statistics', [PublicStatisticsController::class, 'index']);
 Route::get('/public/peta-sebaran', [PublicPetaSebaranController::class, 'index']);
 
@@ -70,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // ----------- sertifikat template (superadmin only) -----------------
     Route::prefix('sertifikat-template')->group(function () {
         Route::get('/', [SertifikatTemplateController::class, 'show']);
+        Route::get('/fields', [SertifikatTemplateController::class, 'fields']);
 
         Route::post('/', [SertifikatTemplateController::class, 'upload'])
             ->middleware('permission:manage_roles');
