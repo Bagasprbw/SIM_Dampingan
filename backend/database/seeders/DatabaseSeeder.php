@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             WilayahSeeder::class,            // Isi provinsi, kabupaten, kecamatan
             RoleAndPermissionSeeder::class,  // Isi roles & permissions
             MasterSeeder::class,             // Isi bidang, pekerjaan, dll (jika ada)
+            LandingPageSeeder::class,        // Isi landing page default & deskripsi bidang
         ]);
 
         // Ambil role superadmin (skip jika sudah ada — aman dijalankan ulang)

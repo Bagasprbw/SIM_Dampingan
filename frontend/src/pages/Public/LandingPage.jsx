@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { isAuthenticated } from '../../utils/storage';
 import PublicMap from '../../components/common/PublicMap';
 import { usePublicStatistics } from '../../hooks/queries/usePublicQuery';
+import { publicService } from '../../services/publicService';
 import {
     ArrowRight,
     Users,
@@ -26,6 +27,51 @@ const LandingPage = () => {
     const [isLoggedIn] = useState(() => isAuthenticated());
     const [scrolled, setScrolled] = useState(false);
     
+    const [landingData, setLandingData] = useState(null);
+    const [loadingLanding, setLoadingLanding] = useState(true);
+
+    useEffect(() => {
+        const fetchLandingData = async () => {
+            try {
+                const response = await publicService.getLandingPage();
+                if (response.status === 'success') {
+                    setLandingData(response.data);
+                }
+            } catch (err) {
+                console.error("Gagal memuat data landing page", err);
+            } finally {
+                setLoadingLanding(false);
+            }
+        };
+        fetchLandingData();
+    }, []);
+
+    const getBidangIcon = (name) => {
+        const lower = name.toLowerCase();
+        if (lower.includes('tani') || lower.includes('kebun') || lower.includes('sprout')) {
+            return <Sprout size={24} />;
+        }
+        if (lower.includes('nelayan') || lower.includes('laut') || lower.includes('anchor') || lower.includes('pesir')) {
+            return <Anchor size={24} />;
+        }
+        if (lower.includes('difabel') || lower.includes('disabilitas') || lower.includes('akses') || lower.includes('accessibility')) {
+            return <Accessibility size={24} />;
+        }
+        if (lower.includes('pedagang') || lower.includes('pasar') || lower.includes('umkm') || lower.includes('dagang') || lower.includes('wirausaha') || lower.includes('usaha')) {
+            return <Briefcase size={24} />;
+        }
+        return <Users size={24} />;
+    };
+
+    const getBidangColorClass = (name) => {
+        const lower = name.toLowerCase();
+        if (lower.includes('tani')) return { bg: 'bg-emerald-50 text-emerald-600', badge: 'text-emerald-600', border: 'hover:border-emerald-500/40' };
+        if (lower.includes('nelayan')) return { bg: 'bg-sky-50 text-[#0080C5]', badge: 'text-[#0080C5]', border: 'hover:border-[#0080C5]/40' };
+        if (lower.includes('difabel')) return { bg: 'bg-rose-50 text-rose-500', badge: 'text-rose-500', border: 'hover:border-rose-500/40' };
+        if (lower.includes('pedagang') || lower.includes('umkm') || lower.includes('usaha')) return { bg: 'bg-teal-50 text-teal-600', badge: 'text-teal-600', border: 'hover:border-teal-500/40' };
+        return { bg: 'bg-indigo-50 text-indigo-500', badge: 'text-indigo-500', border: 'hover:border-indigo-500/40' };
+    };
+
     // Fetch statistics dari API
     const { data: statsData, isLoading: statsLoading } = usePublicStatistics();
 
@@ -148,12 +194,11 @@ const LandingPage = () => {
                             </div>
                             
                             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[46px] xl:text-[52px] text-slate-900 font-bold leading-tight tracking-tight mb-6">
-                                Sistem Informasi Manajemen <br className="hidden sm:inline"/>
-                                <span className="text-[#0080C5] bg-gradient-to-r from-[#0080C5] to-emerald-600 bg-clip-text text-transparent">Dampingan MPM Muhammadiyah</span>
+                                {landingData?.halaman_utama?.judul_website || 'Sistem Informasi Manajemen Dampingan MPM Muhammadiyah'}
                             </h1>
 
                             <p className="text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed font-normal mb-8 max-w-[620px]">
-                                Selamat datang di Mentora, platform integrasi data dan monitoring kelompok dampingan Majelis Pemberdayaan Masyarakat (MPM) Muhammadiyah. Kami berkomitmen mewujudkan kemandirian mustadh'afin secara terukur, terarah, dan berkelanjutan.
+                                {landingData?.halaman_utama?.deskripsi_website || "Selamat datang di Mentora, platform integrasi data dan monitoring kelompok dampingan Majelis Pemberdayaan Masyarakat (MPM) Muhammadiyah. Kami berkomitmen mewujudkan kemandirian mustadh'afin secara terukur, terarah, dan berkelanjutan."}
                             </p>
 
                             <div className="flex flex-wrap items-center gap-4">
@@ -181,7 +226,7 @@ const LandingPage = () => {
                                 <div className="relative bg-white p-3 rounded-[24px] shadow-2xl border border-slate-100 transform hover:scale-[1.02] transition-transform duration-300">
                                     <div className="rounded-[18px] overflow-hidden aspect-[4/3] bg-slate-100 relative">
                                         <img
-                                            src="/images/mentora-hero.png"
+                                            src={landingData?.halaman_utama?.hero_image_url || "/images/mentora-hero.png"}
                                             alt="Mentora Hero"
                                             className="w-full h-full object-cover"
                                         />
@@ -284,7 +329,7 @@ const LandingPage = () => {
                                 <div className="p-6 bg-gradient-to-br from-emerald-500 to-[#0080C5] text-white rounded-[20px]">
                                     <h3 className="text-xl font-bold tracking-wide mb-4">Filosofi MPM</h3>
                                     <p className="text-sky-50/90 text-sm leading-relaxed mb-6 italic">
-                                        "Mengembangkan cebong yang hanya mampu hidup di dalam kolam kecil menjadi katak yang dapat meloncat ke mana-mana."
+                                        "{landingData?.halaman_utama?.filosofi || "Mengembangkan cebong yang hanya mampu hidup di dalam kolam kecil menjadi katak yang dapat meloncat ke mana-mana."}"
                                     </p>
                                     <p className="text-sky-100 text-xs font-semibold uppercase tracking-wider">
                                         - Mengubah Ketergantungan Menjadi Kemandirian -
@@ -304,12 +349,8 @@ const LandingPage = () => {
                                 Pendampingan yang Komprehensif
                             </h2>
 
-                            <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
-                                **Majelis Pemberdayaan Masyarakat (MPM) Muhammadiyah** adalah salah satu unsur pembantu pimpinan di tingkat Pimpinan Pusat (PP) Muhammadiyah yang berdiri kokoh mengemban amanat khusus untuk pemberdayaan masyarakat.
-                            </p>
-                            
-                            <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8">
-                                Fokus utama kami adalah kelompok *dhu'afa* (lemah) dan *mustadh'afin* (terpinggirkan) secara struktural maupun kultural. Melalui pendekatan ekologi perkembangan manusia, kami berupaya mengentaskan kemiskinan, memajukan kemandirian ekonomi, serta memperluas akses sosial-politik bagi mereka yang membutuhkan.
+                            <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6 whitespace-pre-line">
+                                {landingData?.halaman_utama?.tentang || `Majelis Pemberdayaan Masyarakat (MPM) Muhammadiyah adalah salah satu unsur pembantu pimpinan di tingkat Pimpinan Pusat (PP) Muhammadiyah yang berdiri kokoh mengemban amanat khusus untuk pemberdayaan masyarakat.\n\nFokus utama kami adalah kelompok dhu'afa (lemah) dan mustadh'afin (terpinggirkan) secara struktural maupun kultural. Melalui pendekatan ekologi perkembangan manusia, kami berupaya mengentaskan kemiskinan, memajukan kemandirian ekonomi, serta memperluas akses sosial-politik bagi mereka yang membutuhkan.`}
                             </p>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -352,79 +393,103 @@ const LandingPage = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        
-                        {/* Bidang 1 */}
-                        <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
-                            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                                <Sprout size={24} />
+                        {landingData?.bidangs && landingData.bidangs.filter(b => b.deskripsi && b.deskripsi.trim() !== '').length > 0 ? (
+                            landingData.bidangs
+                                .filter(b => b.deskripsi && b.deskripsi.trim() !== '')
+                                .map((bidang, index) => {
+                                    const colors = getBidangColorClass(bidang.name);
+                                    return (
+                                        <div key={bidang.id_bidang || index} className={`group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 ${colors.border} hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col`}>
+                                            <div className={`w-12 h-12 rounded-xl ${colors.bg} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
+                                                {getBidangIcon(bidang.name)}
+                                            </div>
+                                            <h3 className="text-slate-950 font-bold text-lg mb-2">{bidang.name}</h3>
+                                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                                {bidang.deskripsi}
+                                            </p>
+                                            <span className={`text-[11px] font-semibold ${colors.badge} uppercase tracking-wider`}>Program Pemberdayaan</span>
+                                        </div>
+                                    );
+                                })
+                        ) : landingData?.bidangs ? (
+                            <div className="col-span-full py-8 text-center text-slate-400 text-sm">
+                                Belum ada bidang fokus pemberdayaan yang dipublikasikan.
                             </div>
-                            <h3 className="text-slate-950 font-bold text-lg mb-2">Pertanian & Perkebunan</h3>
-                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
-                                Pengembangan sistem pertanian berkelanjutan, edukasi pupuk organik mandiri, pendampingan pasca-panen, serta pembukaan akses pasar tani.
-                            </p>
-                            <span className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">Kelompok Tani Binaan</span>
-                        </div>
+                        ) : (
+                            <>
+                                {/* Bidang 1 */}
+                                <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
+                                    <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                        <Sprout size={24} />
+                                    </div>
+                                    <h3 className="text-slate-950 font-bold text-lg mb-2">Pertanian & Perkebunan</h3>
+                                    <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                        Pengembangan sistem pertanian berkelanjutan, edukasi pupuk organik mandiri, pendampingan pasca-panen, serta pembukaan akses pasar tani.
+                                    </p>
+                                    <span className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">Kelompok Tani Binaan</span>
+                                </div>
 
-                        {/* Bidang 2 */}
-                        <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
-                            <div className="w-12 h-12 rounded-xl bg-sky-50 text-[#0080C5] flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                                <Anchor size={24} />
-                            </div>
-                            <h3 className="text-slate-950 font-bold text-lg mb-2">Nelayan & Kemaritiman</h3>
-                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
-                                Pemberdayaan nelayan tradisional melalui penyediaan alat tangkap ramah lingkungan, manajemen pemasaran hasil laut, dan penguatan ekonomi keluarga pesisir.
-                            </p>
-                            <span className="text-[11px] font-semibold text-[#0080C5] uppercase tracking-wider">Kelompok Pesisir & Nelayan</span>
-                        </div>
+                                {/* Bidang 2 */}
+                                <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
+                                    <div className="w-12 h-12 rounded-xl bg-sky-50 text-[#0080C5] flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                        <Anchor size={24} />
+                                    </div>
+                                    <h3 className="text-slate-950 font-bold text-lg mb-2">Nelayan & Kemaritiman</h3>
+                                    <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                        Pemberdayaan nelayan tradisional melalui penyediaan alat tangkap ramah lingkungan, manajemen pemasaran hasil laut, dan penguatan ekonomi keluarga pesisir.
+                                    </p>
+                                    <span className="text-[11px] font-semibold text-[#0080C5] uppercase tracking-wider">Kelompok Pesisir & Nelayan</span>
+                                </div>
 
-                        {/* Bidang 3 */}
-                        <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
-                            <div className="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                                <Accessibility size={24} />
-                            </div>
-                            <h3 className="text-slate-950 font-bold text-lg mb-2">Penyandang Disabilitas</h3>
-                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
-                                Penyediaan ruang pelatihan keterampilan inklusif, pendampingan kemandirian wirausaha, serta sosialisasi aksesibilitas fasilitas umum.
-                            </p>
-                            <span className="text-[11px] font-semibold text-rose-500 uppercase tracking-wider">Kelompok Difabel Berdaya</span>
-                        </div>
+                                {/* Bidang 3 */}
+                                <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
+                                    <div className="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                        <Accessibility size={24} />
+                                    </div>
+                                    <h3 className="text-slate-950 font-bold text-lg mb-2">Penyandang Disabilitas</h3>
+                                    <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                        Penyediaan ruang pelatihan keterampilan inklusif, pendampingan kemandirian wirausaha, serta sosialisasi aksesibilitas fasilitas umum.
+                                    </p>
+                                    <span className="text-[11px] font-semibold text-rose-500 uppercase tracking-wider">Kelompok Difabel Berdaya</span>
+                                </div>
 
-                        {/* Bidang 4 */}
-                        <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
-                            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                                <Users size={24} />
-                            </div>
-                            <h3 className="text-slate-950 font-bold text-lg mb-2">Masyarakat Miskin Kota</h3>
-                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
-                                Pembinaan bagi pemulung, pengayuh becak, dan pedagang asongan melalui koperasi simpan pinjam mikro, pendidikan alternatif anak jalanan, dan pelatihan keterampilan praktis.
-                            </p>
-                            <span className="text-[11px] font-semibold text-indigo-500 uppercase tracking-wider">Pemberdayaan Kaum Marjinal</span>
-                        </div>
+                                {/* Bidang 4 */}
+                                <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
+                                    <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                        <Users size={24} />
+                                    </div>
+                                    <h3 className="text-slate-950 font-bold text-lg mb-2">Masyarakat Miskin Kota</h3>
+                                    <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                        Pembinaan bagi pemulung, pengayuh becak, dan pedagang asongan melalui koperasi simpan pinjam mikro, pendidikan alternatif anak jalanan, dan pelatihan keterampilan praktis.
+                                    </p>
+                                    <span className="text-[11px] font-semibold text-indigo-500 uppercase tracking-wider">Pemberdayaan Kaum Marjinal</span>
+                                </div>
 
-                        {/* Bidang 5 */}
-                        <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
-                            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                                <Map size={24} />
-                            </div>
-                            <h3 className="text-slate-950 font-bold text-lg mb-2">Daerah 3T & Pedalaman</h3>
-                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
-                                Pendampingan kelompok masyarakat adat, kawasan tertinggal, terluar, dan terdepan (3T) melalui pemenuhan sanitasi air bersih, elektrifikasi mandiri, dan literasi.
-                            </p>
-                            <span className="text-[11px] font-semibold text-amber-500 uppercase tracking-wider">Aksi Daerah Tertinggal</span>
-                        </div>
+                                {/* Bidang 5 */}
+                                <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
+                                    <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                        <Map size={24} />
+                                    </div>
+                                    <h3 className="text-slate-950 font-bold text-lg mb-2">Daerah 3T & Pedalaman</h3>
+                                    <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                        Pendampingan kelompok masyarakat adat, kawasan tertinggal, terluar, dan terdepan (3T) melalui pemenuhan sanitasi air bersih, elektrifikasi mandiri, dan literasi.
+                                    </p>
+                                    <span className="text-[11px] font-semibold text-amber-500 uppercase tracking-wider">Aksi Daerah Tertinggal</span>
+                                </div>
 
-                        {/* Bidang 6 */}
-                        <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
-                            <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                                <Briefcase size={24} />
-                            </div>
-                            <h3 className="text-slate-950 font-bold text-lg mb-2">Pengembangan UMKM Binaan</h3>
-                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
-                                Fasilitasi sertifikasi halal, standardisasi produk makanan/kerajinan, digitalisasi usaha kecil, serta pendirian unit usaha bersama.
-                            </p>
-                            <span className="text-[11px] font-semibold text-teal-600 uppercase tracking-wider">Penguatan Ekonomi Lokal</span>
-                        </div>
-
+                                {/* Bidang 6 */}
+                                <div className="group p-6 bg-slate-50 rounded-2xl border border-slate-200/70 hover:border-[#0080C5]/40 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col">
+                                    <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                        <Briefcase size={24} />
+                                    </div>
+                                    <h3 className="text-slate-950 font-bold text-lg mb-2">Pengembangan UMKM Binaan</h3>
+                                    <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 flex-grow">
+                                        Fasilitasi sertifikasi halal, standardisasi produk makanan/kerajinan, digitalisasi usaha kecil, serta pendirian unit usaha bersama.
+                                    </p>
+                                    <span className="text-[11px] font-semibold text-teal-600 uppercase tracking-wider">Penguatan Ekonomi Lokal</span>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </section>

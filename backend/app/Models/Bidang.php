@@ -13,6 +13,12 @@ class Bidang extends Model
     protected $keyType = 'string';
     public $timestamps = false;
 
+    // Relasi ke DeskripsiBidang
+    public function deskripsiBidang()
+    {
+        return $this->hasOne(DeskripsiBidang::class, 'id_bidang', 'id_bidang');
+    }
+
     // Relasi ke FasilitatorBidang
     public function fasilitatorBidangs()
     {

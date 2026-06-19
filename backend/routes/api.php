@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\Profil\AnggotaGrupController as ProfilAnggotaContro
 use App\Http\Controllers\Api\Profil\ProfilController;
 use App\Http\Controllers\Api\Public\PublicPetaSebaranController;
 use App\Http\Controllers\Api\Public\PublicStatisticsController;
+use App\Http\Controllers\Api\Public\LandingPageController;
 use App\Http\Controllers\Api\RolePermission\RolePermissionController;
 use App\Http\Controllers\Api\Sertifikat\SertifikatController;
 use App\Http\Controllers\Api\Sertifikat\SertifikatTemplateController;
@@ -37,6 +38,7 @@ Route::get('/anggota-grup/profil/{anggotaId}/sertifikat/{idSertifikat}', [Sertif
 Route::get('/public/sertifikat-template/file', [SertifikatTemplateController::class, 'downloadActive']);
 Route::get('/public/statistics', [PublicStatisticsController::class, 'index']);
 Route::get('/public/peta-sebaran', [PublicPetaSebaranController::class, 'index']);
+Route::get('/public/landing-page', [LandingPageController::class, 'getLandingData']);
 
 // auth
 Route::middleware('auth:sanctum')->group(function () {
@@ -100,6 +102,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Reset Password (Khusus Superadmin, validasi di Controller)
     Route::post('/users/reset-password/{id}', [UserController::class, 'resetPassword']);
+    Route::post('/landing-page', [LandingPageController::class, 'updateLandingData']);
 
     // ----------- permission: kelola_fasilitator -----------------
     Route::prefix('users/fasilitator')->middleware('permission:kelola_fasilitator')->group(function () {

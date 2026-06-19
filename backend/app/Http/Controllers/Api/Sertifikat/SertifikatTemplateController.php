@@ -104,6 +104,15 @@ class SertifikatTemplateController extends Controller
             'updated_at'  => $now,
         ]);
 
+        \App\Services\LogAktivitasService::log(
+            $request,
+            aksi: 'UPLOAD_TEMPLATE_SERTIFIKAT',
+            modul: 'Sertifikat',
+            dataId: $template->id_template,
+            deskripsi: "Superadmin '{$user->name}' mengupload template sertifikat baru.",
+            user: $user
+        );
+
         return response()->json([
             'status'  => 'success',
             'message' => 'Template sertifikat berhasil diupload',
