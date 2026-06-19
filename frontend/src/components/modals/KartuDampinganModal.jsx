@@ -11,7 +11,7 @@ const getImageUrl = (path) => {
 };
 
 /** Format: 33 4521 26 05 25 (12 digit) */
-export const formatNoAnggota = (no) => {
+const formatNoAnggota = (no) => {
     if (!no || no === '-') return no;
     const clean = String(no).replace(/\s/g, '');
     if (clean.length === 12) {

@@ -3,9 +3,11 @@ import { anggotaService } from '../../services/anggotaService';
 import { queryKeys } from '../../constants/queryKeys';
 
 export const useAnggotas = (params) => {
+    const { enabled, ...queryParams } = params || {};
     return useQuery({
-        queryKey: [queryKeys.ANGGOTA, params],
-        queryFn: () => anggotaService.getAll(params),
+        queryKey: [queryKeys.ANGGOTA, queryParams],
+        queryFn: () => anggotaService.getAll(queryParams),
+        enabled: enabled !== undefined ? enabled : true,
     });
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Search, 
@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import PanduanModal from '../../components/modals/PanduanModal';
 import DeletePanduanModal from '../../components/modals/DeletePanduanModal';
-import { getUser } from '../../utils/storage';
 import { ROLES } from '../../constants/roles';
 import { usePanduansKelola, usePanduansView } from '../../hooks/queries/usePanduanQuery';
 import { hasPermission } from '../../utils/permissionUtils';
@@ -31,11 +30,10 @@ const PanduanPenggunaanPage = () => {
     const [viewerUrl, setViewerUrl] = useState('');
     const [viewerTitle, setViewerTitle] = useState('');
 
-    const user = getUser();
     const isReadOnly = !hasPermission('kelola_panduan');
 
     const [searchTerm, setSearchTerm] = useState('');
-    const [page, setPage] = useState(1);
+    const page = 1;
 
     const adminQuery = usePanduansKelola({ search: searchTerm, page, per_page: 10, enabled: !isReadOnly });
     const viewQuery = usePanduansView({ search: searchTerm, page, per_page: 10, enabled: isReadOnly });
@@ -87,7 +85,7 @@ const PanduanPenggunaanPage = () => {
 
         if (url.includes('youtube.com') || url.includes('youtu.be')) {
             let videoId = '';
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
             const match = url.match(regExp);
             if (match && match[2].length === 11) {
                 videoId = match[2];

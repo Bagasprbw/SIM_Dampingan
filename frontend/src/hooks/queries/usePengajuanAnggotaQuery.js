@@ -10,8 +10,10 @@ export const usePengajuanAnggotas = (params) => {
 };
 
 export const usePengajuanAnggotaSaya = (params) => {
+    const { enabled, ...queryParams } = params || {};
     return useQuery({
-        queryKey: [queryKeys.PENGAJUAN_ANGGOTA, 'saya', params],
-        queryFn: () => pengajuanAnggotaService.indexAjukanSaya(params),
+        queryKey: [queryKeys.PENGAJUAN_ANGGOTA, 'saya', queryParams],
+        queryFn: () => pengajuanAnggotaService.indexAjukanSaya(queryParams),
+        enabled: enabled !== undefined ? enabled : true,
     });
 };

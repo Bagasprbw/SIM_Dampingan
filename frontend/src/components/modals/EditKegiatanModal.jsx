@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { X, Calendar, MapPin, Users, FileText, ChevronDown } from 'lucide-react';
 
 const EditKegiatanModal = ({ isOpen, onClose, data }) => {

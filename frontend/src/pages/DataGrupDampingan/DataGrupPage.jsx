@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { 
     Search, 
@@ -35,30 +36,19 @@ const DataGrupPage = () => {
     const { user: currentUser } = useCurrentUser();
     const userRole = typeof currentUser?.role === 'object' ? currentUser?.role?.name : currentUser?.role;
     const isSuper = userRole === 'superadmin';
-    const isAdminProvinsi = userRole === 'admin_provinsi';
     const isAdminKabupaten = userRole === 'admin_kabupaten';
     const isAdminKecamatan = userRole === 'admin_kecamatan';
 
     // Filter State
-    const [provinsiFilter, setProvinsiFilter] = useState(null);
-    const [kabupatenFilter, setKabupatenFilter] = useState(null);
-    const [kecamatanFilter, setKecamatanFilter] = useState(null);
-
-    // Initialize filters based on user role on mount
-    useEffect(() => {
-        if (!isSuper && currentUser) {
-            if (isAdminProvinsi && currentUser.kode_prov) {
-                setProvinsiFilter(currentUser.kode_prov);
-            } else if (isAdminKabupaten && currentUser.kode_kab) {
-                setProvinsiFilter(currentUser.kode_prov);
-                setKabupatenFilter(currentUser.kode_kab);
-            } else if (isAdminKecamatan && currentUser.kode_kec) {
-                setProvinsiFilter(currentUser.kode_prov);
-                setKabupatenFilter(currentUser.kode_kab);
-                setKecamatanFilter(currentUser.kode_kec);
-            }
-        }
-    }, [currentUser, isSuper, isAdminProvinsi, isAdminKabupaten, isAdminKecamatan]);
+    const [provinsiFilter, setProvinsiFilter] = useState(
+        !isSuper && currentUser ? currentUser.kode_prov : null
+    );
+    const [kabupatenFilter, setKabupatenFilter] = useState(
+        !isSuper && currentUser && (isAdminKabupaten || isAdminKecamatan) ? currentUser.kode_kab : null
+    );
+    const [kecamatanFilter, setKecamatanFilter] = useState(
+        !isSuper && currentUser && isAdminKecamatan ? currentUser.kode_kec : null
+    );
 
     // Wilayah Queries
     const { data: provinsiOptions = [], isLoading: loadingProv } = useProvinsi();

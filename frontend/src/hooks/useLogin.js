@@ -40,7 +40,7 @@ export const useLogout = () => {
         try {
             await authRepository.logout();
             navigate('/login');
-        } catch (err) {
+        } catch {
             // Jika API gagal, tetap hapus data lokal dan redirect
             authRepository.clearAuthData();
             navigate('/login');

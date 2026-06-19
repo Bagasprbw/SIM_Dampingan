@@ -15,4 +15,9 @@ export const publicService = {
         const response = await api.get('/public/peta-sebaran');
         return response.data;
     },
+
+    getLandingPage: async () => {
+        const response = await api.get('/public/landing-page');
+        return response.data;
+    },
 };

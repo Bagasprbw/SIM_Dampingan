@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { X, Calendar, MapPin, Users, FileText, Image as ImageIcon, ChevronDown } from 'lucide-react';
 
 const AddKegiatanModal = ({ isOpen, onClose }) => {

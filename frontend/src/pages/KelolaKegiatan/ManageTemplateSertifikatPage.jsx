@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { resolveStorageUrl } from '../../utils/resolveStorageUrl';
-import { SERTIFIKAT_PDF_FIELDS, SERTIFIKAT_PDF_FIELD_ALIASES } from '../../constants/sertifikatFields';
 
 /* ─────────────────────────────────────────────────────────
    Modal Preview PDF
@@ -67,17 +66,11 @@ const ManageTemplateSertifikatPage = () => {
         retry: false,
     });
 
-    const { data: riwayatRes, isLoading: loadingRiwayat } = useQuery({
-        queryKey: ['sertifikat-template-riwayat'],
-        queryFn: sertifikatService.getRiwayatTemplate,
-    });
-
     /* ── Mutations ── */
     const uploadMutation = useMutation({
         mutationFn: sertifikatService.uploadTemplate,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['sertifikat-template'] });
-            queryClient.invalidateQueries({ queryKey: ['sertifikat-template-riwayat'] });
             setSelectedFile(null);
             Swal.fire({
                 title: 'Berhasil!',
@@ -125,7 +118,6 @@ const ManageTemplateSertifikatPage = () => {
     };
 
     const activeTemplate = activeRes?.data;
-    const riwayatList = riwayatRes?.data || [];
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '-';
@@ -275,90 +267,6 @@ const ManageTemplateSertifikatPage = () => {
                             )}
                         </div>
                     </div>
-                </div>
-
-                {/* ── Panduan Field PDF Fillable ── */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-100">
-                        <h3 className="text-sm font-bold text-slate-800">Nama Field di PDF (AcroForm)</h3>
-                        <p className="text-xs text-slate-400 mt-0.5">
-                            Saat membuat template di LibreOffice Writer atau Acrobat, gunakan <strong>Text Field</strong> dengan nama persis seperti di bawah (case-sensitive).
-                        </p>
-                    </div>
-                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {SERTIFIKAT_PDF_FIELDS.map((f) => (
-                            <div key={f.name} className="flex flex-col gap-0.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                <code className="text-xs font-bold text-[#0080C5]">{f.name}</code>
-                                <span className="text-[11px] text-slate-600">{f.label}</span>
-                                <span className="text-[10px] text-slate-400">Sumber: {f.source}</span>
-                            </div>
-                        ))}
-                    </div>
-                    {SERTIFIKAT_PDF_FIELD_ALIASES.length > 0 && (
-                        <div className="px-6 pb-6">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Alias opsional</p>
-                            <div className="flex flex-wrap gap-2">
-                                {SERTIFIKAT_PDF_FIELD_ALIASES.map((a) => (
-                                    <span key={a.name} className="text-[10px] px-2.5 py-1 bg-amber-50 text-amber-700 rounded-lg border border-amber-100 font-mono">
-                                        {a.name}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* ── Riwayat Template ── */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                        <div>
-                            <h3 className="text-sm font-bold text-slate-800">Riwayat Template</h3>
-                            <p className="text-xs text-slate-400 mt-0.5">Semua versi template yang pernah diupload. Template terbaru adalah yang aktif.</p>
-                        </div>
-                        <span className="px-3 py-1 bg-blue-50 text-[#0080C5] rounded-full text-xs font-bold border border-blue-100">
-                            {riwayatList.length} Versi
-                        </span>
-                    </div>
-
-                    {loadingRiwayat ? (
-                        <div className="flex justify-center py-12"><Loader2 className="animate-spin text-[#0080C5]" size={32} /></div>
-                    ) : riwayatList.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-14 text-slate-400">
-                            <FileText size={36} className="mb-3 text-slate-200" />
-                            <p className="text-sm font-medium">Belum ada riwayat template.</p>
-                        </div>
-                    ) : (
-                        <div className="divide-y divide-slate-50">
-                            {riwayatList.map((t, i) => (
-                                <div key={t.id_template} className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/60 transition-colors">
-                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs
-                                        ${i === 0 ? 'bg-[#0080C5] text-white' : 'bg-slate-100 text-slate-400'}`}
-                                    >
-                                        {i === 0 ? <CheckCircle2 size={16} /> : `v${riwayatList.length - i}`}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-xs font-bold text-slate-800 truncate flex items-center gap-2">
-                                            Template #{riwayatList.length - i}
-                                            {i === 0 && (
-                                                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-bold border border-emerald-100">
-                                                    AKTIF
-                                                </span>
-                                            )}
-                                        </p>
-                                        <p className="text-[10px] text-slate-400 mt-0.5">
-                                            {t.uploaded_by} · {formatDate(t.created_at)}
-                                        </p>
-                                    </div>
-                                    <button
-                                        onClick={() => setPreviewUrl(t.template_url)}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-semibold hover:bg-[#0080C5] hover:text-white transition-all"
-                                    >
-                                        <Eye size={12} /> Preview
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
                 </div>
             </div>
 
