@@ -3,15 +3,26 @@ import { userService } from '../services/userService';
 
 export const useUsernameCheck = (username, excludeId = null, enabled = true) => {
     const [status, setStatus] = useState('idle');
+    const [lastChecked, setLastChecked] = useState({ username: '', excludeId: null });
     const timerRef = useRef(null);
 
+    const isTooShort = !enabled || !username || String(username).trim().length < 3;
+
+    if (isTooShort && status !== 'idle') {
+        setStatus('idle');
+    }
+
+    const hasChanged = !isTooShort && (lastChecked.username !== username || lastChecked.excludeId !== excludeId);
+    if (hasChanged && status !== 'checking') {
+        setStatus('checking');
+        setLastChecked({ username, excludeId });
+    }
+
     useEffect(() => {
-        if (!enabled || !username || String(username).trim().length < 3) {
-            setStatus('idle');
+        if (isTooShort) {
             return;
         }
 
-        setStatus('checking');
         clearTimeout(timerRef.current);
         timerRef.current = setTimeout(async () => {
             try {
@@ -23,7 +34,7 @@ export const useUsernameCheck = (username, excludeId = null, enabled = true) => 
         }, 500);
 
         return () => clearTimeout(timerRef.current);
-    }, [username, excludeId, enabled]);
+    }, [username, excludeId, enabled, isTooShort]);
 
     return status;
 };

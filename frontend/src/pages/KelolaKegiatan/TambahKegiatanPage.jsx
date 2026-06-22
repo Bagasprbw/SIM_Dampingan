@@ -440,7 +440,9 @@ const Step2 = ({
 
 // ─── Step 3: Ringkasan (Upload) ───────────────────────────────────────────────
 const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = false, multiple = false, files = [], onChange, existingFiles = [], existingFileUrl, onDeleteExisting, showImagePreview = false, onRemoveFile }) => {
-    const normalizedFiles = Array.isArray(files) ? files : files ? [files] : [];
+    const normalizedFiles = useMemo(() => {
+        return Array.isArray(files) ? files : files ? [files] : [];
+    }, [files]);
     const apiUrl = import.meta.env.VITE_API_URL || '';
     const baseUrl = apiUrl ? apiUrl.replace('/api', '') : '';
     const imagePreviews = useMemo(() => {
@@ -594,13 +596,13 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
     const showDraftButton = !(isEdit && isSuperadmin);
 
     const { data: bidangsData } = useBidangs();
-    const bidangs = bidangsData?.data || [];
+    const bidangs = useMemo(() => bidangsData?.data || [], [bidangsData]);
 
     const { data: levelData } = useLevelKegiatans();
-    const levelOptions = levelData?.data || [];
+    const levelOptions = useMemo(() => levelData?.data || [], [levelData]);
 
     const { data: grupData } = useGrupDampingans({ per_page: 200 });
-    const grupOptions = grupData?.data || [];
+    const grupOptions = useMemo(() => grupData?.data || [], [grupData]);
 
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);

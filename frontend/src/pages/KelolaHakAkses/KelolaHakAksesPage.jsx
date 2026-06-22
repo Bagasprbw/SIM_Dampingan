@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import {
     RotateCcw,
@@ -57,18 +57,18 @@ const KelolaHakAksesPage = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
 
-    const roles = rolesData?.data || [];
-    const permissions = permsData?.data || [];
+    const roles = useMemo(() => rolesData?.data || [], [rolesData]);
+    const permissions = useMemo(() => permsData?.data || [], [permsData]);
 
-    const roleMap = roles.reduce((acc, r) => ({ ...acc, [r.name]: r }), {});
-    const permMap = permissions.reduce((acc, p) => ({ ...acc, [p.code]: p }), {});
+    const roleMap = useMemo(() => roles.reduce((acc, r) => ({ ...acc, [r.name]: r }), {}), [roles]);
+    const permMap = useMemo(() => permissions.reduce((acc, p) => ({ ...acc, [p.code]: p }), {}), [permissions]);
 
     useEffect(() => {
         if (roles.length > 0) {
             setLocalPerms(buildInitialPermsFromDB(roles));
             setHasChanges(false);
         }
-    }, [rolesData]); 
+    }, [roles]); 
 
     const hasPermission = (roleName, permCode) => {
         const roleId = roleMap[roleName]?.id_role;

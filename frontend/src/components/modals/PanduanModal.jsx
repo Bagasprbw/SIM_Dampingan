@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
     X, 
     FilePlus, 
@@ -27,18 +27,27 @@ const PanduanModal = ({ isOpen, onClose, mode = 'add', initialData = null }) => 
         link_video: ''
     });
 
-    useEffect(() => {
-        if (mode === 'edit' && initialData) {
-            setFormData({
-                judul: initialData.judul || '',
-                role_target: initialData.role_target?.id_role || initialData.role_target || '',
-                link_file: initialData.link_file || '',
-                link_video: initialData.link_video || ''
-            });
-        } else {
-            setFormData({ judul: '', role_target: '', link_file: '', link_video: '' });
+    const [prevIsOpen, setPrevIsOpen] = useState(false);
+    const [prevMode, setPrevMode] = useState('add');
+    const [prevInitialData, setPrevInitialData] = useState(null);
+
+    if (isOpen !== prevIsOpen || mode !== prevMode || initialData !== prevInitialData) {
+        setPrevIsOpen(isOpen);
+        setPrevMode(mode);
+        setPrevInitialData(initialData);
+        if (isOpen) {
+            if (mode === 'edit' && initialData) {
+                setFormData({
+                    judul: initialData.judul || '',
+                    role_target: initialData.role_target?.id_role || initialData.role_target || '',
+                    link_file: initialData.link_file || '',
+                    link_video: initialData.link_video || ''
+                });
+            } else {
+                setFormData({ judul: '', role_target: '', link_file: '', link_video: '' });
+            }
         }
-    }, [mode, initialData, isOpen]);
+    }
 
     const handleSave = () => {
         // Validasi

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     ChevronDown, 
@@ -68,11 +68,13 @@ const TambahAnggotaPage = () => {
     });
 
     const [members, setMembers] = useState([createEmptyMember()]);
+    const membersRef = useRef(members);
+    membersRef.current = members;
 
     // Cleanup object URLs to prevent memory leaks
     useEffect(() => {
         return () => {
-            members.forEach(member => {
+            membersRef.current.forEach(member => {
                 if (member.selectedImage) {
                     URL.revokeObjectURL(member.selectedImage);
                 }

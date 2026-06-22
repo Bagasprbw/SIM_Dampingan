@@ -1,0 +1,229 @@
+
+> frontend@0.0.0 lint
+> eslint .
+
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/AddAdminModal.jsx
+  37:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  35 |     useEffect(() => {
+  36 |         if (isOpen) {
+> 37 |             setFormData({
+     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  38 |                 name: '', 
+  39 |                 username: '', 
+  40 |                 password: '',                                                                                                            react-hooks/set-state-in-effect
+  49:8   warning  React Hook useEffect has missing dependencies: 'currentUser?.kode_kab', 'currentUser?.kode_prov', and 'currentUserRoleName'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/exhaustive-deps
+  83:17  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  81 |         if (selectedRoleName === 'admin_provinsi') {
+  82 |             if (formData.kode_kab !== '' || formData.kode_kec !== '') {
+> 83 |                 setFormData(prev => ({
+     |                 ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  84 |                     ...prev,
+  85 |                     kode_kab: '',
+  86 |                     kode_kec: ''  react-hooks/set-state-in-effect
+  97:8   warning  React Hook useEffect has missing dependencies: 'formData.kode_kab' and 'formData.kode_kec'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          react-hooks/exhaustive-deps
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/AddDampinganModal.jsx
+  28:11  warning  The 'grups' logical expression could make the dependencies of useEffect Hook (at line 57) change on every render. To fix this, wrap the initialization of 'grups' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/AddFacilitatorModal.jsx
+  43:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  41 |     useEffect(() => {
+  42 |         if (isOpen) {
+> 43 |             setFormData({
+     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  44 |                 name: '', 
+  45 |                 no_telp: '', 
+  46 |                 bidang_ids: [],   react-hooks/set-state-in-effect
+  57:8   warning  React Hook useEffect has missing dependencies: 'currentUser?.kode_kab', 'currentUser?.kode_kec', 'currentUser?.kode_prov', and 'currentUserRoleName'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks/exhaustive-deps
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/AddGrupModal.jsx
+   18:11  warning  The 'fasilitatorOptions' logical expression could make the dependencies of useMemo Hook (at line 193) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'fasilitatorOptions' in its own useMemo() Hook                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   react-hooks/exhaustive-deps
+   60:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  58 |     useEffect(() => {
+  59 |         if (isOpen) {
+> 60 |             setFormData({
+     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  61 |                 name: '',
+  62 |                 level_dampingan: '',
+  63 |                 bidang_id: '',                                                                                                                                            react-hooks/set-state-in-effect
+   77:8   warning  React Hook useEffect has missing dependencies: 'currentUser?.kode_kab', 'currentUser?.kode_kec', and 'currentUser?.kode_prov'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             react-hooks/exhaustive-deps
+  213:17  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  211 |             const pruned = formData.fasilitator_ids.filter(id => validIds.includes(id));
+  212 |             if (pruned.length !== formData.fasilitator_ids.length) {
+> 213 |                 setFormData(prev => ({ ...prev, fasilitator_ids: pruned }));
+      |                 ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  214 |             }
+  215 |         }
+  216 |     }, [filteredFasilitators]);  react-hooks/set-state-in-effect
+  216:8   warning  React Hook useEffect has a missing dependency: 'formData.fasilitator_ids'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   react-hooks/exhaustive-deps
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/EditAdminModal.jsx
+  62:17  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  60 |         if (selectedRoleName === 'admin_provinsi') {
+  61 |             if (formData.kode_kab !== '' || formData.kode_kec !== '') {
+> 62 |                 setFormData(prev => ({
+     |                 ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  63 |                     ...prev,
+  64 |                     kode_kab: '',
+  65 |                     kode_kec: ''  react-hooks/set-state-in-effect
+  76:8   warning  React Hook useEffect has missing dependencies: 'formData.kode_kab' and 'formData.kode_kec'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          react-hooks/exhaustive-deps
+  80:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  78 |     useEffect(() => {
+  79 |         if (data) {
+> 80 |             setFormData({
+     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  81 |                 name: data.name || '',
+  82 |                 username: data.username || '',
+  83 |                 no_telp: data.no_telp || '',                                                                   react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/EditDampinganModal.jsx
+  48:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  46 |     useEffect(() => {
+  47 |         if (data) {
+> 48 |             setGender(data.jenis_kelamin || 'P');
+     |             ^^^^^^^^^ Avoid calling setState() directly within an effect
+  49 |             setStatus(data.status || 'aktif');
+  50 |             setFormData({
+  51 |                 nama: data.name || '',  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/EditFacilitatorModal.jsx
+  39:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  37 |     useEffect(() => {
+  38 |         if (data && isOpen) {
+> 39 |             setFormData({
+     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  40 |                 nama: data.name || '',
+  41 |                 no_telp: data.no_telp || '',
+  42 |                 username: data.username || '',  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/EditPjModal.jsx
+  17:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  15 |     useEffect(() => {
+  16 |         if (data) {
+> 17 |             setFormData({
+     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  18 |                 name: data.name || '',
+  19 |                 no_telp: data.no_telp || '',
+  20 |                 username: data.username || ''  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/PanduanModal.jsx
+  32:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  30 |     useEffect(() => {
+  31 |         if (mode === 'edit' && initialData) {
+> 32 |             setFormData({
+     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  33 |                 judul: initialData.judul || '',
+  34 |                 role_target: initialData.role_target?.id_role || initialData.role_target || '',
+  35 |                 link_file: initialData.link_file || '',  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/ProfileModal.jsx
+  63:8  warning  React Hook useEffect has missing dependencies: 'user?.foto' and 'user?.no_telp'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/hooks/useUsernameCheck.js
+  10:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   8 |     useEffect(() => {
+   9 |         if (!enabled || !username || String(username).trim().length < 3) {
+> 10 |             setStatus('idle');
+     |             ^^^^^^^^^ Avoid calling setState() directly within an effect
+  11 |             return;
+  12 |         }
+  13 |  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/pages/KelolaAnggota/TambahAnggotaPage.jsx
+  81:8  warning  React Hook useEffect has a missing dependency: 'members'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/pages/KelolaHakAkses/KelolaHakAksesPage.jsx
+  71:8  warning  React Hook useEffect has a missing dependency: 'roles'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/pages/KelolaKegiatan/TambahKegiatanPage.jsx
+  443:11  warning  The 'normalizedFiles' conditional could make the dependencies of useMemo Hook (at line 454) change on every render. To fix this, wrap the initialization of 'normalizedFiles' in its own useMemo() Hook     react-hooks/exhaustive-deps
+  600:11  warning  The 'levelOptions' logical expression could make the dependencies of useMemo Hook (at line 651) change on every render. To fix this, wrap the initialization of 'levelOptions' in its own useMemo() Hook    react-hooks/exhaustive-deps
+  600:11  warning  The 'levelOptions' logical expression could make the dependencies of useEffect Hook (at line 672) change on every render. To fix this, wrap the initialization of 'levelOptions' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+✖ 26 problems (12 errors, 14 warnings)
+

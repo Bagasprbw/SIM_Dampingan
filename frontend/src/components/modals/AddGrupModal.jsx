@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { X, Users, ChevronDown, Plus, Check, User, Upload, Eye, EyeOff, Save, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import Swal from 'sweetalert2';
 import UsernameHint from '../common/UsernameHint';
@@ -15,7 +15,7 @@ const AddGrupModal = ({ isOpen, onClose }) => {
     const bidangs = bidangsData?.data || [];
     
     const { data: fasilitatorData } = useFasilitators();
-    const fasilitatorOptions = fasilitatorData?.data || [];
+    const fasilitatorOptions = useMemo(() => fasilitatorData?.data || [], [fasilitatorData]);
 
     const { createGrupDampingan } = useGrupDampinganMutations();
     const [isLoading, setIsLoading] = useState(false);
@@ -46,16 +46,9 @@ const AddGrupModal = ({ isOpen, onClose }) => {
         pj_foto: null
     });
 
-    const pjUsernameStatus = useUsernameCheck(formData.pj_username, null, isOpen);
-
-    const { data: provinsiList = [] } = useProvinsi();
-    const { data: kabupatenList = [] } = useKabupaten(formData.kode_prov);
-    const { data: kecamatanList = [] } = useKecamatan(formData.kode_kab);
-
-    const [selectedImage, setSelectedImage] = useState(null);
-
-    // Initial state setup when modal opens
-    useEffect(() => {
+    const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+    if (isOpen !== prevIsOpen) {
+        setPrevIsOpen(isOpen);
         if (isOpen) {
             setFormData({
                 name: '',
@@ -74,7 +67,15 @@ const AddGrupModal = ({ isOpen, onClose }) => {
             setCurrentStep(1);
             setSelectedImage(null);
         }
-    }, [isOpen, isProvinsiAdmin, isKabupatenAdmin, isKecamatanAdmin]);
+    }
+
+    const pjUsernameStatus = useUsernameCheck(formData.pj_username, null, isOpen);
+
+    const { data: provinsiList = [] } = useProvinsi();
+    const { data: kabupatenList = [] } = useKabupaten(formData.kode_prov);
+    const { data: kecamatanList = [] } = useKecamatan(formData.kode_kab);
+
+    const [selectedImage, setSelectedImage] = useState(null);
 
     // Handle change for general inputs
     const handleChange = (e) => {
@@ -204,16 +205,12 @@ const AddGrupModal = ({ isOpen, onClose }) => {
         });
     };
 
-    // Auto-prune invalid fasilitators when filter changes
-    useEffect(() => {
-        if (formData.fasilitator_ids.length > 0) {
-            const validIds = filteredFasilitators.map(f => f.id_user);
-            const pruned = formData.fasilitator_ids.filter(id => validIds.includes(id));
-            if (pruned.length !== formData.fasilitator_ids.length) {
-                setFormData(prev => ({ ...prev, fasilitator_ids: pruned }));
-            }
-        }
-    }, [filteredFasilitators]);
+    // Auto-prune invalid fasilitators when filter changes during render
+    const validFasilitatorIds = useMemo(() => filteredFasilitators.map(f => f.id_user), [filteredFasilitators]);
+    const prunedFasilitatorIds = formData.fasilitator_ids.filter(id => validFasilitatorIds.includes(id));
+    if (prunedFasilitatorIds.length !== formData.fasilitator_ids.length) {
+        setFormData(prev => ({ ...prev, fasilitator_ids: prunedFasilitatorIds }));
+    }
 
     const handleImageChange = (e) => {
         if (e.target.files && e.target.files[0]) {

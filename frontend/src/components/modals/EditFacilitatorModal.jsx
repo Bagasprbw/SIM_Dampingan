@@ -34,8 +34,13 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
         kode_kec: ''
     });
 
-    useEffect(() => {
-        if (data && isOpen) {
+    const [prevIsOpen, setPrevIsOpen] = useState(false);
+    const [prevData, setPrevData] = useState(null);
+
+    if (isOpen !== prevIsOpen || data !== prevData) {
+        setPrevIsOpen(isOpen);
+        setPrevData(data);
+        if (isOpen && data) {
             setFormData({
                 nama: data.name || '',
                 no_telp: data.no_telp || '',
@@ -55,7 +60,7 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
             }
             setShowBidangDropdown(false);
         }
-    }, [data, isOpen]);
+    }
 
     // Handle clicking outside the dropdown to close it
     useEffect(() => {

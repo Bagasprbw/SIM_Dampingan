@@ -37,12 +37,13 @@ const ProfileModal = ({ isOpen, onClose, isForced = false }) => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
-    // Force show password fields if isForced is true
-    useEffect(() => {
+    const [prevIsForced, setPrevIsForced] = useState(isForced);
+    if (isForced !== prevIsForced) {
+        setPrevIsForced(isForced);
         if (isForced) {
             setShowPasswordFields(true);
         }
-    }, [isForced]);
+    }
 
     // Fetch profil terbaru dari API setiap kali modal dibuka
     useEffect(() => {
@@ -60,7 +61,7 @@ const ProfileModal = ({ isOpen, onClose, isForced = false }) => {
                 setOriginalNoTelp(user?.no_telp || '');
                 setProfileFoto(user?.foto || null);
             });
-    }, [isOpen]);
+    }, [isOpen, user?.foto, user?.no_telp]);
 
 
     const handleSave = async () => {

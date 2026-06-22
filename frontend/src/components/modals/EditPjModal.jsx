@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Edit3, Save, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { usePjGrupMutations } from '../../hooks/mutations/usePjGrupMutation';
@@ -12,7 +12,9 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
         name: '', no_telp: '', username: ''
     });
 
-    useEffect(() => {
+    const [prevData, setPrevData] = useState(null);
+    if (data !== prevData) {
+        setPrevData(data);
         if (data) {
             setFormData({
                 name: data.name || '',
@@ -20,7 +22,7 @@ const EditPjModal = ({ isOpen, onClose, data }) => {
                 username: data.username || ''
             });
         }
-    }, [data]);
+    }
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
