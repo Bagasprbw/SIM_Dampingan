@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { X, Users, ChevronDown, Plus, Check, User, Upload, Eye, EyeOff, Save, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import Swal from 'sweetalert2';
 import UsernameHint from '../common/UsernameHint';
@@ -46,9 +46,8 @@ const AddGrupModal = ({ isOpen, onClose }) => {
         pj_foto: null
     });
 
-    const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
-    if (isOpen !== prevIsOpen) {
-        setPrevIsOpen(isOpen);
+    // Reset form setiap kali modal dibuka
+    useEffect(() => {
         if (isOpen) {
             setFormData({
                 name: '',
@@ -67,7 +66,8 @@ const AddGrupModal = ({ isOpen, onClose }) => {
             setCurrentStep(1);
             setSelectedImage(null);
         }
-    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     const pjUsernameStatus = useUsernameCheck(formData.pj_username, null, isOpen);
 
@@ -205,12 +205,15 @@ const AddGrupModal = ({ isOpen, onClose }) => {
         });
     };
 
-    // Auto-prune invalid fasilitators when filter changes during render
+    // Auto-prune invalid fasilitators ketika filter berubah — pakai useEffect agar tidak crash
     const validFasilitatorIds = useMemo(() => filteredFasilitators.map(f => f.id_user), [filteredFasilitators]);
-    const prunedFasilitatorIds = formData.fasilitator_ids.filter(id => validFasilitatorIds.includes(id));
-    if (prunedFasilitatorIds.length !== formData.fasilitator_ids.length) {
-        setFormData(prev => ({ ...prev, fasilitator_ids: prunedFasilitatorIds }));
-    }
+    useEffect(() => {
+        setFormData(prev => {
+            const pruned = prev.fasilitator_ids.filter(id => validFasilitatorIds.includes(id));
+            if (pruned.length === prev.fasilitator_ids.length) return prev; // tidak ada perubahan
+            return { ...prev, fasilitator_ids: pruned };
+        });
+    }, [validFasilitatorIds]);
 
     const handleImageChange = (e) => {
         if (e.target.files && e.target.files[0]) {

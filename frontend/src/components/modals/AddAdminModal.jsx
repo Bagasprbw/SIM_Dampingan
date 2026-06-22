@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, UserPlus, Eye, EyeOff, ChevronDown, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useAdminMutations } from '../../hooks/mutations/useAdminMutation';
@@ -32,9 +32,8 @@ const AddAdminModal = ({ isOpen, onClose }) => {
         kode_kec: ''
     });
 
-    const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
-    if (isOpen !== prevIsOpen) {
-        setPrevIsOpen(isOpen);
+    // Reset form setiap kali modal dibuka
+    useEffect(() => {
         if (isOpen) {
             setFormData({
                 name: '', 
@@ -48,7 +47,8 @@ const AddAdminModal = ({ isOpen, onClose }) => {
             });
             setConfirmPassword('');
         }
-    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     const { data: provinsiList = [], isLoading: loadingProv } = useProvinsi();
     const { data: kabupatenList = [], isLoading: loadingKab } = useKabupaten(formData.kode_prov);

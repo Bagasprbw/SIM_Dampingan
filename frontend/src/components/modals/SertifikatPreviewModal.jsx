@@ -5,7 +5,7 @@ import {
     X, Award, FileText, Printer, AlertTriangle,
     Loader2, CheckCircle2, Calendar, MapPin, User
 } from 'lucide-react';
-import { resolveStorageUrl } from '../../utils/resolveStorageUrl';
+import { resolveStorageUrl, normalizeFetchUrl } from '../../utils/resolveStorageUrl';
 import { fillSertifikatPdf, downloadPdfBytes, createPdfBlobUrl } from '../../utils/fillSertifikatPdf';
 
 /**
@@ -28,7 +28,8 @@ const SertifikatPreviewModal = ({ isOpen, onClose, anggotaId, sertifikatId }) =>
 
     const sertifikat = res?.data;
     // Fetch template via API (/api/public/...) — hindari CORS pada /storage
-    const templateFetchUrl = resolveStorageUrl(sertifikat?.template_fetch_url);
+    // normalizeFetchUrl: strip origin jika backend return URL absolut dengan IP internal (APP_URL)
+    const templateFetchUrl = normalizeFetchUrl(sertifikat?.template_fetch_url);
     const hasTemplate = !!templateFetchUrl;
     const fieldValues = sertifikat?.fields ?? null;
 

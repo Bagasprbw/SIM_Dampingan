@@ -38,9 +38,8 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
         kode_kec: currentUserRoleName === 'admin_kecamatan' ? currentUser?.kode_kec || '' : ''
     });
 
-    const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
-    if (isOpen !== prevIsOpen) {
-        setPrevIsOpen(isOpen);
+    // Reset form setiap kali modal dibuka
+    useEffect(() => {
         if (isOpen) {
             setFormData({
                 name: '', 
@@ -56,7 +55,8 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
             setSelectedImage(null);
             setShowBidangDropdown(false);
         }
-    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     // Handle clicking outside the dropdown to close it
     useEffect(() => {

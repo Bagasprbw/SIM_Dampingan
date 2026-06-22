@@ -192,9 +192,28 @@ const DataGrupPage = () => {
                         <button onClick={() => refetch()} className="px-4 py-2 bg-[#0080C5] text-white rounded-lg">Coba Lagi</button>
                     </div>
                 ) : dataGrup.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl">
-                        <p className="text-slate-500">Tidak ada data grup dampingan ditemukan.</p>
-                    </div>
+                    <>
+                        {/* Mobile action buttons juga tampil saat data kosong */}
+                        <div className="lg:hidden flex flex-row justify-end items-center gap-2 w-full mb-3">
+                            <button 
+                                onClick={() => setIsAddModalOpen(true)}
+                                className="h-[34px] px-3 bg-[#0080C5] text-white rounded-[14px] flex items-center justify-center gap-1.5 shadow-sm"
+                            >
+                                <Plus size={14} strokeWidth={3} />
+                                <span className="text-[12px] font-semibold">Tambah</span>
+                            </button>
+                            <button 
+                                onClick={handleExport}
+                                className="h-[34px] px-3 bg-[#22C55E] text-white rounded-[14px] flex items-center justify-center gap-1.5 shadow-sm"
+                            >
+                                <FileText size={14} />
+                                <span className="text-[12px] font-semibold">Cetak Data</span>
+                            </button>
+                        </div>
+                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl">
+                            <p className="text-slate-500">Tidak ada data grup dampingan ditemukan.</p>
+                        </div>
+                    </>
                 ) : (
                     <>
                         {/* MOBILE LIST VIEW */}
