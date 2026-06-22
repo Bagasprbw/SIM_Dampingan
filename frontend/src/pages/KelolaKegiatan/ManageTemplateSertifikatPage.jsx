@@ -4,49 +4,12 @@ import AdminLayout from '../../components/layout/AdminLayout';
 import { sertifikatService } from '../../services/sertifikatService';
 import {
     Upload, Trash2, FileText, Eye, Clock, User,
-    CheckCircle2, AlertTriangle, Loader2, Download, X
+    CheckCircle2, AlertTriangle, Loader2, X
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { resolveStorageUrl } from '../../utils/resolveStorageUrl';
 
-/* ─────────────────────────────────────────────────────────
-   Modal Preview PDF
-───────────────────────────────────────────────────────── */
-const PdfPreviewModal = ({ url, onClose }) => {
-    const resolvedUrl = resolveStorageUrl(url);
-    if (!resolvedUrl) return null;
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
-                    <div className="flex items-center gap-2">
-                        <FileText size={16} className="text-[#0080C5]" />
-                        <span className="text-sm font-bold text-slate-800">Preview Template Sertifikat</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <a
-                            href={resolvedUrl}
-                            download
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-200 transition-all"
-                        >
-                            <Download size={13} /> Download
-                        </a>
-                        <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all">
-                            <X size={18} />
-                        </button>
-                    </div>
-                </div>
-                <div className="flex-1 bg-slate-100">
-                    <iframe
-                        src={resolvedUrl}
-                        className="w-full h-full"
-                        title="Template Sertifikat"
-                    />
-                </div>
-            </div>
-        </div>
-    );
-};
+// Preview is now handled by opening the PDF directly in a new browser tab to bypass iframe CORS/SAMEORIGIN policies.
 
 /* ─────────────────────────────────────────────────────────
    Main Page
@@ -55,7 +18,6 @@ const ManageTemplateSertifikatPage = () => {
     const queryClient = useQueryClient();
     const fileInputRef = useRef(null);
 
-    const [previewUrl, setPreviewUrl] = useState(null);
     const [dragOver, setDragOver] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
 
@@ -237,7 +199,10 @@ const ManageTemplateSertifikatPage = () => {
                                             <span className="text-xs font-medium">Template PDF</span>
                                         </div>
                                         <button
-                                            onClick={() => setPreviewUrl(activeTemplate.template_url)}
+                                            onClick={() => {
+                                                const resolved = resolveStorageUrl(activeTemplate.template_url);
+                                                if (resolved) window.open(resolved, '_blank');
+                                            }}
                                             className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all rounded-xl"
                                         >
                                             <div className="flex items-center gap-2 px-4 py-2 bg-white text-slate-800 rounded-xl text-xs font-bold shadow-lg">
@@ -258,7 +223,10 @@ const ManageTemplateSertifikatPage = () => {
                                     </div>
 
                                     <button
-                                        onClick={() => setPreviewUrl(activeTemplate.template_url)}
+                                        onClick={() => {
+                                            const resolved = resolveStorageUrl(activeTemplate.template_url);
+                                            if (resolved) window.open(resolved, '_blank');
+                                        }}
                                         className="h-10 flex items-center justify-center gap-2 rounded-xl border border-[#0080C5] text-[#0080C5] text-xs font-semibold hover:bg-blue-50 transition-all"
                                     >
                                         <Eye size={14} /> Preview Template
@@ -270,8 +238,7 @@ const ManageTemplateSertifikatPage = () => {
                 </div>
             </div>
 
-            {/* Modal Preview */}
-            {previewUrl && <PdfPreviewModal url={previewUrl} onClose={() => setPreviewUrl(null)} />}
+            {/* Preview opened in tab */}
         </AdminLayout>
     );
 };

@@ -127,9 +127,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             set -e
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd ${{ secrets.DEPLOY_PATH }}
-            export BACKEND_IMAGE=ghcr.io/${{ github.repository }}/backend:latest
-            export NGINX_IMAGE=ghcr.io/${{ github.repository }}/nginx:latest
+            REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+            export BACKEND_IMAGE=ghcr.io/${REPO_LOWER}/backend:latest
+            export NGINX_IMAGE=ghcr.io/${REPO_LOWER}/nginx:latest
             docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build
             docker compose exec -T backend php artisan migrate --force

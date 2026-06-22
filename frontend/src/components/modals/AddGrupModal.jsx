@@ -27,9 +27,9 @@ const AddGrupModal = ({ isOpen, onClose }) => {
         ? currentUser.role.name 
         : currentUser?.role;
 
-    const isProvinsiAdmin = currentUserRoleName?.toString().toLowerCase().includes('provinsi');
-    const isKabupatenAdmin = currentUserRoleName?.toString().toLowerCase().includes('kabupaten');
-    const isKecamatanAdmin = currentUserRoleName?.toString().toLowerCase().includes('kecamatan');
+    const isProvinsiAdmin = currentUserRoleName?.toString()?.toLowerCase()?.includes('provinsi') || false;
+    const isKabupatenAdmin = currentUserRoleName?.toString()?.toLowerCase()?.includes('kabupaten') || false;
+    const isKecamatanAdmin = currentUserRoleName?.toString()?.toLowerCase()?.includes('kecamatan') || false;
 
     const [formData, setFormData] = useState({
         name: '',
