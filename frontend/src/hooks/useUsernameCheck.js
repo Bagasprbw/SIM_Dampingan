@@ -31,7 +31,7 @@ export const useUsernameCheck = (username, excludeId = null, enabled = true) => 
             } catch {
                 setStatus('idle');
             }
-        }, 500);
+        }, 300);
 
         return () => clearTimeout(timerRef.current);
     }, [username, excludeId, enabled, isTooShort]);
