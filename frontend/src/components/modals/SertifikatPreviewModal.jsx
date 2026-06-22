@@ -5,7 +5,7 @@ import {
     X, Award, FileText, Printer, AlertTriangle,
     Loader2, CheckCircle2, Calendar, MapPin, User
 } from 'lucide-react';
-import { resolveStorageUrl, normalizeFetchUrl } from '../../utils/resolveStorageUrl';
+import { normalizeFetchUrl } from '../../utils/resolveStorageUrl';
 import { fillSertifikatPdf, downloadPdfBytes, createPdfBlobUrl } from '../../utils/fillSertifikatPdf';
 
 /**
