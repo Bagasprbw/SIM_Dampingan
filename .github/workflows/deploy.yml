@@ -2,7 +2,7 @@ name: CI/CD Deploy
 
 on:
   push:
-    branches: [main, production]
+    branches: [main]
   workflow_dispatch:
 
 env:
@@ -116,7 +116,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production') && vars.ENABLE_DEPLOY == 'true'
+    if: github.ref == 'refs/heads/main' && vars.ENABLE_DEPLOY == 'true'
     environment: production
     steps:
       - name: Deploy via SSH
