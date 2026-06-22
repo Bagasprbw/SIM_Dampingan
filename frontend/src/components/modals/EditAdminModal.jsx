@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Edit3, ChevronDown, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useAdminMutations } from '../../hooks/mutations/useAdminMutation';
@@ -56,26 +56,9 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
     const isKecDisabled = !formData.kode_kab || selectedRoleName === 'admin_provinsi' || selectedRoleName === 'admin_kabupaten';
     const isKecRequired = selectedRoleName === 'admin_kecamatan';
 
-    useEffect(() => {
-        if (selectedRoleName === 'admin_provinsi') {
-            if (formData.kode_kab !== '' || formData.kode_kec !== '') {
-                setFormData(prev => ({
-                    ...prev,
-                    kode_kab: '',
-                    kode_kec: ''
-                }));
-            }
-        } else if (selectedRoleName === 'admin_kabupaten') {
-            if (formData.kode_kec !== '') {
-                setFormData(prev => ({
-                    ...prev,
-                    kode_kec: ''
-                }));
-            }
-        }
-    }, [formData.role_id, selectedRoleName]);
-
-    useEffect(() => {
+    const [prevData, setPrevData] = useState(null);
+    if (data !== prevData) {
+        setPrevData(data);
         if (data) {
             setFormData({
                 name: data.name || '',
@@ -87,16 +70,29 @@ const EditAdminModal = ({ isOpen, onClose, data }) => {
                 kode_kec: data.kode_kec || ''
             });
         }
-    }, [data]);
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ 
-            ...prev, 
-            [name]: value,
-            ...(name === 'kode_prov' ? { kode_kab: '', kode_kec: '' } : {}),
-            ...(name === 'kode_kab' ? { kode_kec: '' } : {})
-        }));
+        setFormData(prev => {
+            const nextData = { 
+                ...prev, 
+                [name]: value,
+                ...(name === 'kode_prov' ? { kode_kab: '', kode_kec: '' } : {}),
+                ...(name === 'kode_kab' ? { kode_kec: '' } : {})
+            };
+            if (name === 'role_id') {
+                const newSelectedRole = adminRoles.find(r => r.id_role?.toString() === value?.toString());
+                const newSelectedRoleName = newSelectedRole ? newSelectedRole.name : '';
+                if (newSelectedRoleName === 'admin_provinsi') {
+                    nextData.kode_kab = '';
+                    nextData.kode_kec = '';
+                } else if (newSelectedRoleName === 'admin_kabupaten') {
+                    nextData.kode_kec = '';
+                }
+            }
+            return nextData;
+        });
     };
 
     const usernameStatus = useUsernameCheck(formData.username, data?.id_user || data?.id, isOpen);

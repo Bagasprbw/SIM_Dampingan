@@ -38,7 +38,9 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
         kode_kec: currentUserRoleName === 'admin_kecamatan' ? currentUser?.kode_kec || '' : ''
     });
 
-    useEffect(() => {
+    const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+    if (isOpen !== prevIsOpen) {
+        setPrevIsOpen(isOpen);
         if (isOpen) {
             setFormData({
                 name: '', 
@@ -54,7 +56,7 @@ const AddFacilitatorModal = ({ isOpen, onClose }) => {
             setSelectedImage(null);
             setShowBidangDropdown(false);
         }
-    }, [isOpen]);
+    }
 
     // Handle clicking outside the dropdown to close it
     useEffect(() => {

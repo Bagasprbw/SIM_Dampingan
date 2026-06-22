@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
     X, 
     Upload, 
@@ -23,9 +23,9 @@ const AddDampinganModal = ({ isOpen, onClose, isPengajuan = false }) => {
     const { data: pekerjaansData } = usePekerjaans();
     const { data: grupsData } = useGrupDampingans();
 
-    const bidangs = bidangsData?.data || [];
-    const pekerjaans = pekerjaansData?.data || [];
-    const grups = grupsData?.data || [];
+    const bidangs = useMemo(() => bidangsData?.data || [], [bidangsData]);
+    const pekerjaans = useMemo(() => pekerjaansData?.data || [], [pekerjaansData]);
+    const grups = useMemo(() => grupsData?.data || [], [grupsData]);
 
     const [isLoading, setIsLoading] = useState(false);
     const [gender, setGender] = useState('L');

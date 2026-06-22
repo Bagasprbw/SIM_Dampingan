@@ -28,7 +28,6 @@ const LandingPage = () => {
     const [scrolled, setScrolled] = useState(false);
     
     const [landingData, setLandingData] = useState(null);
-    const [loadingLanding, setLoadingLanding] = useState(true);
 
     useEffect(() => {
         const fetchLandingData = async () => {
@@ -39,8 +38,6 @@ const LandingPage = () => {
                 }
             } catch (err) {
                 console.error("Gagal memuat data landing page", err);
-            } finally {
-                setLoadingLanding(false);
             }
         };
         fetchLandingData();

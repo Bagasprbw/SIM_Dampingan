@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
     X, 
     Upload, 
@@ -43,7 +43,9 @@ const EditDampinganModal = ({ isOpen, onClose, data, isPengajuan = false }) => {
     });
     const [selectedImage, setSelectedImage] = useState(null);
 
-    useEffect(() => {
+    const [prevData, setPrevData] = useState(null);
+    if (data !== prevData) {
+        setPrevData(data);
         if (data) {
             setGender(data.jenis_kelamin || 'P');
             setStatus(data.status || 'aktif');
@@ -64,9 +66,11 @@ const EditDampinganModal = ({ isOpen, onClose, data, isPengajuan = false }) => {
                 // Jika data.foto sudah berupa URL lengkap, gunakan langsung
                 const imageUrl = data.foto.startsWith('http') ? data.foto : `${baseUrl}/storage/${data.foto}`;
                 setSelectedImage(imageUrl);
+            } else {
+                setSelectedImage(null);
             }
         }
-    }, [data]);
+    }
 
     const handleChange = (e) => {
         if (e.target.name === 'bidang_id') {

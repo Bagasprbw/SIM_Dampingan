@@ -5,6 +5,20 @@ import {
     CheckCircle2
 } from 'lucide-react';
 
+// Helper untuk baris detail
+const DetailRow = ({ label, value, isLast = false, valueColor = "text-slate-950", isStatus = false }) => (
+    <div className={`flex border-b border-gray-200 last:border-0 h-12 items-stretch ${isLast ? 'border-b-0' : ''}`}>
+        <div className="w-[210px] bg-neutral-50 border-r border-gray-200 px-4 flex items-center shrink-0">
+            <span className="text-gray-700 text-xs font-semibold">{label}</span>
+        </div>
+        <div className="flex-1 px-4 flex items-center overflow-hidden">
+            <span className={`text-xs font-normal truncate ${isStatus ? 'text-green-500 font-semibold' : valueColor}`}>
+                {value || ''}
+            </span>
+        </div>
+    </div>
+);
+
 const DetailDampinganModal = ({ isOpen, onClose, data }) => {
     if (!isOpen) return null;
 
@@ -15,20 +29,6 @@ const DetailDampinganModal = ({ isOpen, onClose, data }) => {
         const baseUrl = apiUrl.replace('/api', '');
         return `${baseUrl}/storage/${path}`;
     };
-
-    // Helper untuk baris detail
-    const DetailRow = ({ label, value, isLast = false, valueColor = "text-slate-950", isStatus = false }) => (
-        <div className={`flex border-b border-gray-200 last:border-0 h-12 items-stretch ${isLast ? 'border-b-0' : ''}`}>
-            <div className="w-[210px] bg-neutral-50 border-r border-gray-200 px-4 flex items-center shrink-0">
-                <span className="text-gray-700 text-xs font-semibold">{label}</span>
-            </div>
-            <div className="flex-1 px-4 flex items-center overflow-hidden">
-                <span className={`text-xs font-normal truncate ${isStatus ? 'text-green-500 font-semibold' : valueColor}`}>
-                    {value || ''}
-                </span>
-            </div>
-        </div>
-    );
 
     return (
         <div className="fixed inset-0 z-[120] flex items-center justify-center font-['Poppins'] p-4">
