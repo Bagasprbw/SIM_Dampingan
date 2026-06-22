@@ -1,0 +1,211 @@
+
+> frontend@0.0.0 lint
+> eslint .
+
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/AddAdminModal.jsx
+  38:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  36 |         if (!isOpen) return;
+  37 |         
+> 38 |         setConfirmPassword('');
+     |         ^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  39 |         // Form reset is handled by conditional rendering and initial state
+  40 |     }, [isOpen]);
+  41 |                                                                                                   react-hooks/set-state-in-effect
+  74:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  72 |         if (selectedRoleName === 'admin_provinsi') {
+  73 |             if (formData.kode_kab !== '' || formData.kode_kec !== '') {
+> 74 |                 setFormData(prev => ({
+     |                 ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  75 |                     ...prev,
+  76 |                     kode_kab: '',
+  77 |                     kode_kec: ''  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/AddDampinganModal.jsx
+  51:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  49 |         if (isPengajuan && grups.length > 0) {
+  50 |             const firstGrup = grups[0];
+> 51 |             setFormData(prev => ({
+     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  52 |                 ...prev,
+  53 |                 grup_dampingan_id: firstGrup.id_grup_dampingan,
+  54 |                 bidang_id: firstGrup.bidang_id  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/AddFacilitatorModal.jsx
+  44:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  42 |         if (!isOpen) return;
+  43 |         
+> 44 |         setSelectedImage(null);
+     |         ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  45 |         setShowBidangDropdown(false);
+  46 |         // Form reset is handled by conditional rendering
+  47 |     }, [isOpen]);  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/AddGrupModal.jsx
+   61:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  59 |         if (!isOpen) return;
+  60 |         
+> 61 |         setCurrentStep(1);
+     |         ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  62 |         setSelectedImage(null);
+  63 |         // Form reset is handled by conditional rendering
+  64 |     }, [isOpen]);                                                                                                                                                              react-hooks/set-state-in-effect
+  200:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  198 |             const pruned = formData.fasilitator_ids.filter(id => validIds.includes(id));
+  199 |             if (pruned.length !== formData.fasilitator_ids.length) {
+> 200 |                 setFormData(prev => ({ ...prev, fasilitator_ids: pruned }));
+      |                 ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  201 |             }
+  202 |         }
+  203 |     }, [filteredFasilitators, formData.fasilitator_ids]);  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/EditAdminModal.jsx
+  62:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  60 |         if (selectedRoleName === 'admin_provinsi') {
+  61 |             if (formData.kode_kab !== '' || formData.kode_kec !== '') {
+> 62 |                 setFormData(prev => ({
+     |                 ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  63 |                     ...prev,
+  64 |                     kode_kab: '',
+  65 |                     kode_kec: ''  react-hooks/set-state-in-effect
+  80:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  78 |     useEffect(() => {
+  79 |         if (data) {
+> 80 |             setFormData({
+     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  81 |                 name: data.name || '',
+  82 |                 username: data.username || '',
+  83 |                 no_telp: data.no_telp || '',                                                                   react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/EditDampinganModal.jsx
+  1:27  error  'useEffect' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/EditFacilitatorModal.jsx
+  61:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  59 |
+  60 |     useEffect(() => {
+> 61 |         setupFormData();
+     |         ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  62 |     }, [setupFormData]);
+  63 |
+  64 |     // Handle clicking outside the dropdown to close it  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/EditPjModal.jsx
+  26:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  24 |
+  25 |     useEffect(() => {
+> 26 |         setupFormData();
+     |         ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  27 |     }, [setupFormData]);
+  28 |
+  29 |     const handleChange = (e) => {  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/components/modals/PanduanModal.jsx
+  44:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  42 |
+  43 |     useEffect(() => {
+> 44 |         setupFormData();
+     |         ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  45 |     }, [setupFormData]);
+  46 |
+  47 |     const handleSave = () => {  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/hooks/useUsernameCheck.js
+  11:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   9 |         if (!enabled || !username || String(username).trim().length < 3) {
+  10 |             if (status !== 'idle') {
+> 11 |                 setStatus('idle');
+     |                 ^^^^^^^^^ Avoid calling setState() directly within an effect
+  12 |             }
+  13 |             return;
+  14 |         }  react-hooks/set-state-in-effect
+
+/home/ronaltama/PROJECT/SIM_Dampingan/frontend/src/pages/KelolaHakAkses/KelolaHakAksesPage.jsx
+  60:11  warning  The 'roles' logical expression could make the dependencies of useEffect Hook (at line 71) change on every render. To fix this, wrap the initialization of 'roles' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+✖ 14 problems (13 errors, 1 warning)
+
