@@ -110,6 +110,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [UserController::class, 'storeFasilitator']);
         Route::get('/{id}', [UserController::class, 'show']);
         Route::put('/{id}', [UserController::class, 'update']);
+        // POST /{id} untuk mendukung method spoofing (_method=PUT) saat upload foto (multipart/form-data)
+        Route::post('/{id}', [UserController::class, 'update']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
         Route::patch('/{id}/toggle-status', [UserController::class, 'toggleStatus']);
     });

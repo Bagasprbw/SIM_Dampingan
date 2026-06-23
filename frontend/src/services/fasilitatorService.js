@@ -17,7 +17,9 @@ export const fasilitatorService = {
     },
 
     update: async (id, data) => {
-        const response = await api.put(`/users/fasilitator/${id}`, data);
+        // Gunakan POST dengan _method=PUT agar Laravel bisa menghandle
+        // multipart/form-data (upload file) pada update request
+        const response = await api.post(`/users/fasilitator/${id}`, data);
         return response.data;
     },
 
