@@ -41,6 +41,8 @@ class LandingPageController extends Controller
                         'deskripsi_website' => $halamanUtama->deskripsi_website,
                         'hero_image' => $halamanUtama->hero_image,
                         'hero_image_url' => $halamanUtama->hero_image ? url(Storage::url($halamanUtama->hero_image)) : null,
+                        'login_image' => $halamanUtama->login_image,
+                        'login_image_url' => $halamanUtama->login_image ? url(Storage::url($halamanUtama->login_image)) : null,
                         'tentang' => $halamanUtama->tentang,
                         'filosofi' => $halamanUtama->filosofi,
                     ] : null,
@@ -77,6 +79,7 @@ class LandingPageController extends Controller
                 'tentang' => 'required|string',
                 'filosofi' => 'required|string',
                 'hero_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+                'login_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
                 'bidang_descriptions' => 'required|array',
             ]);
 
@@ -108,6 +111,22 @@ class LandingPageController extends Controller
                 }
                 
                 $halamanUtama->hero_image = $path;
+            }
+
+            // Handle login_image file upload & replacement
+            if ($request->hasFile('login_image')) {
+                $file = $request->file('login_image');
+                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                
+                // Store in public disk under login_image folder
+                $path = $file->storeAs('login_image', $filename, 'public');
+                
+                // Delete old image if it exists
+                if ($halamanUtama->login_image && Storage::disk('public')->exists($halamanUtama->login_image)) {
+                    Storage::disk('public')->delete($halamanUtama->login_image);
+                }
+                
+                $halamanUtama->login_image = $path;
             }
 
             $halamanUtama->save();
@@ -162,6 +181,8 @@ class LandingPageController extends Controller
                         'deskripsi_website' => $halamanUtama->deskripsi_website,
                         'hero_image' => $halamanUtama->hero_image,
                         'hero_image_url' => $halamanUtama->hero_image ? url(Storage::url($halamanUtama->hero_image)) : null,
+                        'login_image' => $halamanUtama->login_image,
+                        'login_image_url' => $halamanUtama->login_image ? url(Storage::url($halamanUtama->login_image)) : null,
                         'tentang' => $halamanUtama->tentang,
                         'filosofi' => $halamanUtama->filosofi,
                     ]

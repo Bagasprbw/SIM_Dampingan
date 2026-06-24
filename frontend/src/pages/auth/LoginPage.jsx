@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useLogin } from '../../hooks/useLogin';
 import AuthModal from '../../components/modals/AuthModal';
 import { verifyForgotPasswordRequest } from '../../api/endpoints/authEndpoints';
+import { landingPageService } from '../../services/landingPageService';
+import { resolveStorageUrl } from '../../utils/resolveStorageUrl';
 import Swal from 'sweetalert2';
 
 const LoginPage = () => {
@@ -17,6 +19,7 @@ const LoginPage = () => {
     const [verifyUsername, setVerifyUsername] = useState('');
     const [verifyRole, setVerifyRole] = useState('');
     const [isSubmittingForgot, setIsSubmittingForgot] = useState(false);
+    const [loginImageUrl, setLoginImageUrl] = useState(null);
 
     const { login, commitLogin, loading } = useLogin();
     const navigate = useNavigate();
@@ -31,6 +34,18 @@ const LoginPage = () => {
             setPassword(savedPassword);
             setRememberMe(true);
         }
+
+        const fetchLoginImage = async () => {
+            try {
+                const response = await landingPageService.getLandingPageData();
+                if (response.status === 'success' && response.data.halaman_utama?.login_image) {
+                    setLoginImageUrl(resolveStorageUrl(response.data.halaman_utama.login_image));
+                }
+            } catch (err) {
+                console.error("Failed to fetch login image:", err);
+            }
+        };
+        fetchLoginImage();
     }, []);
 
     const resetForgotForm = () => {
@@ -128,7 +143,7 @@ const LoginPage = () => {
             */}
             <div className="relative w-full h-[40vh] min-h-[300px] lg:h-screen lg:w-[450px] xl:w-[665px] lg:order-2 shrink-0 overflow-hidden">
                 <img
-                    src="/images/mentora-hero.png"
+                    src={loginImageUrl || "/images/mentora-hero.png"}
                     alt="Mentora"
                     className="w-full h-full object-cover"
                 />

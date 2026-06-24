@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
 
 const ManageLandingPage = () => {
     const fileInputRef = useRef(null);
+    const loginFileInputRef = useRef(null);
     
     // States
     const [loading, setLoading] = useState(true);
@@ -22,6 +23,8 @@ const ManageLandingPage = () => {
         filosofi: '',
         hero_image: null,
         hero_image_url: null,
+        login_image: null,
+        login_image_url: null,
     });
     
     const [bidangs, setBidangs] = useState([]);
@@ -30,6 +33,10 @@ const ManageLandingPage = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [dragOver, setDragOver] = useState(false);
+
+    const [selectedLoginFile, setSelectedLoginFile] = useState(null);
+    const [loginImagePreview, setLoginImagePreview] = useState(null);
+    const [dragOverLogin, setDragOverLogin] = useState(false);
 
     // Fetch initial data
     useEffect(() => {
@@ -45,6 +52,8 @@ const ManageLandingPage = () => {
                         filosofi: hu.filosofi || '',
                         hero_image: hu.hero_image || null,
                         hero_image_url: hu.hero_image_url || null,
+                        login_image: hu.login_image || null,
+                        login_image_url: hu.login_image_url || null,
                     });
                     
                     const listBidang = response.data.bidangs || [];
@@ -134,6 +143,54 @@ const ManageLandingPage = () => {
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
+    const handleLoginFileSelect = (file) => {
+        if (!file) return;
+        
+        if (!file.type.startsWith('image/')) {
+            Swal.fire({
+                title: 'File Tidak Valid',
+                text: 'Hanya file gambar (JPEG, PNG, JPG, WEBP) yang diizinkan.',
+                icon: 'warning',
+                confirmButtonColor: '#0080C5',
+                customClass: { popup: 'rounded-3xl font-["Poppins"]' },
+            });
+            return;
+        }
+        
+        if (file.size > 2 * 1024 * 1024) {
+            Swal.fire({
+                title: 'File Terlalu Besar',
+                text: 'Ukuran maksimal gambar login adalah 2MB.',
+                icon: 'warning',
+                confirmButtonColor: '#0080C5',
+                customClass: { popup: 'rounded-3xl font-["Poppins"]' },
+            });
+            return;
+        }
+        
+        setSelectedLoginFile(file);
+        
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setLoginImagePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleLoginDrop = (e) => {
+        e.preventDefault();
+        setDragOverLogin(false);
+        const file = e.dataTransfer.files[0];
+        handleLoginFileSelect(file);
+    };
+
+    const handleClearSelectedLoginFile = (e) => {
+        e.stopPropagation();
+        setSelectedLoginFile(null);
+        setLoginImagePreview(null);
+        if (loginFileInputRef.current) loginFileInputRef.current.value = '';
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -167,6 +224,9 @@ const ManageLandingPage = () => {
             if (selectedFile) {
                 formData.append('hero_image', selectedFile);
             }
+            if (selectedLoginFile) {
+                formData.append('login_image', selectedLoginFile);
+            }
             
             // Append bidang descriptions
             Object.keys(bidangDescriptions).forEach(id_bidang => {
@@ -194,7 +254,12 @@ const ManageLandingPage = () => {
                     ...prev,
                     hero_image: updatedHu.hero_image,
                     hero_image_url: updatedHu.hero_image_url,
+                    login_image: updatedHu.login_image,
+                    login_image_url: updatedHu.login_image_url,
                 }));
+                
+                setSelectedLoginFile(null);
+                setLoginImagePreview(null);
             }
         } catch (err) {
             console.error("Gagal menyimpan konfigurasi landing page:", err);
@@ -396,6 +461,75 @@ const ManageLandingPage = () => {
                                         <Info size={14} className="text-amber-500 shrink-0 mt-0.5" />
                                         <p className="text-[9px] text-amber-700 leading-normal">
                                             <strong>Catatan:</strong> Apabila Anda mengunggah gambar hero baru, sistem akan otomatis menghapus gambar lama secara permanen dari penyimpanan server.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Section 4: Login Image Upload */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                            <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
+                                <Image size={16} className="text-[#0080C5]" />
+                                <h3 className="text-sm font-bold text-slate-800">Gambar Halaman Login</h3>
+                            </div>
+                            
+                            <div className="p-6 flex flex-col md:flex-row gap-6 items-center">
+                                {/* Current / Selected Image Preview */}
+                                <div className="w-full md:w-1/2 aspect-[9/16] max-h-[300px] rounded-xl bg-slate-50 border border-slate-200 overflow-hidden relative flex items-center justify-center group shadow-inner">
+                                    {loginImagePreview ? (
+                                        <>
+                                            <img src={loginImagePreview} alt="Pratinjau Login Baru" className="w-full h-full object-cover" />
+                                            <div className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors cursor-pointer" onClick={handleClearSelectedLoginFile}>
+                                                <X size={14} />
+                                            </div>
+                                            <span className="absolute bottom-2 left-2 bg-blue-500/80 text-white text-[9px] font-bold px-2 py-0.5 rounded backdrop-blur-sm">Unggahan Baru (Pratinjau)</span>
+                                        </>
+                                    ) : halamanUtama.login_image ? (
+                                        <>
+                                            <img src={resolveStorageUrl(halamanUtama.login_image)} alt="Login Saat Ini" className="w-full h-full object-cover" />
+                                            <span className="absolute bottom-2 left-2 bg-slate-900/60 text-white text-[9px] font-bold px-2 py-0.5 rounded backdrop-blur-sm">Gambar Aktif di Server</span>
+                                        </>
+                                    ) : (
+                                        <div className="flex flex-col items-center gap-2 text-slate-300">
+                                            <Image size={42} />
+                                            <span className="text-[10px] font-medium text-slate-400">Menggunakan gambar default</span>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {/* Dropzone */}
+                                <div className="w-full md:w-1/2 flex flex-col gap-3">
+                                    <div
+                                        onDrop={handleLoginDrop}
+                                        onDragOver={(e) => { e.preventDefault(); setDragOverLogin(true); }}
+                                        onDragLeave={() => setDragOverLogin(false)}
+                                        onClick={() => loginFileInputRef.current?.click()}
+                                        className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all
+                                            ${dragOverLogin ? 'border-[#0080C5] bg-blue-50' : 'border-slate-200 bg-slate-50 hover:border-[#0080C5] hover:bg-blue-50/20'}`}
+                                    >
+                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${dragOverLogin ? 'bg-[#0080C5] text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                            <Upload size={20} />
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-xs font-semibold text-slate-600">
+                                                {selectedLoginFile ? selectedLoginFile.name : 'Seret & letakkan gambar di sini'}
+                                            </p>
+                                            <p className="text-[10px] text-slate-400 mt-1">Klik untuk memilih file • Maks. 2MB • JPG/PNG/WEBP</p>
+                                        </div>
+                                        <input
+                                            ref={loginFileInputRef}
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => handleLoginFileSelect(e.target.files[0])}
+                                        />
+                                    </div>
+                                    
+                                    <div className="flex items-start gap-1.5 p-3 bg-blue-50 border border-blue-100 rounded-xl">
+                                        <Info size={14} className="text-blue-500 shrink-0 mt-0.5" />
+                                        <p className="text-[10px] text-blue-700 leading-normal">
+                                            <strong>Rekomendasi Ukuran:</strong> Agar gambar pas dan proporsional di halaman Login Desktop, disarankan menggunakan rasio <strong>9:16 (Potrait)</strong> dengan ukuran sekitar <strong>665 x 1080 pixel</strong>.
                                         </p>
                                     </div>
                                 </div>
