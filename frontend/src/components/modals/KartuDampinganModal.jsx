@@ -134,40 +134,40 @@ const KartuDampinganModal = ({ isOpen, onClose, anggota, grup }) => {
                                     <div className="absolute top-4 right-4 z-10 w-6 h-6 bg-white/10 rounded-full flex items-center justify-center">
                                         <Star size={11} className="text-white/60" />
                                     </div>
-                                    <div className="relative z-10 flex h-[calc(100%-50px)] p-4 gap-3">
-                                        <div className="w-[72px] h-[72px] rounded-xl border-2 border-white/20 overflow-hidden bg-white/10 flex-shrink-0">
-                                            {fotoUrl ? (
-                                                <img src={fotoUrl} alt={data.name} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-white/50 text-3xl">👤</div>
-                                            )}
-                                        </div>
-                                        <div className="flex flex-col text-white">
-                                            <span className="text-[8px] font-bold tracking-[2px] uppercase text-white/50 mb-0.5">Kartu Anggota</span>
-                                            <span className="text-[18px] font-black leading-none tracking-tight mb-0.5">MPM</span>
-                                            <span className="text-[7px] font-semibold tracking-[3px] uppercase text-white/60 mb-3">Muhammadiyah</span>
-                                            <span className="text-[8px] font-bold tracking-[2px] text-white/50">NIA</span>
-                                            <span className="text-[15px] font-black tracking-wide leading-tight">{formattedNo}</span>
-                                            <span className="mt-1.5 inline-flex items-center gap-1 bg-white/15 border border-white/20 text-white text-[8px] font-bold px-2 py-0.5 rounded-full w-fit">
-                                                ● {bidangName}
-                                            </span>
+                                    <div className="relative z-10 flex flex-col h-[calc(100%-50px)] p-4 gap-3">
+                                        <div className="flex gap-3">
+                                            <div className="w-[72px] h-[72px] rounded-xl border-2 border-white/20 overflow-hidden bg-white/10 flex-shrink-0">
+                                                {fotoUrl ? (
+                                                    <img src={fotoUrl} alt={data.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-white/50 text-3xl">👤</div>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-col text-white">
+                                                <span className="text-[8px] font-bold tracking-[2px] uppercase text-white/50 mb-0.5">Kartu Anggota</span>
+                                                <span className="text-[18px] font-black leading-none tracking-tight mb-0.5">MPM</span>
+                                                <span className="text-[7px] font-semibold tracking-[3px] uppercase text-white/60 mb-3">Muhammadiyah</span>
+                                                <span className="text-[8px] font-bold tracking-[2px] text-white/50">NIA</span>
+                                                <span className="text-[15px] font-black tracking-wide leading-tight">{formattedNo}</span>
+                                                <span className="mt-1.5 inline-flex items-center gap-1 bg-white/15 border border-white/20 text-white text-[8px] font-bold px-2 py-0.5 rounded-full w-fit">
+                                                    ● {bidangName}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="h-[50px] flex relative z-10">
-                                        <div className="flex-1 bg-[#F97316] flex items-center px-4">
-                                            <span className="text-white text-[13px] font-black tracking-wide">{namaAnggota}</span>
+                                        <div className="flex-1 bg-[#F97316] flex flex-col justify-center items-start px-4">
+                                            <span className="text-white text-[13px] font-black tracking-wide leading-tight">{namaAnggota}</span>
+                                            <div className="flex items-center gap-1.5 opacity-80 mt-0.5">
+                                                <span className="text-[9px] font-bold text-white">🇮🇩</span>
+                                                <span className="text-[7.5px] text-white font-semibold">Kartu Dampingan</span>
+                                            </div>
                                         </div>
-                                        <div className="bg-white/10 flex items-center px-3">
-                                            <span className="text-white text-[10px] font-bold whitespace-nowrap">Anggota</span>
-                                        </div>
-                                    </div>
-                                    <div className="absolute bottom-0 left-0 right-0 h-[50px] flex items-end pb-1.5 px-4 z-20 pointer-events-none">
-                                        <div className="flex items-center gap-1.5 opacity-60">
-                                            <span className="text-[9px] font-bold text-white">🇮🇩</span>
-                                            <span className="text-[8px] text-white font-semibold">Kartu Dampingan</span>
-                                        </div>
-                                        <div className="ml-auto">
-                                            <span className="text-[8px] text-white/50 italic">Bersama Kita Maju</span>
+                                        <div className="w-[120px] bg-white/10 flex flex-col justify-center items-end px-3">
+                                            <span className="text-white text-[10px] font-bold whitespace-nowrap leading-tight">Anggota</span>
+                                            <span className="text-white/50 text-[8px] italic leading-tight truncate max-w-[104px] mt-0.5" title={grupData?.name || '-'}>
+                                                {grupData?.name || '-'}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -219,7 +219,7 @@ const KartuDampinganModal = ({ isOpen, onClose, anggota, grup }) => {
                                             </div>
                                             <span className="text-[8px] font-bold text-white/50">MPM Muhammadiyah</span>
                                         </div>
-                                        <span className="text-[7px] text-white/30 italic">Bersama Kita Maju</span>
+                                        <span className="text-[7px] text-white/30 italic max-w-[140px] truncate text-right" title={grupData?.name || '-'}>{grupData?.name || '-'}</span>
                                     </div>
                                 </div>
                             </div>
