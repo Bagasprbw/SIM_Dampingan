@@ -186,7 +186,7 @@ const PetaSebaranPage = () => {
                 <div className="bg-white rounded-[24px] p-4 lg:p-6 border-[0.8px] border-[#F0F2F8] shadow-sm flex flex-col flex-1 min-h-[400px] lg:min-h-[480px]">
                     <div className="mb-4">
                         <h2 className="text-[16px] lg:text-base font-bold text-[#0A0F1E] tracking-tight">Peta Sebaran Anggota</h2>
-                        <p className="text-[12px] font-medium text-[#0080C5] mt-1">Distribusi anggota dan grup dampingan per provinsi di Indonesia</p>
+                        <p className="text-[12px] font-medium text-[#0080C5] mt-1">Distribusi anggota dan grup dampingan per Kota di Indonesia</p>
                     </div>
 
                     <div className="relative overflow-hidden bg-sky-50/30 flex-1 z-0 rounded-[16px] border border-gray-100">
