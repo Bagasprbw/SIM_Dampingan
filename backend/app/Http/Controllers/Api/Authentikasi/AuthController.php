@@ -103,7 +103,7 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('username', $request->verify_username)
-            ->where('name', $request->verify_name)
+            ->whereRaw('LOWER(name) = ?', [strtolower($request->verify_name)])
             ->where('status', 'active')
             ->whereHas('role', fn ($q) => $q->where('name', $request->verify_role))
             ->first();

@@ -8,6 +8,15 @@ import { landingPageService } from '../../services/landingPageService';
 import { resolveStorageUrl } from '../../utils/resolveStorageUrl';
 import Swal from 'sweetalert2';
 
+const ROLE_LABELS = {
+    'superadmin': 'Super Admin',
+    'admin_provinsi': 'Admin Provinsi',
+    'admin_kabupaten': 'Admin Kabupaten',
+    'admin_kecamatan': 'Admin Kecamatan',
+    'fasilitator': 'Fasilitator',
+    'pj_grup': 'PJ Grup'
+};
+
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -82,7 +91,8 @@ const LoginPage = () => {
                 formattedWa = '62' + formattedWa.substring(1);
             }
 
-            const message = `Halo SuperAdmin, saya meminta bantuan reset password akun saya.\n\nNama: ${verifyName}\nUsername: ${verifyUsername}\nRole: ${verifyRole}\n\nMohon bantu reset password akun saya. Terima kasih.`;
+            const displayRole = ROLE_LABELS[verifyRole] || verifyRole;
+            const message = `Halo SuperAdmin, saya meminta bantuan reset password akun saya.\n\nNama: ${verifyName}\nUsername: ${verifyUsername}\nRole: ${displayRole}\n\nMohon bantu reset password akun saya. Terima kasih.`;
             const waUrl = `https://wa.me/${formattedWa}?text=${encodeURIComponent(message)}`;
 
             setShowForgotModal(false);
@@ -317,13 +327,13 @@ const LoginPage = () => {
                                 <div>
                                     <label className="text-xs font-medium text-gray-700 block mb-1">Nama Lengkap</label>
                                     <div className="relative">
-                                        <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0080C5]" />
+                                        <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0080C5]" />
                                         <input
                                             type="text"
                                             value={verifyName}
                                             onChange={(e) => setVerifyName(e.target.value)}
                                             placeholder="Ketik nama Anda sesuai akun"
-                                            className="w-full h-10 border border-gray-300 rounded-lg pl-9 pr-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                                            className="w-full h-10 border border-gray-300 rounded-lg pl-10 pr-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                                             required
                                         />
                                     </div>
@@ -331,13 +341,13 @@ const LoginPage = () => {
                                 <div>
                                     <label className="text-xs font-medium text-gray-700 block mb-1">Username</label>
                                     <div className="relative">
-                                        <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0080C5]" />
+                                        <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0080C5]" />
                                         <input
                                             type="text"
                                             value={verifyUsername}
                                             onChange={(e) => setVerifyUsername(e.target.value)}
                                             placeholder="Ketik username Anda"
-                                            className="w-full h-10 border border-gray-300 rounded-lg pl-9 pr-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                                            className="w-full h-10 border border-gray-300 rounded-lg pl-10 pr-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                                             required
                                         />
                                     </div>
@@ -345,17 +355,22 @@ const LoginPage = () => {
                                 <div>
                                     <label className="text-xs font-medium text-gray-700 block mb-1">Role</label>
                                     <div className="relative">
-                                        <Shield size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0080C5]" />
-                                        <input
-                                            type="text"
+                                        <Shield size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0080C5]" />
+                                        <select
                                             value={verifyRole}
                                             onChange={(e) => setVerifyRole(e.target.value)}
-                                            placeholder="Contoh: fasilitator"
-                                            className="w-full h-10 border border-gray-300 rounded-lg pl-9 pr-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                                            className="w-full h-10 border border-gray-300 rounded-lg pl-10 pr-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all bg-white"
                                             required
-                                        />
+                                        >
+                                            <option value="">-- Pilih Role --</option>
+                                            <option value="superadmin">Super Admin</option>
+                                            <option value="admin_provinsi">Admin Provinsi</option>
+                                            <option value="admin_kabupaten">Admin Kabupaten</option>
+                                            <option value="admin_kecamatan">Admin Kecamatan</option>
+                                            <option value="fasilitator">Fasilitator</option>
+                                            <option value="pj_grup">PJ Grup</option>
+                                        </select>
                                     </div>
-                                    <p className="text-[10px] text-slate-400 mt-1">Ketik role persis seperti di sistem, contoh: fasilitator</p>
                                 </div>
                             </div>
                             <div className="flex gap-3 justify-end mt-2">

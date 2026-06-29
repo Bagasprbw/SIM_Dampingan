@@ -15,7 +15,9 @@ return new class extends Migration
         // Clean up temporary file paths yang tersimpan di database
         // Jika foto field berisi path dengan 'Temp' atau 'tmp', set menjadi NULL
         DB::table('users')
-            ->whereRaw("LOCATE('Temp', foto) > 0 OR LOCATE('tmp', foto) > 0 OR LOCATE('AppData', foto) > 0")
+            ->where('foto', 'like', '%Temp%')
+            ->orWhere('foto', 'like', '%tmp%')
+            ->orWhere('foto', 'like', '%AppData%')
             ->update(['foto' => null]);
     }
 

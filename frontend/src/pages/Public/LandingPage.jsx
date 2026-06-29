@@ -185,10 +185,6 @@ const LandingPage = () => {
                         
                         {/* Hero Text */}
                         <div className="lg:col-span-7 flex flex-col items-start text-left">
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100/80 border border-emerald-200/50 text-emerald-800 text-xs font-semibold mb-6">
-                                <Shield size={14} className="text-emerald-600" />
-                                <span>Pemberdayaan Berbasis Teologi Al-Ma'un</span>
-                            </div>
                             
                             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[46px] xl:text-[52px] text-slate-900 font-bold leading-tight tracking-tight mb-6">
                                 {landingData?.halaman_utama?.judul_website || 'Sistem Informasi Manajemen Dampingan MPM Muhammadiyah'}
