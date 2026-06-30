@@ -72,7 +72,7 @@ const ProfilAnggotaPublicPage = () => {
 
     return (
         <>
-            <div className="min-h-screen bg-[#0F172A] lg:bg-[#F3F6FB] py-8 px-4 sm:px-6 lg:px-10 font-['Poppins']">
+            <div className="min-h-screen bg-[#F3F6FB] py-8 px-4 sm:px-6 lg:px-10 font-['Poppins']">
                 <div className="max-w-6xl lg:max-w-[1200px] mx-auto flex flex-col lg:flex-row gap-6">
                     
                     {/* SIDEBAR LEFT */}
@@ -303,11 +303,11 @@ const ProfilAnggotaPublicPage = () => {
 
                 {/* Footer / Copyright */}
                 <div className="max-w-6xl lg:max-w-[1200px] mx-auto mt-12 text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 lg:bg-white rounded-full backdrop-blur-sm border border-white/10 lg:border-slate-200">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-slate-200">
                         <div className="w-6 h-6 bg-[#0080C5] rounded-full flex items-center justify-center p-1">
                             <BookOpen size={12} className="text-white" />
                         </div>
-                        <p className="text-white/40 lg:text-slate-400 text-[10px] font-medium tracking-wide">
+                        <p className="text-slate-400 text-[10px] font-medium tracking-wide">
                             &copy; 2026 MPM Muhammadiyah. Sistem Informasi Manajemen Dampingan.
                         </p>
                     </div>

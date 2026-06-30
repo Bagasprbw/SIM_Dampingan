@@ -41,6 +41,14 @@ class KegiatanController extends Controller
             $query->where('bidang_id', $request->bidang_id);
         }
 
+        if ($request->filled('dari_tanggal')) {
+            $query->whereDate('tanggal', '>=', $request->dari_tanggal);
+        }
+
+        if ($request->filled('sampai_tanggal')) {
+            $query->whereDate('tanggal', '<=', $request->sampai_tanggal);
+        }
+
         return $query;
     }
 
@@ -54,7 +62,8 @@ class KegiatanController extends Controller
         // Apply request filters
         $query = $this->applyRequestFilters($query, $request);
 
-        $kegiatans = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 10));
+        $sortDir = $request->get('sort', 'desc') === 'asc' ? 'asc' : 'desc';
+        $kegiatans = $query->orderBy('created_at', $sortDir)->paginate($request->get('per_page', 10));
 
         return response()->json([
             'message' => 'Semua data kegiatan (termasuk draft) berhasil diambil untuk kelola',
@@ -100,7 +109,8 @@ class KegiatanController extends Controller
         // Apply request filters
         $query = $this->applyRequestFilters($query, $request);
 
-        $kegiatans = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 10));
+        $sortDir = $request->get('sort', 'desc') === 'asc' ? 'asc' : 'desc';
+        $kegiatans = $query->orderBy('created_at', $sortDir)->paginate($request->get('per_page', 10));
 
         return response()->json([
             'message' => 'Data kegiatan berhasil diambil',

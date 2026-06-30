@@ -21,6 +21,9 @@ const KegiatanDampinganPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
+    const [dariTanggal, setDariTanggal] = useState('');
+    const [sampaiTanggal, setSampaiTanggal] = useState('');
+    const [sortOrder, setSortOrder] = useState('desc');
 
     const handleDetail = (item) => {
         setSelectedActivity(item);
@@ -36,7 +39,10 @@ const KegiatanDampinganPage = () => {
     const { data: kegiatanData, isLoading, isError, refetch } = useKegiatansAdmin({
         page: page,
         search: searchTerm,
-        bidang_id: bidangFilter
+        bidang_id: bidangFilter,
+        dari_tanggal: dariTanggal || undefined,
+        sampai_tanggal: sampaiTanggal || undefined,
+        sort: sortOrder,
     });
 
     const handleSearch = (e) => {
@@ -74,10 +80,11 @@ const KegiatanDampinganPage = () => {
                         <div className="flex flex-col gap-1 lg:gap-1.5 w-full lg:flex-1 lg:min-w-[200px]">
                             <label className="text-[#9298B0] text-[10px] lg:text-[11px] font-semibold ml-1">Dari tanggal :</label>
                             <div className="relative">
-                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9298B0]" size={14} />
+                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9298B0] pointer-events-none" size={14} />
                                 <input 
-                                    type="text" 
-                                    placeholder="dd/mm/yy"
+                                    type="date" 
+                                    value={dariTanggal}
+                                    onChange={(e) => { setDariTanggal(e.target.value); setPage(1); }}
                                     className="w-full h-10 lg:h-10 pl-9 pr-3 bg-white rounded-xl lg:rounded-[10px] border border-slate-200 lg:border-gray-200 text-[11px] font-semibold text-slate-700 focus:outline-none focus:border-[#0080C5] shadow-sm lg:shadow-none"
                                 />
                             </div>
@@ -87,10 +94,11 @@ const KegiatanDampinganPage = () => {
                         <div className="flex flex-col gap-1 lg:gap-1.5 w-full lg:flex-1 lg:min-w-[200px]">
                             <label className="text-[#9298B0] text-[10px] lg:text-[11px] font-semibold ml-1">Sampai tanggal :</label>
                             <div className="relative">
-                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9298B0]" size={14} />
+                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9298B0] pointer-events-none" size={14} />
                                 <input 
-                                    type="text" 
-                                    placeholder="dd/mm/yy"
+                                    type="date" 
+                                    value={sampaiTanggal}
+                                    onChange={(e) => { setSampaiTanggal(e.target.value); setPage(1); }}
                                     className="w-full h-10 lg:h-10 pl-9 pr-3 bg-white rounded-xl lg:rounded-[10px] border border-slate-200 lg:border-gray-200 text-[11px] font-semibold text-slate-700 focus:outline-none focus:border-[#0080C5] shadow-sm lg:shadow-none"
                                 />
                             </div>
@@ -113,9 +121,13 @@ const KegiatanDampinganPage = () => {
                         <div className="flex flex-col gap-1 lg:gap-1.5 w-full lg:flex-1 lg:min-w-[200px]">
                             <label className="text-[#9298B0] text-[10px] lg:text-[11px] font-semibold ml-1 hidden lg:block">Urutan :</label>
                             <div className="relative">
-                                <select className="w-full h-10 lg:h-10 pl-4 pr-10 bg-white rounded-xl lg:rounded-[10px] border border-slate-200 lg:border-gray-200 text-[11px] font-semibold text-[#9298B0] appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer shadow-sm lg:shadow-none">
-                                    <option>Terbaru</option>
-                                    <option>Terlama</option>
+                                <select 
+                                    value={sortOrder}
+                                    onChange={(e) => { setSortOrder(e.target.value); setPage(1); }}
+                                    className="w-full h-10 lg:h-10 pl-4 pr-10 bg-white rounded-xl lg:rounded-[10px] border border-slate-200 lg:border-gray-200 text-[11px] font-semibold text-[#9298B0] appearance-none focus:outline-none focus:border-[#0080C5] cursor-pointer shadow-sm lg:shadow-none"
+                                >
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9298B0] pointer-events-none" size={16} />
                             </div>
