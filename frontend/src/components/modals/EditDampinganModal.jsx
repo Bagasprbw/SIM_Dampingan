@@ -344,27 +344,29 @@ const EditDampinganModal = ({ isOpen, onClose, data, isPengajuan = false }) => {
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                             </div>
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-slate-950 text-xs font-semibold leading-5">Status</label>
-                            <div className="flex gap-3">
-                                <button 
-                                    onClick={() => setStatus('aktif')}
-                                    className={`flex-1 h-11 px-3.5 rounded-[10px] border flex items-center gap-2 transition-all ${status === 'aktif' ? 'bg-[#0080C5]/5 border-[#0080C5] text-[#0080C5]' : 'bg-white border-gray-200 text-slate-400'}`}
-                                >
-                                    <div className={`w-4 h-4 rounded-full border-[5px] flex items-center justify-center ${status === 'aktif' ? 'border-[#0080C5]' : 'border-gray-200'}`}>
-                                    </div>
-                                    <span className="text-xs font-semibold">Aktif</span>
-                                </button>
-                                <button 
-                                    onClick={() => setStatus('non-aktif')}
-                                    className={`flex-1 h-11 px-3.5 rounded-[10px] border flex items-center gap-2 transition-all ${status === 'non-aktif' ? 'bg-[#0080C5]/5 border-[#0080C5] text-[#0080C5]' : 'bg-white border-gray-200 text-slate-400'}`}
-                                >
-                                    <div className={`w-4 h-4 rounded-full border-[5px] flex items-center justify-center ${status === 'non-aktif' ? 'border-gray-200' : 'border-gray-200'}`}>
-                                    </div>
-                                    <span className="text-xs font-semibold">Non-Aktif</span>
-                                </button>
+                        {!isPengajuan && (
+                            <div className="space-y-1.5">
+                                <label className="text-slate-950 text-xs font-semibold leading-5">Status</label>
+                                <div className="flex gap-3">
+                                    <button 
+                                        onClick={() => setStatus('aktif')}
+                                        className={`flex-1 h-11 px-3.5 rounded-[10px] border flex items-center gap-2 transition-all ${status === 'aktif' ? 'bg-[#0080C5]/5 border-[#0080C5] text-[#0080C5]' : 'bg-white border-gray-200 text-slate-400'}`}
+                                    >
+                                        <div className={`w-4 h-4 rounded-full border-[5px] flex items-center justify-center ${status === 'aktif' ? 'border-[#0080C5]' : 'border-gray-200'}`}>
+                                        </div>
+                                        <span className="text-xs font-semibold">Aktif</span>
+                                    </button>
+                                    <button 
+                                        onClick={() => setStatus('non-aktif')}
+                                        className={`flex-1 h-11 px-3.5 rounded-[10px] border flex items-center gap-2 transition-all ${status === 'non-aktif' ? 'bg-red-50 border-red-400 text-red-500' : 'bg-white border-gray-200 text-slate-400'}`}
+                                    >
+                                        <div className={`w-4 h-4 rounded-full border-[5px] flex items-center justify-center ${status === 'non-aktif' ? 'border-red-400' : 'border-gray-200'}`}>
+                                        </div>
+                                        <span className="text-xs font-semibold">Non-Aktif</span>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
 
                     {/* Alamat Full Width */}

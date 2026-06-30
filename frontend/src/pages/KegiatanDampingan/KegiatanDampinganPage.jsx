@@ -154,7 +154,7 @@ const KegiatanDampinganPage = () => {
                                 <div 
                                     key={item.id || index} 
                                     onClick={() => handleDetail(item)}
-                                    className="flex flex-col bg-white rounded-2xl border border-slate-200 lg:border-[#E5E7EB] overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer group shadow-sm max-w-[360px]"
+                                    className="flex flex-col bg-white rounded-2xl border border-slate-200 lg:border-[#E5E7EB] overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer group shadow-sm w-full"
                                 >
                                     {/* Image Placeholder */}
                                     <div className="h-44 lg:h-48 w-full bg-slate-100 overflow-hidden relative shrink-0">
