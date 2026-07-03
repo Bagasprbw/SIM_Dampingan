@@ -32,11 +32,10 @@ const PanduanPenggunaanPage = () => {
 
     const isReadOnly = !hasPermission('kelola_panduan');
 
-    const [searchTerm, setSearchTerm] = useState('');
     const page = 1;
 
-    const adminQuery = usePanduansKelola({ search: searchTerm, page, per_page: 10, enabled: !isReadOnly });
-    const viewQuery = usePanduansView({ search: searchTerm, page, per_page: 10, enabled: isReadOnly });
+    const adminQuery = usePanduansKelola({ page, per_page: 50, enabled: !isReadOnly });
+    const viewQuery = usePanduansView({ page, per_page: 50, enabled: isReadOnly });
 
     const activeQuery = isReadOnly ? viewQuery : adminQuery;
     const { data: panduanData, isLoading, isError, refetch } = activeQuery;
@@ -207,24 +206,7 @@ const PanduanPenggunaanPage = () => {
                 {!isReadOnly && (
                     <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-200">
                         {/* Toolbar Area */}
-                        <div className="flex flex-row justify-between items-center mb-6">
-                            <div className="flex flex-row gap-4">
-                                <div className="relative">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                                    <input 
-                                        type="text" 
-                                        placeholder="Cari Panduan....." 
-                                        className="w-64 pl-11 pr-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-xs font-medium focus:outline-none focus:border-[#0080C5] transition-all"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                                <div className="px-4 py-2.5 border border-slate-200 rounded-xl flex items-center justify-between gap-10 cursor-pointer hover:bg-slate-50 transition-all group">
-                                    <span className="text-[11px] font-semibold text-slate-400 group-hover:text-slate-600 transition-colors">Semua Role</span>
-                                    <ChevronDown size={18} className="text-slate-400" />
-                                </div>
-                            </div>
-
+                        <div className="flex flex-row justify-end items-center mb-6">
                             <button 
                                 onClick={handleAdd}
                                 className="h-9 px-4 bg-[#0080C5] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-[13px] font-semibold"
@@ -391,23 +373,6 @@ const PanduanPenggunaanPage = () => {
                 {/* Content Section */}
                 {!isReadOnly && (
                     <div className="flex flex-col gap-4">
-                        <div className="flex flex-row items-center gap-2">
-                            <div className="relative flex-1">
-                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                                <input 
-                                    type="text" 
-                                    placeholder="Cari Panduan..." 
-                                    className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 shadow-sm rounded-[16px] text-[13px] font-medium focus:outline-none focus:border-[#0080C5] transition-all"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-                            <div className="px-3 py-3 bg-white border border-slate-200 rounded-[16px] flex items-center gap-2 shadow-sm shrink-0">
-                                <span className="text-[13px] font-semibold text-slate-800">Role</span>
-                                <ChevronDown size={16} className="text-slate-400" />
-                            </div>
-                        </div>
-
                         <button 
                             onClick={handleAdd}
                             className="w-full h-[44px] bg-[#0080C5] text-white rounded-[16px] flex items-center justify-center gap-2 font-bold text-[14px] shadow-md active:scale-95 transition-transform"

@@ -29,8 +29,13 @@ class PengajuanAnggotaController extends Controller
         $grupIds = GrupDampingan::where('pengurus_id', $user->id_user)->pluck('id_grup_dampingan');
 
         $query = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan'])
-            ->whereIn('grup_id', $grupIds) // Hanya di grup yang dia pegang
-            ->whereIn('status', ['pending', 'ditolak']);
+            ->whereIn('grup_id', $grupIds); // Hanya di grup yang dia pegang
+
+        if ($request->filled('status') && in_array($request->status, ['pending', 'ditolak'])) {
+            $query->where('status', $request->status);
+        } else {
+            $query->whereIn('status', ['pending', 'ditolak']);
+        }
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%'.$request->search.'%');

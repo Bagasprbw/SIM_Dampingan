@@ -37,6 +37,7 @@ const DataAdminPage = () => {
 
     const [page, setPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
+    const [roleFilter, setRoleFilter] = useState(null);
     const currentUser = getUser();
     const currentUserRoleName = currentUser?.role;
 
@@ -58,9 +59,32 @@ const DataAdminPage = () => {
     const kabupatenOptions = kabupatenList.map(k => ({ value: k.kode, label: k.name }));
     const kecamatanOptions = kecamatanList.map(k => ({ value: k.kode, label: k.name }));
 
+    const roleOptions = React.useMemo(() => {
+        if (currentUserRoleName === 'superadmin') {
+            return [
+                { value: 'admin_provinsi', label: 'Admin Provinsi' },
+                { value: 'admin_kabupaten', label: 'Admin Kabupaten' },
+                { value: 'admin_kecamatan', label: 'Admin Kecamatan' }
+            ];
+        }
+        if (currentUserRoleName === 'admin_provinsi') {
+            return [
+                { value: 'admin_kabupaten', label: 'Admin Kabupaten' },
+                { value: 'admin_kecamatan', label: 'Admin Kecamatan' }
+            ];
+        }
+        if (currentUserRoleName === 'admin_kabupaten') {
+            return [
+                { value: 'admin_kecamatan', label: 'Admin Kecamatan' }
+            ];
+        }
+        return [];
+    }, [currentUserRoleName]);
+
     const { data: adminData, isLoading, isError, refetch } = useAdmins({
         page: page,
         search: searchQuery,
+        ...(roleFilter && { role: roleFilter }),
         ...(provinsiFilter && { kode_prov: provinsiFilter }),
         ...(kabupatenFilter && { kode_kab: kabupatenFilter }),
         ...(kecamatanFilter && { kode_kec: kecamatanFilter }),
@@ -195,9 +219,9 @@ const DataAdminPage = () => {
                             <div className="w-auto">
                                 <FilterDropdown
                                     placeholder="Pilih Role"
-                                    options={[{value: 'admin_prov', label: 'Admin Provinsi'}, {value: 'admin_kab', label: 'Admin Kabupaten'}]}
-                                    value={null}
-                                    onChange={() => {}}
+                                    options={roleOptions}
+                                    value={roleFilter}
+                                    onChange={(v) => { setRoleFilter(v); setPage(1); }}
                                 />
                             </div>
                             <div className="w-auto">
@@ -400,9 +424,9 @@ const DataAdminPage = () => {
                         <div className="grid grid-cols-2 gap-2 w-full">
                             <FilterDropdown
                                 placeholder="Pilih Role"
-                                options={[{value: 'admin_prov', label: 'Admin Provinsi'}, {value: 'admin_kab', label: 'Admin Kabupaten'}]}
-                                value={null}
-                                onChange={() => {}}
+                                options={roleOptions}
+                                value={roleFilter}
+                                onChange={(v) => { setRoleFilter(v); setPage(1); }}
                                 className="!h-[34px] !rounded-[14px] !border-[#E5E7EB] !text-[11px]"
                             />
                             <FilterDropdown

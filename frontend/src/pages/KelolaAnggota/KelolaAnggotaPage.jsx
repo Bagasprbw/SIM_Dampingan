@@ -24,6 +24,7 @@ import { useCurrentUser } from '../../hooks/useCurrentUser';
 import AddDampinganModal from '../../components/modals/AddDampinganModal';
 import EditDampinganModal from '../../components/modals/EditDampinganModal';
 import DeleteDampinganModal from '../../components/modals/DeleteDampinganModal';
+import FilterDropdown from '../../components/common/FilterDropdown';
 
 const KelolaAnggotaPage = () => {
     const navigate = useNavigate();
@@ -36,6 +37,7 @@ const KelolaAnggotaPage = () => {
     const [previewImage, setPreviewImage] = useState(null);
 
     const [page, setPage] = useState(1);
+    const [statusFilter, setStatusFilter] = useState('');
     const { user } = useCurrentUser();
     const isPjGrup = user?.role === 'pj_grup';
     const { data: pjGrupData } = usePjGrup();
@@ -43,8 +45,8 @@ const KelolaAnggotaPage = () => {
     const fasilitatorList = grup?.grup_fasilitators?.map(f => f.fasilitator?.name).join(', ') || '-';
 
     // Hook yang digunakan tergantung role
-    const pengajuanRes = usePengajuanAnggotaSaya({ page, search: searchTerm, enabled: isPjGrup });
-    const anggotaRes = useAnggotas({ page, search: searchTerm, enabled: !isPjGrup });
+    const pengajuanRes = usePengajuanAnggotaSaya({ page, search: searchTerm, status: statusFilter, enabled: isPjGrup });
+    const anggotaRes = useAnggotas({ page, search: searchTerm, status: isPjGrup ? undefined : statusFilter || undefined, enabled: !isPjGrup });
 
     const anggotaData = isPjGrup ? pengajuanRes.data : anggotaRes.data;
     const isLoading = isPjGrup ? pengajuanRes.isLoading : anggotaRes.isLoading;
@@ -145,24 +147,41 @@ const KelolaAnggotaPage = () => {
 
                     {/* Data List Mobile */}
                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-8">
-                        <div className="flex items-center px-4 py-3 border-b border-slate-100 gap-2">
-                            <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                                <input 
-                                    type="text" 
-                                    placeholder="Cari nama, no.anggota..." 
-                                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[11px] focus:outline-none focus:border-[#0080C5]"
-                                    value={searchTerm}
-                                    onChange={handleSearch}
+                        <div className="flex flex-col gap-2 px-4 py-3 border-b border-slate-100">
+                            <div className="flex items-center gap-2">
+                                <div className="relative flex-1">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Cari nama, no.anggota..." 
+                                        className="w-full h-9 pl-9 pr-3 bg-slate-50 border border-slate-100 rounded-xl text-[11px] focus:outline-none focus:border-[#0080C5]"
+                                        value={searchTerm}
+                                        onChange={handleSearch}
+                                    />
+                                </div>
+                                <button 
+                                    onClick={handleTambahAnggota}
+                                    className="h-9 px-3 bg-[#0080C5] text-white rounded-xl flex items-center justify-center shadow-sm text-[11px] font-semibold gap-1 shrink-0"
+                                >
+                                    <Plus size={14} />
+                                    <span className="hidden sm:block">Tambah</span>
+                                </button>
+                            </div>
+                            <div>
+                                <FilterDropdown
+                                    placeholder="Pilih Status"
+                                    options={isPjGrup ? [
+                                        { value: 'pending', label: 'Pending' },
+                                        { value: 'ditolak', label: 'Ditolak' }
+                                    ] : [
+                                        { value: 'aktif', label: 'Aktif' },
+                                        { value: 'non-aktif', label: 'Non-Aktif' }
+                                    ]}
+                                    value={statusFilter}
+                                    onChange={(v) => { setStatusFilter(v); setPage(1); }}
+                                    className="!h-[34px] !rounded-[14px] !border-[#E5E7EB] !text-[11px]"
                                 />
                             </div>
-                            <button 
-                                onClick={handleTambahAnggota}
-                                className="h-9 px-3 bg-[#0080C5] text-white rounded-xl flex items-center justify-center shadow-sm text-[11px] font-semibold gap-1 shrink-0"
-                            >
-                                <Plus size={14} />
-                                <span className="hidden sm:block">Tambah</span>
-                            </button>
                         </div>
 
                         <div className="flex items-center bg-[#FAFBFD] border-b border-slate-100 px-4 py-2.5">
@@ -243,10 +262,31 @@ const KelolaAnggotaPage = () => {
                                     onChange={handleSearch}
                                 />
                             </div>
-                            <div className="px-4 py-2 border-2 border-slate-100 rounded-xl flex items-center gap-4 cursor-pointer hover:bg-slate-50 transition-all">
-                                <span className="text-xs font-medium text-slate-600">Semua Status</span>
-                                <ChevronDown size={16} className="text-slate-400" />
-                            </div>
+                            {isPjGrup ? (
+                                <div className="w-auto">
+                                    <FilterDropdown
+                                        placeholder="Pilih Status"
+                                        options={[
+                                            { value: 'pending', label: 'Pending' },
+                                            { value: 'ditolak', label: 'Ditolak' }
+                                        ]}
+                                        value={statusFilter}
+                                        onChange={(v) => { setStatusFilter(v); setPage(1); }}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="w-auto">
+                                    <FilterDropdown
+                                        placeholder="Pilih Status"
+                                        options={[
+                                            { value: 'aktif', label: 'Aktif' },
+                                            { value: 'non-aktif', label: 'Non-Aktif' }
+                                        ]}
+                                        value={statusFilter}
+                                        onChange={(v) => { setStatusFilter(v); setPage(1); }}
+                                    />
+                                </div>
+                            )}
                             <button 
                                 onClick={handleTambahAnggota}
                                 className="h-10 px-4 bg-[#0080C5] text-white rounded-xl flex items-center justify-center gap-2 hover:bg-sky-700 transition-all shadow-sm text-xs font-semibold whitespace-nowrap"

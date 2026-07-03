@@ -76,13 +76,16 @@ class AnggotaGrupController extends Controller
             $query->where('status', 'aktif');
         }
 
-        // Search filter: nama, no_anggota, alamat
+        // Search filter: nama, no_anggota, alamat, nama grup
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('no_anggota', 'like', "%{$search}%")
-                    ->orWhere('alamat', 'like', "%{$search}%");
+                $q->where('anggota_grup_dampingans.name', 'like', "%{$search}%")
+                    ->orWhere('anggota_grup_dampingans.no_anggota', 'like', "%{$search}%")
+                    ->orWhere('anggota_grup_dampingans.alamat', 'like', "%{$search}%")
+                    ->orWhereHas('grupDampingan', function ($gq) use ($search) {
+                        $gq->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 

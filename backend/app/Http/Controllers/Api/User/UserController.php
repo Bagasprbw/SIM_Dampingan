@@ -115,10 +115,27 @@ class UserController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('username', 'like', "%{$search}%")
-                    ->orWhere('no_telp', 'like', "%{$search}%")
-                    ->orWhere('alamat', 'like', "%{$search}%");
+                $q->where('users.name', 'like', "%{$search}%")
+                    ->orWhere('users.username', 'like', "%{$search}%")
+                    ->orWhere('users.no_telp', 'like', "%{$search}%")
+                    ->orWhereHas('provinsi', function ($pq) use ($search) {
+                        $pq->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('kabupaten', function ($kq) use ($search) {
+                        $kq->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('kecamatan', function ($kq) use ($search) {
+                        $kq->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('grupDampingansPengurus', function ($gq) use ($search) {
+                        $gq->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('fasilitatorBidangs.bidang', function ($bq) use ($search) {
+                        $bq->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('grupFasilitators.grupDampingan', function ($gq) use ($search) {
+                        $gq->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -273,6 +290,11 @@ class UserController extends Controller
         } else {
             // Role lain tidak ada permission
             $query->whereRaw('1 = 0');
+        }
+
+        // Filter berdasarkan parameter request 'role' jika ada
+        if ($request->filled('role')) {
+            $query->whereHas('role', fn ($q) => $q->where('name', $request->role));
         }
 
         // Apply request filters (search, wilayah filters)
