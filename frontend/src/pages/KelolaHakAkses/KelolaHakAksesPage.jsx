@@ -283,13 +283,6 @@ const KelolaHakAksesPage = () => {
                                 onChange={() => togglePermission('fasilitator', 'verifikasi_anggota')}
                                 colorClass="bg-[#EA580C]"
                             />
-                            <FeatureItem
-                                title="Kelola PJ Grup"
-                                subtitle="Manajemen Penanggung Jawab Grup"
-                                enabled={hasPermission('fasilitator', 'kelola_pj_grup')}
-                                onChange={() => togglePermission('fasilitator', 'kelola_pj_grup')}
-                                colorClass="bg-[#EA580C]"
-                            />
                         </div>
                     </div>
 

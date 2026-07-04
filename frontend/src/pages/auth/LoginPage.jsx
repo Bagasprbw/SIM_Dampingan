@@ -126,7 +126,7 @@ const LoginPage = () => {
                     localStorage.setItem('remember_me', 'false');
                 }
 
-                setModal({ isOpen: true, type: 'success' });
+                setModal({ isOpen: true, type: 'success', userName: user.name });
                 setTimeout(() => {
                     commitLogin();
                     if (user.must_change_password) {
@@ -140,7 +140,7 @@ const LoginPage = () => {
             setModal({ isOpen: true, type: 'error' });
             setTimeout(() => {
                 setModal({ isOpen: false, type: 'error' });
-            }, 5000);
+            }, 3000);
         }
     };
 
@@ -305,6 +305,7 @@ const LoginPage = () => {
             <AuthModal
                 isOpen={modal.isOpen}
                 type={modal.type}
+                userName={modal.userName}
             />
 
             {/* ── FORGOT PASSWORD MODAL ── */}

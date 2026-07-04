@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Komponen murni tampilan saja, tidak ada timer di sini
-const AuthModal = ({ isOpen, type = 'success' }) => {
+const AuthModal = ({ isOpen, type = 'success', userName = 'User' }) => {
     if (!isOpen) return null;
 
     const isSuccess = type === 'success';
@@ -46,7 +46,7 @@ const AuthModal = ({ isOpen, type = 'success' }) => {
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                         <path d="M7 7C8.933 7 10.5 5.433 10.5 3.5C10.5 1.567 8.933 0 7 0C5.067 0 3.5 1.567 3.5 3.5C3.5 5.433 5.067 7 7 7ZM7 8.16667C4.66667 8.16667 0 9.33333 0 11.6667V14H14V11.6667C14 9.33333 9.33333 8.16667 7 8.16667Z" fill="#0284C7"/>
                     </svg>
-                    <span className="text-sky-600 text-xs font-medium tracking-tight">User</span>
+                    <span className="text-sky-600 text-xs font-medium tracking-tight">{userName}</span>
                 </div>
             </div>
         </div>
