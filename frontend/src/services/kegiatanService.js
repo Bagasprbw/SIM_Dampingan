@@ -22,22 +22,18 @@ export const kegiatanService = {
     },
 
     create: async (data) => {
-        const isFormData = data instanceof FormData;
-        const response = await api.post(
-            '/kelola-kegiatan',
-            data,
-            isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined
-        );
+        const response = await api.post('/kelola-kegiatan', data);
         return response.data;
     },
 
     update: async (id, data) => {
         const isFormData = data instanceof FormData;
-        const response = await api.put(
-            `/kelola-kegiatan/${id}`,
-            data,
-            isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined
-        );
+        if (isFormData) {
+            data.append('_method', 'PUT');
+            const response = await api.post(`/kelola-kegiatan/${id}`, data);
+            return response.data;
+        }
+        const response = await api.put(`/kelola-kegiatan/${id}`, data);
         return response.data;
     },
 
@@ -49,18 +45,14 @@ export const kegiatanService = {
     uploadFotoKegiatan: async (kegiatanId, files) => {
         const formData = new FormData();
         files.forEach((file) => formData.append('files[]', file));
-        const response = await api.post(`/kelola-kegiatan/${kegiatanId}/foto-kegiatan`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        const response = await api.post(`/kelola-kegiatan/${kegiatanId}/foto-kegiatan`, formData);
         return response.data;
     },
 
     uploadFotoAbsensi: async (kegiatanId, files) => {
         const formData = new FormData();
         files.forEach((file) => formData.append('files[]', file));
-        const response = await api.post(`/kelola-kegiatan/${kegiatanId}/foto-absensi`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        const response = await api.post(`/kelola-kegiatan/${kegiatanId}/foto-absensi`, formData);
         return response.data;
     },
 

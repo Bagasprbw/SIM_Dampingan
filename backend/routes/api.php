@@ -198,6 +198,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [KegiatanController::class, 'showKelola']);
         Route::post('/', [KegiatanController::class, 'store']);
         Route::put('/{id}', [KegiatanController::class, 'update']);
+        // POST /{id} untuk mendukung method spoofing (_method=PUT) saat upload file (multipart/form-data)
+        Route::post('/{id}', [KegiatanController::class, 'update']);
         Route::delete('/{id}', [KegiatanController::class, 'destroy']);
 
         // CRUD foto_absensi, foto_kegiatan [RONAL]
