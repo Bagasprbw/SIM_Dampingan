@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronDown, Save, ArrowRight, ArrowLeft, X, Plus, Upload, Image, FileText, Check, UserCircle2, Search, Loader2 } from 'lucide-react';
+import { ChevronDown, Save, ArrowRight, ArrowLeft, X, Plus, Upload, Image, FileText, Check, UserCircle2, Search, Loader2, Clock } from 'lucide-react';
 
 import Swal from 'sweetalert2';
 import { useKegiatanMutations } from '../../hooks/mutations/useKegiatanMutation';
@@ -439,7 +439,7 @@ const Step2 = ({
 };
 
 // ─── Step 3: Ringkasan (Upload) ───────────────────────────────────────────────
-const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = false, multiple = false, files = [], onChange, existingFiles = [], existingFileUrl, onDeleteExisting, showImagePreview = false, onRemoveFile }) => {
+const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = false, multiple = false, files = [], onChange, existingFiles = [], existingFileUrl, onDeleteExisting, showImagePreview = false, onRemoveFile, inputKey }) => {
     const normalizedFiles = useMemo(() => {
         return Array.isArray(files) ? files : files ? [files] : [];
     }, [files]);
@@ -504,7 +504,7 @@ const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = fals
 
                 {showImagePreview && imagePreviews.length > 0 && (
                     <div className="mb-4">
-                        <p className="text-[11px] font-semibold text-slate-700">Preview Foto:</p>
+                        <p className="text-[11px] font-semibold text-slate-700">Preview Foto ({normalizedFiles.length} foto dipilih):</p>
                         <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-3">
                             {imagePreviews.map((preview) => (
                                 <div key={preview.url} className="relative overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
@@ -525,17 +525,39 @@ const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = fals
                 )}
 
                 <label className="block border-2 border-dashed border-slate-200 rounded-xl py-10 text-center cursor-pointer hover:border-[#0080C5] transition-all group">
-                    <input type="file" accept={accept} multiple={multiple} onChange={onChange} className="hidden" />
+                    <input key={inputKey} type="file" accept={accept} multiple={multiple} onChange={onChange} className="hidden" />
                     <Upload size={24} className="mx-auto text-slate-300 group-hover:text-[#0080C5] transition-colors mb-2" />
                     <p className="text-xs text-slate-400">Seret & lepas {icon === 'image' ? 'foto' : 'file'} di sini</p>
                     <p className="text-xs text-slate-400">atau <span className="text-[#0080C5] underline">klik untuk memilih {icon === 'image' ? 'foto' : 'file'}</span></p>
-                    <p className="text-[10px] text-slate-300 mt-1">{icon === 'image' ? 'JPG, PNG, WEBP · Dapat memilih lebih dari 1 foto' : accept.includes('image/*') ? 'JPG, PNG, WEBP, PDF · Maks. 5 MB' : 'Hanya file PDF · Maks. 10 MB'}</p>
+                    <p className="text-[10px] text-slate-300 mt-1">{multiple ? 'Klik lagi untuk menambah foto lebih banyak · ' : ''}{icon === 'image' ? 'JPG, PNG, WEBP · Dapat memilih lebih dari 1 foto' : accept.includes('image/*') ? 'JPG, PNG, WEBP, PDF · Maks. 5 MB' : 'Hanya file PDF · Maks. 10 MB'}</p>
                 </label>
                 {normalizedFiles.length > 0 && (
-                    <div className="mt-3 text-[10px] text-slate-500 space-y-1">
+                    <div className="mt-3">
+                        <div className="flex items-center gap-1.5 mb-2">
+                            <Clock size={11} className="text-amber-500 shrink-0" />
+                            <span className="text-[10px] font-semibold text-amber-600">{normalizedFiles.length} file siap diupload</span>
+                        </div>
+                        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'thin', scrollbarColor: '#fbbf24 transparent' }}>
                         {normalizedFiles.map((file, idx) => (
-                            <div key={`${file.name}-${idx}`} className="truncate">• {file.name}</div>
+                            <div key={`${file.name}-${idx}`} className="relative flex flex-col items-center justify-between w-20 min-w-[5rem] h-20 border border-amber-200 rounded-xl bg-amber-50 p-2 shrink-0 group/card">
+                                <div className="flex-1 flex items-center justify-center">
+                                    <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                                        <FileText size={16} className="text-amber-500" />
+                                    </div>
+                                </div>
+                                <span className="text-[9px] text-amber-800 font-medium w-full text-center leading-tight line-clamp-2 break-all">{file.name}</span>
+                                {onRemoveFile && (
+                                    <button
+                                        type="button"
+                                        onClick={() => onRemoveFile(idx)}
+                                        className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-white border border-amber-200 text-amber-400 flex items-center justify-center hover:bg-red-50 hover:border-red-300 hover:text-red-500 transition-colors shadow-sm"
+                                    >
+                                        <X size={9} />
+                                    </button>
+                                )}
+                            </div>
                         ))}
+                        </div>
                     </div>
                 )}
             </div>
@@ -543,7 +565,7 @@ const UploadBox = ({ icon, title, subtitle, label, accept, hint, optional = fals
     );
 };
 
-const Step3 = ({ uploads, onUploadChange, onRemoveUpload, existingData, onDeleteExisting }) => (
+const Step3 = ({ uploads, onUploadChange, onRemoveUpload, existingData, onDeleteExisting, fotoInputKey, absensiInputKey }) => (
     <div className="space-y-5">
         <UploadBox
             icon="image"
@@ -557,6 +579,7 @@ const Step3 = ({ uploads, onUploadChange, onRemoveUpload, existingData, onDelete
             onRemoveFile={(index) => onRemoveUpload('fotoKegiatan', index)}
             existingFiles={existingData?.fotoKegiatans}
             onDeleteExisting={(id) => onDeleteExisting('fotoKegiatan', id)}
+            inputKey={fotoInputKey}
         />
         <UploadBox
             icon="pdf"
@@ -567,6 +590,7 @@ const Step3 = ({ uploads, onUploadChange, onRemoveUpload, existingData, onDelete
             accept=".pdf"
             files={uploads.laporan}
             onChange={(e) => onUploadChange('laporan', e.target.files?.[0] || null)}
+            onRemoveFile={() => onRemoveUpload('laporan', 0)}
             existingFileUrl={existingData?.laporanUrl}
         />
         <UploadBox
@@ -579,8 +603,10 @@ const Step3 = ({ uploads, onUploadChange, onRemoveUpload, existingData, onDelete
             multiple
             files={uploads.absensi}
             onChange={(e) => onUploadChange('absensi', Array.from(e.target.files || []))}
+            onRemoveFile={(index) => onRemoveUpload('absensi', index)}
             existingFiles={existingData?.fotoAbsensis}
             onDeleteExisting={(id) => onDeleteExisting('fotoAbsensi', id)}
+            inputKey={absensiInputKey}
         />
     </div>
 );
@@ -634,6 +660,9 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
         laporan: null,
         absensi: [],
     });
+    // Counter key untuk reset file input setelah setiap pemilihan — agar bisa klik lagi untuk tambah foto
+    const [fotoInputKey, setFotoInputKey] = useState(0);
+    const [absensiInputKey, setAbsensiInputKey] = useState(0);
     const [existingData, setExistingData] = useState({
         fotoKegiatans: [],
         fotoAbsensis: [],
@@ -808,7 +837,20 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
     };
 
     const handleUploadChange = (field, value) => {
-        setUploads((prev) => ({ ...prev, [field]: value }));
+        if (field === 'fotoKegiatan') {
+            // APPEND ke array yang ada, bukan replace — sehingga foto bisa ditambah secara bertahap
+            setUploads((prev) => ({ ...prev, fotoKegiatan: [...prev.fotoKegiatan, ...value] }));
+            // Reset input key agar element file input di-unmount & remount (bisa klik lagi untuk tambah lebih banyak)
+            setFotoInputKey((k) => k + 1);
+        } else if (field === 'absensi') {
+            // APPEND ke array absensi yang ada
+            setUploads((prev) => ({ ...prev, absensi: [...prev.absensi, ...value] }));
+            // Reset input key agar bisa klik lagi
+            setAbsensiInputKey((k) => k + 1);
+        } else {
+            // laporan: single file, replace seperti biasa
+            setUploads((prev) => ({ ...prev, [field]: value }));
+        }
     };
 
     const handleRemoveUpload = (field, index) => {
@@ -1083,6 +1125,8 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
                                 onRemoveUpload={handleRemoveUpload}
                                 existingData={existingData}
                                 onDeleteExisting={handleDeleteExisting}
+                                fotoInputKey={fotoInputKey}
+                                absensiInputKey={absensiInputKey}
                             />
                         )}
                     </div>
