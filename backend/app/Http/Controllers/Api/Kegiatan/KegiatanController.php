@@ -160,7 +160,7 @@ class KegiatanController extends Controller
             'status' => 'nullable|in:draft,published,selesai',
             'jumlah_hadir' => 'nullable|integer',
             'jumlah_tdk_hadir' => 'nullable|integer',
-            'laporan' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
+            'laporan' => 'nullable|file|mimes:pdf,doc,docx|max:20480',
             'grup_dampingan_ids' => 'nullable|array',
             'grup_dampingan_ids.*' => 'exists:grup_dampingans,id_grup_dampingan',
         ]);
@@ -255,7 +255,7 @@ class KegiatanController extends Controller
             'status' => 'nullable|in:draft,published,selesai',
             'jumlah_hadir' => 'nullable|integer',
             'jumlah_tdk_hadir' => 'nullable|integer',
-            'laporan' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
+            'laporan' => 'nullable|file|mimes:pdf,doc,docx|max:20480',
             'grup_dampingan_ids' => 'nullable|array',
             'grup_dampingan_ids.*' => 'exists:grup_dampingans,id_grup_dampingan',
         ]);

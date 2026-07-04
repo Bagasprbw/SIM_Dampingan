@@ -38,9 +38,9 @@ class FotoKegiatanController extends Controller
         }
 
         $request->validate([
-            'file' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'file' => 'nullable|image|max:20480',
             'files' => 'nullable|array|min:1',
-            'files.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
+            'files.*' => 'image|max:20480',
         ]);
 
         if (! $request->hasFile('file') && ! $request->hasFile('files')) {

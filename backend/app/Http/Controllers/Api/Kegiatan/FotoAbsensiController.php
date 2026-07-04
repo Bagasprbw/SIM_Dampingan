@@ -38,9 +38,9 @@ class FotoAbsensiController extends Controller
         }
 
         $request->validate([
-            'file' => 'nullable|mimes:jpg,jpeg,png,webp,pdf|max:5120',
+            'file' => 'nullable|mimes:jpg,jpeg,png,webp,gif,svg,bmp,pdf|max:20480',
             'files' => 'nullable|array|min:1',
-            'files.*' => 'mimes:jpg,jpeg,png,webp,pdf|max:5120',
+            'files.*' => 'mimes:jpg,jpeg,png,webp,gif,svg,bmp,pdf|max:20480',
         ]);
 
         if (! $request->hasFile('file') && ! $request->hasFile('files')) {

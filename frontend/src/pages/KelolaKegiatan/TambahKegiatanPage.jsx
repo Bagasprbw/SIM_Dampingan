@@ -996,10 +996,21 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
     const handleSaveDraft = async () => {
         if (!validateRequiredFields()) return;
         setIsLoading(true);
+        let createdKegiatanId = null;
         try {
             const response = await submitKegiatan('draft');
             const kegiatanId = isEdit ? id : response?.data?.id_kegiatan;
+            if (!isEdit && response?.data?.id_kegiatan) {
+                createdKegiatanId = response.data.id_kegiatan;
+            }
+
             if (kegiatanId) {
+                if (uploads.fotoKegiatan && uploads.fotoKegiatan.length > 0) {
+                    await kegiatanService.uploadFotoKegiatan(kegiatanId, uploads.fotoKegiatan);
+                }
+                if (uploads.absensi && uploads.absensi.length > 0) {
+                    await kegiatanService.uploadFotoAbsensi(kegiatanId, uploads.absensi);
+                }
                 const allPeserta = buildPesertaPayload();
                 if (shouldSyncPeserta(allPeserta)) {
                     await kegiatanService.syncPeserta(kegiatanId, allPeserta);
@@ -1007,8 +1018,24 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
             }
             Swal.fire({ title: 'Tersimpan sebagai Draft', icon: 'info', confirmButtonColor: '#0080C5', timer: 1500, showConfirmButton: false, customClass: { popup: 'rounded-2xl font-["Poppins"]' } })
                 .then(() => navigate('/kelola-kegiatan'));
-        } catch {
-            Swal.fire({ title: 'Gagal!', text: 'Terjadi kesalahan saat menyimpan draft.', icon: 'error', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } });
+        } catch (error) {
+            if (createdKegiatanId) {
+                try {
+                    await kegiatanService.delete(createdKegiatanId);
+                } catch (rollbackError) {
+                    console.error('Failed to rollback kegiatan:', rollbackError);
+                }
+            }
+            
+            let errorMessage = 'Terjadi kesalahan saat menyimpan draft.';
+            if (error.response?.data?.errors) {
+                const firstError = Object.values(error.response.data.errors)[0][0];
+                errorMessage = firstError;
+            } else if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+
+            Swal.fire({ title: 'Gagal!', text: errorMessage, icon: 'error', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } });
         } finally {
             setIsLoading(false);
         }
@@ -1028,9 +1055,13 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
         }
 
         setIsLoading(true);
+        let createdKegiatanId = null;
         try {
             const response = await submitKegiatan('published');
             const kegiatanId = isEdit ? id : response?.data?.id_kegiatan;
+            if (!isEdit && response?.data?.id_kegiatan) {
+                createdKegiatanId = response.data.id_kegiatan;
+            }
 
             if (kegiatanId) {
                 if (uploads.fotoKegiatan.length > 0) {
@@ -1050,8 +1081,24 @@ const TambahKegiatanPage = ({ isEdit = false }) => {
 
             Swal.fire({ title: 'Berhasil!', text: 'Laporan kegiatan berhasil disimpan.', icon: 'success', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } })
                 .then(() => navigate('/kelola-kegiatan'));
-        } catch {
-            Swal.fire({ title: 'Gagal!', text: 'Terjadi kesalahan saat menyimpan laporan kegiatan.', icon: 'error', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } });
+        } catch (error) {
+            if (createdKegiatanId) {
+                try {
+                    await kegiatanService.delete(createdKegiatanId);
+                } catch (rollbackError) {
+                    console.error('Failed to rollback kegiatan:', rollbackError);
+                }
+            }
+            
+            let errorMessage = 'Terjadi kesalahan saat menyimpan laporan kegiatan.';
+            if (error.response?.data?.errors) {
+                const firstError = Object.values(error.response.data.errors)[0][0];
+                errorMessage = firstError;
+            } else if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+
+            Swal.fire({ title: 'Gagal!', text: errorMessage, icon: 'error', confirmButtonColor: '#0080C5', customClass: { popup: 'rounded-2xl font-["Poppins"]' } });
         } finally {
             setIsLoading(false);
         }
