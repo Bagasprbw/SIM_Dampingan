@@ -17,7 +17,7 @@ class MasterSeeder extends Seeder
 
     private function seedBidang()
     {
-        $data = ['Petani', 'Difabel', 'Nelayan', 'Pedagang'];
+        $data = ['Petani', 'Difabel & Disabilitas', 'Nelayan', 'Pedagang', 'UMKM', 'Pemulung', 'Peternak'];
 
         $insert = [];
 

@@ -29,19 +29,22 @@ class LandingPageSeeder extends Seeder
 
         // 2. Seed deskripsi_bidangs
         $bidangs = DB::table('bidangs')->get();
-        
+
         $defaultDescriptions = [
             'Petani' => 'Pengembangan sistem pertanian berkelanjutan, edukasi pupuk organik mandiri, pendampingan pasca-panen, serta pembukaan akses pasar tani.',
-            'Difabel' => 'Penyediaan ruang pelatihan keterampilan inklusif, pendampingan kemandirian wirausaha, serta sosialisasi aksesibilitas fasilitas umum.',
+            'Difabel & Disabilitas' => 'Penyediaan ruang pelatihan keterampilan inklusif, pendampingan kemandirian wirausaha, serta sosialisasi aksesibilitas fasilitas umum.',
             'Nelayan' => 'Pemberdayaan nelayan tradisional melalui penyediaan alat tangkap ramah lingkungan, manajemen pemasaran hasil laut, dan penguatan ekonomi keluarga pesisir.',
-            'Pedagang' => 'Pembinaan pedagang kecil dan wirausaha mikro melalui cooperative financial support, manajemen tata kelola usaha, dan pelatihan peningkatan penjualan digital.'
+            'Pedagang' => 'Pembinaan pedagang kecil dan wirausaha mikro melalui cooperative financial support, manajemen tata kelola usaha, dan pelatihan peningkatan penjualan digital.',
+            'UMKM' => 'Pengembangan UMKM melalui pelatihan manajemen, pendampingan akses pasar, dan pembiayaan usaha.',
+            'Pemulung' => 'Pendampingan dan pemberdayaan pemulung melalui penyediaan ruang pelatihan keterampilan, pendampingan kemandirian wirausaha, serta sosialisasi aksesibilitas fasilitas umum.',
+            'Peternak' => 'Pengembangan peternakan melalui pelatihan manajemen, pendampingan akses pasar, dan pembiayaan usaha.',
         ];
 
         foreach ($bidangs as $bidang) {
             $exists = DB::table('deskripsi_bidangs')->where('id_bidang', $bidang->id_bidang)->exists();
-            if (!$exists) {
-                $desc = $defaultDescriptions[$bidang->name] ?? 'Pendampingan dan pemberdayaan terintegrasi di bidang ' . $bidang->name . ' untuk mewujudkan kemandirian ekonomi dan sosial kelompok dampingan.';
-                
+            if (! $exists) {
+                $desc = $defaultDescriptions[$bidang->name] ?? 'Pendampingan dan pemberdayaan terintegrasi di bidang '.$bidang->name.' untuk mewujudkan kemandirian ekonomi dan sosial kelompok dampingan.';
+
                 DB::table('deskripsi_bidangs')->insert([
                     'id_deskripsi_bidang' => (string) Str::uuid(),
                     'id_bidang' => $bidang->id_bidang,
