@@ -791,6 +791,16 @@ class UserController extends Controller
             ], 403);
         }
 
+        // Cek apakah user adalah Fasilitator atau PJ Grup yang terikat dengan Grup Dampingan
+        $hasGrupAsPengurus = $targetUser->grupDampingansPengurus()->exists();
+        $hasGrupAsFasilitator = $targetUser->grupFasilitators()->exists();
+
+        if ($hasGrupAsPengurus || $hasGrupAsFasilitator) {
+            return response()->json([
+                'message' => 'Fasilitator atau PJ ini tidak dapat dihapus karena masih terhubung dengan grup. Silakan hapus grup terkait terlebih dahulu sebelum menghapus Fasilitator atau PJ.',
+            ], 422);
+        }
+
         // Delete foto if exists dan bukan temp file
         if ($targetUser->foto && ! str_contains($targetUser->foto, 'Temp')) {
             try {
@@ -801,7 +811,17 @@ class UserController extends Controller
         }
 
         $dataLama = $targetUser->toArray();
-        $targetUser->delete();
+        
+        try {
+            $targetUser->delete();
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == '23000') {
+                return response()->json([
+                    'message' => 'User ini tidak bisa dihapus karena datanya masih terhubung dengan data lain. Silakan hapus data yang terkait terlebih dahulu.',
+                ], 422);
+            }
+            throw $e;
+        }
 
         // Catat log DELETE
         $this->logDelete($request, 'User', $id, $dataLama, "User '{$dataLama['name']}' berhasil dihapus.");
