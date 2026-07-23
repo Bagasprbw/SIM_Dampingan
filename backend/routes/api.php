@@ -81,6 +81,12 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:manage_roles');
     });
 
+    // ----------- import data (superadmin only) -----------------
+    Route::prefix('import')->middleware('role:superadmin')->group(function () {
+        Route::post('/preview', [\App\Http\Controllers\Api\Import\ImportController::class, 'preview']);
+        Route::post('/commit', [\App\Http\Controllers\Api\Import\ImportController::class, 'commit']);
+    });
+
     // ----------- permission: kelola_grup -----------------
     Route::get('/grup-dampingan', [GrupDampinganController::class, 'index'])
         ->middleware('permission:kelola_grup,ajukan_anggota,create_kegiatan,verifikasi_anggota');
@@ -99,6 +105,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{grupId}/fasilitator', [GrupFasilitatorController::class, 'updateBulk']);
         Route::delete('/{grupId}/fasilitator/{fasilitatorId}', [GrupFasilitatorController::class, 'destroy']);
     });
+
+    // Allow kelola_fasilitator to read & manage grup-fasilitator assignments
+    Route::get('/grup-dampingan/{grupId}/fasilitator', [GrupFasilitatorController::class, 'index'])
+        ->middleware('permission:kelola_fasilitator');
+    Route::post('/grup-dampingan/{grupId}/fasilitator', [GrupFasilitatorController::class, 'store'])
+        ->middleware('permission:kelola_fasilitator');
+    Route::delete('/grup-dampingan/{grupId}/fasilitator/{fasilitatorId}', [GrupFasilitatorController::class, 'destroy'])
+        ->middleware('permission:kelola_fasilitator');
 
     // Reset Password (Khusus Superadmin, validasi di Controller)
     Route::post('/users/reset-password/{id}', [UserController::class, 'resetPassword']);

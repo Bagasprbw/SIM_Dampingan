@@ -14,7 +14,7 @@ const AddGrupModal = ({ isOpen, onClose }) => {
     const { data: bidangsData } = useBidangs();
     const bidangs = bidangsData?.data || [];
     
-    const { data: fasilitatorData } = useFasilitators();
+    const { data: fasilitatorData } = useFasilitators({ per_page: 10000 });
     const fasilitatorOptions = useMemo(() => fasilitatorData?.data || [], [fasilitatorData]);
 
     const { createGrupDampingan } = useGrupDampinganMutations();

@@ -16,7 +16,8 @@ import {
     LogOut,
     LayoutGrid,
     X,
-    FileText
+    FileText,
+    FileSpreadsheet
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -55,6 +56,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
         // Superadmin only
         { icon: <ShieldCheck size={18} />,    label: 'Kelola Hak Akses',     path: '/hak-akses',           permission: 'manage_roles' },
+        { icon: <FileSpreadsheet size={18} />, label: 'Import Data Excel',   path: '/import-data',         permission: 'manage_roles' },
         { icon: <FileText size={18} />,       label: 'Template Sertifikat',  path: '/template-sertifikat', permission: 'manage_roles' },
         { icon: <LayoutGrid size={18} />,     label: 'Kelola Landing Page',  path: '/manage-landing-page', permission: 'manage_roles' },
 
@@ -72,7 +74,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     const SUPERADMIN_PATHS = [
         '/dashboard', '/data-admin', '/data-fasilitator', '/data-pj',
         '/data-grup', '/data-dampingan', '/kegiatan-dampingan', '/kelola-kegiatan',
-        '/hak-akses', '/template-sertifikat', '/manage-landing-page', '/peta', '/log', '/panduan'
+        '/hak-akses', '/import-data', '/template-sertifikat', '/manage-landing-page', '/peta', '/log', '/panduan'
     ];
 
     const ROLE_MENU_ORDER = {

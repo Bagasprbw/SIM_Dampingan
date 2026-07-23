@@ -29,6 +29,7 @@ import ProfilAnggotaPublicPage from '../pages/Public/ProfilAnggotaPublicPage';
 import LandingPage from '../pages/Public/LandingPage';
 import ManageTemplateSertifikatPage from '../pages/KelolaKegiatan/ManageTemplateSertifikatPage';
 import ManageLandingPage from '../pages/Dashboard/ManageLandingPage';
+import ImportDataPage from '../pages/ImportData/ImportDataPage';
 
 const AppRoutes = () => {
     return (
@@ -63,6 +64,7 @@ const AppRoutes = () => {
                 <Route path="/kelola-kegiatan/tambah" element={<TambahKegiatanPage />} />
                 <Route path="/kelola-kegiatan/edit/:id" element={<EditKegiatanPage />} />
                 <Route path="/hak-akses" element={<KelolaHakAksesPage />} />
+                <Route path="/import-data" element={<ImportDataPage />} />
                 <Route path="/template-sertifikat" element={<ManageTemplateSertifikatPage />} />
                 <Route path="/manage-landing-page" element={<ManageLandingPage />} />
                 <Route path="/peta" element={<PetaSebaranPage />} />

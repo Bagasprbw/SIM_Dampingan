@@ -19,7 +19,7 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
     const { data: bidangsData } = useBidangs();
     const bidangs = bidangsData?.data || [];
     
-    const { data: fasilitatorData } = useFasilitators();
+    const { data: fasilitatorData } = useFasilitators({ per_page: 10000 });
 
     const { updateGrupDampingan } = useGrupDampinganMutations();
     const [isLoading, setIsLoading] = useState(false);

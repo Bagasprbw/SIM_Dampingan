@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Edit3, Image as ImageIcon, Save, ChevronDown, Upload, Loader2, Check } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { X, Edit3, Image as ImageIcon, Save, ChevronDown, Upload, Loader2, Check, UsersRound, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useFasilitatorMutations } from '../../hooks/mutations/useFasilitatorMutation';
 import { useBidangs } from '../../hooks/queries/useBidangQuery';
@@ -7,6 +7,7 @@ import { useProvinsi, useKabupaten, useKecamatan } from '../../hooks/queries/use
 import { getUser } from '../../utils/storage';
 import UsernameHint from '../common/UsernameHint';
 import { useUsernameCheck } from '../../hooks/useUsernameCheck';
+import api from '../../services/api';
 
 const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
     const { data: bidangsData, isLoading: isLoadingBidangs } = useBidangs();
@@ -18,6 +19,13 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const [showBidangDropdown, setShowBidangDropdown] = useState(false);
+
+    // Grup dampingan assignment state
+    const [allGrups, setAllGrups] = useState([]);
+    const [isLoadingGrups, setIsLoadingGrups] = useState(false);
+    const [selectedGrupIds, setSelectedGrupIds] = useState([]);
+    const [originalGrupIds, setOriginalGrupIds] = useState([]);
+    const [grupSearch, setGrupSearch] = useState('');
 
     const dropdownRef = useRef(null);
     const currentUser = getUser();
@@ -59,8 +67,70 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
                 setSelectedImage(null);
             }
             setShowBidangDropdown(false);
+            setGrupSearch('');
         }
     }
+
+    // Fetch grup list & current assignment on open
+    useEffect(() => {
+        if (!isOpen || !data) return;
+        const fasilitatorId = data.id_user || data.id;
+        setIsLoadingGrups(true);
+
+        // Build wilayah filter from fasilitator data
+        const params = {};
+        if (data.kode_prov) params.kode_prov = data.kode_prov;
+        if (data.kode_kab) params.kode_kab = data.kode_kab;
+        if (data.kode_kec) params.kode_kec = data.kode_kec;
+        params.per_page = 500;
+
+        api.get('/grup-dampingan', { params })
+            .then(res => {
+                const grups = res.data?.data || [];
+                setAllGrups(grups);
+
+                // Determine which grups this fasilitator is already assigned to
+                const assignedIds = grups
+                    .filter(g =>
+                        g.grup_fasilitators?.some(gf => gf.fasilitator_id === fasilitatorId)
+                    )
+                    .map(g => g.id_grup_dampingan);
+
+                if (grups.length > 0 && grups[0].grup_fasilitators === undefined) {
+                    const grupsToCheck = grups.slice(0, 20);
+                    return Promise.all(
+                        grupsToCheck.map(g =>
+                            api.get(`/grup-dampingan/${g.id_grup_dampingan}/fasilitator`)
+                                .then(r => ({ grupId: g.id_grup_dampingan, fasilitators: r.data?.data || [] }))
+                                .catch(() => ({ grupId: g.id_grup_dampingan, fasilitators: [] }))
+                        )
+                    ).then(results => {
+                        const ids = results
+                            .filter(r => r.fasilitators.some(f => f.fasilitator?.id_user === fasilitatorId || f.fasilitator_id === fasilitatorId))
+                            .map(r => r.grupId);
+                        setSelectedGrupIds(ids);
+                        setOriginalGrupIds(ids);
+                    });
+                } else {
+                    setSelectedGrupIds(assignedIds);
+                    setOriginalGrupIds(assignedIds);
+                }
+            })
+            .catch(err => console.error('Failed to load grups for fasilitator assignment:', err))
+            .finally(() => setIsLoadingGrups(false));
+    }, [isOpen, data]);
+
+    // Filter grups by bidang dynamically based on formData.bidang_ids
+    const availableGrups = useMemo(() => {
+        if (allGrups.length === 0) return [];
+        const fasilBidangIds = formData.bidang_ids || [];
+        if (fasilBidangIds.length === 0) return allGrups;
+        return allGrups.filter(g =>
+            g.bidangs?.some(b =>
+                fasilBidangIds.includes(b.id_bidang)
+            )
+        );
+    }, [allGrups, formData.bidang_ids]);
 
     // Handle clicking outside the dropdown to close it
     useEffect(() => {
@@ -142,11 +212,10 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
         setIsLoading(true);
 
         const form = new FormData();
-        // we use name for the API, but formData stores it as nama to match frontend, let's remap it
         form.append('name', formData.nama);
         
         Object.keys(formData).forEach(key => {
-            if (key === 'nama') return; // already appended
+            if (key === 'nama') return;
             if (key === 'bidang_ids') {
                 formData.bidang_ids.forEach(id => form.append('bidang_ids[]', id));
             } else if (formData[key] !== null && formData[key] !== '') {
@@ -154,16 +223,42 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
             }
         });
 
-        // Use method spoofing for Laravel PUT with FormData
+        // Always send wilayah fields so backend can clear them when emptied
+        form.set('kode_prov', formData.kode_prov ?? '');
+        form.set('kode_kab', formData.kode_kab ?? '');
+        form.set('kode_kec', formData.kode_kec ?? '');
+
         form.append('_method', 'PUT');
 
-        updateFasilitator.mutate({ id: data.id_user || data.id, data: form }, {
-            onSuccess: () => {
+        const fasilitatorId = data.id_user || data.id;
+
+        // Helper: sync grup assignments by attaching/detaching
+        const syncGrups = async (prevAssigned) => {
+            const toAttach = selectedGrupIds.filter(id => !prevAssigned.includes(id));
+            const toDetach = prevAssigned.filter(id => !selectedGrupIds.includes(id));
+
+            const attachPromises = toAttach.map(grupId =>
+                api.post(`/grup-dampingan/${grupId}/fasilitator`, { fasilitator_ids: [fasilitatorId] })
+                    .catch(() => {}) // swallow per-grup errors silently
+            );
+            const detachPromises = toDetach.map(grupId =>
+                api.delete(`/grup-dampingan/${grupId}/fasilitator/${fasilitatorId}`)
+                    .catch(() => {})
+            );
+            await Promise.allSettled([...attachPromises, ...detachPromises]);
+        };
+
+
+        updateFasilitator.mutate({ id: fasilitatorId, data: form }, {
+            onSuccess: async () => {
+                // Sync grup assignments using diff from original
+                await syncGrups(originalGrupIds);
+
                 setIsLoading(false);
                 Swal.fire({
                     icon: 'success',
                     title: 'Perubahan Disimpan!',
-                    text: 'Informasi fasilitator telah berhasil diperbarui.',
+                    text: 'Informasi fasilitator dan penugasan grup berhasil diperbarui.',
                     showConfirmButton: false,
                     timer: 2000,
                     customClass: { popup: 'rounded-2xl font-["Poppins"]' }
@@ -338,6 +433,83 @@ const EditFacilitatorModal = ({ isOpen, onClose, data }) => {
                             </select>
                             <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                         </div>
+                    </div>
+
+                    <div className="h-px bg-slate-100" />
+
+                    {/* Grup Dampingan Assignment Section */}
+                    <div className="flex flex-col gap-3">
+                        <div className="flex items-center gap-2">
+                            <UsersRound size={15} className="text-[#0080C5]" />
+                            <label className="text-[#0A0F1E] text-xs font-semibold">Kelola Grup Dampingan yang Didampingi</label>
+                        </div>
+
+                        <div className="p-3 bg-sky-50/50 border border-sky-100 rounded-xl text-[10px] text-sky-700 flex items-start gap-2">
+                            <AlertCircle size={13} className="shrink-0 mt-0.5" />
+                            <span>Grup ditampilkan hanya yang sesuai <b>bidang</b> & <b>wilayah</b> fasilitator ini. Centang untuk menugaskan fasilitator ke grup tersebut.</span>
+                        </div>
+
+                        {/* Search box */}
+                        <input
+                            type="text"
+                            placeholder="Cari nama grup..."
+                            value={grupSearch}
+                            onChange={e => setGrupSearch(e.target.value)}
+                            className="w-full px-3 py-2 bg-white rounded-[10px] border border-gray-200 focus:border-[#0080C5] focus:outline-none text-xs text-[#0A0F1E] font-medium"
+                        />
+
+                        {isLoadingGrups ? (
+                            <div className="flex items-center justify-center gap-2 py-4 text-slate-400 text-xs">
+                                <Loader2 size={16} className="animate-spin" /> Memuat daftar grup...
+                            </div>
+                        ) : availableGrups.length === 0 ? (
+                            <div className="py-4 text-center text-slate-400 text-[11px]">
+                                Tidak ada grup dampingan yang sesuai bidang &amp; wilayah fasilitator ini.
+                            </div>
+                        ) : (
+                            <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-1 border border-slate-100 rounded-xl p-2">
+                                {availableGrups
+                                    .filter(g => g.name.toLowerCase().includes(grupSearch.toLowerCase()))
+                                    .map(grup => {
+                                        const isChecked = selectedGrupIds.includes(grup.id_grup_dampingan);
+                                        return (
+                                            <div
+                                                key={grup.id_grup_dampingan}
+                                                onClick={() => {
+                                                    setSelectedGrupIds(prev =>
+                                                        isChecked
+                                                            ? prev.filter(id => id !== grup.id_grup_dampingan)
+                                                            : [...prev, grup.id_grup_dampingan]
+                                                    );
+                                                }}
+                                                className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors select-none ${
+                                                    isChecked ? 'bg-sky-50 border border-sky-200' : 'hover:bg-slate-50'
+                                                }`}
+                                            >
+                                                <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${isChecked ? 'bg-[#0080C5] border-[#0080C5]' : 'border-gray-300'}`}>
+                                                    {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs font-semibold text-[#0A0F1E] truncate">{grup.name}</p>
+                                                    <p className="text-[10px] text-slate-400 truncate">
+                                                        {grup.bidangs?.map(b => b.name).join(', ') || '-'}
+                                                    </p>
+                                                </div>
+                                                {isChecked && (
+                                                    <span className="text-[10px] font-bold text-[#0080C5] bg-sky-100 px-2 py-0.5 rounded-full shrink-0">Aktif</span>
+                                                )}
+                                            </div>
+                                        );
+                                    })
+                                }
+                            </div>
+                        )}
+
+                        {selectedGrupIds.length > 0 && (
+                            <p className="text-[10px] text-slate-500 font-medium">
+                                {selectedGrupIds.length} grup dipilih
+                            </p>
+                        )}
                     </div>
 
                     <div className="h-px bg-slate-100" />
