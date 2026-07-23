@@ -36,7 +36,7 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
     const [formData, setFormData] = useState({
         name: '',
         level_dampingan: '',
-        bidang_id: '',
+        bidang_ids: [],
         kode_prov: '',
         kode_kab: '',
         kode_kec: '',
@@ -54,7 +54,7 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
             setFormData({
                 name: data.name || '',
                 level_dampingan: data.level_dampingan || '',
-                bidang_id: data.bidang_id || '',
+                bidang_ids: data.bidangs?.map(b => b.id_bidang || b.id) || (data.bidang_id ? [data.bidang_id] : []),
                 kode_prov: data.kode_prov || '',
                 kode_kab: data.kode_kab || '',
                 kode_kec: data.kode_kec || '',
@@ -72,6 +72,17 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
             ...(name === 'kode_prov' ? { kode_kab: '', kode_kec: '' } : {}),
             ...(name === 'kode_kab' ? { kode_kec: '' } : {})
         }));
+    };
+
+    const handleBidangToggle = (id) => {
+        setFormData(prev => {
+            const current = prev.bidang_ids || [];
+            const isSelected = current.includes(id);
+            const updated = isSelected 
+                ? current.filter(item => item !== id)
+                : [...current, id];
+            return { ...prev, bidang_ids: updated };
+        });
     };
 
     // Filter level_dampingan options based on user's admin level
@@ -156,9 +167,9 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
         const fasilitatorOptions = fasilitatorData?.data || [];
         return fasilitatorOptions.filter(f => {
             // Must match selected Bidang
-            const hasMatchingBidang = !formData.bidang_id || f.fasilitator_bidangs?.some(fb => 
-                fb.bidang_id?.toString() === formData.bidang_id?.toString() || 
-                fb.bidang?.id_bidang?.toString() === formData.bidang_id?.toString()
+            const hasMatchingBidang = formData.bidang_ids.length === 0 || f.fasilitator_bidangs?.some(fb => 
+                formData.bidang_ids.includes(fb.bidang_id?.toString()) || 
+                formData.bidang_ids.includes(fb.bidang?.id_bidang?.toString())
             );
             if (!hasMatchingBidang) return false;
 
@@ -178,7 +189,7 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
             
             return true;
         });
-    }, [fasilitatorData, formData.bidang_id, formData.kode_prov, formData.kode_kab, formData.kode_kec]);
+    }, [fasilitatorData, formData.bidang_ids, formData.kode_prov, formData.kode_kab, formData.kode_kec]);
 
     // Handle multi fasilitator toggle
     const handleFasilitatorToggle = (id) => {
@@ -202,7 +213,7 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
             Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Jenis grup dampingan wajib diisi.', confirmButtonColor: '#0080C5' });
             return;
         }
-        if (!formData.bidang_id) {
+        if (!formData.bidang_ids || formData.bidang_ids.length === 0) {
             Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Bidang grup dampingan wajib diisi.', confirmButtonColor: '#0080C5' });
             return;
         }
@@ -312,15 +323,22 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-slate-950 text-xs font-semibold leading-5">Bidang Grup Dampingan <span className="text-red-500">*</span></label>
-                            <div className="relative group">
-                                <select name="bidang_id" value={formData.bidang_id} onChange={handleChange} className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border-2 border-gray-100 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer">
-                                    <option value="">Pilih Bidang</option>
-                                    {bidangs.map(b => (
-                                        <option key={b.id_bidang} value={b.id_bidang}>{b.name}</option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
+                            <label className="text-slate-950 text-xs font-semibold leading-5">Bidang Grup Dampingan (Bisa pilih &gt; 1) <span className="text-red-500">*</span></label>
+                            <div className="border-2 border-gray-100 rounded-[10px] p-2.5 max-h-[110px] overflow-y-auto space-y-1 bg-white custom-scrollbar">
+                                {bidangs.map(b => {
+                                    const isChecked = formData.bidang_ids?.includes(b.id_bidang);
+                                    return (
+                                        <label key={b.id_bidang} className="flex items-center gap-2.5 p-1.5 hover:bg-slate-50 rounded-lg cursor-pointer transition-all border border-transparent hover:border-slate-100 select-none">
+                                            <input
+                                                type="checkbox"
+                                                checked={isChecked || false}
+                                                onChange={() => handleBidangToggle(b.id_bidang)}
+                                                className="w-3.5 h-3.5 text-[#0080C5] border-slate-300 rounded focus:ring-[#0080C5] cursor-pointer"
+                                            />
+                                            <span className="text-slate-900 text-xs font-medium">{b.name}</span>
+                                        </label>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -374,9 +392,9 @@ const EditGrupModal = ({ isOpen, onClose, data }) => {
                     {/* Fasilitator Dampingan Checkbox List */}
                     <div className="space-y-2">
                         <label className="text-slate-950 text-xs font-semibold leading-5">Fasilitator Dampingan (Bisa pilih lebih dari 1)</label>
-                        {!formData.bidang_id || !formData.kode_prov ? (
+                        {formData.bidang_ids.length === 0 || !formData.kode_prov ? (
                             <div className="p-3 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-center">
-                                <span className="text-slate-400 text-xs">Pilih bidang dan provinsi terlebih dahulu</span>
+                                <span className="text-slate-400 text-xs">Pilih setidaknya satu bidang dan provinsi terlebih dahulu</span>
                             </div>
                         ) : filteredFasilitators.length === 0 ? (
                             <div className="p-3 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-center">

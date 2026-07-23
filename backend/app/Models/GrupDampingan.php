@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['id_grup_dampingan', 'name', 'bidang_id', 'pengurus_id', 'level_dampingan', 'kode_prov', 'kode_kab', 'kode_kec'])]
+#[Fillable(['id_grup_dampingan', 'name', 'pengurus_id', 'level_dampingan', 'kode_prov', 'kode_kab', 'kode_kec'])]
 class GrupDampingan extends Model
 {
     protected $primaryKey = 'id_grup_dampingan';
@@ -13,12 +13,12 @@ class GrupDampingan extends Model
     protected $keyType = 'string';
     public $timestamps = false;
 
-    protected $fillable = ['id_grup_dampingan', 'name', 'bidang_id', 'pengurus_id', 'level_dampingan', 'kode_prov', 'kode_kab', 'kode_kec', 'created_at'];
+    protected $fillable = ['id_grup_dampingan', 'name', 'pengurus_id', 'level_dampingan', 'kode_prov', 'kode_kab', 'kode_kec', 'created_at'];
 
-    // Relasi ke Bidang
-    public function bidang()
+    // Relasi ke Bidang (Many-to-Many)
+    public function bidangs()
     {
-        return $this->belongsTo(Bidang::class, 'bidang_id', 'id_bidang');
+        return $this->belongsToMany(Bidang::class, 'grup_dampingan_bidang', 'grup_dampingan_id', 'bidang_id');
     }
 
     // Relasi ke User (sebagai pengurus)

@@ -177,7 +177,7 @@ class GrupDampinganController extends Controller
         $currentUser = $request->user();
 
         $query = GrupDampingan::with([
-            'bidang',
+            'bidangs',
             'pengurus',
             'provinsi',
             'kabupaten',
@@ -195,7 +195,9 @@ class GrupDampinganController extends Controller
 
         // Optional filter berdasarkan bidang
         if ($request->filled('bidang_id')) {
-            $query->where('bidang_id', $request->bidang_id);
+            $query->whereHas('bidangs', function ($q) use ($request) {
+                $q->where('bidangs.id_bidang', $request->bidang_id);
+            });
         }
 
         // Optional filter berdasarkan level dampingan
@@ -244,7 +246,8 @@ class GrupDampinganController extends Controller
         // Validasi request
         $validated = $request->validate([
             'name' => 'required|string|max:200',
-            'bidang_id' => 'required|string|exists:bidangs,id_bidang',
+            'bidang_ids' => 'required|array',
+            'bidang_ids.*' => 'string|exists:bidangs,id_bidang',
             'pengurus_id' => 'required|string|exists:users,id_user',
             'level_dampingan' => 'required|in:pusat,provinsi,kabupaten,kecamatan',
             'kode_prov' => 'nullable|string|exists:provinsis,kode',
@@ -280,7 +283,6 @@ class GrupDampinganController extends Controller
         $grupDampingan = GrupDampingan::create([
             'id_grup_dampingan' => (string) Str::uuid(),
             'name' => $validated['name'],
-            'bidang_id' => $validated['bidang_id'],
             'pengurus_id' => $validated['pengurus_id'],
             'level_dampingan' => $validated['level_dampingan'],
             'kode_prov' => $validated['kode_prov'] ?? null,
@@ -288,6 +290,9 @@ class GrupDampinganController extends Controller
             'kode_kec' => $validated['kode_kec'] ?? null,
             'created_at' => now(),
         ]);
+
+        // Sync bidang ke tabel pivot
+        $grupDampingan->bidangs()->sync($validated['bidang_ids']);
 
         // Tambahkan fasilitator jika ada
         if ($request->filled('fasilitator_ids') && is_array($validated['fasilitator_ids'])) {
@@ -315,7 +320,7 @@ class GrupDampinganController extends Controller
             }
         }
 
-        $grupDampingan->load(['bidang', 'pengurus', 'provinsi', 'kabupaten', 'kecamatan', 'grupFasilitators.fasilitator']);
+        $grupDampingan->load(['bidangs', 'pengurus', 'provinsi', 'kabupaten', 'kecamatan', 'grupFasilitators.fasilitator']);
 
         // Catat log CREATE
         $this->logCreate($request, 'GrupDampingan', $grupDampingan->id_grup_dampingan, $grupDampingan->toArray());
@@ -339,7 +344,7 @@ class GrupDampinganController extends Controller
     public function show(Request $request, $id)
     {
         $grupDampingan = GrupDampingan::with([
-            'bidang',
+            'bidangs',
             'pengurus',
             'provinsi',
             'kabupaten',
@@ -399,7 +404,8 @@ class GrupDampinganController extends Controller
         // Validasi request
         $validated = $request->validate([
             'name' => 'sometimes|string|max:200',
-            'bidang_id' => 'sometimes|string|exists:bidangs,id_bidang',
+            'bidang_ids' => 'sometimes|array',
+            'bidang_ids.*' => 'string|exists:bidangs,id_bidang',
             'pengurus_id' => 'sometimes|string|exists:users,id_user',
             'level_dampingan' => 'sometimes|in:pusat,provinsi,kabupaten,kecamatan',
             'kode_prov' => 'nullable|string|exists:provinsis,kode',
@@ -422,9 +428,14 @@ class GrupDampinganController extends Controller
         // Update grup dampingan
         $dataLama = $grupDampingan->toArray();
 
-        // Exclude fasilitator_ids from direct update
-        $updateData = collect($validated)->except('fasilitator_ids')->toArray();
+        // Exclude fasilitator_ids and bidang_ids from direct update
+        $updateData = collect($validated)->except(['fasilitator_ids', 'bidang_ids'])->toArray();
         $grupDampingan->update($updateData);
+
+        // Update Bidang jika dikirim
+        if ($request->has('bidang_ids')) {
+            $grupDampingan->bidangs()->sync($validated['bidang_ids']);
+        }
 
         // Update Fasilitator jika dikirim
         if ($request->has('fasilitator_ids')) {
@@ -451,7 +462,7 @@ class GrupDampinganController extends Controller
             }
         }
 
-        $grupDampingan->load(['bidang', 'pengurus', 'provinsi', 'kabupaten', 'kecamatan', 'grupFasilitators.fasilitator']);
+        $grupDampingan->load(['bidangs', 'pengurus', 'provinsi', 'kabupaten', 'kecamatan', 'grupFasilitators.fasilitator']);
 
         // Catat log UPDATE
         $this->logUpdate($request, 'GrupDampingan', $grupDampingan->id_grup_dampingan, $dataLama, $grupDampingan->toArray());

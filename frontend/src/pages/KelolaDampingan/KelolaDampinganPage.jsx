@@ -94,7 +94,7 @@ const GrupDetailView = ({ grup, onBack, onRefresh }) => {
                 </button>
                 <div>
                     <h3 className="text-sm font-bold text-[#0A0F1E]">{grup.name}</h3>
-                    <p className="text-[10px] text-[#0080C5] font-semibold">{grup.bidang?.name} · {grup.kabupaten?.name}, {grup.provinsi?.name}</p>
+                    <p className="text-[10px] text-[#0080C5] font-semibold">{grup.bidangs?.map(b => b.name).join(', ')} · {grup.kabupaten?.name}, {grup.provinsi?.name}</p>
                 </div>
             </div>
 
@@ -131,7 +131,7 @@ const GrupDetailView = ({ grup, onBack, onRefresh }) => {
                                     </span>
                                 </td>
                                 <td className="py-4 px-4 text-[#6B7280] text-xs max-w-[180px]">{item.alamat || '-'}</td>
-                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-medium whitespace-nowrap">{grup.bidang?.name || '-'}</td>
+                                <td className="py-4 px-4 text-[#0A0F1E] text-xs font-medium whitespace-nowrap">{item.bidang?.name || '-'}</td>
                                 <td className="py-4 px-4 text-left whitespace-nowrap">
                                     <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${getStatusColor(item.status).statusColor}`}>
                                         <div className={`w-1.5 h-1.5 rounded-full ${getStatusColor(item.status).dotColor}`} />
@@ -268,7 +268,7 @@ const KelolaDampinganPage = () => {
                                                                 <span className="text-[#9298B0] text-xs">{item.anggota_count || item.anggota_grup_dampingans?.length || 0} anggota</span>
                                                             </div>
                                                         </td>
-                                                        <td className="py-5 px-4 text-[#0A0F1E] text-xs font-bold">{item.bidang?.name || '-'}</td>
+                                                        <td className="py-5 px-4 text-[#0A0F1E] text-xs font-bold">{item.bidangs?.map(b => b.name).join(', ') || '-'}</td>
                                                         <td className="py-5 px-4 text-[#9298B0] text-xs">{item.provinsi?.name || '-'}</td>
                                                         <td className="py-5 px-4 text-[#9298B0] text-xs">{item.kabupaten?.name || '-'}</td>
                                                         <td className="py-5 px-4 text-[#9298B0] text-xs">{item.kecamatan?.name || '-'}</td>

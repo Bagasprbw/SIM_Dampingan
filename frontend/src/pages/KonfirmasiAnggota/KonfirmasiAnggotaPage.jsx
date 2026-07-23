@@ -164,7 +164,7 @@ const KonfirmasiAnggotaPage = () => {
                                                     <span className="text-[#0A0F1E] text-xs font-semibold">{item.jenis_kelamin === 'L' ? 'Laki-Laki' : 'Perempuan'}</span>
                                                 </div>
                                             </td>
-                                            <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold">{item.grup_dampingan?.bidang?.name || '-'}</td>
+                                            <td className="py-4 px-4 text-[#0A0F1E] text-xs font-bold">{item.bidang?.name || '-'}</td>
                                             <td className="py-4 px-4 text-[#9298B0] text-xs font-medium">{item.grup_dampingan?.name || '-'}</td>
                                             <td className="py-4 px-4 text-[#9298B0] text-xs font-medium">{item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : '-'}</td>
                                             <td className="py-4 px-4">
@@ -269,7 +269,7 @@ const KonfirmasiAnggotaPage = () => {
                                     
                                     <div className="grid grid-cols-2 gap-y-1.5 gap-x-2">
                                         <div className="text-[11px] text-[#9298B0]">No: {item.no_anggota || '-'}</div>
-                                        <div className="text-[11px] text-[#9298B0]">Bidang: {item.grup_dampingan?.bidang?.name || '-'}</div>
+                                        <div className="text-[11px] text-[#9298B0]">Bidang: {item.bidang?.name || '-'}</div>
                                         <div className="text-[11px] text-[#9298B0]">Grup: {item.grup_dampingan?.name || '-'}</div>
                                         <div className="text-[11px] text-[#9298B0]">Tgl: {item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '-'}</div>
                                     </div>

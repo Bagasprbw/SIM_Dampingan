@@ -120,7 +120,7 @@ const KelolaAnggotaPage = () => {
                                     <Leaf size={10} className="text-emerald-500" />
                                 </div>
                                 <span className="text-[#9298B0] text-[8px] font-bold tracking-wider uppercase mb-0.5">Bidang</span>
-                                <span className="text-[#0A0F1E] text-[11px] font-bold text-center leading-tight truncate w-full">{grup?.bidang?.name || '-'}</span>
+                                <span className="text-[#0A0F1E] text-[11px] font-bold text-center leading-tight truncate w-full">{grup?.bidangs?.map(b => b.name).join(', ') || '-'}</span>
                             </div>
                             
                             <div className="flex-1 flex flex-col items-center border-r border-slate-100 px-2">

@@ -48,7 +48,16 @@ const TambahAnggotaPage = () => {
     useEffect(() => {
         if (isPjGrup && grup) {
             setSelectedGrupId(grup.id_grup_dampingan);
-            setSelectedBidangId(grup.bidang_id);
+            if (grup.bidangs && grup.bidangs.length > 0) {
+                if (grup.bidangs.length === 1) {
+                    setSelectedBidangId(grup.bidangs[0].id_bidang);
+                } else {
+                    const exists = grup.bidangs.some(b => b.id_bidang === selectedBidangId);
+                    if (!exists) {
+                        setSelectedBidangId('');
+                    }
+                }
+            }
         }
     }, [isPjGrup, grup]);
 
@@ -282,7 +291,7 @@ const TambahAnggotaPage = () => {
                                                 {selectedBidangId ? 'Pilih grup dampingan...' : 'Pilih bidang terlebih dahulu'}
                                             </option>
                                             {grups
-                                                .filter(g => g.bidang_id === selectedBidangId)
+                                                .filter(g => g.bidangs?.some(b => b.id_bidang === selectedBidangId))
                                                 .map(g => (
                                                     <option key={g.id_grup_dampingan} value={g.id_grup_dampingan} className="text-slate-900">{g.name}</option>
                                                 ))
@@ -297,15 +306,38 @@ const TambahAnggotaPage = () => {
 
                     {/* PJ Grup Info Header (For PJ Grup) */}
                     {isPjGrup && (
-                        <div className="bg-sky-50 border border-sky-100 rounded-2xl p-5 shadow-sm flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-[#0080C5]/10 border border-[#0080C5] flex items-center justify-center shrink-0">
-                                <Users size={20} className="text-[#0080C5]" />
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-4">
+                            <div className="bg-sky-50 border border-sky-100 rounded-2xl p-5 flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-[#0080C5]/10 border border-[#0080C5] flex items-center justify-center shrink-0">
+                                    <Users size={20} className="text-[#0080C5]" />
+                                </div>
+                                <div className="text-left flex-1 min-w-0">
+                                    <h3 className="text-slate-900 text-sm font-bold leading-tight truncate">{grup?.name || 'Loading Grup...'}</h3>
+                                    <p className="text-[#0080C5] text-xs font-semibold">Grup Dampingan Anda (Otomatis)</p>
+                                    <p className="text-slate-400 text-[10px] mt-0.5 font-medium truncate">
+                                        Bidang: {grup?.bidangs?.map(b => b.name).join(', ') || '-'}
+                                    </p>
+                                </div>
                             </div>
-                            <div className="text-left flex-1 min-w-0">
-                                <h3 className="text-slate-900 text-sm font-bold leading-tight truncate">{grup?.name || 'Loading Grup...'}</h3>
-                                <p className="text-[#0080C5] text-xs font-semibold">Grup Dampingan Anda (Otomatis)</p>
-                                <p className="text-slate-400 text-[10px] mt-0.5 font-medium truncate">Bidang: {grup?.bidang?.name || '-'}</p>
-                            </div>
+
+                            {grup?.bidangs && grup.bidangs.length > 1 && (
+                                <div className="space-y-1.5 text-left">
+                                    <label className="text-slate-700 text-xs font-semibold leading-5">Pilih Bidang Anggota Dampingan <span className="text-red-500">*</span></label>
+                                    <div className="relative group">
+                                        <select 
+                                            value={selectedBidangId} 
+                                            onChange={(e) => setSelectedBidangId(e.target.value)} 
+                                            className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer"
+                                        >
+                                            <option value="" disabled className="text-slate-500">Pilih bidang dampingan...</option>
+                                            {grup.bidangs.map(b => (
+                                                <option key={b.id_bidang} value={b.id_bidang} className="text-slate-900">{b.name}</option>
+                                            ))}
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 

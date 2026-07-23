@@ -98,7 +98,7 @@ const DataGrupPage = () => {
         const exportData = dataGrup.map((item, index) => ({
             'No': index + 1,
             'Grup Dampingan': item.name || '-',
-            'Bidang': item.bidang?.name || '-',
+            'Bidang': item.bidangs?.map(b => b.name).join(', ') || '-',
             'Jenis': item.level_dampingan || 'Provinsi',
             'Provinsi': item.provinsi?.name || '-',
             'Kabupaten': item.kabupaten?.name || '-',
@@ -301,7 +301,9 @@ const DataGrupPage = () => {
                                                 
                                                 <div className="flex flex-col ml-3 flex-1 overflow-hidden">
                                                     <span className="text-[13px] font-semibold text-[#0A0F1E] truncate">{item.name}</span>
-                                                    <span className="text-[11px] font-normal text-[#9298B0] truncate">{item.bidang?.name || '-'}</span>
+                                                    <span className="text-[11px] font-normal text-[#9298B0] truncate">
+                                                        {item.bidangs?.map(b => b.name).join(', ') || '-'}
+                                                    </span>
                                                 </div>
                                                 
                                                 <div className="px-2 py-0.5 rounded-[10px] bg-sky-50 shrink-0 mx-2">
@@ -412,7 +414,9 @@ const DataGrupPage = () => {
                                                 {meta.from ? meta.from + index : index + 1}
                                             </td>
                                             <td className="py-2.5 px-4 text-[#0080C5] text-[11px] font-semibold border-b border-[#F1F5F9]">{item.name}</td>
-                                            <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-xs font-normal border-b border-[#F1F5F9]">{item.bidang?.name || '-'}</td>
+                                            <td className="py-2.5 px-4 text-center text-[#0A0F1E] text-xs font-normal border-b border-[#F1F5F9]">
+                                                {item.bidangs?.map(b => b.name).join(', ') || '-'}
+                                            </td>
                                             <td className="py-2.5 px-4 text-center text-[#0080C5] text-[11px] font-semibold border-b border-[#F1F5F9]">{item.level_dampingan}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal border-b border-[#F1F5F9]">{item.provinsi?.name || '-'}</td>
                                             <td className="py-2.5 px-4 text-[#0A0F1E] text-xs font-normal border-b border-[#F1F5F9]">{item.kabupaten?.name || '-'}</td>

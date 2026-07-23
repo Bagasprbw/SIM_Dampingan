@@ -191,11 +191,10 @@ class GrupPJ_GrupSeeder extends Seeder
             );
 
             $grupDampinganId = (string) Str::uuid();
-            GrupDampingan::firstOrCreate(
+            $grupDampingan = GrupDampingan::firstOrCreate(
                 ['name' => $grupName],
                 [
                     'id_grup_dampingan' => $grupDampinganId,
-                    'bidang_id' => $grup['bidang_id'],
                     'pengurus_id' => $pjUser->id_user,
                     'level_dampingan' => $grup['level'],
                     'kode_prov' => $grup['kode_prov'],
@@ -204,6 +203,10 @@ class GrupPJ_GrupSeeder extends Seeder
                     'created_at' => now(),
                 ]
             );
+
+            if ($grup['bidang_id']) {
+                $grupDampingan->bidangs()->sync([$grup['bidang_id']]);
+            }
 
             if ($grup['fasilitator']) {
                 $existingGrup = GrupDampingan::where('name', $grupName)->first();

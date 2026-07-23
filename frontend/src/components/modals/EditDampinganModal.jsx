@@ -26,6 +26,7 @@ const EditDampinganModal = ({ isOpen, onClose, data, isPengajuan = false }) => {
     const bidangs = bidangsData?.data || [];
     const pekerjaans = pekerjaansData?.data || [];
     const grups = grupsData?.data || [];
+    const memberGrup = grups.find(g => g.id_grup_dampingan === (data?.grup_id || data?.grup_dampingan_id));
     const [isLoading, setIsLoading] = useState(false);
     const [gender, setGender] = useState('P');
     const [status, setStatus] = useState('aktif');
@@ -412,7 +413,7 @@ const EditDampinganModal = ({ isOpen, onClose, data, isPengajuan = false }) => {
                                             {formData.bidang_id ? 'Pilih Grup Dampingan' : 'Pilih bidang terlebih dahulu'}
                                         </option>
                                         {grups
-                                            .filter(g => g.bidang_id === formData.bidang_id)
+                                            .filter(g => g.bidangs?.some(b => b.id_bidang === formData.bidang_id))
                                             .map(g => (
                                                 <option key={g.id_grup_dampingan} value={g.id_grup_dampingan} className="text-slate-900">{g.name}</option>
                                             ))
@@ -420,6 +421,26 @@ const EditDampinganModal = ({ isOpen, onClose, data, isPengajuan = false }) => {
                                     </select>
                                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {isPengajuan && memberGrup?.bidangs && memberGrup.bidangs.length > 1 && (
+                        <div className="space-y-1.5 text-left">
+                            <label className="text-slate-950 text-xs font-semibold leading-5">Bidang Dampingan <span className="text-red-500">*</span></label>
+                            <div className="relative group">
+                                <select 
+                                    name="bidang_id" 
+                                    value={formData.bidang_id} 
+                                    onChange={handleChange} 
+                                    className="w-full h-11 pl-4 pr-10 bg-white rounded-[10px] border border-gray-200 appearance-none text-slate-900 text-xs font-medium focus:border-[#0080C5] focus:outline-none transition-all cursor-pointer"
+                                >
+                                    <option value="" disabled className="text-slate-500">Pilih bidang dampingan...</option>
+                                    {memberGrup.bidangs.map(b => (
+                                        <option key={b.id_bidang} value={b.id_bidang} className="text-slate-900">{b.name}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-[#0080C5]" size={16} />
                             </div>
                         </div>
                     )}

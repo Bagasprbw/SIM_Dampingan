@@ -320,7 +320,10 @@ const Step2 = ({
                         <div className="p-4">
                             <div className="flex items-center justify-between mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                                 <span>NAMA ANGGOTA — {activeGrupDetail.name?.toUpperCase()}</span>
-                                <button onClick={handleHadirSemua} className="text-[10px] font-semibold text-[#0080C5] hover:underline">
+                                <button 
+                                    onClick={handleHadirSemua} 
+                                    className="px-3 py-1.5 bg-[#0080C5] hover:bg-sky-700 text-white rounded-lg text-[10px] font-bold tracking-wider uppercase transition-all shadow-sm active:scale-95"
+                                >
                                     Hadir Semua
                                 </button>
                                 <span>STATUS KEHADIRAN</span>

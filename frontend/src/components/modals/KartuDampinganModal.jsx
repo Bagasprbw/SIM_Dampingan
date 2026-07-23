@@ -55,7 +55,7 @@ const KartuDampinganModal = ({ isOpen, onClose, anggota, grup }) => {
 
     const fotoUrl = getImageUrl(data.foto);
     const qrUrl = getImageUrl(data.qr_code);
-    const bidangName = grupData?.bidang?.name || data.bidang?.name || '-';
+    const bidangName = data.bidang?.name || grupData?.bidangs?.map(b => b.name).join(', ') || '-';
     const noAnggota = data.no_anggota || '-';
     const namaAnggota = (data.name || data.nama || '-').toUpperCase();
     const formattedNo = formatNoAnggota(noAnggota);

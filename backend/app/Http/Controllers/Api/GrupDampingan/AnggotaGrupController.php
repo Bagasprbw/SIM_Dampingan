@@ -63,7 +63,7 @@ class AnggotaGrupController extends Controller
         $query = AnggotaGrupDampingan::with([
             'bidang',
             'pekerjaan',
-            'grupDampingan.bidang',
+            'grupDampingan.bidangs',
             'grupDampingan.provinsi',
             'grupDampingan.kabupaten',
             'grupDampingan.kecamatan',
@@ -245,7 +245,7 @@ class AnggotaGrupController extends Controller
 
     public function show(Request $request, $id)
     {
-        $anggota = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan.bidang'])->find($id);
+        $anggota = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan.bidangs'])->find($id);
 
         if (! $anggota) {
             return response()->json([

@@ -25,9 +25,9 @@ class DatabaseSeeder extends Seeder
             RoleAndPermissionSeeder::class,  // Isi roles & permissions
             MasterSeeder::class,             // Isi bidang, pekerjaan, dll (jika ada)
             LandingPageSeeder::class,        // Isi landing page default & deskripsi bidang
-            FasilitatorSeeder::class,        // Isi sampel data fasilitator
-            GrupPJ_GrupSeeder::class,        // Isi sampel data grup dampingan & PJ grup
-            DataDampinganSeeder::class,      // Isi sampel data anggota grup dampingan
+            // FasilitatorSeeder::class,        // Isi sampel data fasilitator
+            // GrupPJ_GrupSeeder::class,        // Isi sampel data grup dampingan & PJ grup
+            // DataDampinganSeeder::class,      // Isi sampel data anggota grup dampingan
         ]);
 
         // Ambil role superadmin (skip jika sudah ada — aman dijalankan ulang)

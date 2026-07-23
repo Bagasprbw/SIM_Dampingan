@@ -25,10 +25,10 @@ class Bidang extends Model
         return $this->hasMany(FasilitatorBidang::class, 'bidang_id', 'id_bidang');
     }
 
-    // Relasi ke GrupDampingan
+    // Relasi ke GrupDampingan (Many-to-Many)
     public function grupDampingans()
     {
-        return $this->hasMany(GrupDampingan::class, 'bidang_id', 'id_bidang');
+        return $this->belongsToMany(GrupDampingan::class, 'grup_dampingan_bidang', 'bidang_id', 'grup_dampingan_id');
     }
 
     // Relasi ke AnggotaGrupDampingan

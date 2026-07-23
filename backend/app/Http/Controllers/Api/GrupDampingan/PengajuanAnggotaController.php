@@ -204,7 +204,7 @@ class PengajuanAnggotaController extends Controller
     {
         $user = auth()->user();
 
-        $query = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan.bidang'])
+        $query = AnggotaGrupDampingan::with(['bidang', 'pekerjaan', 'grupDampingan.bidangs'])
             ->where('status', 'pending');
 
         // Filter berdasarkan kewenangan Role (Cascade Downward)
